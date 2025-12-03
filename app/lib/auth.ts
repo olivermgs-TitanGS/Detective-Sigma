@@ -1,11 +1,9 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@auth/prisma-adapter';
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
-import { prisma } from './db';
+import { prisma } from './prisma';
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: 'jwt',
   },
@@ -15,7 +13,7 @@ export const authOptions: NextAuthOptions = {
     error: '/login',
   },
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
@@ -28,7 +26,7 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email,
+            email: credentials.email as string,
           },
           include: {
             studentProfile: true,
@@ -41,7 +39,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const isCorrectPassword = await compare(
-          credentials.password,
+          credentials.password as string,
           user.hashedPassword
         );
 
@@ -68,17 +66,19 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
       }
       return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
+});
+
+export const { GET, POST } = handlers;

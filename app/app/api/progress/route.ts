@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth';
 
 // GET /api/progress - Get user's progress
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession();
-    
+    const session = await auth();
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -42,8 +42,8 @@ export async function GET(request: Request) {
 // POST /api/progress - Create/Update progress
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
-    
+    const session = await auth();
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { caseId, status, collectedClues, solvedPuzzles, score, timeSpent } = body;
+    const { caseId, status, cluesCollected, puzzlesSolved, score } = body;
 
     // Upsert progress
     const progress = await prisma.progress.upsert({
@@ -64,20 +64,17 @@ export async function POST(request: Request) {
       },
       update: {
         status,
-        collectedClues,
-        solvedPuzzles,
+        cluesCollected,
+        puzzlesSolved,
         score,
-        timeSpent,
-        updatedAt: new Date(),
       },
       create: {
         userId: session.user.id,
         caseId,
-        status,
-        collectedClues,
-        solvedPuzzles,
-        score,
-        timeSpent: timeSpent || 0,
+        status: status || 'NEW',
+        cluesCollected: cluesCollected || [],
+        puzzlesSolved: puzzlesSolved || [],
+        score: score || 0,
       },
     });
 

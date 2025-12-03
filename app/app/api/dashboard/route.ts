@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth';
 
 // GET /api/dashboard - Get dashboard stats for current user
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession();
+    const session = await auth();
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -31,9 +31,12 @@ export async function GET(request: Request) {
     });
 
     // Calculate stats
-    const casesSolved = progress.filter(p => p.status === 'COMPLETED').length;
+    const casesSolved = progress.filter(p => p.status === 'SOLVED').length;
     const totalScore = progress.reduce((sum, p) => sum + (p.score || 0), 0);
-    const totalClues = progress.reduce((sum, p) => sum + (p.collectedClues?.length || 0), 0);
+    const totalClues = progress.reduce((sum, p) => {
+      const clues = p.cluesCollected as string[] | null;
+      return sum + (clues?.length || 0);
+    }, 0);
 
     // Get user's rank
     const allUsers = await prisma.user.findMany({
