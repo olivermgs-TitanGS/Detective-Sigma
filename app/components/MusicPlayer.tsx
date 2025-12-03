@@ -38,6 +38,7 @@ export default function MusicPlayer() {
   const [isMuted, setIsMuted] = useState(true); // Start muted to enable autoplay
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [volume, setVolume] = useState(0.5); // 50% default volume
   const [playlist, setPlaylist] = useState<string[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -49,7 +50,7 @@ export default function MusicPlayer() {
   // Setup audio and autoplay
   useEffect(() => {
     if (audioRef.current && playlist.length > 0) {
-      audioRef.current.volume = 0.15; // Low volume for ambiance
+      audioRef.current.volume = volume; // Use state volume
       audioRef.current.muted = true; // Start muted to enable autoplay
 
       // Handle track ending - play next track
@@ -116,36 +117,78 @@ export default function MusicPlayer() {
     setCurrentTrackIndex((prev) => (prev + 1) % playlist.length);
   };
 
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
+  // Update audio volume when volume state changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
   return (
     <>
       <audio ref={audioRef} autoPlay muted loop={false} />
 
       {/* Music Control Buttons */}
-      <div className="fixed bottom-6 right-6 z-50 flex gap-2">
-        {/* Skip Track Button */}
-        <button
-          onClick={skipTrack}
-          className="border-2 border-amber-600/50 bg-black/90 p-3 hover:bg-amber-600 hover:text-black transition-all group backdrop-blur-sm"
-          title="Skip Track"
-        >
-          <span className="text-xl">⏭️</span>
-        </button>
-
-        {/* Mute/Unmute Button */}
-        <button
-          onClick={toggleMute}
-          className="border-2 border-amber-600 bg-black/90 p-4 hover:bg-amber-600 hover:text-black transition-all group backdrop-blur-sm"
-          title={isMuted ? 'Unmute Music' : 'Mute Music'}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">
-              {isMuted ? '🔇' : isPlaying ? '🎵' : '🔊'}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        {/* Volume Slider */}
+        <div className="border-2 border-amber-600/50 bg-black/90 p-4 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <span className="text-amber-400 font-mono text-xs tracking-wider whitespace-nowrap">
+              VOLUME
             </span>
-            <span className="text-amber-400 group-hover:text-black font-mono text-xs tracking-wider hidden md:inline">
-              {isMuted ? 'UNMUTE' : isPlaying ? 'NOIR BGM' : 'PLAY MUSIC'}
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              className="w-32 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
+              style={{
+                background: `linear-gradient(to right, #d97706 0%, #d97706 ${volume * 100}%, #334155 ${volume * 100}%, #334155 100%)`
+              }}
+            />
+            <span className="text-amber-400 font-mono text-xs tracking-wider min-w-[3ch]">
+              {Math.round(volume * 100)}%
             </span>
           </div>
-        </button>
+        </div>
+
+        {/* Control Buttons Row */}
+        <div className="flex gap-2">
+          {/* Skip Track Button */}
+          <button
+            onClick={skipTrack}
+            className="border-2 border-amber-600/50 bg-black/90 p-3 hover:bg-amber-600 hover:text-black transition-all group backdrop-blur-sm"
+            title="Skip Track"
+          >
+            <span className="text-xl">⏭️</span>
+          </button>
+
+          {/* Mute/Unmute Button */}
+          <button
+            onClick={toggleMute}
+            className="border-2 border-amber-600 bg-black/90 p-4 hover:bg-amber-600 hover:text-black transition-all group backdrop-blur-sm"
+            title={isMuted ? 'Unmute Music' : 'Mute Music'}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">
+                {isMuted ? '🔇' : isPlaying ? '🎵' : '🔊'}
+              </span>
+              <span className="text-amber-400 group-hover:text-black font-mono text-xs tracking-wider hidden md:inline">
+                {isMuted ? 'UNMUTE' : isPlaying ? 'NOIR BGM' : 'PLAY MUSIC'}
+              </span>
+            </div>
+          </button>
+        </div>
       </div>
     </>
   );

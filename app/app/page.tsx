@@ -33,7 +33,7 @@ export default function Home() {
 
       {/* Realistic Crime Scene Tape - Multiple Lines in Background */}
       <div
-        className="absolute top-[5%] w-full py-3 overflow-hidden transform -rotate-2 shadow-2xl z-0 opacity-60"
+        className="absolute top-[5%] w-full py-5 overflow-hidden transform -rotate-2 shadow-2xl z-0 opacity-60"
         style={{
           background: 'repeating-linear-gradient(45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
           boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 -3px 6px rgba(0,0,0,0.4)'
@@ -41,13 +41,15 @@ export default function Home() {
       >
         <div className="animate-marquee whitespace-nowrap inline-block">
           <span
-            className="font-black tracking-[1em] text-xl"
+            className="font-black text-4xl"
             style={{
-              color: '#000000',
-              WebkitTextStroke: '2px #FFFFFF',
-              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
+              color: '#FFFFFF',
+              WebkitTextStroke: '4px #000000',
+              textShadow: '0 0 20px rgba(0,0,0,1), 3px 3px 8px rgba(0,0,0,1), -3px -3px 8px rgba(0,0,0,1)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
+              filter: 'drop-shadow(0 0 15px rgba(0,0,0,1)) contrast(1.5) brightness(1.2)',
+              letterSpacing: '0.5em',
+              fontWeight: 900
             }}
           >
             CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
@@ -56,7 +58,7 @@ export default function Home() {
       </div>
 
       <div
-        className="absolute top-[20%] w-full py-3 overflow-hidden transform rotate-1 shadow-2xl z-0 opacity-50"
+        className="absolute top-[20%] w-full py-5 overflow-hidden transform rotate-1 shadow-2xl z-0 opacity-50"
         style={{
           background: 'repeating-linear-gradient(-45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
           boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 -3px 6px rgba(0,0,0,0.4)'
@@ -64,13 +66,15 @@ export default function Home() {
       >
         <div className="animate-marquee-reverse whitespace-nowrap inline-block">
           <span
-            className="font-black tracking-[1em] text-xl"
+            className="font-black text-4xl"
             style={{
-              color: '#000000',
-              WebkitTextStroke: '2px #FFFFFF',
-              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
+              color: '#FFFFFF',
+              WebkitTextStroke: '4px #000000',
+              textShadow: '0 0 20px rgba(0,0,0,1), 3px 3px 8px rgba(0,0,0,1), -3px -3px 8px rgba(0,0,0,1)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
+              filter: 'drop-shadow(0 0 15px rgba(0,0,0,1)) contrast(1.5) brightness(1.2)',
+              letterSpacing: '0.5em',
+              fontWeight: 900
             }}
           >
             POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
@@ -79,7 +83,7 @@ export default function Home() {
       </div>
 
       <div
-        className="absolute top-[65%] w-full py-3 overflow-hidden transform -rotate-1 shadow-2xl z-0 opacity-50"
+        className="absolute top-[65%] w-full py-5 overflow-hidden transform -rotate-1 shadow-2xl z-0 opacity-50"
         style={{
           background: 'repeating-linear-gradient(45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
           boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 -3px 6px rgba(0,0,0,0.4)'
@@ -87,13 +91,15 @@ export default function Home() {
       >
         <div className="animate-marquee whitespace-nowrap inline-block">
           <span
-            className="font-black tracking-[1em] text-xl"
+            className="font-black text-4xl"
             style={{
-              color: '#000000',
-              WebkitTextStroke: '2px #FFFFFF',
-              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
+              color: '#FFFFFF',
+              WebkitTextStroke: '4px #000000',
+              textShadow: '0 0 20px rgba(0,0,0,1), 3px 3px 8px rgba(0,0,0,1), -3px -3px 8px rgba(0,0,0,1)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
+              filter: 'drop-shadow(0 0 15px rgba(0,0,0,1)) contrast(1.5) brightness(1.2)',
+              letterSpacing: '0.5em',
+              fontWeight: 900
             }}
           >
             CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
@@ -102,7 +108,7 @@ export default function Home() {
       </div>
 
       <div
-        className="absolute bottom-[10%] w-full py-3 overflow-hidden transform rotate-2 shadow-2xl z-0 opacity-60"
+        className="absolute bottom-[10%] w-full py-5 overflow-hidden transform rotate-2 shadow-2xl z-0 opacity-60"
         style={{
           background: 'repeating-linear-gradient(-45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
           boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 -3px 6px rgba(0,0,0,0.4)'
@@ -110,13 +116,15 @@ export default function Home() {
       >
         <div className="animate-marquee-reverse whitespace-nowrap inline-block">
           <span
-            className="font-black tracking-[1em] text-xl"
+            className="font-black text-4xl"
             style={{
-              color: '#000000',
-              WebkitTextStroke: '2px #FFFFFF',
-              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
+              color: '#FFFFFF',
+              WebkitTextStroke: '4px #000000',
+              textShadow: '0 0 20px rgba(0,0,0,1), 3px 3px 8px rgba(0,0,0,1), -3px -3px 8px rgba(0,0,0,1)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
+              filter: 'drop-shadow(0 0 15px rgba(0,0,0,1)) contrast(1.5) brightness(1.2)',
+              letterSpacing: '0.5em',
+              fontWeight: 900
             }}
           >
             POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •

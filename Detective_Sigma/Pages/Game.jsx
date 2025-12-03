@@ -9,7 +9,7 @@ import PuzzleModal from '@/components/game/PuzzleModal';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Briefcase, Users, CheckCircle, Map, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Briefcase, Users, CheckCircle, Map, ChevronRight, ArrowLeft, MessageSquare, FileText, Stamp } from 'lucide-react';
 import { toast } from "sonner";
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
@@ -171,37 +171,76 @@ export default function Game() {
                                 <Briefcase className="w-4 h-4 mr-2" /> Evidence ({collectedClues.length})
                             </Button>
                         </SheetTrigger>
-                        <SheetContent className="bg-slate-900 border-slate-800 text-slate-200 w-[400px] sm:w-[540px]">
-                            <SheetHeader>
-                                <SheetTitle className="text-amber-500 font-mono uppercase tracking-widest border-b border-slate-800 pb-4">Evidence Log</SheetTitle>
+                        <SheetContent className="wood-texture border-l-4 border-amber-900/50 w-[450px] sm:w-[600px] overflow-hidden">
+                            <SheetHeader className="relative">
+                                <div className="absolute -top-2 -right-2 transform rotate-12">
+                                    <div className="confidential-stamp text-xs">CLASSIFIED</div>
+                                </div>
+                                <SheetTitle className="newspaper-headline text-amber-900 text-2xl tracking-widest border-b-2 border-amber-800/30 pb-4 flex items-center gap-3">
+                                    <Briefcase className="w-6 h-6" />
+                                    EVIDENCE LOG
+                                </SheetTitle>
                             </SheetHeader>
-                            <ScrollArea className="h-[80vh] mt-4 pr-4">
-                                <div className="space-y-4">
-                                    {collectedClues.length === 0 && <p className="text-slate-500 italic text-center py-10">No evidence collected yet.</p>}
-                                    
-                                    {clues?.filter(c => collectedClues.includes(c.id)).map(clue => (
-                                        <motion.div 
-                                            key={clue.id}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="bg-slate-950 p-4 rounded-lg border border-slate-800"
-                                        >
-                                            <div className="flex gap-4">
-                                                <div className="w-16 h-16 bg-slate-900 rounded border border-slate-800 overflow-hidden shrink-0">
-                                                    <img src={clue.image_url} alt={clue.name} className="w-full h-full object-cover" />
+                            <ScrollArea className="h-[80vh] mt-6 pr-4">
+                                <div className="relative space-y-6 p-2">
+                                    {collectedClues.length === 0 && (
+                                        <div className="case-paper p-8 text-center rounded transform rotate-1">
+                                            <FileText className="w-12 h-12 text-amber-800/30 mx-auto mb-3" />
+                                            <p className="typewriter-text text-amber-900/60 italic">No evidence collected yet...</p>
+                                            <p className="typewriter-text text-amber-900/40 text-xs mt-2">Search the scene for clues.</p>
+                                        </div>
+                                    )}
+
+                                    {clues?.filter(c => collectedClues.includes(c.id)).map((clue, index) => {
+                                        const rotations = [-2, 1, -1, 2, 0];
+                                        const rotation = rotations[index % rotations.length];
+
+                                        return (
+                                            <motion.div
+                                                key={clue.id}
+                                                initial={{ opacity: 0, scale: 0.8, rotate: rotation * 2 }}
+                                                animate={{ opacity: 1, scale: 1, rotate: rotation }}
+                                                className="case-paper p-4 rounded scattered-doc relative"
+                                                style={{ transform: `rotate(${rotation}deg)` }}
+                                            >
+                                                {/* Paper clip decoration */}
+                                                <div className="paper-clip"></div>
+
+                                                {/* Evidence number tag */}
+                                                <div className="evidence-tag absolute -top-2 -left-2">
+                                                    EVIDENCE #{String(index + 1).padStart(3, '0')}
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-bold text-slate-100">{clue.name}</h4>
-                                                    <p className="text-xs text-slate-400 mt-1">{clue.description}</p>
-                                                    {clue.content_revealed && (
-                                                        <div className="mt-2 p-2 bg-amber-950/30 border border-amber-900/50 rounded text-xs text-amber-200 font-mono">
-                                                            ANALYSIS: {clue.content_revealed}
-                                                        </div>
-                                                    )}
+
+                                                <div className="flex gap-4 mt-4">
+                                                    <div className="suspect-photo w-20 shrink-0" style={{ transform: `rotate(${-rotation}deg)` }}>
+                                                        <img
+                                                            src={clue.image_url}
+                                                            alt={clue.name}
+                                                            className="w-full aspect-square object-cover sepia-photo"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="typewriter-text font-bold text-lg text-amber-900">{clue.name}</h4>
+                                                        <p className="text-xs text-amber-800/70 mt-1 font-serif leading-relaxed">{clue.description}</p>
+                                                        {clue.content_revealed && (
+                                                            <div className="mt-3 p-2 bg-amber-100/50 border-l-4 border-red-800 text-xs text-red-900 typewriter-text">
+                                                                <span className="font-bold">ANALYSIS:</span> {clue.content_revealed}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+
+                                                {/* Coffee stain on some papers */}
+                                                {index % 3 === 0 && (
+                                                    <div className="absolute bottom-2 right-4 w-12 h-12 rounded-full opacity-20"
+                                                         style={{
+                                                             background: 'radial-gradient(ellipse at center, transparent 30%, rgba(101, 67, 33, 0.4) 40%, rgba(101, 67, 33, 0.2) 60%, transparent 70%)'
+                                                         }}
+                                                    />
+                                                )}
+                                            </motion.div>
+                                        );
+                                    })}
                                 </div>
                             </ScrollArea>
                         </SheetContent>
