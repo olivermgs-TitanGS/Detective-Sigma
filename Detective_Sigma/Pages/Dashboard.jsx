@@ -75,45 +75,76 @@ export default function Dashboard() {
 
             {isLoading ? (
                 <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+                    <div className="case-paper p-8 rounded transform rotate-1">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto"></div>
+                        <p className="typewriter-text text-amber-900/60 mt-4 text-center">ACCESSING ARCHIVES...</p>
+                    </div>
                 </div>
             ) : (
-                <motion.div 
+                <motion.div
                     variants={container}
                     initial="hidden"
                     animate="show"
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                 >
                     {cases.length === 0 && (
-                         <div className="col-span-full text-center py-20 bg-slate-900/50 rounded-xl border border-slate-800 border-dashed">
-                             <Search className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                             <h3 className="text-xl font-semibold text-slate-300">No Cases Assigned Yet</h3>
-                             <p className="text-slate-500 mt-2">Check back later for new assignments.</p>
-                             <Button onClick={() => window.location.reload()} variant="outline" className="mt-6 border-amber-900 text-amber-600 hover:bg-amber-950">
-                                Check for Updates
-                             </Button>
-                         </div>
+                        <div className="col-span-full">
+                            <div className="case-paper p-12 rounded transform -rotate-1 text-center max-w-md mx-auto relative">
+                                <div className="paper-clip" style={{ top: '-8px', right: '30px' }}></div>
+                                <Search className="w-16 h-16 text-amber-800/30 mx-auto mb-4" />
+                                <h3 className="newspaper-headline text-xl text-amber-900">No Cases Assigned Yet</h3>
+                                <p className="typewriter-text text-amber-800/50 mt-2 text-sm">The chief hasn't assigned any cases. Check back later.</p>
+                                <Button
+                                    onClick={() => window.location.reload()}
+                                    className="mt-6 typewriter-text bg-amber-800/20 hover:bg-amber-800/40 text-amber-900 border border-amber-800/30 text-xs"
+                                >
+                                    CHECK FOR UPDATES
+                                </Button>
+                            </div>
+                        </div>
                     )}
 
-                    {/* Master Mystery Banner */}
-                    <div className="col-span-full mb-6">
+                    {/* Master Mystery Banner - styled as newspaper clipping */}
+                    <div className="col-span-full mb-8">
                         <Link to={createPageUrl('MasterMystery')}>
-                            <motion.div 
-                                whileHover={{ scale: 1.01 }}
-                                className="bg-gradient-to-r from-slate-900 to-slate-950 border border-amber-900/50 p-6 rounded-xl flex items-center justify-between shadow-lg cursor-pointer group"
+                            <motion.div
+                                whileHover={{ scale: 1.02, rotate: 0 }}
+                                className="newspaper-clipping p-6 rounded cursor-pointer group relative overflow-hidden"
+                                style={{ transform: 'rotate(-0.5deg)' }}
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className="bg-amber-900/20 p-3 rounded-lg border border-amber-900/50 group-hover:bg-amber-900/40 transition-colors">
-                                        <Star className="w-8 h-8 text-amber-500" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-slate-100 group-hover:text-amber-400 transition-colors">THE MASTER MYSTERY</h3>
-                                        <p className="text-slate-400 text-sm">Piece together the truth from all solved cases.</p>
-                                    </div>
+                                {/* Red pin */}
+                                <div className="absolute -top-2 left-8 w-5 h-5 rounded-full bg-red-600 shadow-md border-2 border-red-800 z-10"></div>
+
+                                <div className="border-b-2 border-amber-900/30 pb-3 mb-3">
+                                    <p className="text-[10px] text-amber-800/50 typewriter-text">SPECIAL EDITION • CLASSIFIED INVESTIGATION</p>
                                 </div>
-                                <Button variant="ghost" className="text-amber-600 hover:text-amber-500 hover:bg-transparent">
-                                    View Evidence Board <Search className="w-4 h-4 ml-2" />
-                                </Button>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="bg-amber-100 p-3 rounded border border-amber-800/30 group-hover:bg-amber-200 transition-colors">
+                                            <Star className="w-8 h-8 text-amber-700" />
+                                        </div>
+                                        <div>
+                                            <h3 className="newspaper-headline text-2xl text-amber-900 group-hover:text-red-800 transition-colors">
+                                                THE MASTER MYSTERY
+                                            </h3>
+                                            <p className="text-amber-800/60 text-sm font-serif italic">
+                                                Piece together the truth from all solved cases.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Button variant="ghost" className="typewriter-text text-amber-800 hover:text-red-800 hover:bg-amber-100/50 text-xs">
+                                        VIEW EVIDENCE BOARD <Search className="w-3 h-3 ml-2" />
+                                    </Button>
+                                </div>
+
+                                {/* Coffee stain */}
+                                <div
+                                    className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full pointer-events-none"
+                                    style={{
+                                        background: 'radial-gradient(ellipse at center, transparent 30%, rgba(101, 67, 33, 0.12) 40%, rgba(101, 67, 33, 0.06) 60%, transparent 70%)'
+                                    }}
+                                />
                             </motion.div>
                         </Link>
                     </div>
@@ -208,6 +239,7 @@ export default function Dashboard() {
                     })}
                 </motion.div>
             )}
+            </div>
         </div>
     );
 }
