@@ -1,9 +1,9 @@
 # Functional Specification Document (FSD)
-## Detective Learning Game for Singapore Primary Schools
+## Detective Sigma for Singapore Primary Schools
 
 **Document Version:** 1.0  
 **Date:** December 1, 2025  
-**Project Name:** Detective Learning Academy  
+**Project Name:** Detective Sigma  
 **Document Owner:** olivermgs-TitanGS  
 **Status:** Draft  
 **Related Documents:** BRD_Business_Requirements_Document.md
@@ -31,7 +31,7 @@
 
 ### 1.1 Document Purpose
 
-This Functional Specification Document (FSD) provides detailed technical specifications for implementing the Detective Learning Academy platform - a Math and Science learning system starting with Mathematics (Phase 1), expanding to Science (Phase 2). English comprehension is naturally embedded in all cases through reading narratives, clues, and witness dialogues. It serves as the primary reference for developers, designers, QA engineers, and technical stakeholders.
+This Functional Specification Document (FSD) provides detailed technical specifications for implementing the Detective Sigma platform - a Math and Science learning system starting with Mathematics (Phase 1), expanding to Science (Phase 2). English comprehension is naturally embedded in all cases through reading narratives, clues, and witness dialogues. It serves as the primary reference for developers, designers, QA engineers, and technical stakeholders.
 
 **Intended Audience:**
 - Full-stack developers
@@ -275,7 +275,7 @@ npm run dev
 
 2. **Import Project**
    - Click "Add New Project"
-   - Select your `detective-academy` repository
+   - Select your `detective_sigma` repository
    - Vercel auto-detects Next.js → Click "Deploy"
    - Done! Your app is live instantly
 
@@ -1488,10 +1488,10 @@ async function main() {
   // Create admin user
   const adminPassword = await hash("admin123", 12)
   const admin = await prisma.user.upsert({
-    where: { email: "admin@detectivelearning.sg" },
+    where: { email: "admin@detectivesigma.sg" },
     update: {},
     create: {
-      email: "admin@detectivelearning.sg",
+      email: "admin@detectivesigma.sg",
       hashedPassword: adminPassword,
       role: UserRole.ADMIN,
       emailVerified: new Date(),
@@ -1910,7 +1910,7 @@ npx shadcn-ui@latest add badge
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  [Logo] Detective Learning Academy     [Profile ▼] [Logout]  │
+│  [Logo] Detective Sigma     [Profile ▼] [Logout]  │
 ├───────────────────────────────────────────────────────────────┤
 │                                                               │
 │   Welcome back, Ahmad! 👋                                     │
@@ -3652,7 +3652,7 @@ const securityHeaders = [
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https:;
       font-src 'self' data:;
-      connect-src 'self' https://api.detectivelearning.sg;
+      connect-src 'self' https://api.detectivesigma.sg;
       media-src 'self' https:;
       object-src 'none';
       frame-ancestors 'none';
@@ -3704,7 +3704,7 @@ import { Strategy as SAMLStrategy } from "passport-saml"
 
 export const moeSSO = new SAMLStrategy(
   {
-    callbackUrl: "https://detectivelearning.sg/auth/moe/callback",
+    callbackUrl: "https://detectivesigma.sg/auth/moe/callback",
     entryPoint: "https://vle.learning.moe.edu.sg/saml/sso",
     issuer: "detective-learning-sg",
     cert: process.env.MOE_SAML_CERT!, // Provided by MOE
@@ -3870,11 +3870,11 @@ export async function sendVerificationEmail(email: string, token: string) {
 
   try {
     await resend.emails.send({
-      from: "Detective Learning Academy <noreply@detectivelearning.sg>",
+      from: "Detective Sigma <noreply@detectivesigma.sg>",
       to: email,
       subject: "Verify your email address",
       html: `
-        <h1>Welcome to Detective Learning Academy! 🔍</h1>
+        <h1>Welcome to Detective Sigma! 🔍</h1>
         <p>Please verify your email address by clicking the link below:</p>
         <a href="${verifyUrl}" style="
           display: inline-block;
@@ -3902,13 +3902,13 @@ export async function sendParentConsentEmail(
   const consentUrl = `${process.env.NEXT_PUBLIC_APP_URL}/consent?token=${consentToken}`
 
   await resend.emails.send({
-    from: "Detective Learning Academy <noreply@detectivelearning.sg>",
+    from: "Detective Sigma <noreply@detectivesigma.sg>",
     to: parentEmail,
-    subject: "Parent Consent Required - Detective Learning Academy",
+    subject: "Parent Consent Required - Detective Sigma",
     html: `
       <h1>Parent/Guardian Consent Request</h1>
       <p>Dear Parent/Guardian,</p>
-      <p>Your child <strong>${studentName}</strong> has registered for Detective Learning Academy, an educational platform to improve English comprehension skills.</p>
+      <p>Your child <strong>${studentName}</strong> has registered for Detective Sigma, an educational platform to improve English comprehension skills.</p>
       
       <h2>What data we collect:</h2>
       <ul>
@@ -3938,7 +3938,7 @@ export async function sendParentConsentEmail(
         border-radius: 6px;
       ">Review & Give Consent</a>
 
-      <p>If you have questions, contact us at: <a href="mailto:privacy@detectivelearning.sg">privacy@detectivelearning.sg</a></p>
+      <p>If you have questions, contact us at: <a href="mailto:privacy@detectivesigma.sg">privacy@detectivesigma.sg</a></p>
     `,
   })
 }
@@ -3949,7 +3949,7 @@ export async function sendWeeklyProgressEmail(
   stats: any
 ) {
   await resend.emails.send({
-    from: "Detective Learning Academy <progress@detectivelearning.sg>",
+    from: "Detective Sigma <progress@detectivesigma.sg>",
     to: parentEmail,
     subject: `Weekly Progress Report - ${studentName}`,
     html: `
@@ -4356,7 +4356,7 @@ test.describe("Accessibility", () => {
 **For Development** (`.env.local`):
 ```bash
 # Database (Vercel Postgres or Supabase)
-DATABASE_URL="postgresql://username:password@localhost:5432/detective_academy"
+DATABASE_URL="postgresql://username:password@localhost:5432/detective_sigma"
 
 # Authentication
 NEXTAUTH_SECRET="your-super-secret-key-here-32-chars-min"
@@ -4724,3 +4724,4 @@ export enum ErrorCode {
 ---
 
 *End of Functional Specification Document*
+

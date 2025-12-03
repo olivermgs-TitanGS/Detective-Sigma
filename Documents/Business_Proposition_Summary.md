@@ -1,4 +1,4 @@
-# Detective Learning Academy
+# Detective Sigma
 
 ---
 
@@ -14,7 +14,7 @@ Not worksheets. Not drilling. Not "do 50 questions for homework."
 
 Stories. Mysteries. Clues that need Math to decode.
 
-**Detective Learning Academy** — where Singapore Primary 4-6 students solve cases using PSLE Math and Science.
+**Detective Sigma** — where Singapore Primary 4-6 students solve cases using PSLE Math and Science.
 
 ---
 
@@ -618,7 +618,7 @@ They were just solving a mystery.
 
 ---
 
-**Detective Learning Academy**
+**Detective Sigma**
 
 *Coming 2026. Built in Singapore, for Singapore students.*
 
@@ -867,7 +867,7 @@ Free to try. $5/month if they can't stop playing.
 
 ## Contact & Next Steps
 
-**Demo:** [Prototype at detectivelearning.sg - 1 Math case playable]  
+**Demo:** [Prototype at detectivesigma.sg - 1 Math case playable]  
 **Pitch Deck:** [Available upon request]  
 **Early Traction:** Currently in development; seeking pilot schools (no results yet)  
 
@@ -901,3 +901,4 @@ Free to try. $5/month if they can't stop playing.
 ---
 
 *Built for Singapore students. Math & Science mastery through detective mysteries. English comprehension naturally embedded. Designed for MOE alignment. Zero-cost scaling.*
+

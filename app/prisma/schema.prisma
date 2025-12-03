@@ -1,0 +1,286 @@
+// Detective Sigma - Prisma Schema
+// learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============= USER MANAGEMENT =============
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  username String @unique
+  hashedPassword String
+  role UserRole @default(STUDENT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+
+  // Relationships
+  studentProfile StudentProfile?
+  teacherProfile TeacherProfile?
+  progress Progress[]
+  classesEnrolled ClassMembership[]
+
+  @@index([email])
+  @@index([username])
+  @@index([role])
+}
+
+model StudentProfile {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  gradeLevel String // P4, P5, P6
+  parentConsent Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeacherProfile {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  schoolName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  classes Class[]
+}
+
+// ============= CLASS MANAGEMENT =============
+
+model Class {
+  id String @id @default(uuid())
+  name String
+  classCode String @unique // 6-character join code
+  teacherId String
+  teacher TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  members ClassMembership[]
+
+  @@index([classCode])
+  @@index([teacherId])
+}
+
+model ClassMembership {
+  id String @id @default(uuid())
+  classId String
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  studentId String
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@unique([classId, studentId])
+  @@index([classId])
+  @@index([studentId])
+}
+
+// ============= CONTENT (CASES) =============
+
+enum SubjectFocus {
+  MATH
+  SCIENCE
+  INTEGRATED
+}
+
+enum Difficulty {
+  ROOKIE      // P4
+  INSPECTOR   // P5
+  DETECTIVE   // P6
+  CHIEF       // Advanced
+}
+
+enum CaseStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Case {
+  id String @id @default(uuid())
+  title String
+  description String?
+  subjectFocus SubjectFocus
+  difficulty Difficulty
+  status CaseStatus @default(DRAFT)
+
+  coverImage String?
+  briefingVideoUrl String?
+  masterClueFragment String? // Final reveal text
+  chapterOrder Int?
+  estimatedMinutes Int @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  scenes Scene[]
+  suspects Suspect[]
+  puzzles Puzzle[]
+  progress Progress[]
+
+  @@index([status])
+  @@index([subjectFocus])
+  @@index([difficulty])
+}
+
+// ============= SCENES =============
+
+model Scene {
+  id String @id @default(uuid())
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  name String
+  description String?
+  imageUrl String
+  isInitialScene Boolean @default(false)
+  orderIndex Int
+
+  createdAt DateTime @default(now())
+
+  // Relationships
+  clues Clue[]
+
+  @@index([caseId])
+  @@index([orderIndex])
+}
+
+// ============= CLUES =============
+
+model Clue {
+  id String @id @default(uuid())
+  sceneId String
+  scene Scene @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+
+  name String
+  description String?
+  imageUrl String?
+  contentRevealed String? // What student learns after collecting
+  isHidden Boolean @default(false)
+
+  // Required puzzle to unlock this clue
+  requiredPuzzleId String?
+  requiredPuzzle Puzzle? @relation(fields: [requiredPuzzleId], references: [id], onDelete: SetNull)
+
+  // Position on scene image (percentage)
+  positionX Decimal? // 0-100
+  positionY Decimal? // 0-100
+
+  createdAt DateTime @default(now())
+
+  @@index([sceneId])
+  @@index([requiredPuzzleId])
+}
+
+// ============= SUSPECTS =============
+
+model Suspect {
+  id String @id @default(uuid())
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  name String
+  role String? // e.g., "Canteen Manager", "Cleaner"
+  imageUrl String?
+  bio String?
+  isCulprit Boolean @default(false)
+
+  // Dialogue tree stored as JSON
+  dialogueTree Json? // {nodes: [{id, question, answer, next: [ids]}]}
+
+  createdAt DateTime @default(now())
+
+  @@index([caseId])
+}
+
+// ============= PUZZLES =============
+
+enum PuzzleType {
+  MATH_WORD
+  SCIENCE_INQUIRY
+  LOGIC_CIPHER
+  PATTERN_RECOGNITION
+}
+
+model Puzzle {
+  id String @id @default(uuid())
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  title String
+  type PuzzleType
+  questionText String
+  questionImage String?
+  correctAnswer String
+  hint String?
+
+  // For MCQ, stored as JSON array
+  options Json? // ["Option A", "Option B", "Option C", "Option D"]
+
+  points Int @default(10)
+
+  createdAt DateTime @default(now())
+
+  // Relationships
+  clues Clue[] // Clues that require this puzzle
+
+  @@index([caseId])
+  @@index([type])
+}
+
+// ============= PROGRESS TRACKING =============
+
+enum ProgressStatus {
+  NEW
+  IN_PROGRESS
+  SOLVED
+}
+
+model Progress {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  status ProgressStatus @default(NEW)
+  score Int @default(0)
+
+  // Arrays stored as JSON
+  cluesCollected Json @default("[]") // Array of clue IDs
+  puzzlesSolved Json @default("[]")  // Array of puzzle IDs
+
+  startedAt DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, caseId])
+  @@index([userId])
+  @@index([caseId])
+  @@index([status])
+}

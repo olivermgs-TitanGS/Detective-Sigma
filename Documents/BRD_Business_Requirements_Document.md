@@ -1,11 +1,11 @@
 # Business Requirements Document (BRD)
-## Detective Learning Game for Singapore Primary Schools
+## Detective Sigma for Singapore Primary Schools
 
-**Document Version:** 1.0  
-**Date:** December 1, 2025  
-**Project Name:** Detective Learning Game (Primary School Edition)  
-**Target Audience:** Singapore Primary School Students (P4-P6)  
-**Document Owner:** olivermgs-TitanGS  
+**Document Version:** 1.0
+**Date:** December 1, 2025
+**Project Name:** Detective Sigma
+**Target Audience:** Singapore Primary School Students (P4-P6)
+**Document Owner:** olivermgs-TitanGS
 **Status:** Draft
 
 ---
@@ -32,7 +32,7 @@
 
 ### 1.1 Project Overview
 
-The Detective Learning Game is an innovative educational web platform designed to enhance Mathematics and Science mastery for Singapore Primary School students (Primary 4-6) through interactive detective-themed case mysteries. Starting with Mathematics (Phase 1), expanding to Science (Phase 2), the platform aligns with the Ministry of Education (MOE) syllabus and prepares students for PSLE examinations through engaging, game-based learning. English comprehension is naturally embedded in all cases through reading narratives, analyzing clues, and understanding witness testimonies.
+**Detective Sigma** is an innovative educational web platform designed to enhance Mathematics and Science mastery for Singapore Primary School students (Primary 4-6) through interactive detective-themed case mysteries. Starting with Mathematics (Phase 1), expanding to Science (Phase 2), the platform aligns with the Ministry of Education (MOE) syllabus and prepares students for PSLE examinations through engaging, game-based learning. English comprehension is naturally embedded in all cases through reading narratives, analyzing clues, and understanding witness testimonies.
 
 ### 1.2 Business Need
 
@@ -2109,7 +2109,7 @@ Year 3: Market Leadership
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ [Logo] Detective Academy        [👤 Mei Lin] [🔔] [⚙️]  │
+│ [Logo] Detective Sigma        [👤 Mei Lin] [🔔] [⚙️]  │
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
 │  👋 Welcome back, Detective Mei Lin!                    │
@@ -2223,7 +2223,7 @@ Year 3: Market Leadership
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ Detective Academy - Teacher Portal   Mr. Tan [Logout]   │
+│ Detective Sigma - Teacher Portal   Mr. Tan [Logout]   │
 ├─────────────────────────────────────────────────────────┤
 │  📚 Class 5A (25 students)                [Add Class]   │
 │                                                          │
@@ -2571,7 +2571,7 @@ Parent Name: ___________________________
 Email: _________________________________
 Date: __________________________________
 
-Questions? Contact us at: privacy@detectivelearning.sg
+Questions? Contact us at: privacy@detectivesigma.sg
 ```
 
 ### Appendix E: Sample School Partnership Agreement (MOU)
@@ -2788,3 +2788,4 @@ Date: ___________________
 ---
 
 *End of Business Requirements Document*
+
