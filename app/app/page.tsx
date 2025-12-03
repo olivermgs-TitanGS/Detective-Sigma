@@ -1,5 +1,6 @@
 import MusicPlayer from '@/components/MusicPlayer';
 
+// Force fresh deployment - Updated 2025-12-04
 export default function Home() {
   return (
     <div className="min-h-screen crime-scene-bg relative overflow-hidden">
