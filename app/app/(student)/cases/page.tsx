@@ -32,51 +32,55 @@ const demoCases = [
 ];
 
 const difficultyColors = {
-  ROOKIE: 'bg-green-600',
-  INSPECTOR: 'bg-yellow-600',
-  DETECTIVE: 'bg-orange-600',
-  CHIEF: 'bg-red-600',
+  ROOKIE: 'bg-green-900/50 border-green-600',
+  INSPECTOR: 'bg-amber-900/50 border-amber-600',
+  DETECTIVE: 'bg-orange-900/50 border-orange-600',
+  CHIEF: 'bg-red-900/50 border-red-600',
 };
 
 export default function CaseLibrary() {
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Case Library 📚</h1>
-        <p className="text-purple-200 text-lg">Choose a mystery to solve and master your skills!</p>
+      {/* Header - Evidence Board Style */}
+      <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
+        <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
+          CASE FILE LIBRARY 🔍
+        </h1>
+        <p className="text-slate-400 font-mono tracking-wide">
+          &gt; Select your investigation and begin the pursuit of justice
+        </p>
       </div>
 
-      {/* Filters */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+      {/* Filters - Investigation Parameters */}
+      <div className="border-2 border-amber-600/30 bg-black/60 p-6 backdrop-blur-sm">
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-purple-200 mb-2 text-sm font-medium">Subject</label>
-            <select className="w-full bg-slate-900 border border-purple-500/20 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-              <option value="">All Subjects</option>
-              <option value="MATH">Math</option>
-              <option value="SCIENCE">Science</option>
-              <option value="INTEGRATED">Integrated</option>
+            <label className="block text-amber-400 mb-2 text-sm font-mono tracking-wider">SUBJECT FOCUS</label>
+            <select className="w-full bg-black border-2 border-amber-600/30 px-4 py-2 text-amber-400 font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600 transition-colors">
+              <option value="">ALL SUBJECTS</option>
+              <option value="MATH">MATH</option>
+              <option value="SCIENCE">SCIENCE</option>
+              <option value="INTEGRATED">INTEGRATED</option>
             </select>
           </div>
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-purple-200 mb-2 text-sm font-medium">Difficulty</label>
-            <select className="w-full bg-slate-900 border border-purple-500/20 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-              <option value="">All Levels</option>
-              <option value="ROOKIE">Rookie (P4)</option>
-              <option value="INSPECTOR">Inspector (P5)</option>
-              <option value="DETECTIVE">Detective (P6)</option>
+            <label className="block text-amber-400 mb-2 text-sm font-mono tracking-wider">DIFFICULTY LEVEL</label>
+            <select className="w-full bg-black border-2 border-amber-600/30 px-4 py-2 text-amber-400 font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600 transition-colors">
+              <option value="">ALL RANKS</option>
+              <option value="ROOKIE">ROOKIE (P4)</option>
+              <option value="INSPECTOR">INSPECTOR (P5)</option>
+              <option value="DETECTIVE">DETECTIVE (P6)</option>
             </select>
           </div>
           <div className="flex items-end">
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 rounded-lg transition-colors font-semibold">
-              Apply Filters
+            <button className="border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-8 py-2 transition-all font-mono font-bold tracking-wider">
+              APPLY FILTERS
             </button>
           </div>
         </div>
       </div>
 
-      {/* Case Grid */}
+      {/* Case Grid - Case File Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {demoCases.map((caseItem) => (
           <Link
@@ -84,34 +88,34 @@ export default function CaseLibrary() {
             href={`/student/cases/${caseItem.id}`}
             className="group"
           >
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6 hover:border-purple-500/50 transition-all hover:scale-105 cursor-pointer">
+            <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-all hover:scale-105 cursor-pointer backdrop-blur-sm">
               {/* Case Icon */}
-              <div className="text-6xl mb-4 text-center">{caseItem.coverImage}</div>
+              <div className="text-6xl mb-4 text-center filter drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">{caseItem.coverImage}</div>
 
               {/* Difficulty Badge */}
               <div className="flex items-center gap-2 mb-3">
-                <span className={`${difficultyColors[caseItem.difficulty as keyof typeof difficultyColors]} text-white text-xs px-3 py-1 rounded-full font-semibold`}>
+                <span className={`${difficultyColors[caseItem.difficulty as keyof typeof difficultyColors]} border-2 text-white text-xs px-3 py-1 font-mono font-bold tracking-wider`}>
                   {caseItem.difficulty}
                 </span>
-                <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                <span className="bg-slate-900/80 border-2 border-slate-600 text-slate-300 text-xs px-3 py-1 font-mono font-bold tracking-wider">
                   {caseItem.subjectFocus}
                 </span>
               </div>
 
               {/* Title */}
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+              <h3 className="text-xl font-bold text-amber-50 mb-2 group-hover:text-amber-400 transition-colors font-mono tracking-wide">
                 {caseItem.title}
               </h3>
 
               {/* Description */}
-              <p className="text-purple-200 mb-4 text-sm">
+              <p className="text-slate-400 mb-4 text-sm font-mono leading-relaxed">
                 {caseItem.description}
               </p>
 
               {/* Meta Info */}
-              <div className="flex items-center justify-between text-purple-300 text-sm">
-                <span>⏱️ ~{caseItem.estimatedMinutes} mins</span>
-                <span className="text-green-400 font-semibold">NEW</span>
+              <div className="flex items-center justify-between text-slate-400 text-sm font-mono">
+                <span>⏱️ ~{caseItem.estimatedMinutes} MIN</span>
+                <span className="text-amber-400 font-bold tracking-wider">● NEW</span>
               </div>
             </div>
           </Link>
@@ -120,10 +124,10 @@ export default function CaseLibrary() {
 
       {/* Empty State (if no cases) */}
       {demoCases.length === 0 && (
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-12 text-center">
+        <div className="border-2 border-amber-600/30 bg-black/60 p-12 text-center backdrop-blur-sm">
           <div className="text-6xl mb-4">🔍</div>
-          <h3 className="text-2xl font-bold text-white mb-2">No Cases Available</h3>
-          <p className="text-purple-200">Check back later for new mysteries to solve!</p>
+          <h3 className="text-2xl font-bold text-amber-50 mb-2 font-mono tracking-widest">NO CASE FILES AVAILABLE</h3>
+          <p className="text-slate-400 font-mono tracking-wide">&gt; Check back later for new investigations!</p>
         </div>
       )}
     </div>
