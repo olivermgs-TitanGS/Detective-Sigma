@@ -200,10 +200,10 @@ An interactive web-based detective game where students:
 - Multilingual support (English, Chinese, Malay, Tamil)
 
 **Technical:**
-- AWS Singapore deployment (PDPA compliance)
+- Vercel deployment with global CDN (PDPA compliance via data residency controls)
 - MOE SSO integration (if available)
-- Automated backups
-- Performance monitoring (Sentry)
+- Automated backups (Vercel Postgres)
+- Performance monitoring (Sentry + Vercel Analytics)
 
 #### Phase 3: MOE Integration + Full Science Coverage (Months 7-12)
 **Features:**
@@ -247,14 +247,14 @@ An interactive web-based detective game where students:
 ### 3.4 Constraints
 
 **Technical:**
-- Must use Singapore-based servers (PDPA requirement)
+- Must comply with PDPA data protection requirements (Vercel provides data residency controls)
 - Must support browsers: Chrome, Safari, Firefox, Edge (latest 2 versions)
 - Must be accessible on devices with minimum 1024x768 resolution
 - Maximum page load time: 3 seconds
 
 **Budget:**
-- MVP budget: $0 (free tier services)
-- Pilot budget: $100-200/month (AWS Singapore)
+- MVP budget: $0 (Vercel free tier + Vercel Postgres free tier)
+- Pilot budget: $0-20/month (Vercel Hobby tier sufficient for 500-1000 students)
 - No funding for paid marketing or advertising
 
 **Timeline:**
@@ -273,7 +273,7 @@ An interactive web-based detective game where students:
 1. MOE approval for syllabus alignment validation
 2. School partnerships for pilot program
 3. Teacher availability for testing and feedback
-4. Cloud service providers (AWS, Vercel, Supabase)
+4. Cloud service providers (Vercel for hosting and database)
 5. Third-party APIs (Google Gemini for AI hints)
 
 **Internal Dependencies:**
@@ -1307,56 +1307,58 @@ An interactive web-based detective game where students:
 
 | Category | Item | Cost (SGD) | Notes |
 |----------|------|-----------|-------|
-| **Hosting** | Vercel (Free Tier) | $0 | 100GB bandwidth/month |
-| **Database** | Supabase (Free Tier) | $0 | 500MB storage, enough for MVP |
-| **Domain** | .com domain | $15/year | GoDaddy or Namecheap |
-| **SSL Certificate** | Let's Encrypt | $0 | Included with Vercel |
+| **Hosting** | Vercel (Hobby Tier - FREE) | $0 | 100GB bandwidth/month, global CDN |
+| **Database** | Vercel Postgres (FREE) | $0 | 512MB storage, 10K rows |
+| **File Storage** | Vercel Blob (FREE) | $0 | 1GB for images and assets |
+| **Domain** | .vercel.app subdomain | $0 | Free subdomain (custom domain: $15/year optional) |
+| **SSL Certificate** | Vercel SSL | $0 | Auto-generated HTTPS |
 | **Development Tools** | GitHub (Free), VS Code (Free) | $0 | Open source tools |
-| **Design Assets** | Canva Pro | $17/month | For character illustrations |
+| **Design Assets** | AI-generated (ChatGPT, DALL-E) | $0 | Free tier rotation strategy |
 | **AI Hints** | Google Gemini API | $0 | Free tier: 1M tokens/month |
-| **Monitoring** | Sentry (Free Tier) | $0 | 5,000 events/month |
-| **Content Creation** | Case writing (self) | $0 | Sweat equity |
-| | | **Total: $32** | **First 3 months** |
+| **Monitoring** | Vercel Analytics (FREE) | $0 | Unlimited page views |
+| **Content Creation** | Case writing (self + AI assist) | $0 | Sweat equity + AI tools |
+| | | **Total: $0** | **First 3 months - Zero cost MVP** |
 
 #### Phase 2: Pilot (Months 4-6)
 
 | Category | Item | Cost (SGD) | Notes |
 |----------|------|-----------|-------|
-| **Hosting** | AWS EC2 t3.small (Singapore) | $25/month | Compliance requirement |
-| **Database** | AWS RDS t3.micro | $30/month | PostgreSQL |
-| **Storage** | AWS S3 + CloudFront | $20/month | Images, audio |
-| **Backup** | Automated snapshots | $10/month | 30-day retention |
-| **Monitoring** | CloudWatch | $10/month | Logs and metrics |
-| **Domain** | .edu.sg domain | $50/year | Educational domain |
-| **Legal** | PDPA compliance review | $500 | One-time lawyer consultation |
-| **Content Creation** | Freelance writers (6 cases) | $1,200 | $200 per case |
-| **Graphic Design** | Freelance illustrator | $800 | Characters and scenes |
+| **Hosting** | Vercel (Hobby Tier - FREE) | $0 | Sufficient for 500-1000 students |
+| **Database** | Vercel Postgres (FREE) | $0 | 512MB, scales with usage |
+| **Storage** | Vercel Blob (FREE) | $0 | 1GB for images/assets, global CDN |
+| **Backup** | Automated (Vercel) | $0 | Included with Vercel Postgres |
+| **Monitoring** | Vercel Analytics (FREE) | $0 | Real-time metrics included |
+| **Domain** | Custom domain (optional) | $15/year | Can use free .vercel.app subdomain |
+| **Legal** | PDPA compliance review (optional) | $0-500 | Use AI-generated templates or consult lawyer |
+| **Content Creation** | AI-assisted (self + ChatGPT/Claude) | $0 | 6 cases, AI-accelerated writing |
+| **Graphic Design** | AI-generated (DALL-E, Midjourney) | $0 | Use free tier rotation strategy |
 | **Pilot Support** | Testing and training | $0 | Self-provided |
-| | | **Total: $2,800** | **3 months** |
+| | | **Total: $15-515** | **3 months (Zero-cost if skip custom domain & legal)** |
 
 #### Phase 3: Scale (Months 7-12)
 
 | Category | Item | Cost (SGD) | Notes |
 |----------|------|-----------|-------|
-| **Hosting** | AWS ECS/Fargate | $150/month | Auto-scaling |
-| **Database** | AWS RDS t3.medium (Multi-AZ) | $100/month | High availability |
-| **CDN** | CloudFront | $50/month | Global delivery |
-| **Backup & DR** | Cross-region replication | $30/month | Disaster recovery |
-| **Monitoring** | CloudWatch + Sentry Business | $100/month | Advanced alerting |
-| **Support** | AWS Business Support | $100/month | 24/7 technical support |
-| **Content** | 14 additional cases | $2,800 | Complete syllabus coverage |
-| **Development** | Contract developer (part-time) | $3,000/month | Feature development |
-| **Marketing** | School outreach materials | $500 | Brochures, case studies |
-| **MOE Submission** | Documentation and compliance | $1,000 | Legal and technical docs |
-| | | **Total: $24,000** | **6 months** |
+| **Hosting** | Vercel Pro (if needed) | $0-20/month | Upgrade only if exceed free tier limits |
+| **Database** | Vercel Postgres (scale as needed) | $0-50/month | Pay only for usage beyond 512MB |
+| **CDN** | Vercel Edge Network (included) | $0 | Global CDN included with Vercel |
+| **Backup & DR** | Vercel Postgres backups | $0 | Automatic backups included |
+| **Monitoring** | Vercel Analytics + Sentry Free | $0 | Both have generous free tiers |
+| **Support** | Vercel Community Support | $0 | Community forums + documentation |
+| **Content** | AI-assisted (14 cases) | $0 | Self-created with AI acceleration |
+| **Development** | Self (nights/weekends) | $0 | Bootstrap approach, no contractors |
+| **Marketing** | AI-generated materials | $0 | ChatGPT for emails, Canva for brochures |
+| **MOE Submission** | Self-prepared docs | $0-1,000 | AI-assisted documentation, optional legal review |
+| | | **Total: $0-1,070** | **6 months (Mostly zero-cost with AI tools)** |
 
 ### 9.2 Funding Strategy
 
 #### Self-Funded (Bootstrap)
 
-**MVP:** $0-50  
-**Pilot:** $1,000-3,000 (if self-funded)  
-**Strategy:** Use free tiers, minimize costs, validate before investing
+**MVP:** $0 (100% free with Vercel + AI tools)
+**Pilot:** $0-515 (mostly free, optional custom domain + legal review)
+**Scale:** $0-1,070 (primarily free tiers, pay only if exceed limits)
+**Strategy:** Zero-cost execution using Vercel Hobby tier + AI-powered content creation, validate before any spending
 
 #### Grant Funding (Primary Strategy)
 
@@ -1433,10 +1435,10 @@ An interactive web-based detective game where students:
 - Notion (documentation)
 
 **Production Infrastructure:**
-- AWS Singapore region (ap-southeast-1)
-- Vercel (frontend deployment)
-- Supabase or AWS RDS (database)
-- Cloudflare or AWS CloudFront (CDN)
+- Vercel (hosting, deployment, global CDN)
+- Vercel Postgres (database - 512MB free tier)
+- Vercel Blob (file storage - 1GB free tier)
+- Vercel Edge Network (global content delivery included)
 
 **Third-Party Services:**
 - Google Gemini API (AI hints)

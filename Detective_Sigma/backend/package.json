@@ -1,7 +1,7 @@
 {
-  "name": "detective-academy-backend",
+  "name": "detective-sigma-backend",
   "version": "1.0.0",
-  "description": "Backend API for Detective Learning Academy",
+  "description": "Backend API for Detective Sigma",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

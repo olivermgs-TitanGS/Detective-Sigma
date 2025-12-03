@@ -1,10 +1,10 @@
-# Detective Learning Academy
+# Detective Sigma
 
 🔍 Gamified educational platform for Singapore Primary 4-6 students to learn Math and Science through detective mysteries.
 
 ## 🚀 Quick Deploy to Vercel (Recommended - Free & Simple)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/olivermgs-TitanGS/Detective-Murder-Learning)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/olivermgs-TitanGS/Detective-Sigma)
 
 ### Steps:
 1. Click the deploy button above
@@ -17,8 +17,8 @@ Your app will be live at: `https://your-project.vercel.app`
 ## 📚 Documentation
 
 - **[Vercel Deployment Guide](VERCEL_DEPLOYMENT.md)** - Easiest way to deploy (no Docker/VM needed)
-- **[Docker Deployment Guide](Detective_Murder/DOCKER_HUB_DEPLOYMENT.md)** - For advanced users with VMs
-- **[Setup Guide](Detective_Murder/SETUP_COMPLETE.md)** - Local development setup
+- **[Docker Deployment Guide](Detective_Sigma/DOCKER_HUB_DEPLOYMENT.md)** - For advanced users with VMs
+- **[Setup Guide](Detective_Sigma/SETUP_COMPLETE.md)** - Local development setup
 
 ## 🛠️ Technology Stack
 
@@ -45,8 +45,8 @@ Your app will be live at: `https://your-project.vercel.app`
 ## 📦 Project Structure
 
 ```
-Detective_Murder_Learning/
-├── Detective_Murder/
+Detective_Sigma/
+├── Detective_Sigma/
 │   ├── backend/          # Node.js API
 │   ├── frontend/         # React app
 │   ├── Components/       # Game components
@@ -73,14 +73,14 @@ See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)
 ✅ Self-hosted  
 ✅ Multiple services  
 
-See [Detective_Murder/DOCKER_HUB_DEPLOYMENT.md](Detective_Murder/DOCKER_HUB_DEPLOYMENT.md)
+See [Detective_Sigma/DOCKER_HUB_DEPLOYMENT.md](Detective_Sigma/DOCKER_HUB_DEPLOYMENT.md)
 
 ## 💻 Local Development
 
 ```bash
 # Clone repository
-git clone https://github.com/olivermgs-TitanGS/Detective-Murder-Learning.git
-cd Detective-Murder-Learning/Detective_Murder
+git clone https://github.com/olivermgs-TitanGS/Detective-Sigma.git
+cd Detective-Sigma/Detective_Sigma
 
 # Install dependencies
 cd backend && npm install
@@ -125,8 +125,8 @@ Built for Singapore Primary School students to make learning Math and Science fu
 
 ## 📧 Support
 
-- GitHub Issues: https://github.com/olivermgs-TitanGS/Detective-Murder-Learning/issues
-- Email: support@detectiveacademy.com
+- GitHub Issues: https://github.com/olivermgs-TitanGS/Detective-Sigma/issues
+- Email: support@detectivesigma.com
 
 ---
 

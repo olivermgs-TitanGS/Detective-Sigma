@@ -313,13 +313,14 @@ Not "learning Math."
 
 ## 5. Technical Foundation
 
-**Platform (Zero-Budget Tech Stack):**
-- **Framework:** Next.js 14 (free, you already know it) OR plain React
-- **Database:** Supabase free tier (PostgreSQL - 500MB, 50K rows, good enough for pilot)
-- **Auth:** NextAuth.js (free, built-in)
-- **Hosting:** Vercel free tier (100GB bandwidth, perfect for 100-500 students)
-- **Graphics:** Free AI tools (ChatGPT image generation, DALL-E free trial, Midjourney free tier, Canva AI)
-- **Icons/UI:** Free libraries (Heroicons, Lucide, Tailwind UI free components)
+**Platform (Zero-Cost Tech Stack):**
+- **Framework:** Next.js 14 (latest, modern, free)
+- **Database:** Vercel Postgres (PostgreSQL - 512MB, 10K rows free tier)
+- **File Storage:** Vercel Blob (1GB free for images/assets)
+- **Auth:** NextAuth.js (free, built-in authentication)
+- **Hosting:** Vercel Hobby tier (100GB bandwidth/month, global CDN, auto-deployment)
+- **Graphics:** Free AI tools (ChatGPT DALL-E 3, Midjourney free trial, Leonardo.ai, Canva AI)
+- **Icons/UI:** Free libraries (Heroicons, Lucide, shadcn/ui components, Tailwind CSS)
 
 **Comprehensive Free AI Tools Strategy:**
 
@@ -407,13 +408,15 @@ Our answer: **Yes, if done transparently.** Better kids are addicted to Math pra
 **The balance:**
 Use addiction psychology for **good** (learning) not **harm** (gambling). Every reward requires mastering PSLE Math.  
 
-**Zero-Cost Infrastructure (MVP only):**
-- Vercel Free Tier: Good for 100-200 concurrent users (pilot phase)
-- Supabase Free Tier: 500MB database, ~500-1,000 active students
-- After pilot: Expect $50-200/month hosting costs
-- IMDA Startup SG Grant: $30K-50K (not AWS credits alone)
+**Zero-Cost Infrastructure (Vercel-Powered):**
+- **Vercel Hobby Tier (FREE):** 100GB bandwidth/month, global CDN, auto-deployment
+- **Vercel Postgres (FREE):** 512MB database, 10K rows, sufficient for 500-1,000 students
+- **Vercel Blob Storage (FREE):** 1GB for images and assets
+- **Total Monthly Cost:** $0 for MVP and pilot (up to 1,000 students)
+- **Deployment:** Auto-deploy on git push - no configuration needed
+- **HTTPS & SSL:** Included automatically
 
-**Scalability:** Free tier suitable for pilot; budget $100-300/month for 1,000+ students
+**Scalability:** Free tier covers full pilot phase; Vercel Pro ($20/month) only if exceed limits at 2,000+ students
 
 ---
 
@@ -675,11 +678,12 @@ They were just solving a mystery.
 **Zero-Cost, AI-Powered Approach:**
 - Development: $0 (you code in Next.js, work hard nights/weekends)
 - Content Creation: $0 (AI-assisted writing - ChatGPT for story drafts, Claude for quiz questions, iterate until perfect)
-- Graphics/Design: $0 (ChatGPT image gen, DALL-E 3 free trial, Midjourney free tier, Leonardo.ai free - generate 50+ options, pick best)
+- Graphics/Design: $0 (ChatGPT DALL-E 3, Midjourney free tier, Leonardo.ai free - generate 50+ options, pick best)
 - Character Design: $0 (consistent detective characters using AI with same prompts)
 - Sound Effects: $0 (optional - use free libraries like Freesound.org, or skip audio for MVP)
 - Marketing: $0 (AI-written cold emails, ChatGPT-generated pitch decks, screen-record demos)
-- Operations: $0 (Vercel + Supabase free tiers handle 100-500 students easily)
+- Hosting & Database: $0 (Vercel Hobby tier: hosting, Postgres DB, Blob storage - all FREE for 500-1000 students)
+- Deployment: $0 (Auto-deploy on git push, HTTPS included, global CDN, zero configuration)
 - Legal/Admin: $0 (AI-generate PDPA policy, terms of service from templates)
 
 **AI Tools = Professional Quality at $0 Cost**
@@ -688,9 +692,10 @@ They were just solving a mystery.
 - Quality: Comparable to $10K+ professionally designed content
 
 **When you MUST pay (from first customer revenue):**
-- Domain name: ~$15/year (buy only after first school commits)
+- Domain name: ~$15/year (OPTIONAL - can use free .vercel.app subdomain forever)
 - ACRA company registration: ~$300 (only if school requires invoice/contract)
-- Hosting upgrade: $20-50/month (only if exceed 500 students)
+- Vercel Pro upgrade: $20/month (ONLY if exceed 1,000 students or 100GB bandwidth)
+- Note: Can run entire pilot (500-1000 students) on FREE tier indefinitely
 
 **Funding Strategy (AI-Enabled Zero Budget):**
 - **Startup SG Founder:** Apply after traction (need 6 months operations + revenue)
@@ -703,21 +708,24 @@ They were just solving a mystery.
 - **Grants:** Apply Year 2 after proving model works
 
 **Conservative Execution:**
-1. Build 1 high-quality case using AI tools (Month 1-3)
-2. Get 1 school to trial for FREE (Month 4-5)
-3. If they love it → charge $200-300 for full year (Month 6)
-4. Use first revenue to buy domain + upgrade hosting if needed
-5. Reinvest to build Case 2 (still using AI, still $0 cost)
-6. Repeat until 5 cases → then pitch to more schools
+1. Build 1 high-quality case using AI tools (Month 1-3) - $0 cost
+2. Deploy on Vercel free tier (5 minutes setup) - $0 cost
+3. Get 1 school to trial for FREE (Month 4-5)
+4. If they love it → charge $200-300 for full year (Month 6)
+5. Use first revenue ONLY if needed (custom domain: $15, or save for ACRA: $300)
+6. Reinvest time (not money) to build Case 2 using AI - $0 cost
+7. Repeat until 5 cases → then pitch to more schools
+8. Can serve 500-1000 students on free tier indefinitely
 
 **AI Changes Everything:**
 - 2020: Need $50K capital to build MVP
 - 2025: Need $0 capital + 300 hours + AI tools = same quality MVP
 
 **Break-Even Scenarios (Zero Budget):**
-- **Best case:** 3 schools @ $300 = $900/year by Month 12 (covers domain + hosting)
-- **Realistic:** 1 school @ $200 = $200/year (barely covers hosting)
-- **Worst case:** Zero revenue by Month 12 → Total loss = your TIME only (no money spent)
+- **Best case:** 3 schools @ $300 = $900/year by Month 12 (pure profit - no hosting costs!)
+- **Realistic:** 1 school @ $200 = $200/year (100% profit since Vercel is free)
+- **Worst case:** Zero revenue by Month 12 → Total loss = your TIME only (literally $0 spent)
+- **Key insight:** With Vercel free tier, first dollar earned = first dollar profit (no operating costs)
 
 **When to Quit:**
 - If Month 6: No school trials → Stop, idea doesn't resonate
@@ -725,13 +733,14 @@ They were just solving a mystery.
 - If Month 18: 1 paying school only → Keep as side project, don't quit day job
 - If Year 2: 5+ schools → Consider full-time if you want
 
-**Personal Financial Reality (You Have No Money):**
+**Personal Financial Reality (Zero-Capital Advantage):**
 - **NEVER quit day job** - this is a nights/weekends side project ONLY
-- Spend ZERO money until you have paying customers
-- If you need to spend money (hosting, domain) → charge customer FIRST, spend AFTER
-- Set time budget: Max 10 hours/week (sustainable long-term)
+- Spend ZERO money period - Vercel free tier means no hosting/infrastructure costs ever
+- OPTIONAL spending: Custom domain ($15) or ACRA registration ($300) only if school requires
+- Set time budget: 10-15 hours/week (sustainable long-term)
 - If Month 12 = no traction → stop, don't waste more time
-- Conservative mindset: Assume this will fail, protect your finances
+- **Risk profile:** Zero financial risk (only time invested), max upside if it works
+- Conservative mindset: Assume this will fail, but failure costs nothing except your time
 
 ---
 
@@ -739,14 +748,14 @@ They were just solving a mystery.
 
 | Risk | Impact | Probability | Mitigation | Worst Case |
 |------|--------|-------------|------------|------------|
-| Schools don't adopt at all | High | **High** | Free pilot, pivot to parents | Shut down by Month 18, loss $50K |
+| Schools don't adopt at all | High | **High** | Free pilot, pivot to parents | Shut down by Month 18, loss of TIME only ($0 spent) |
 | Only 1-2 schools sign up | High | Medium | Lower price to $200-300, add features | Pivot to B2C or stop |
 | Students don't engage (boring) | High | Medium | UX testing with real kids, iterate fast | Platform fails, salvage code for other projects |
 | Can't prove learning gains | High | Medium | Rigorous pre/post testing, lower claims | Reposition as "engagement tool" not "learning tool" |
-| Content costs explode | Medium | High | DIY more, use AI for drafts, simpler graphics | Cap spending at $50K, launch with fewer cases |
+| Content creation too slow | Medium | Medium | AI acceleration, iterate 10x per case | Launch with 1-2 quality cases vs 10 mediocre ones |
 | Competitors copy idea | Medium | Low | Speed to market, relationships with schools | Compete on execution, not idea |
-| Run out of money | High | Medium | Strict budget, monthly burn review | Stop before debt, return to employment |
-| Legal/PDPA issues | High | Low | Legal review upfront, insurance | Shut down immediately if non-compliant |
+| Vercel free tier limits exceeded | Low | Low | Monitor usage, upgrade to Pro ($20/mo) only if needed | Pay $20/month from first revenue if 1000+ students |
+| Legal/PDPA issues | High | Low | Use AI-generated templates, optional lawyer review ($500) | Shut down immediately if non-compliant |
 
 ---
 
@@ -759,9 +768,10 @@ They were just solving a mystery.
 - PSLE pressure drives demand for effective prep tools
 
 **Technical Maturity:**
-- Free-tier cloud services now sufficient for 5,000+ users
+- Vercel free tier now sufficient for 1,000+ users (complete hosting + database + CDN = $0)
 - AI tutoring (Google Gemini) available at $0 cost for education
-- Next.js and Supabase enable rapid MVP development
+- AI content generation (ChatGPT, DALL-E, Claude) enables professional-quality MVP at zero cost
+- Next.js 14 and Vercel deployment enable 5-minute setup (git push = live production)
 
 **Competitive Reality:**
 - **Truth:** Koobits, Geniebook already dominate school market ($20M+ funding)

@@ -1,4 +1,4 @@
-# Detective Academy - Quick Start Guide
+# Detective Sigma - Quick Start Guide
 
 ## ✅ System Status: RUNNING
 

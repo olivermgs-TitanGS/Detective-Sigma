@@ -2,29 +2,29 @@
   "version": 2,
   "builds": [
     {
-      "src": "Detective_Murder/frontend/package.json",
+      "src": "Detective_Sigma/frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
       }
     },
     {
-      "src": "Detective_Murder/backend/src/index.js",
+      "src": "Detective_Sigma/backend/src/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "Detective_Murder/backend/src/index.js"
+      "dest": "Detective_Sigma/backend/src/index.js"
     },
     {
       "src": "/health",
-      "dest": "Detective_Murder/backend/src/index.js"
+      "dest": "Detective_Sigma/backend/src/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "Detective_Murder/frontend/$1"
+      "dest": "Detective_Sigma/frontend/$1"
     }
   ],
   "env": {

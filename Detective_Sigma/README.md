@@ -1,4 +1,4 @@
-# Detective Learning Academy - Docker Setup
+# Detective Sigma - Docker Setup
 
 A gamified educational platform for Singapore Primary 4-6 students to learn Math and Science through detective mysteries.
 

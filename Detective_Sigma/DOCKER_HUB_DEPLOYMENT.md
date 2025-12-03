@@ -1,4 +1,4 @@
-# Docker Hub Upload and Deployment Guide
+# Docker Hub Upload and Deployment Guide - Detective Sigma
 
 ## Step 1: Login to Docker Hub
 

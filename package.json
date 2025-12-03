@@ -1,12 +1,12 @@
 {
-  "name": "detective-learning-academy",
+  "name": "detective-sigma",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "cd Detective_Murder/frontend && npm run dev",
-    "build": "cd Detective_Murder/frontend && npm run build",
-    "start": "cd Detective_Murder/backend && npm start",
-    "vercel-build": "cd Detective_Murder/frontend && npm install && npm run build"
+    "dev": "cd Detective_Sigma/frontend && npm run dev",
+    "build": "cd Detective_Sigma/frontend && npm run build",
+    "start": "cd Detective_Sigma/backend && npm start",
+    "vercel-build": "cd Detective_Sigma/frontend && npm install && npm run build"
   },
   "dependencies": {
     "express": "^4.18.2",

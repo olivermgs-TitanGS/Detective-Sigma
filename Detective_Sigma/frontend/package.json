@@ -1,7 +1,7 @@
 {
-  "name": "detective-academy-frontend",
+  "name": "detective-sigma-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Detective Learning Academy",
+  "description": "Frontend for Detective Sigma",
   "private": true,
   "type": "module",
   "dependencies": {

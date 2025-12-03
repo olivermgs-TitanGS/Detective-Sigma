@@ -4,7 +4,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: detective_db
+    container_name: detective_sigma_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: detective
@@ -26,7 +26,7 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: detective_redis
+    container_name: detective_sigma_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -45,7 +45,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: detective_backend
+    container_name: detective_sigma_backend
     restart: unless-stopped
     ports:
       - "4000:4000"
@@ -74,7 +74,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: detective_frontend
+    container_name: detective_sigma_frontend
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -89,7 +89,7 @@ services:
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: detective_nginx
+    container_name: detective_sigma_nginx
     restart: unless-stopped
     ports:
       - "80:80"
