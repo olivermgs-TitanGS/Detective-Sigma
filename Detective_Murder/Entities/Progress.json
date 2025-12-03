@@ -1,0 +1,49 @@
+{
+  "name": "Progress",
+  "type": "object",
+  "properties": {
+    "case_id": {
+      "type": "string"
+    },
+    "current_scene_id": {
+      "type": "string"
+    },
+    "collected_clues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "solved_puzzles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "interrogated_suspects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "solved",
+        "failed"
+      ],
+      "default": "active"
+    },
+    "score": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "case_id"
+  ]
+}

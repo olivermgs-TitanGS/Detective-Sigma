@@ -1,0 +1,64 @@
+{
+  "name": "Suspect",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "description": "e.g. The Janitor, The Rival Student"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "case_id": {
+      "type": "string"
+    },
+    "is_culprit": {
+      "type": "boolean",
+      "default": false
+    },
+    "motive": {
+      "type": "string"
+    },
+    "dialogue_tree": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "next_id": {
+                  "type": "string"
+                },
+                "required_clue_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "case_id"
+  ]
+}

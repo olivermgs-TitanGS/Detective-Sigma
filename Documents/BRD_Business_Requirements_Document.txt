@@ -1,0 +1,2789 @@
+﻿# Business Requirements Document (BRD)
+## Detective Learning Game for Singapore Primary Schools
+
+**Document Version:** 1.0  
+**Date:** December 1, 2025  
+**Project Name:** Detective Learning Game (Primary School Edition)  
+**Target Audience:** Singapore Primary School Students (P4-P6)  
+**Document Owner:** olivermgs-TitanGS  
+**Status:** Draft
+
+---
+
+## Table of Contents
+
+1. [Executive Summary](#1-executive-summary)
+2. [Business Objectives](#2-business-objectives)
+3. [Project Scope](#3-project-scope)
+4. [Target Audience Analysis](#4-target-audience-analysis)
+5. [Market Analysis](#5-market-analysis)
+6. [Business Requirements](#6-business-requirements)
+7. [Success Criteria & KPIs](#7-success-criteria--kpis)
+8. [Risk Assessment](#8-risk-assessment)
+9. [Budget & Resources](#9-budget--resources)
+10. [Timeline & Milestones](#10-timeline--milestones)
+11. [Compliance & Legal](#11-compliance--legal)
+12. [User Experience & Design](#12-user-experience--design)
+13. [Appendices](#13-appendices)
+
+---
+
+## 1. Executive Summary
+
+### 1.1 Project Overview
+
+The Detective Learning Game is an innovative educational web platform designed to enhance Mathematics and Science mastery for Singapore Primary School students (Primary 4-6) through interactive detective-themed case mysteries. Starting with Mathematics (Phase 1), expanding to Science (Phase 2), the platform aligns with the Ministry of Education (MOE) syllabus and prepares students for PSLE examinations through engaging, game-based learning. English comprehension is naturally embedded in all cases through reading narratives, analyzing clues, and understanding witness testimonies.
+
+### 1.2 Business Need
+
+**Problem Statement:**
+- Traditional practice (Math word problems, Science experiments) is perceived as boring by students
+- Students struggle with problem-solving, critical thinking, and applying concepts
+- English comprehension practice is tedious and disconnected from other subjects
+- Teachers need engaging tools to supplement MOE syllabus
+- Parents seek effective PSLE preparation resources (Math tuition market: $300M+ annually)
+
+**Proposed Solution:**
+An interactive web-based detective game where students:
+- **Phase 1 (Math):** Solve mysteries using word problems, logical reasoning, measurements, fractions, data analysis
+- **Phase 2 (Science):** Investigate using scientific inquiry, hypothesis testing, observations, process skills
+- **English Naturally Embedded:** All cases require reading narratives, analyzing written clues, understanding witness testimonies (comprehension practice without separate "English cases")
+- Gather and analyze clues (critical thinking across Math/Science)
+- Interview witnesses (quantitative and qualitative evidence)
+- Solve mysteries (subject-specific problem-solving)
+- Answer questions in PSLE format (Math and Science assessments)
+
+### 1.3 Strategic Alignment
+
+**MOE Education Goals:**
+- Enhance 21st century competencies (critical thinking, communication, problem-solving)
+- Develop lifelong learning through engaging methods
+- Improve proficiency in core PSLE subjects (Math, Science) nationwide
+- English comprehension naturally integrated across learning experiences
+- Support blended learning initiatives across STEM disciplines
+
+**EdTech Industry Trends:**
+- Gamification of education (projected 30% CAGR in SEA)
+- Personalized learning paths
+- AI-assisted education
+- Mobile-first learning platforms
+
+### 1.4 Expected Benefits
+
+**For Students:**
+- Improved Math problem-solving scores (target: 10-15% improvement)
+- Improved Science inquiry skills (target: 10-15% improvement)
+- Enhanced English comprehension through embedded practice (target: 8-12% improvement)
+- Increased engagement with learning materials across subjects
+- Better PSLE exam preparation (Math, Science, and embedded English practice)
+- Development of critical thinking and cross-disciplinary skills
+
+**For Teachers:**
+- Real-time student progress monitoring
+- Automated assessment and reporting
+- Supplementary teaching resources aligned with syllabus
+- Reduced grading workload
+
+**For Schools:**
+- Differentiated learning tool for mixed-ability classes
+- Data-driven insights for curriculum planning
+- Support for MOE Smart Nation initiatives
+- Enhanced parent satisfaction
+
+**For Parents:**
+- Transparent visibility into child's learning progress
+- Effective home-based learning supplement
+- PSLE preparation confidence
+- Cost-effective alternative to private tuition
+
+---
+
+## 2. Business Objectives
+
+### 2.1 Primary Objectives
+
+**Objective 1: Educational Impact (Math Focus - Phase 1)**
+- **Goal:** Improve students' Math problem-solving scores by minimum 10% within 3 months of usage
+- **Measurement:** Pre-test vs post-test assessments aligned with PSLE Math format
+- **Success Criteria:** 70% of pilot students show measurable improvement in Math
+- **Embedded English:** Students show 8-12% improvement in reading comprehension through case narratives
+- **Phase 2 Goal:** Replicate 10-15% improvement for Science process skills
+
+**Objective 2: User Adoption**
+- **Goal:** Achieve 80% completion rate for assigned cases
+- **Measurement:** Percentage of students who complete at least one full case
+- **Success Criteria:** Students voluntarily continue playing beyond required assignments
+
+**Objective 3: Teacher Satisfaction**
+- **Goal:** Achieve 4/5 average teacher rating
+- **Measurement:** Post-pilot teacher surveys
+- **Success Criteria:** 90% of teachers recommend platform to colleagues
+
+**Objective 4: Market Validation**
+- **Goal:** Secure pilot partnerships with 3-5 primary schools
+- **Measurement:** Signed MOUs/agreements
+- **Success Criteria:** Minimum 150 active students in pilot phase
+
+### 2.2 Secondary Objectives
+
+**Objective 5: MOE Recognition**
+- **Goal:** Obtain approval for inclusion in MOE Student Learning Space (SLS) catalog
+- **Measurement:** Formal approval letter from MOE
+- **Timeline:** Within 12 months of pilot completion
+
+**Objective 6: Revenue Model Validation**
+- **Goal:** Establish sustainable funding through school subscriptions or MOE grants
+- **Measurement:** Secure minimum $50,000 in funding (grants or subscriptions)
+- **Timeline:** Within 18 months of launch
+
+**Objective 7: Scalability Proof**
+- **Goal:** Demonstrate platform can scale to 10,000+ concurrent users
+- **Measurement:** Load testing and performance metrics
+- **Timeline:** Before nationwide rollout
+
+### 2.3 Long-Term Vision (3-5 Years)
+
+- **Year 1:** Pilot with 5 schools, 500 students (Math focus) + launch Science cases
+- **Year 2:** MOE approval, expand to 50 schools, 5,000 students (Math + Science suite)
+- **Year 3:** Nationwide rollout to 200+ primary schools, 50,000+ students (full curriculum coverage)
+- **Year 4:** Expand to secondary schools (O-Level Math, E-Math, A-Math, Physics, Chemistry, Biology)
+- **Year 5:** Regional expansion (Malaysia, Brunei) with localized curriculum
+
+---
+
+## 3. Project Scope
+
+### 3.1 In-Scope
+
+#### Phase 1: MVP (Months 1-3) - MATH FOCUS
+**Features:**
+- 3 detective cases (Primary 4, 5, 6 difficulty levels) - MATH SUBJECT
+- Student registration and authentication
+- Interactive case gameplay (discovery, investigation, solution phases)
+- PSLE-format Math questions (word problems, problem-solving heuristics)
+- English comprehension naturally embedded through case narratives and clue reading
+- Basic teacher dashboard (student progress tracking)
+- Mobile-responsive web interface
+- Subject: Mathematics (Science cases in Phase 2)
+
+**Technical:**
+- Next.js 14 web application
+- Supabase database (PostgreSQL) with multi-subject schema
+- Vercel hosting (free tier)
+- Supabase authentication
+- Basic analytics
+
+**Content (Math Cases - Phase 1):**
+- Case 1: "The Missing Canteen Money" (P4) - Addition, subtraction, money word problems
+- Case 2: "The Mysterious Measurement Mix-Up" (P5) - Area, perimeter, unit conversions
+- Case 3: "The Fraction Fraud" (P6) - Fractions, ratios, percentages, data analysis
+
+**Content (Science Cases - Phase 2):**
+- Case 4: "The Mysterious Plant Experiment" (P4) - Plant life cycles, observations
+- Case 5: "The Vanishing Water" (P5) - Water cycle, evaporation, states of matter
+- Case 6: "The Electrical Mystery" (P6) - Circuits, conductors, energy transfer
+
+**Content (Additional Science - Phase 3):**
+- Case 10: "The Magnet Mystery" (P4) - Magnetism, materials
+- Case 11: "The Food Chain Case" (P5) - Ecosystems, relationships
+- Case 12: "The Heat Investigation" (P6) - Heat transfer, thermal energy
+
+#### Phase 2: Pilot Expansion + Science Launch (Months 4-6)
+**Features:**
+- 6 additional Math cases + 3 Science cases (total 12 cases)
+- Multi-subject support (Math + Science)
+- Teacher assignment system (assign by subject and difficulty)
+- Parent portal (view child's progress across Math/Science with embedded English tracking)
+- Advanced analytics dashboard (subject-specific insights + English comprehension metrics)
+- Hint system (AI-powered with Gemini for both subjects)
+- Achievement badges (cross-subject achievements)
+- Multilingual support (English, Chinese, Malay, Tamil)
+
+**Technical:**
+- AWS Singapore deployment (PDPA compliance)
+- MOE SSO integration (if available)
+- Automated backups
+- Performance monitoring (Sentry)
+
+#### Phase 3: MOE Integration + Full Science Coverage (Months 7-12)
+**Features:**
+- Full MOE syllabus coverage (30+ cases across Math and Science)
+- Expanded Science cases (total 12+ Science cases covering full curriculum)
+- Integration with MOE Student Learning Space (SLS)
+- Adaptive difficulty (personalized learning paths per subject)
+- Voice narration (text-to-speech for accessibility)
+- Accessibility features (dyslexia support, colorblind mode)
+- Teacher training materials (Math/Science pedagogy with embedded English literacy)
+
+**Technical:**
+- SAML-based MOE SSO
+- MOE gradebook integration
+- Enterprise-grade security
+- 99.9% uptime SLA
+
+### 3.2 Out-of-Scope (Current Phase)
+
+**Explicitly Excluded:**
+- Secondary school content (separate project)
+- Native mobile apps (web-first approach)
+- Video cutscenes (cost prohibitive)
+- Live multiplayer features (future consideration)
+- Virtual reality/AR features
+- Third-party curriculum beyond MOE
+- International versions (focus on Singapore first)
+- Monetization beyond school subscriptions
+- User-generated content (teacher-created cases)
+
+### 3.3 Assumptions
+
+1. Schools have reliable internet connectivity
+2. Students have access to devices (computer, tablet, or smartphone)
+3. Teachers are willing to integrate digital tools into curriculum
+4. MOE will support EdTech innovations aligned with syllabus
+5. Parents consent to student data collection (with PDPA compliance)
+6. Free tier services (Vercel, Supabase) sufficient for MVP
+7. Pilot schools provide feedback within agreed timelines
+
+### 3.4 Constraints
+
+**Technical:**
+- Must use Singapore-based servers (PDPA requirement)
+- Must support browsers: Chrome, Safari, Firefox, Edge (latest 2 versions)
+- Must be accessible on devices with minimum 1024x768 resolution
+- Maximum page load time: 3 seconds
+
+**Budget:**
+- MVP budget: $0 (free tier services)
+- Pilot budget: $100-200/month (AWS Singapore)
+- No funding for paid marketing or advertising
+
+**Timeline:**
+- MVP delivery: 3 months from kickoff
+- Pilot completion: 6 months from kickoff
+- MOE approval: 12 months from kickoff
+
+**Compliance:**
+- PDPA (Personal Data Protection Act) compliance mandatory
+- WCAG 2.1 AA accessibility standards
+- MOE curriculum alignment verification required
+
+### 3.5 Dependencies
+
+**External Dependencies:**
+1. MOE approval for syllabus alignment validation
+2. School partnerships for pilot program
+3. Teacher availability for testing and feedback
+4. Cloud service providers (AWS, Vercel, Supabase)
+5. Third-party APIs (Google Gemini for AI hints)
+
+**Internal Dependencies:**
+1. Content creation (case storylines and questions)
+2. Graphic design (characters, scenes, UI elements)
+3. Educational consultation (MOE syllabus experts)
+4. Technical development resources
+
+---
+
+## 4. Target Audience Analysis
+
+### 4.1 Primary Stakeholders
+
+#### 4.1.1 Students (Primary Users)
+
+**Demographics:**
+- Age: 10-12 years old (Primary 4-6)
+- Location: Singapore
+- Language: English as primary or secondary language
+- Device access: 95% have smartphones, 80% have computers/tablets
+
+**Psychographics:**
+- Digital natives (comfortable with technology)
+- Prefer visual and interactive learning
+- Motivated by achievements and gamification
+- Attention span: 20-30 minutes for engaging content
+- Peer influence important
+
+**User Segments:**
+
+**Segment 1: High Achievers (30%)**
+- Current comprehension score: 70%+
+- Motivation: Challenge, excellence, PSLE preparation
+- Needs: Advanced cases, competitive elements
+- Behavior: Self-driven, completes tasks quickly
+
+**Segment 2: Average Performers (50%)**
+- Current comprehension score: 50-69%
+- Motivation: Improvement, passing exams
+- Needs: Guided learning, hints, scaffolding
+- Behavior: Needs teacher encouragement
+
+**Segment 3: Struggling Learners (20%)**
+- Current comprehension score: <50%
+- Motivation: Avoid embarrassment, basic competency
+- Needs: Extra support, simpler language, more time
+- Behavior: Avoids reading, needs high engagement
+
+**Pain Points:**
+- Traditional comprehension exercises are boring
+- Difficult vocabulary discourages reading
+- Abstract concepts (inference) hard to grasp
+- Fear of making mistakes publicly
+- Lack of immediate feedback
+
+**User Goals:**
+- Improve English grades
+- Prepare confidently for PSLE
+- Have fun while learning
+- Earn achievements/recognition
+- Learn at own pace
+
+#### 4.1.2 Teachers (Secondary Users)
+
+**Demographics:**
+- Role: English Language teachers (Primary 4-6)
+- Schools: Government and government-aided schools
+- Class size: 25-35 students per class
+- Tech savviness: Varies (basic to advanced)
+
+**Pain Points:**
+- Limited time for one-on-one student support
+- Difficulty differentiating instruction for mixed abilities
+- Manual grading of comprehension exercises (time-consuming)
+- Lack of engaging supplementary materials
+- Insufficient data on individual student weaknesses
+
+**User Goals:**
+- Improve overall class performance
+- Identify struggling students early
+- Reduce administrative workload
+- Engage reluctant readers
+- Meet MOE performance indicators
+
+**Success Metrics (Teacher Perspective):**
+- Students more engaged in English lessons
+- Class average comprehension scores improve
+- Reduced time spent on grading
+- Easy to integrate into lesson plans
+- Parents provide positive feedback
+
+#### 4.1.3 School Administrators (Decision Makers)
+
+**Demographics:**
+- Role: Principals, Vice-Principals, Heads of Department (English)
+- Decision authority: Budget approval, vendor selection
+
+**Pain Points:**
+- Budget constraints for new resources
+- Need to justify ROI of EdTech investments
+- Compliance and data security concerns
+- Teacher training and adoption challenges
+- Pressure to improve school-wide PSLE results
+
+**User Goals:**
+- Improve school's academic standing
+- Support teacher professional development
+- Demonstrate innovation to MOE
+- Ensure student data security
+- Optimize resource allocation
+
+**Decision Criteria:**
+- Clear alignment with MOE syllabus
+- Evidence of learning outcomes (pilot data)
+- Competitive pricing (or free/grant-funded)
+- Ease of implementation and training
+- PDPA compliance guarantees
+
+#### 4.1.4 Parents (Influencers)
+
+**Demographics:**
+- Age: 35-50 years old
+- Education: Varied (secondary to university)
+- Income: Middle to upper-middle class
+- Tech comfort: Basic to intermediate
+
+**Pain Points:**
+- High cost of private tuition ($300-800/month)
+- Unsure how to help child with English
+- Lack of visibility into school learning
+- PSLE stress and anxiety
+- Limited time to supervise homework
+
+**User Goals:**
+- Child performs well in PSLE
+- Affordable learning resources
+- Track child's progress transparently
+- Safe online environment
+- Reduce reliance on tuition
+
+**Concerns:**
+- Data privacy (who sees child's information?)
+- Screen time (is this educational or just gaming?)
+- Cost (will this be free or require payment?)
+- Effectiveness (does it actually improve grades?)
+
+### 4.2 Market Size Estimation
+
+**Total Addressable Market (TAM):**
+- All Singapore primary school students (P1-P6): ~250,000
+- Target segment (P4-P6): ~125,000 students
+- Number of primary schools: ~180 schools
+
+**Serviceable Available Market (SAM):**
+- Students with internet and device access: ~120,000 (96%)
+- Schools open to EdTech adoption: ~120 schools (65%)
+
+**Serviceable Obtainable Market (SOM):**
+- **Year 1 Target:** 5 schools, 500 students (0.4% of SAM)
+- **Year 2 Target:** 50 schools, 5,000 students (4% of SAM)
+- **Year 3 Target:** 200 schools, 50,000 students (40% of SAM)
+
+### 4.3 User Personas
+
+#### Persona 1: "Eager Emma" (High Achiever)
+
+**Demographics:**
+- Age: 11 (Primary 5)
+- School: Top-tier primary school
+- Current English grade: A
+- Device: iPad Pro, gaming PC at home
+
+**Goals:**
+- Score AL1 (90%+) in PSLE English
+- Challenge herself with difficult content
+- Compete with peers for top scores
+- Explore enrichment beyond syllabus
+
+**Frustrations:**
+- School work is too easy
+- Wants more engaging challenges
+- Bored by repetitive exercises
+
+**How product helps:**
+- Advanced difficulty cases unlock achievements
+- Leaderboards (classroom or school-wide)
+- Complex mysteries require deeper analysis
+- Vocabulary enrichment beyond grade level
+
+#### Persona 2: "Motivated Marcus" (Average Performer)
+
+**Demographics:**
+- Age: 10 (Primary 4)
+- School: Neighborhood school
+- Current English grade: B-C
+- Device: Shared family tablet
+
+**Goals:**
+- Improve from C to B grade
+- Understand inference better
+- Pass PSLE with decent score
+- Make parents proud
+
+**Frustrations:**
+- Sometimes doesn't understand passages
+- Gets confused by difficult words
+- Needs more practice but finds workbooks boring
+
+**How product helps:**
+- Cases at appropriate difficulty level
+- Hint system when stuck
+- Immediate feedback on answers
+- Fun alternative to workbooks
+
+#### Persona 3: "Teacher Teresa"
+
+**Demographics:**
+- Age: 38
+- Experience: 12 years teaching English
+- School: Neighborhood primary school
+- Class size: 32 students (mixed abilities)
+
+**Goals:**
+- Raise class average from 62% to 68%
+- Identify struggling students early
+- Spend less time on manual grading
+- Engage reluctant readers
+
+**Frustrations:**
+- Not enough time for individualized support
+- Difficult to find engaging materials
+- Manual grading takes hours
+- Hard to track individual progress over time
+
+**How product helps:**
+- Auto-graded comprehension questions
+- Dashboard shows each student's weak areas
+- Students enjoy self-directed learning
+- Easy to assign cases as homework
+
+---
+
+## 5. Market Analysis
+
+### 5.1 Competitive Landscape
+
+#### 5.1.1 Direct Competitors
+
+**1. Learning Management Systems (MOE SLS, Google Classroom)**
+
+| Criteria | MOE SLS | Our Product |
+|----------|---------|-------------|
+| Engagement | Low (text-heavy) | High (gamified) |
+| MOE Alignment | Perfect | Perfect (by design) |
+| Cost | Free | Free (pilot), Low cost (scale) |
+| Specialization | General learning | English comprehension focus |
+| Data Analytics | Basic | Advanced (skill-level tracking) |
+
+**2. Private Tuition Centers**
+
+| Criteria | Tuition Centers | Our Product |
+|----------|----------------|-------------|
+| Cost | $300-800/month | $0-50/year (per student) |
+| Personalization | High (1:1 or small group) | Medium (adaptive) |
+| Convenience | Requires travel | At-home, anytime |
+| Scalability | Low | Infinite |
+| Progress Tracking | Manual reports | Real-time dashboards |
+
+**3. EdTech Apps (Koobits, Zookal Study, Geniebook)**
+
+| Criteria | Koobits | Our Product |
+|----------|---------|-------------|
+| Subject Coverage | Math + English + Science | English only (deeper) |
+| Engagement | Gamified (points, rewards) | Story-driven (immersive) |
+| MOE Alignment | Good | Excellent (PSLE-focused) |
+| Price | $20-40/month | $0-10/month (school subscription) |
+| Differentiation | Broad curriculum | Detective theme niche |
+
+#### 5.1.2 Indirect Competitors
+
+- **YouTube educational channels** (free but passive learning)
+- **Reading apps** (Epic!, Raz-Kids) (reading volume, not comprehension skills)
+- **Assessment platforms** (Kahoot, Quizizz) (quiz-focused, not narrative)
+
+### 5.2 Competitive Advantages
+
+**Unique Value Propositions:**
+
+1. **Detective Theme Engagement**
+   - First mover in detective-based English learning for Singapore market
+   - Narrative-driven (not just quiz-based)
+   - Appeals to students' love of mystery and problem-solving
+
+2. **Laser Focus on Comprehension**
+   - Not diluted across multiple subjects
+   - Deep alignment with PSLE Paper 2 format
+   - Targets specific skills (inference, context clues, sequencing)
+
+3. **Cost Efficiency**
+   - Free for MVP/pilot (subsidized by grants)
+   - 10-20x cheaper than private tuition
+   - One-time school license vs per-student fees
+
+4. **Teacher Empowerment**
+   - Reduces grading workload (auto-grading)
+   - Provides actionable insights (not just scores)
+   - Easy integration into existing curriculum
+
+5. **PDPA Compliance by Design**
+   - Built from ground up with Singapore regulations in mind
+   - Singapore-based data storage
+   - Transparent consent mechanisms
+
+6. **Scalability**
+   - Cloud-based (no physical constraints)
+   - Can serve entire nation with minimal marginal cost
+   - Continuous improvement through data analytics
+
+### 5.3 Market Trends
+
+**Favorable Trends:**
+
+1. **Gamification of Education**
+   - 30% CAGR in Asia-Pacific EdTech gamification market
+   - Students increasingly expect game-like experiences
+
+2. **Blended Learning Adoption**
+   - MOE pushing for technology integration
+   - Post-COVID normalization of online learning
+
+3. **Personalized Learning**
+   - Shift from one-size-fits-all to adaptive instruction
+   - AI-powered tutoring systems gaining traction
+
+4. **Data-Driven Education**
+   - Schools investing in analytics to improve outcomes
+   - Teachers want actionable insights, not just grades
+
+5. **Government Support**
+   - MOE EdTech grants available ($50K-500K)
+   - Smart Nation initiatives prioritize education
+
+**Potential Challenges:**
+
+1. **Regulatory Hurdles**
+   - PDPA compliance adds complexity
+   - MOE approval process can be lengthy
+
+2. **Market Saturation**
+   - Many EdTech startups competing for attention
+   - Schools suffer from "innovation fatigue"
+
+3. **Digital Divide**
+   - 4-5% of students lack reliable internet/devices
+   - Equity concerns may slow adoption
+
+4. **Teacher Resistance**
+   - Some teachers prefer traditional methods
+   - Training and change management required
+
+### 5.4 Go-to-Market Strategy
+
+#### Phase 1: Pilot (Months 1-6)
+
+**Target:** 3-5 schools, 150-500 students
+
+**Approach:**
+1. **Direct Outreach**
+   - Email English HODs at neighborhood schools
+   - Leverage personal networks (teachers, parents)
+   - Offer completely free pilot (no strings attached)
+
+2. **Value Proposition**
+   - "Free tool to improve your students' PSLE comprehension scores"
+   - "Reduce your grading workload by 50%"
+   - "Engage even your most reluctant readers"
+
+3. **Pilot Incentives**
+   - Free lifetime access for pilot schools
+   - Co-branding opportunity (school featured in case study)
+   - Priority support and customization
+
+4. **Success Metrics Collection (Non-Invasive)**
+   - Pre/post comprehension tests
+   - Teacher satisfaction surveys (optional, online)
+   - Student engagement analytics (automated dashboard)
+   - Self-contained analytics reports (program managers/HODs access at convenience)
+   - Optional monthly check-in with program managers (non-mandatory)
+
+#### Phase 2: MOE Validation (Months 7-12)
+
+**Target:** MOE approval, 20-50 schools
+
+**Approach:**
+1. **Submit to MOE**
+   - Present pilot results (learning outcome improvements)
+   - Demonstrate PDPA compliance
+   - Show cost savings vs tuition
+
+2. **Apply for Grants**
+   - MOE EdTech Grant ($50K-500K)
+   - SkillsFuture grant
+   - Startup SG
+
+3. **Build Credibility**
+   - Publish case studies with pilot schools
+   - Present at MOE conferences/workshops
+   - Get testimonials from respected teachers
+
+4. **SLS Integration**
+   - Work with MOE to add to SLS catalog
+   - Enable SSO with MOE accounts
+   - Align with MOE gradebook
+
+#### Phase 3: Scale (Year 2+)
+
+**Target:** 200+ schools, 50,000+ students
+
+**Approach:**
+1. **School Subscriptions**
+   - Pricing: $500-2000/year per school (bulk discount)
+   - Includes training, support, updates
+
+2. **Partnerships**
+   - Partner with education publishers (Marshall Cavendish, Scholastic)
+   - Collaborate with tuition center chains (as B2B tool)
+
+3. **Regional Expansion**
+   - Adapt for Malaysia (similar UPSR syllabus)
+   - Expand to Brunei (Cambridge-based curriculum)
+
+4. **Product Extensions**
+   - Secondary school (O-Level Literature)
+   - Math problem-solving version
+   - Science investigation version
+
+### 5.5 Pricing Strategy
+
+#### MVP/Pilot: FREE
+- Build user base
+- Collect testimonials
+- Validate product-market fit
+
+#### School Subscription Model (Post-MOE Approval):
+
+| Tier | Price (SGD/year) | Includes |
+|------|------------------|----------|
+| **Small School** | $500 | Up to 100 students, 5 teachers |
+| **Medium School** | $1,000 | Up to 300 students, 15 teachers |
+| **Large School** | $1,500 | Up to 600 students, 30 teachers |
+| **District License** | $10,000 | Unlimited schools in cluster |
+
+**Alternative: Per-Student Model**
+- $10-15/student/year
+- Minimum 50 students per school
+
+**Freemium Model (Future Consideration):**
+- Basic cases: Free
+- Advanced cases + analytics: Paid
+
+---
+
+## 6. Business Requirements
+
+### 6.1 Functional Requirements
+
+#### 6.1.1 User Management
+
+**BR-UM-001: Student Registration**
+- **Requirement:** Students must be able to register with school email (@students.edu.sg)
+- **Rationale:** Verify legitimate student access, enable school-level tracking
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Student provides school email, display name, education level
+  - Email verification sent before account activation
+  - Parent consent captured for students under 13
+  - Account created in <5 seconds
+
+**BR-UM-002: Teacher Registration**
+- **Requirement:** Teachers register with school email (@moe.edu.sg) and verified school code
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Teacher provides professional email, school affiliation
+  - Manual verification by admin before account approval
+  - Teacher can create/manage multiple classes
+
+**BR-UM-003: Single Sign-On (SSO)**
+- **Requirement:** Support MOE Student Learning Space (SLS) SSO (SAML-based)
+- **Priority:** P1 (Should Have - Phase 2)
+- **Acceptance Criteria:**
+  - Students log in using existing MOE SLS credentials
+  - No duplicate account creation required
+  - Session management synchronized with MOE systems
+
+**BR-UM-004: Role-Based Access Control**
+- **Requirement:** System must support three user roles: Student, Teacher, Administrator
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Students can only access assigned cases and own progress
+  - Teachers can view all students in their classes
+  - Admins have full system access
+
+#### 6.1.2 Game Content & Mechanics
+
+**BR-GC-001: Case Library (Math & Science)**
+- **Requirement:** System must host minimum 3 Math detective cases (P4, P5, P6 difficulty) in Phase 1, expanding to Science (Phase 2)
+- **Priority:** P0 (Must Have - MVP)
+- **Acceptance Criteria:**
+  - Each case includes: storyline, clues with subject-specific content, witnesses, quiz questions
+  - Cases align with specific MOE syllabus learning objectives (Math, Science)
+  - English comprehension naturally embedded through all case narratives
+  - Subject tagging system for filtering cases (Math, Science)
+  - Case duration: 20-40 minutes
+  - Mobile-responsive layout
+
+**BR-GC-002: Interactive Case Gameplay**
+- **Requirement:** Students can interact with case elements (scenes, clues, witnesses)
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Click on objects to reveal clues
+  - Read witness dialogues/testimonies
+  - Drag-and-drop evidence to organize
+  - Navigate between scenes seamlessly
+
+**BR-GC-003: PSLE-Format Assessment (Math & Science)**
+- **Requirement:** Each case must include subject-specific questions in PSLE format
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - **Math:** Word problems, problem-solving questions (show working), MCQ
+  - **Science:** Process skills, data analysis, MCQ + structured questions
+  - **English (Embedded):** Reading comprehension naturally assessed through understanding case narratives, clues, and witness testimonies
+  - Auto-grading for MCQ, rubric-based for open-ended
+  - Subject-specific scoring rubrics
+
+**BR-GC-004: Hint System**
+- **Requirement:** Students can request hints when stuck
+- **Priority:** P1 (Should Have - Phase 2)
+- **Acceptance Criteria:**
+  - Maximum 3 hints per case
+  - Hints progressively reveal more information
+  - Powered by AI (Google Gemini API)
+  - Deducts points if used (encourage independent solving)
+
+**BR-GC-005: Progress Saving**
+- **Requirement:** Students can pause and resume cases
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Auto-save every 30 seconds
+  - "Save & Exit" button available
+  - Resume from last checkpoint
+  - No data loss on browser close
+
+#### 6.1.3 Teacher & Program Manager Tools
+
+**BR-TT-001: Class Management (Teachers)**
+- **Requirement:** Teachers can create and manage multiple classes
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Create class with unique code
+  - Add students via email or class code
+  - Bulk import students from CSV
+  - Remove students from class
+
+**BR-TT-002: Case Assignment**
+- **Requirement:** Teachers can assign specific cases to classes or individual students
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Select case from library
+  - Set due date (optional)
+  - Assign to entire class or subset of students
+  - Students notified of new assignments
+
+**BR-TT-003: Progress Dashboard**
+- **Requirement:** Teachers can view real-time student progress and performance
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - See which students completed assigned cases
+  - View individual scores and skill breakdowns
+  - Identify struggling students (red flag indicators)
+  - Export data to CSV/Excel
+
+**BR-TT-004: Analytics & Insights (Program Managers/HODs)**
+- **Requirement:** System provides actionable insights on student performance across Math and Science for program managers and HODs
+- **Priority:** P1 (Should Have - Phase 2)
+- **Acceptance Criteria:**
+  - School-wide and class-level analytics (accessible by program managers/HODs)
+  - Subject-specific skill proficiency heatmap (Math: problem-solving heuristics, Science: process skills)
+  - English comprehension metrics (naturally embedded through gameplay)
+  - Individual student learning trajectory per subject
+  - Cross-subject performance comparison (Math vs Science vs Embedded English)
+  - Teachers access class-level data only; program managers access school-wide data
+  - Comparison to school/national averages
+  - Recommendations for intervention
+
+#### 6.1.4 Parent Portal
+
+**BR-PP-001: Progress Visibility**
+- **Requirement:** Parents can view their child's learning progress
+- **Priority:** P2 (Could Have - Phase 3)
+- **Acceptance Criteria:**
+  - Parent invited by student's account
+  - View cases completed, scores, time spent
+  - Cannot modify student data
+  - Receive weekly email summaries
+
+#### 6.1.5 Content Management
+
+**BR-CM-001: Case Creation Tool**
+- **Requirement:** Admins can create and publish new cases
+- **Priority:** P2 (Could Have - Phase 3)
+- **Acceptance Criteria:**
+  - Structured form for case metadata
+  - Upload scenes, clues, character images
+  - Define quiz questions and correct answers
+  - Preview before publishing
+
+**BR-CM-002: Syllabus Mapping**
+- **Requirement:** Each case tagged with MOE learning objectives
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Cases linked to specific skills (inference, vocabulary, etc.)
+  - Teachers can filter cases by skill/difficulty
+  - Progress reports mapped to MOE standards
+
+### 6.2 Non-Functional Requirements
+
+#### 6.2.1 Performance
+
+**BR-PERF-001: Page Load Time**
+- **Requirement:** All pages must load in <3 seconds on 4G connection
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Lighthouse performance score >80
+  - Use lazy loading for images and heavy components
+  - CDN delivery for static assets
+
+**BR-PERF-002: Concurrent Users**
+- **Requirement:** System must support 500 concurrent users (MVP), 10,000 (Phase 3)
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Load testing confirms no degradation under target load
+  - Auto-scaling infrastructure in place
+  - Database connection pooling optimized
+
+**BR-PERF-003: Data Sync**
+- **Requirement:** Progress updates must sync to server within 5 seconds
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Real-time updates to teacher dashboards
+  - Conflict resolution for offline-online transitions
+
+#### 6.2.2 Usability
+
+**BR-USE-001: Mobile Responsiveness**
+- **Requirement:** All features must work on mobile devices (phones and tablets)
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Responsive design tested on iOS Safari, Android Chrome
+  - Touch-friendly buttons (min 44x44px)
+  - No horizontal scrolling required
+
+**BR-USE-002: Accessibility**
+- **Requirement:** Platform must meet WCAG 2.1 AA standards
+- **Priority:** P1 (Should Have - Phase 2)
+- **Acceptance Criteria:**
+  - Keyboard navigation supported
+  - Screen reader compatible
+  - Color contrast ratios >4.5:1
+  - Text resizable to 200% without loss of functionality
+
+**BR-USE-003: Multilingual Support**
+- **Requirement:** Interface available in English, Chinese, Malay, Tamil
+- **Priority:** P1 (Should Have - Phase 2)
+- **Acceptance Criteria:**
+  - User can select language in settings
+  - UI labels and instructions translated
+  - Case content remains in English (learning objective)
+
+#### 6.2.3 Security
+
+**BR-SEC-001: Data Encryption**
+- **Requirement:** All data in transit and at rest must be encrypted
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - HTTPS only (TLS 1.3)
+  - Database encryption enabled
+  - Passwords hashed with bcrypt (12 rounds)
+
+**BR-SEC-002: Authentication Security**
+- **Requirement:** Implement secure authentication mechanisms
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Password minimum 8 characters, complexity requirements
+  - Rate limiting on login attempts (max 5 per 15 minutes)
+  - Session timeout after 2 hours of inactivity
+  - Two-factor authentication (2FA) optional
+
+**BR-SEC-003: Authorization Controls**
+- **Requirement:** Users can only access data within their permissions
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Row-level security policies enforced
+  - API endpoints validate user permissions
+  - Audit logs track all data access
+
+**BR-SEC-004: PDPA Compliance**
+- **Requirement:** Full compliance with Singapore Personal Data Protection Act
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Data collection notice displayed before signup
+  - Parent consent required for users under 18
+  - Users can request data export/deletion
+  - Data retention policy (delete after graduation + 1 year)
+  - Data breach notification plan (<72 hours)
+
+#### 6.2.4 Reliability
+
+**BR-REL-001: Uptime**
+- **Requirement:** System must achieve 99.5% uptime (MVP), 99.9% (Phase 3)
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Monitoring alerts for downtime >1 minute
+  - Automated health checks every 60 seconds
+  - Incident response plan documented
+
+**BR-REL-002: Data Backup**
+- **Requirement:** Automated daily backups with 30-day retention
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - Backups stored in separate geographic region
+  - Restore tested quarterly
+  - Recovery Time Objective (RTO): 4 hours
+  - Recovery Point Objective (RPO): 24 hours
+
+**BR-REL-003: Error Handling**
+- **Requirement:** Graceful error handling with user-friendly messages
+- **Priority:** P0 (Must Have)
+- **Acceptance Criteria:**
+  - No raw error messages shown to users
+  - Errors logged to monitoring system (Sentry)
+  - User sees actionable guidance (e.g., "Try refreshing the page")
+
+#### 6.2.5 Maintainability
+
+**BR-MAINT-001: Code Quality**
+- **Requirement:** Codebase must follow industry best practices
+- **Priority:** P1 (Should Have)
+- **Acceptance Criteria:**
+  - TypeScript strict mode enabled
+  - ESLint and Prettier configured
+  - Unit test coverage >70%
+  - Code review required for all changes
+
+**BR-MAINT-002: Documentation**
+- **Requirement:** Comprehensive technical and user documentation
+- **Priority:** P1 (Should Have)
+- **Acceptance Criteria:**
+  - README with setup instructions
+  - API documentation (Swagger/OpenAPI)
+  - User guides for students, teachers, admins
+  - Architecture diagrams
+
+**BR-MAINT-003: Monitoring & Observability**
+- **Requirement:** Application performance and errors monitored in real-time
+- **Priority:** P1 (Should Have - Phase 2)
+- **Acceptance Criteria:**
+  - Error tracking (Sentry)
+  - Performance monitoring (Vercel Analytics)
+  - Custom dashboards for key metrics
+  - Alerts for anomalies (email/Slack)
+
+---
+
+## 7. Success Criteria & KPIs
+
+### 7.1 Educational Impact Metrics
+
+**Primary KPI: Learning Outcomes**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **Comprehension Score Improvement** | +10% minimum | Pre-test (before using platform) vs post-test (after 3 months) | Quarterly |
+| **PSLE Exam Performance** | 15% more students score AL1-2 | Compare cohort using platform vs control group | Annually |
+| **Skill Proficiency** | 70% students proficient in inference | In-game assessments mapped to MOE standards | Monthly |
+| **Vocabulary Growth** | +50 new words per student | Track correct usage of target vocabulary | Quarterly |
+
+**Secondary KPIs: Engagement**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **Case Completion Rate** | 80% | % of assigned cases fully completed | Weekly |
+| **Average Session Duration** | 25+ minutes | Time spent per case session | Daily |
+| **Return Rate** | 60% | % of students who play voluntarily beyond assignments | Monthly |
+| **Achievement Unlock Rate** | 50% | % of students who earn 3+ badges | Monthly |
+
+### 7.2 User Satisfaction Metrics
+
+**Students:**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **Net Promoter Score (NPS)** | 40+ | "Would you recommend this to a friend?" (0-10 scale) | Quarterly |
+| **Fun Rating** | 4/5 | "How fun was this case?" after each case | Per case |
+| **Perceived Learning** | 70% agree | "I learned something new" survey | Quarterly |
+
+**Teachers:**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **Teacher Satisfaction** | 4/5 | Post-pilot survey (ease of use, effectiveness) | End of pilot |
+| **Recommendation Rate** | 80% | "Would recommend to colleagues?" | Quarterly |
+| **Time Savings** | 2+ hours/week | Survey: "How much time saved on grading?" | Monthly |
+| **Adoption Rate** | 60% | % of teachers who assign cases regularly (min 1/month) | Monthly |
+
+**Parents:**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **Parent Satisfaction** | 4/5 | Survey: "Satisfied with child's progress?" | Quarterly |
+| **Portal Usage** | 40% | % of parents who log in to view progress | Monthly |
+
+### 7.3 Business Metrics
+
+**Pilot Phase:**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **School Partnerships** | 3-5 schools | Signed MOUs/agreements | Milestone-based |
+| **Active Students** | 150-500 | Unique students who complete 1+ case | End of pilot |
+| **Teacher Training** | 10-15 teachers | Teachers who complete onboarding training | End of pilot |
+
+**Growth Phase:**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **User Acquisition** | 5,000 students (Year 2) | Registered and active users | Monthly |
+| **School Penetration** | 50 schools (Year 2) | Schools with active subscriptions | Quarterly |
+| **Revenue** | $50,000 (Year 2) | School subscriptions + grants | Annually |
+| **Churn Rate** | <10% | Schools that cancel subscription | Quarterly |
+
+**Technical Performance:**
+
+| Metric | Target | Measurement Method | Frequency |
+|--------|--------|-------------------|-----------|
+| **System Uptime** | 99.5% | Monitoring tools (UptimeRobot) | Daily |
+| **Page Load Time** | <3 seconds | Lighthouse / Web Vitals | Weekly |
+| **Error Rate** | <0.5% | Sentry error tracking | Daily |
+| **API Response Time** | <500ms (p95) | APM tools | Daily |
+
+### 7.4 Milestone-Based Success Criteria
+
+**MVP Completion (Month 3):**
+- ✅ 3 cases published and playable
+- ✅ Student and teacher dashboards functional
+- ✅ Pilot agreements signed with 3+ schools
+- ✅ Platform deployed and accessible online
+
+**Pilot Success (Month 6):**
+- ✅ 150+ students completed at least 1 case
+- ✅ 10% average improvement in comprehension scores
+- ✅ 4/5 average teacher satisfaction rating
+- ✅ 80% case completion rate
+- ✅ Zero major security incidents or data breaches
+
+**MOE Approval (Month 12):**
+- ✅ Formal approval letter from MOE
+- ✅ Listed in MOE Student Learning Space (SLS) catalog
+- ✅ PDPA compliance audit passed
+- ✅ $50,000+ in secured funding (grants or subscriptions)
+
+**Scale Readiness (Month 18):**
+- ✅ 20+ cases covering full P4-P6 syllabus
+- ✅ MOE SSO integration complete
+- ✅ Load testing passed for 10,000 concurrent users
+- ✅ 50 schools signed up
+
+---
+
+## 8. Risk Assessment
+
+### 8.1 Risk Matrix
+
+| Risk ID | Risk Description | Probability | Impact | Severity | Mitigation Strategy |
+|---------|-----------------|-------------|--------|----------|---------------------|
+| **R-001** | Schools decline pilot participation | Medium | High | **High** | Expand outreach to 20+ schools, offer free lifetime access incentive |
+| **R-002** | Students find game boring/disengaging | Low | High | **Medium** | Extensive user testing with kids, iterate based on feedback |
+| **R-003** | No measurable learning improvement | Low | Critical | **High** | Validate cases with MOE curriculum experts, conduct A/B testing |
+| **R-004** | PDPA compliance breach | Low | Critical | **High** | Legal review, penetration testing, Singapore-based servers only |
+| **R-005** | Platform downtime during exams | Low | High | **Medium** | 99.9% SLA infrastructure, load balancing, auto-scaling |
+| **R-006** | MOE approval delayed/rejected | Medium | High | **High** | Early engagement with MOE, demonstrate clear syllabus alignment |
+| **R-007** | Budget overrun (free tier limits exceeded) | High | Medium | **Medium** | Monitor usage closely, apply for grants proactively |
+| **R-008** | Content creation bottleneck | Medium | Medium | **Medium** | Hire freelance writers, use AI to assist, simplify case templates |
+| **R-009** | Teacher resistance to new tool | Medium | Medium | **Medium** | Provide training, demonstrate time savings, start with early adopters |
+| **R-010** | Competitor launches similar product | Low | Medium | **Low** | Move fast (first-mover advantage), build strong school relationships |
+| **R-011** | Technical debt accumulates | Medium | Medium | **Medium** | Enforce code reviews, refactor quarterly, maintain test coverage |
+| **R-012** | Insufficient devices/internet access | Low | Medium | **Low** | Partner with schools for device lending, offline mode (Phase 3) |
+
+### 8.2 Detailed Risk Analysis
+
+#### R-001: Schools Decline Pilot Participation
+
+**Likelihood:** Medium (40%)  
+**Impact:** High (blocks validation)
+
+**Causes:**
+- Schools overwhelmed with EdTech requests
+- Lack of time during school year
+- Skepticism about effectiveness
+- Budget constraints (even if free)
+
+**Mitigation:**
+- **Proactive:** Target 20+ schools (expect 15-30% conversion)
+- **Proactive:** Reach out during school holidays (less busy)
+- **Proactive:** Provide one-pagers showing pilot benefits
+- **Reactive:** Offer to run pilot during enrichment weeks (less curriculum pressure)
+- **Reactive:** Get testimonial from first pilot school to attract others
+
+**Contingency Plan:**
+- If <3 schools by Month 2, pivot to individual teacher pilots (not whole-school)
+- Offer to integrate with existing after-school programs
+
+#### R-003: No Measurable Learning Improvement
+
+**Likelihood:** Low (15%)  
+**Impact:** Critical (undermines entire value proposition)
+
+**Causes:**
+- Cases not aligned with skills tested in exams
+- Students treat it as "just a game" (no transfer of learning)
+- Sample size too small for statistical significance
+- External factors (tuition, parental support) confound results
+
+**Mitigation:**
+- **Proactive:** Validate case content with 2+ experienced MOE teachers
+- **Proactive:** Map every quiz question to specific PSLE question types
+- **Proactive:** Use control group design (pilot class vs non-pilot class)
+- **Proactive:** Pre-test students to establish baseline
+- **Reactive:** Iterate cases based on pilot data (which questions students struggle with)
+- **Reactive:** Add explicit "learning links" showing connection to exams
+
+**Contingency Plan:**
+- If no improvement after Pilot Phase 1 (3 months), conduct in-depth analysis:
+  - Which skills showed no improvement? (redesign those cases)
+  - Which students improved vs didn't? (segment and personalize)
+- Extend pilot by 3 months with revised cases
+
+#### R-004: PDPA Compliance Breach
+
+**Likelihood:** Low (10%)  
+**Impact:** Critical (legal liability, reputation damage)
+
+**Causes:**
+- Data stored on non-Singapore servers
+- Unauthorized access to student data
+- Insufficient consent mechanisms
+- Data not deleted per retention policy
+
+**Mitigation:**
+- **Proactive:** Legal review of data practices before pilot
+- **Proactive:** Use Singapore-based AWS (ap-southeast-1 region only)
+- **Proactive:** Implement row-level security in database
+- **Proactive:** Annual third-party security audit
+- **Proactive:** Clear parent consent forms (reviewed by lawyer)
+- **Reactive:** Incident response plan (notify affected parties within 72 hours)
+- **Reactive:** Cyber insurance policy
+
+**Contingency Plan:**
+- If breach occurs:
+  - Immediately isolate affected systems
+  - Notify PDPC (Personal Data Protection Commission) within 72 hours
+  - Offer credit monitoring to affected users
+  - Publish transparent post-mortem
+
+#### R-006: MOE Approval Delayed/Rejected
+
+**Likelihood:** Medium (30%)  
+**Impact:** High (delays scale, limits school adoption)
+
+**Causes:**
+- Lengthy bureaucratic process
+- Insufficient evidence of effectiveness
+- Concerns about data privacy
+- Competing priorities at MOE
+
+**Mitigation:**
+- **Proactive:** Engage MOE early (Month 3) to understand requirements
+- **Proactive:** Build strong pilot data showing learning outcomes
+- **Proactive:** Align with existing MOE initiatives (e.g., EdTech Plan)
+- **Proactive:** Get endorsement from respected educators (principals, HODs)
+- **Reactive:** Apply for interim approval to continue pilot while awaiting full approval
+- **Reactive:** Offer to conduct MOE-supervised trial
+
+**Contingency Plan:**
+- If approval takes >12 months:
+  - Continue growing via school-by-school partnerships (doesn't require MOE approval)
+  - Focus on private/international schools (different regulatory path)
+  - Explore alternative markets (Malaysia, Brunei)
+
+#### R-007: Budget Overrun (Free Tier Limits Exceeded)
+
+**Likelihood:** High (60%)  
+**Impact:** Medium (requires funding earlier than planned)
+
+**Causes:**
+- Faster user growth than expected (good problem!)
+- Underestimated database/storage usage
+- Free tier caps hit (Vercel, Supabase)
+
+**Mitigation:**
+- **Proactive:** Set up usage monitoring and alerts (70% threshold)
+- **Proactive:** Apply for MOE EdTech grant in Month 4 (before limits hit)
+- **Proactive:** Implement caching aggressively to reduce database queries
+- **Proactive:** Optimize images and assets to reduce storage
+- **Reactive:** Negotiate extended free tier with providers (as educational project)
+- **Reactive:** Crowdfunding or angel investment if needed
+
+**Contingency Plan:**
+- If budget needed urgently:
+  - Pause new school onboarding temporarily
+  - Prioritize existing users (don't break current experience)
+  - Seek emergency grant from Education-focused VCs (EdVentures, SGInnovate)
+
+---
+
+## 9. Budget & Resources
+
+### 9.1 Development Budget
+
+#### Phase 1: MVP (Months 1-3)
+
+| Category | Item | Cost (SGD) | Notes |
+|----------|------|-----------|-------|
+| **Hosting** | Vercel (Free Tier) | $0 | 100GB bandwidth/month |
+| **Database** | Supabase (Free Tier) | $0 | 500MB storage, enough for MVP |
+| **Domain** | .com domain | $15/year | GoDaddy or Namecheap |
+| **SSL Certificate** | Let's Encrypt | $0 | Included with Vercel |
+| **Development Tools** | GitHub (Free), VS Code (Free) | $0 | Open source tools |
+| **Design Assets** | Canva Pro | $17/month | For character illustrations |
+| **AI Hints** | Google Gemini API | $0 | Free tier: 1M tokens/month |
+| **Monitoring** | Sentry (Free Tier) | $0 | 5,000 events/month |
+| **Content Creation** | Case writing (self) | $0 | Sweat equity |
+| | | **Total: $32** | **First 3 months** |
+
+#### Phase 2: Pilot (Months 4-6)
+
+| Category | Item | Cost (SGD) | Notes |
+|----------|------|-----------|-------|
+| **Hosting** | AWS EC2 t3.small (Singapore) | $25/month | Compliance requirement |
+| **Database** | AWS RDS t3.micro | $30/month | PostgreSQL |
+| **Storage** | AWS S3 + CloudFront | $20/month | Images, audio |
+| **Backup** | Automated snapshots | $10/month | 30-day retention |
+| **Monitoring** | CloudWatch | $10/month | Logs and metrics |
+| **Domain** | .edu.sg domain | $50/year | Educational domain |
+| **Legal** | PDPA compliance review | $500 | One-time lawyer consultation |
+| **Content Creation** | Freelance writers (6 cases) | $1,200 | $200 per case |
+| **Graphic Design** | Freelance illustrator | $800 | Characters and scenes |
+| **Pilot Support** | Testing and training | $0 | Self-provided |
+| | | **Total: $2,800** | **3 months** |
+
+#### Phase 3: Scale (Months 7-12)
+
+| Category | Item | Cost (SGD) | Notes |
+|----------|------|-----------|-------|
+| **Hosting** | AWS ECS/Fargate | $150/month | Auto-scaling |
+| **Database** | AWS RDS t3.medium (Multi-AZ) | $100/month | High availability |
+| **CDN** | CloudFront | $50/month | Global delivery |
+| **Backup & DR** | Cross-region replication | $30/month | Disaster recovery |
+| **Monitoring** | CloudWatch + Sentry Business | $100/month | Advanced alerting |
+| **Support** | AWS Business Support | $100/month | 24/7 technical support |
+| **Content** | 14 additional cases | $2,800 | Complete syllabus coverage |
+| **Development** | Contract developer (part-time) | $3,000/month | Feature development |
+| **Marketing** | School outreach materials | $500 | Brochures, case studies |
+| **MOE Submission** | Documentation and compliance | $1,000 | Legal and technical docs |
+| | | **Total: $24,000** | **6 months** |
+
+### 9.2 Funding Strategy
+
+#### Self-Funded (Bootstrap)
+
+**MVP:** $0-50  
+**Pilot:** $1,000-3,000 (if self-funded)  
+**Strategy:** Use free tiers, minimize costs, validate before investing
+
+#### Grant Funding (Primary Strategy)
+
+**Target Grants:**
+
+1. **MOE EdTech Grant**
+   - Amount: $50,000 - $500,000
+   - Use: Development, content, hosting for 2 years
+   - Eligibility: Must demonstrate MOE syllabus alignment
+   - Application: After pilot results available
+
+2. **SkillsFuture Grant**
+   - Amount: $10,000 - $100,000
+   - Use: Upskilling-focused EdTech
+   - Eligibility: Singapore-based, skills development
+   - Application: Parallel to MOE grant
+
+3. **Startup SG Founder Grant**
+   - Amount: Up to $50,000
+   - Use: Startup costs (equity-free)
+   - Eligibility: First-time founders, Singapore-based
+   - Application: Month 4-6
+
+**Total Potential Funding: $110,000 - $650,000**
+
+#### School Subscriptions (Year 2+)
+
+**Revenue Model:**
+- Small school (50-100 students): $500/year
+- Medium school (100-300 students): $1,000/year
+- Large school (300-600 students): $1,500/year
+
+**Projections:**
+
+| Year | Schools | Avg Students/School | Revenue (SGD) |
+|------|---------|-------------------|---------------|
+| Year 1 (Pilot) | 5 | 100 | $0 (free) |
+| Year 2 | 50 | 150 | $50,000 |
+| Year 3 | 200 | 200 | $200,000 |
+| Year 4 | 400 | 250 | $500,000 |
+
+**Break-even:** Month 18 (Year 2, assuming grant covers Year 1 costs)
+
+### 9.3 Resource Requirements
+
+#### Human Resources
+
+**Phase 1: MVP (Self-Sufficient)**
+- **Full-Stack Developer:** 1 (you)
+- **Content Writer:** 1 (you, with AI assistance)
+- **Designer:** Freelance as needed ($800)
+
+**Phase 2: Pilot**
+- **Developer:** 1 full-time equivalent
+- **Content Writer:** 1 part-time (20 hrs/week)
+- **Curriculum Consultant:** 1 advisor (MOE-experienced teacher)
+- **QA Tester:** Pilot teachers and students
+
+**Phase 3: Scale**
+- **Development Team:** 2-3 developers (1 full-time, 1-2 contract)
+- **Content Team:** 2 writers (part-time)
+- **Design:** 1 freelance illustrator (ongoing)
+- **Customer Success:** 1 part-time (teacher training and support)
+- **Business Development:** 1 part-time (school partnerships)
+
+**Total Team Size:** 6-8 people (mix of full-time and part-time)
+
+#### Technical Resources
+
+**Development Environment:**
+- GitHub (version control)
+- VS Code (IDE)
+- Figma (design collaboration)
+- Notion (documentation)
+
+**Production Infrastructure:**
+- AWS Singapore region (ap-southeast-1)
+- Vercel (frontend deployment)
+- Supabase or AWS RDS (database)
+- Cloudflare or AWS CloudFront (CDN)
+
+**Third-Party Services:**
+- Google Gemini API (AI hints)
+- Sentry (error tracking)
+- Resend or SendGrid (email)
+- Stripe (payments, if needed)
+
+---
+
+## 10. Timeline & Milestones
+
+### 10.1 Phased Rollout Plan
+
+```
+Year 1: Validation & Pilot
+├── Q1 (Months 1-3): MVP Development
+├── Q2 (Months 4-6): Pilot Program
+├── Q3 (Months 7-9): Iteration & MOE Submission
+└── Q4 (Months 10-12): MOE Approval & Expansion Prep
+
+Year 2: Growth & Scale
+├── Q1 (Months 13-15): Scale to 50 Schools
+├── Q2 (Months 16-18): Nationwide Marketing
+├── Q3 (Months 19-21): Product Enhancements
+└── Q4 (Months 22-24): Secondary School Pilot
+
+Year 3: Market Leadership
+├── Nationwide adoption (200+ schools)
+├── Regional expansion (Malaysia, Brunei)
+└── Product line extension (Math, Science)
+```
+
+### 10.2 Detailed Timeline (Year 1)
+
+#### Month 1: Foundation
+
+**Week 1-2: Project Setup**
+- [x] Create GitHub repository
+- [ ] Set up Next.js project structure
+- [ ] Configure Supabase database
+- [ ] Design database schema (students, cases, progress)
+- [ ] Set up CI/CD pipeline (GitHub Actions → Vercel)
+
+**Week 3-4: Core Features**
+- [ ] Implement authentication (Supabase Auth)
+- [ ] Build student registration flow
+- [ ] Create basic UI components (design system)
+- [ ] Implement role-based access control
+
+**Deliverable:** Working authentication and user management
+
+#### Month 2: Content & Gameplay
+
+**Week 5-6: Case Development**
+- [ ] Write Case 1: "Missing School Mascot" (Primary 4)
+  - Storyline, clues, witness dialogues
+  - 10 PSLE-format questions (MCQ + open-ended)
+- [ ] Design scene illustrations (costume room, canteen, etc.)
+- [ ] Create character avatars (3 witnesses, 1 detective)
+- [ ] Record audio narration (optional, or TTS)
+
+**Week 7-8: Gameplay Mechanics**
+- [ ] Build interactive scene viewer (click on objects)
+- [ ] Implement clue collection system
+- [ ] Create witness interview interface
+- [ ] Build quiz/assessment component
+- [ ] Progress tracking and saving
+
+**Deliverable:** One fully playable case
+
+#### Month 3: Dashboard & Polish
+
+**Week 9-10: Teacher Dashboard**
+- [ ] Class management (create class, add students)
+- [ ] Case assignment functionality
+- [ ] Progress overview (who completed what)
+- [ ] Export reports to CSV
+
+**Week 11: Testing & Bug Fixes**
+- [ ] Internal testing with family/friends' kids
+- [ ] Fix critical bugs
+- [ ] Performance optimization
+- [ ] Mobile responsiveness testing
+
+**Week 12: Deployment & School Outreach**
+- [ ] Deploy to production (Vercel)
+- [ ] Create demo video (3-5 minutes)
+- [ ] Design pitch deck for schools
+- [ ] Email 20 primary schools (English HODs)
+
+**Deliverable:** Live MVP, 3 pilot schools interested
+
+#### Month 4: Pilot Kickoff
+
+**Week 13-14: Onboarding**
+- [ ] Teacher training sessions (1 hour per school)
+- [ ] Student account setup (bulk import)
+- [ ] Assign Case 1 to all pilot students
+- [ ] Set up feedback channels (teacher Telegram group)
+
+**Week 15-16: Case 2 Development**
+- [ ] Write Case 2: "Library Mystery" (Primary 5)
+- [ ] Design library scene and clues
+- [ ] Create new character avatars
+- [ ] Test with pilot students
+
+**Deliverable:** Case 2 live, 150+ students using platform
+
+#### Month 5: Data Collection
+
+**Week 17-18: Case 3 Development**
+- [ ] Write Case 3: "Science Fair Sabotage" (Primary 6)
+- [ ] Design science fair scene
+- [ ] Advanced quiz questions (synthesis, inference)
+
+**Week 19-20: Analytics & Iteration**
+- [ ] Analyze pilot data via automated dashboard (completion rates, scores)
+- [ ] Make analytics dashboard available to program managers/HODs (review at their convenience)
+- [ ] Optional online surveys for teachers and students (fun rating, perceived learning)
+- [ ] Iterate based on analytics insights and optional program manager input
+- [ ] No mandatory meetings - all feedback via platform
+
+**Deliverable:** 3 cases live, pilot data collected
+
+#### Month 6: Pilot Wrap-Up
+
+**Week 21-22: Pre/Post Testing**
+- [ ] Administer post-test to pilot students
+- [ ] Compare pre-test vs post-test scores
+- [ ] Calculate comprehension improvement
+- [ ] Document success stories
+
+**Week 23-24: Case Study Creation**
+- [ ] Write pilot case study (methodology, results)
+- [ ] Get teacher testimonials
+- [ ] Create parent survey results summary
+- [ ] Design infographic of key metrics
+
+**Deliverable:** Pilot complete, case study ready for MOE
+
+#### Month 7-9: MOE Submission
+
+**Week 25-28: Documentation**
+- [ ] Create comprehensive MOE submission package:
+  - Syllabus alignment matrix (every case → MOE objectives)
+  - PDPA compliance documentation
+  - Security and privacy audit
+  - Pilot results and testimonials
+  - Technical architecture documentation
+
+**Week 29-32: Grant Applications**
+- [ ] Apply for MOE EdTech Grant
+- [ ] Apply for SkillsFuture Grant
+- [ ] Apply for Startup SG Founder Grant
+
+**Week 33-36: Content Expansion**
+- [ ] Write 6 additional cases (Cases 4-9)
+- [ ] Cover full P4-P6 syllabus
+- [ ] Diversify themes and difficulty
+
+**Deliverable:** MOE submission sent, 9 cases live
+
+#### Month 10-12: Expansion Prep
+
+**Week 37-40: Infrastructure Upgrade**
+- [ ] Migrate to AWS Singapore (PDPA compliance)
+- [ ] Implement automated backups
+- [ ] Set up monitoring and alerting
+- [ ] Load testing (10,000 concurrent users)
+
+**Week 41-44: Feature Enhancements**
+- [ ] AI hint system (Google Gemini integration)
+- [ ] Achievement badges
+- [ ] Parent portal (view child's progress)
+- [ ] Multilingual support (Chinese, Malay, Tamil)
+
+**Week 45-48: Partnership Development**
+- [ ] MOE feedback review and revisions
+- [ ] Approach 20 additional schools
+- [ ] Negotiate school subscription pricing
+- [ ] Prepare for Year 2 scale-up
+
+**Deliverable:** MOE approval (target), 10-20 schools signed up
+
+### 10.3 Critical Path Analysis
+
+**Critical Dependencies (Must Complete On Time):**
+
+1. **Case 1 Completion (Month 2)** → Blocks pilot kickoff
+2. **Pilot School Recruitment (Month 3)** → Blocks validation
+3. **Pilot Data Collection (Month 5-6)** → Blocks MOE submission
+4. **MOE Submission (Month 7)** → Blocks grant funding
+
+**Slack Time (Can Be Delayed Without Major Impact):**
+
+- Parent portal (not needed for pilot)
+- Multilingual support (English sufficient for MVP)
+- Achievement badges (nice-to-have)
+- AI hints (manual teacher support can substitute)
+
+### 10.4 Risk Buffer
+
+**Contingency Time Built In:**
+- 20% buffer for each major milestone
+- If pilot recruitment delayed 2 weeks → still on track for Month 4 kickoff
+- If MOE approval takes 18 months (not 12) → can continue growing via direct school sales
+
+---
+
+## 11. Compliance & Legal
+
+### 11.1 Personal Data Protection Act (PDPA) Compliance
+
+#### 11.1.1 Data Protection Principles
+
+**Consent Obligation:**
+- [ ] Obtain parent consent for students under 18
+- [ ] Clear consent forms explaining data usage
+- [ ] Option to withdraw consent anytime
+- [ ] Record consent date and method
+
+**Purpose Limitation:**
+- [ ] Collect only data necessary for learning objectives
+- [ ] No sharing of data with third parties (except MOE if required)
+- [ ] Data used solely for education and platform improvement
+
+**Notification Obligation:**
+- [ ] Display data collection notice before signup
+- [ ] Explain what data is collected and why
+- [ ] State how long data is retained
+- [ ] Provide contact for data protection queries
+
+**Access & Correction:**
+- [ ] Users can request their data (export as PDF/CSV)
+- [ ] Users can correct inaccurate information
+- [ ] Process requests within 30 days
+
+**Accuracy:**
+- [ ] Validate email addresses
+- [ ] Allow users to update profile information
+- [ ] Regularly review data for accuracy
+
+**Protection:**
+- [ ] Encryption in transit (HTTPS/TLS 1.3)
+- [ ] Encryption at rest (database encryption)
+- [ ] Access controls (role-based permissions)
+- [ ] Audit logs for all data access
+
+**Retention Limitation:**
+- [ ] Retain student data only while enrolled + 1 year post-graduation
+- [ ] Automated deletion jobs run quarterly
+- [ ] Archives for legal/compliance purposes only
+
+**Transfer Limitation:**
+- [ ] Data stored exclusively in Singapore (AWS ap-southeast-1)
+- [ ] No cross-border data transfers
+- [ ] Third-party services (Gemini API) anonymized requests only
+
+**Breach Notification:**
+- [ ] Incident response plan documented
+- [ ] Notify PDPC within 72 hours of confirmed breach
+- [ ] Notify affected users within 72 hours
+- [ ] Post-mortem and remediation plan
+
+#### 11.1.2 Data Minimization Strategy
+
+**Data We MUST Collect:**
+- School email (authentication)
+- Display name (personalization)
+- Education level (content targeting)
+- Class assignment (teacher dashboard)
+- Learning progress (educational objective)
+
+**Data We WILL NOT Collect:**
+- Full name (unless explicitly needed)
+- NRIC/FIN
+- Home address
+- Phone number
+- Photos (unless parent consent + competition)
+- Geolocation
+- Device identifiers (beyond session management)
+
+#### 11.1.3 Parent Consent Process
+
+**For Students Under 13:**
+1. Student attempts to register
+2. System requires parent email
+3. Parent receives consent form via email
+4. Parent reviews data collection notice
+5. Parent clicks "I consent" link (verified)
+6. Student account activated
+7. Consent logged in database
+
+**Consent Withdrawal:**
+- Parent can withdraw at any time via email
+- Account suspended immediately
+- Data deleted within 30 days (except legal obligations)
+
+### 11.2 MOE Compliance
+
+#### 11.2.1 Syllabus Alignment
+
+**Primary 4-6 English Syllabus Mapping:**
+
+| MOE Learning Objective | Case ID | Case Title | Quiz Questions |
+|------------------------|---------|------------|----------------|
+| **Reading Skills** |
+| Make inferences | Case 1, 2, 3 | All cases | Q3, Q5, Q7 |
+| Identify main idea | Case 2, 3 | Library, Science | Q1, Q2 |
+| Understand context clues | Case 1, 2, 3 | All cases | Vocabulary section |
+| Sequence events | Case 1, 3 | Mascot, Science | Timeline tasks |
+| Cause and effect | Case 2, 3 | Library, Science | Q4, Q6 |
+| **Comprehension Skills** |
+| Literal comprehension | Case 1 | Mascot | Q1, Q2 |
+| Inferential comprehension | Case 2 | Library | Q3, Q4, Q5 |
+| Evaluative comprehension | Case 3 | Science | Q7, Q8 |
+| **PSLE Exam Format** |
+| Multiple choice (4 options) | All cases | All | 40% of quiz |
+| Open-ended (3-5 sentences) | All cases | All | 40% of quiz |
+| Vocabulary in context | All cases | All | 20% of quiz |
+
+**Validation Process:**
+1. Review by 2+ MOE-trained English teachers
+2. Pilot testing with students
+3. Alignment verified by MOE curriculum specialist
+4. Continuous review based on exam trends
+
+#### 11.2.2 MOE Approval Process
+
+**Step 1: Initial Consultation (Month 3-4)**
+- Schedule meeting with MOE Innovation & Enterprise Division
+- Present concept and pilot plan
+- Understand approval requirements
+
+**Step 2: Pilot Documentation (Month 6-7)**
+- Submit pilot results (quantitative + qualitative)
+- Provide syllabus alignment matrix
+- Demonstrate PDPA compliance
+- Show technical security measures
+
+**Step 3: Formal Application (Month 7-8)**
+- Complete MOE EdTech vendor application form
+- Attach all required documents:
+  - Business registration (ACRA)
+  - PDPA compliance certification
+  - Insurance documents
+  - Technical security audit
+  - Syllabus alignment evidence
+
+**Step 4: Review & Feedback (Month 8-10)**
+- MOE review committee evaluates application
+- May request additional information
+- Possible site visit or demo
+
+**Step 5: Conditional Approval (Month 10-11)**
+- MOE grants conditional approval for expanded pilot
+- Requirements for full approval outlined
+
+**Step 6: Full Approval (Month 12+)**
+- Listed in MOE SLS catalog
+- Eligible for MOE subsidies/grants
+- Can market as "MOE-approved"
+
+**Timeline:** 6-12 months (realistic expectation)
+
+### 11.3 Accessibility Compliance
+
+#### 11.3.1 WCAG 2.1 AA Standards
+
+**Perceivable:**
+- [ ] Text alternatives for images (alt text)
+- [ ] Captions for audio content (if applicable)
+- [ ] Color contrast ratio ≥ 4.5:1 for normal text
+- [ ] Text resizable to 200% without loss of functionality
+- [ ] No content flash more than 3 times per second
+
+**Operable:**
+- [ ] All functionality keyboard accessible
+- [ ] No keyboard traps
+- [ ] Skip navigation links
+- [ ] Page titles descriptive
+- [ ] Focus order logical
+
+**Understandable:**
+- [ ] Language of page declared (lang="en")
+- [ ] Consistent navigation across pages
+- [ ] Error messages clear and specific
+- [ ] Labels/instructions for input fields
+
+**Robust:**
+- [ ] Valid HTML markup
+- [ ] Compatible with assistive technologies (screen readers)
+- [ ] Name, role, value for all UI components
+
+**Dyslexia-Friendly Design:**
+- [ ] OpenDyslexic font option
+- [ ] Adjustable line spacing (1.5-2.0)
+- [ ] Off-white background (reduce glare)
+- [ ] Text-to-speech option
+
+#### 11.3.2 Accessibility Testing
+
+**Tools:**
+- [ ] WAVE (Web Accessibility Evaluation Tool)
+- [ ] axe DevTools
+- [ ] Lighthouse Accessibility Audit
+- [ ] Screen reader testing (NVDA, JAWS)
+
+**User Testing:**
+- [ ] Test with students with special needs
+- [ ] Feedback from MOE Special Education department
+
+### 11.4 Intellectual Property
+
+#### 11.4.1 Content Ownership
+
+**Original Content:**
+- All case storylines, characters, and questions are original works
+- Copyright held by company/founder
+- Teachers/schools granted license to use, not ownership
+
+**Third-Party Assets:**
+- Illustrations: Commission freelancers with work-for-hire agreements
+- Music/SFX: Use royalty-free libraries (Freesound, Incompetech) with proper attribution
+- Icons: Use open-source icon libraries (Heroicons, Lucide)
+
+**Student-Generated Content:**
+- Open-ended answers remain property of student
+- Platform stores for grading only, not republished
+
+#### 11.4.2 Trademarks
+
+**Product Name:** "Detective Learning Academy" (example)
+- [ ] Conduct trademark search (IPOS Singapore)
+- [ ] File trademark application (Class 41: Education)
+- [ ] Cost: ~$340 for registration
+
+**Logo & Branding:**
+- [ ] Design unique logo
+- [ ] Register as trademark (if budget allows)
+
+#### 11.4.3 Open Source Compliance
+
+**Libraries Used:**
+- Next.js (MIT License)
+- React (MIT License)
+- Supabase client (MIT License)
+- Tailwind CSS (MIT License)
+
+**Compliance:**
+- [ ] Maintain LICENSES.md file listing all dependencies
+- [ ] Ensure no GPL code (requires open-sourcing our code)
+- [ ] Attribute open-source authors where required
+
+### 11.5 Terms of Service & Privacy Policy
+
+#### 11.5.1 Terms of Service (ToS)
+
+**Key Sections:**
+1. **Acceptance of Terms:** By using platform, user agrees to ToS
+2. **User Accounts:** Responsibilities, password security
+3. **Acceptable Use:** No cheating, harassment, or misuse
+4. **Intellectual Property:** Content ownership, usage rights
+5. **Limitation of Liability:** Platform provided "as is"
+6. **Termination:** Right to suspend/terminate accounts
+7. **Dispute Resolution:** Singapore law governs, arbitration preferred
+8. **Changes to Terms:** Right to update with notice
+
+**Review:** Have lawyer review before launch (cost: ~$500)
+
+#### 11.5.2 Privacy Policy
+
+**Key Sections:**
+1. **Information Collected:** List all data points
+2. **How We Use Information:** Educational purposes, platform improvement
+3. **Data Sharing:** Only with school/teacher, never third parties (except legal requirement)
+4. **Data Security:** Encryption, access controls
+5. **Your Rights:** Access, correction, deletion
+6. **Cookies:** Session cookies only, no tracking
+7. **Children's Privacy:** Special provisions for under-13 users
+8. **Contact:** Data Protection Officer email
+
+**PDPC Template:** Use PDPC's model privacy policy as starting point
+
+### 11.6 Insurance & Liability
+
+#### 11.6.1 Cyber Liability Insurance
+
+**Coverage:**
+- Data breach response costs
+- Legal defense for PDPA violations
+- Notification costs to affected parties
+- PR/crisis management
+
+**Cost:** ~$1,000-2,000/year for startups
+**Provider:** Chubb, AIG, or local insurers
+
+#### 11.6.2 Professional Indemnity Insurance
+
+**Coverage:**
+- Claims of negligence or errors
+- Legal defense costs
+- Reputational harm
+
+**Cost:** ~$500-1,000/year
+**Provider:** Singapore-based insurers
+
+**Note:** Some school contracts may require proof of insurance
+
+### 11.7 Compliance Checklist
+
+**Before Pilot Launch:**
+- [ ] PDPA compliance documentation complete
+- [ ] Privacy Policy published and linked in footer
+- [ ] Terms of Service published and accepted at signup
+- [ ] Parent consent mechanism implemented
+- [ ] Data encryption enabled (transit and rest)
+- [ ] Singapore-based servers confirmed
+- [ ] Backup and disaster recovery tested
+- [ ] Accessibility audit passed (WCAG 2.1 AA)
+
+**Before MOE Submission:**
+- [ ] Syllabus alignment matrix completed
+- [ ] Pilot results documented
+- [ ] Third-party security audit conducted
+- [ ] Cyber liability insurance purchased
+- [ ] Business registration (ACRA) obtained
+- [ ] Trademark search completed (optional but recommended)
+
+**Ongoing Compliance:**
+- [ ] Quarterly data retention review (delete old data)
+- [ ] Annual security audit
+- [ ] Privacy Policy review (whenever data practices change)
+- [ ] Staff training on PDPA obligations (if hiring)
+
+---
+
+## 12. User Experience & Design
+
+### 12.1 Design Philosophy
+
+**Core Principles:**
+- **Child-First Design:** Interface designed for 10-12 year olds with age-appropriate language, visuals, and interactions
+- **Inclusive Accessibility:** WCAG 2.1 AA compliance ensuring all students can participate
+- **Mobile-Responsive:** Seamless experience across desktop, tablet, and mobile devices
+- **Cognitive Load Management:** Clear information hierarchy, minimal distractions, progressive disclosure
+- **Engaging Without Distracting:** Visual interest that supports learning, not entertainment for entertainment's sake
+- **Singapore Context:** Culturally relevant characters, settings, and references
+
+### 12.2 User Journeys & Scenarios
+
+#### 12.2.1 Student User Journey: First-Time Player
+
+**Persona:** Mei Lin, 11 years old, Primary 5 student, average English proficiency
+
+**Journey Flow:**
+
+1. **Entry Point** (Teacher shares link or parent bookmarks)
+   - Landing page with animated detective mascot
+   - "Sign In" and "What's This?" buttons
+   - Touchpoint: First impression of friendly, game-like interface
+
+2. **Account Creation/Login** (30 seconds)
+   - Simple form: Username, password, class code
+   - Visual feedback: "Welcome, Detective Mei Lin!" with badge animation
+   - Touchpoint: Personalization begins immediately
+
+3. **Tutorial/Onboarding** (2 minutes)
+   - Interactive walkthrough of first mini-case
+   - Learn: How to read clues, select answers, navigate
+   - Gamified: Earn "Detective Badge" upon completion
+   - Touchpoint: Confidence-building through guided success
+
+4. **Case Selection Dashboard** (Discovery)
+   - Grid view of available cases with difficulty indicators
+   - Visual: Locked cases (grayed out) vs available (colorful)
+   - Recommendation: "Try 'The Missing Painting' - matched to your level"
+   - Touchpoint: Autonomy and choice
+
+5. **Playing a Case** (15-20 minutes)
+   - **Scene Introduction:** Animated scene with text narration and "Play Audio" option
+   - **Clue Gathering:** Click hotspots, read evidence, watch character dialogues
+   - **Question Answering:** 5 PSLE-format MCQs interspersed throughout
+   - **Feedback Loop:** Immediate correct/incorrect with explanations
+   - **Progress Bar:** Visual indicator of case completion
+   - Touchpoint: Flow state maintained through pacing and rewards
+
+6. **Case Completion** (Celebration)
+   - Results summary: Score, accuracy, time taken
+   - Rewards: Stars, badge, unlocked next case
+   - Social: "Share your detective rank with classmates" (optional)
+   - Touchpoint: Achievement and motivation to continue
+
+7. **Returning Visit** (Habit Formation)
+   - Dashboard shows: Progress (3/10 cases), streak (5 days), leaderboard position
+   - New case recommendations based on performance
+   - Touchpoint: Personalized experience encourages return
+
+---
+
+#### 12.2.2 Teacher User Journey: Weekly Assignment
+
+**Persona:** Mr. Tan, Primary 5 English teacher, 8 years teaching experience
+
+**Journey Flow:**
+
+1. **Login to Teacher Dashboard** (SLS SSO if available)
+   - Welcome screen: "5 students completed last week's case"
+   - Quick stats: Class average 78%, 2 students need support
+
+2. **Review Student Progress** (5 minutes)
+   - Class roster with color-coded performance indicators
+   - Click on struggling student (e.g., Raj) → See detailed report
+   - Identify: Weak in "inference" questions across 3 cases
+   - Action: Flag for one-on-one support
+
+3. **Assign New Case** (2 minutes)
+   - Browse case library filtered by: Topic (family), Difficulty (Medium), MOE skill (main idea)
+   - Select "The Secret Recipe" case
+   - Set: Due date (Friday), Allow hints (Yes), Attempts (2)
+   - Notification: Auto-sent to all students via platform
+
+4. **Monitor Completion** (Throughout Week)
+   - Live dashboard: 12/25 students started, 7 completed
+   - Mid-week reminder: Automated email to students who haven't started
+   - Touchpoint: Real-time visibility without manual tracking
+
+5. **Post-Deadline Review** (10 minutes)
+   - Export detailed report (CSV): Student names, scores, time spent, error patterns
+   - Use data: Plan next week's lesson focusing on "context clues"
+   - Touchpoint: Actionable insights for differentiated instruction
+
+---
+
+#### 12.2.3 Parent User Journey: Home Learning Support
+
+**Persona:** Mrs. Lim, parent of Primary 6 student preparing for PSLE, non-technical
+
+**Journey Flow:**
+
+1. **Discovery** (Word-of-mouth from school WhatsApp group)
+   - "My son actually enjoys doing English practice now!"
+   - Parent clicks shared link, sees demo video
+
+2. **Sign-Up Decision** (Parental portal account)
+   - Free trial: 3 cases, no credit card needed
+   - Watch child play first case together
+   - Decision: Subscribe after seeing engagement
+
+3. **Weekly Monitoring** (5 minutes on Sunday evening)
+   - Email summary: "Ethan completed 2 cases this week, 80% average"
+   - Login to parent portal: See detailed progress, skill breakdown
+   - Conversation starter: "I saw you got 'inference' questions right - well done!"
+
+4. **PSLE Preparation Mode** (3 months before exam)
+   - Filter cases by: PSLE-focus, high difficulty
+   - Set goal: 1 case every 2 days
+   - Track: Mock test scores improving from 65% to 78%
+   - Touchpoint: Confidence and reduced tuition costs
+
+---
+
+### 12.3 Wireframes & Interface Design
+
+#### 12.3.1 Key Screen Layouts
+
+**A. Student Dashboard (Home Screen)**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ [Logo] Detective Academy        [👤 Mei Lin] [🔔] [⚙️]  │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  👋 Welcome back, Detective Mei Lin!                    │
+│  🔥 5-day streak | ⭐ 12 cases solved | 🏆 Rank: Bronze │
+│                                                          │
+│  ┌──────────────────────────────────────────┐          │
+│  │ 📚 Continue Where You Left Off            │          │
+│  │ ┌──────┐  The Stolen Trophy              │          │
+│  │ │ 🎯   │  Chapter 2/4 • 67% complete     │          │
+│  │ └──────┘  [Continue →]                   │          │
+│  └──────────────────────────────────────────┘          │
+│                                                          │
+│  📂 Case Library                           [View All]   │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐          │
+│  │🎨 NEW  │ │🏠      │ │🌳      │ │🔒      │          │
+│  │Missing │ │Secret  │ │Park    │ │Coming  │          │
+│  │Painting│ │Recipe  │ │Mystery │ │Soon    │          │
+│  │⭐⭐⭐   │ │⭐⭐     │ │⭐⭐⭐⭐  │ │        │          │
+│  └────────┘ └────────┘ └────────┘ └────────┘          │
+│                                                          │
+│  📊 Your Progress                                       │
+│  Skills Mastered: ██████████░░ 83%                     │
+│  • Inference: ████████░░░░ 67%                         │
+│  • Main Idea: ██████████░░ 85%                         │
+│  • Vocabulary: ████████████ 92%                        │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Design Notes:**
+- Warm, welcoming color palette (blues, yellows, avoiding harsh reds)
+- Large touch targets (minimum 44x44px for mobile)
+- Progress visualized with bars, stars, badges (gamification)
+- Card-based layout for easy scanning
+
+---
+
+**B. Case Playing Screen (Reading & Investigation)**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ [Back] The Missing Painting                [🔊] [💡]    │
+│ Progress: ████████░░░░░░░░░░ 40%                       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │                                                   │  │
+│  │      [SCENE IMAGE: Art classroom with            │  │
+│  │       empty easel, paint splatters, open window] │  │
+│  │                                                   │  │
+│  │       [Hotspots: ● Easel  ● Window  ● Bag]      │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                          │
+│  📖 Scene Narrative:                                    │
+│  "When Mrs. Chen entered the art room on Monday          │
+│  morning, she gasped. The beautiful landscape painting   │
+│  that her students had worked on for weeks was gone!     │
+│  Only an empty easel remained..."                       │
+│                                                          │
+│  🔍 Collected Clues (3):                                │
+│  • Muddy footprint by window                            │
+│  • Torn piece of blue fabric                            │
+│  • Witness saw someone at 7am                           │
+│                                                          │
+│  [Next: Interview Witness →]                            │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Design Notes:**
+- Audio narration button (accessibility for struggling readers)
+- Interactive hotspots with hover/tap feedback
+- Clue inventory always visible (reduces cognitive load)
+- Clear navigation breadcrumbs
+
+---
+
+**C. Question Screen (PSLE Format)**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Question 2 of 5                              [Skip]      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Based on the evidence, why do you think the painting    │
+│  was stolen early in the morning?                        │
+│                                                          │
+│  ⚪ A. The thief wanted to avoid being seen by students │
+│  ⚪ B. The school gate is only open in the morning      │
+│  ⚪ C. Morning light makes paintings easier to see      │
+│  ⚪ D. The teacher always arrives late                   │
+│                                                          │
+│  💡 Hint Available (1 remaining) [Use Hint]             │
+│                                                          │
+│  [Submit Answer]                                         │
+│                                                          │
+│  ℹ️ This tests: Inference skill                         │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Design Notes:**
+- Large, clickable radio buttons (touch-friendly)
+- Hint system teaches without giving away answer
+- Skill label helps students understand learning objectives
+- Clean, distraction-free layout
+
+---
+
+**D. Teacher Dashboard (Class Overview)**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Detective Academy - Teacher Portal   Mr. Tan [Logout]   │
+├─────────────────────────────────────────────────────────┤
+│  📚 Class 5A (25 students)                [Add Class]   │
+│                                                          │
+│  ┌────────────────────────────────────────────────┐    │
+│  │ 📊 Weekly Summary                               │    │
+│  │ Active Students: 23/25 (92%)                    │    │
+│  │ Cases Completed: 47                             │    │
+│  │ Class Average: 78% ⬆️ +5% from last week        │    │
+│  └────────────────────────────────────────────────┘    │
+│                                                          │
+│  🎯 Current Assignment: "The Secret Recipe"             │
+│  Due: Dec 6 | Completed: 12/25 | Avg Score: 82%        │
+│  [View Details] [Send Reminder]                         │
+│                                                          │
+│  👥 Students Needing Support:                           │
+│  ┌──────────────────────────────────────────────┐      │
+│  │ ⚠️ Raj Kumar        | Score: 45% | Time: 8min │  │
+│  │    Struggling with: Inference questions        │      │
+│  │    [View Full Report] [Message Parent]         │      │
+│  ├──────────────────────────────────────────────┤      │
+│  │ ⚠️ Siti Aminah      | Score: 52% | Time: 25min│  │
+│  │    Struggling with: Vocabulary                 │      │
+│  │    [View Full Report] [Assign Practice Case]   │      │
+│  └──────────────────────────────────────────────┘      │
+│                                                          │
+│  📚 Assign New Case [+]                                 │
+│                                                          │
+│  [Export Class Report (CSV)] [View Analytics]           │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Design Notes:**
+- Data-driven interface prioritizing actionable insights
+- Quick actions (send reminder, message parent) reduce clicks
+- Color-coded alerts (yellow = needs support, green = on track)
+- Export functionality for school reporting
+
+---
+
+### 12.4 Design Guidelines & Standards
+
+#### 12.4.1 Visual Design System
+
+**Color Palette:**
+- **Primary (Detective Blue):** #3498DB - Navigation, CTAs, headers
+- **Secondary (Clue Yellow):** #F39C12 - Highlights, badges, stars
+- **Success Green:** #27AE60 - Correct answers, progress bars
+- **Error Red:** #E74C3C - Incorrect answers, warnings (used sparingly)
+- **Neutral Gray:** #95A5A6 - Secondary text, borders
+- **Background:** #F8F9FA - Light, easy on eyes for long reading sessions
+
+**Typography:**
+- **Headings:** Poppins (friendly, rounded, clear at all sizes)
+- **Body Text:** Open Sans (high readability, WCAG-compliant at 16px+)
+- **Minimum Size:** 16px body, 18px for struggling readers mode
+- **Line Spacing:** 1.5-1.6 for paragraphs (aids reading comprehension)
+
+**Iconography:**
+- Custom icon set: Friendly, detective-themed (magnifying glass, badge, clues)
+- All icons paired with text labels (avoid icon-only navigation)
+- Size: 24x24px minimum for touch targets
+
+**Imagery:**
+- Illustrated style (not realistic) - warm, inclusive, age-appropriate
+- Diverse character representation: Singapore's multicultural society (Chinese, Malay, Indian, Eurasian)
+- No violent or scary visuals (even in "mystery" context)
+
+---
+
+#### 12.4.2 Accessibility Standards (WCAG 2.1 AA)
+
+**Visual Accessibility:**
+- Contrast Ratios: Minimum 4.5:1 for normal text, 3:1 for large text
+- Colorblind-Friendly: Never rely on color alone (use icons + text)
+- Zoom: Interface usable up to 200% zoom without horizontal scrolling
+- Font Scaling: Respect browser/OS text size preferences
+
+**Interaction Accessibility:**
+- Keyboard Navigation: All features accessible via Tab/Enter/Arrow keys
+- Focus Indicators: Visible, high-contrast focus outlines (3px solid)
+- Touch Targets: Minimum 44x44px (mobile), 10px spacing between
+- Error Prevention: Confirm before deleting progress or leaving incomplete cases
+
+**Cognitive Accessibility:**
+- Simple Language: Grade 4-5 reading level for instructions
+- Progress Indicators: Always show where user is in multi-step flows
+- Undo Options: Allow students to go back and review previous questions
+- Consistent Layout: Navigation, buttons in same place across all pages
+
+**Assistive Technology:**
+- Screen Reader Support: Semantic HTML5, ARIA labels where needed
+- Alt Text: Descriptive text for all images and clue visuals
+- Audio Narration: Optional text-to-speech for case narratives (dyslexia support)
+- Captions: All video/audio content has captions
+
+**Neurodiversity Support:**
+- Focus Mode: Option to reduce animations, remove distractions
+- Flexible Timing: No strict time limits on questions (anxiety reduction)
+- Break Reminders: Suggest breaks after 15 minutes of continuous play
+- Dyslexia-Friendly Font: OpenDyslexic font option in settings
+
+---
+
+#### 12.4.3 Mobile Responsiveness
+
+**Breakpoints:**
+- Desktop: 1200px+ (Full dashboard, side-by-side layouts)
+- Tablet: 768px-1199px (Stacked cards, condensed navigation)
+- Mobile: 320px-767px (Single column, hamburger menu, larger buttons)
+
+**Mobile-First Considerations:**
+- Primary Use Case: Students on school tablets or home devices
+- Touch Gestures: Swipe between case scenes, tap to reveal clues
+- Offline Mode: Download cases for offline play (future feature)
+- Data Usage: Optimized images (<200KB), lazy loading
+
+---
+
+### 12.5 Feedback Loops & Continuous Improvement
+
+#### 12.5.1 User Feedback Collection
+
+**In-App Feedback Mechanisms:**
+1. **Emoji Ratings:** After each case - "How fun was this?" 😊😐😞
+2. **Quick Surveys:** Random 1-question pop-ups (10% of users)
+   - "Was this question too easy, just right, or too hard?"
+3. **Teacher Feedback Form:** Monthly prompt to complete short survey
+4. **Parent Feedback:** Email survey after 1 month, 3 months, 6 months
+5. **Student Focus Groups:** Quarterly sessions with 8-10 students (pilot schools)
+
+**Feedback Channels:**
+- Email: feedback@detectiveacademy.sg (48hr response SLA)
+- WhatsApp: +65 XXXX-XXXX (Teacher/Parent support)
+- In-App Chat: Live chat during school hours (9am-3pm SGT)
+- Community Forum: Teachers share best practices (moderated)
+
+---
+
+#### 12.5.2 Design Iteration Process
+
+**Quarterly Design Review Cycle:**
+
+**Month 1: Data Collection**
+- Analytics: Heatmaps, user flows, bounce rates, completion rates
+- Support Tickets: Categorize common issues (technical vs UX)
+- Survey Responses: Aggregate satisfaction scores, pain points
+
+**Month 2: Analysis & Ideation**
+- UX Team: Identify top 3 friction points
+- Teacher Advisory Board: Validate proposed changes
+- Competitor Analysis: Scan for new EdTech UX trends
+
+**Month 3: Prototype & Test**
+- Create mockups (Figma) for proposed changes
+- User Testing: 5-8 students + 2 teachers test prototypes
+- A/B Testing: Deploy changes to 10% of users first
+- Measure Impact: Compare metrics (completion rate, satisfaction)
+
+**Month 4: Deploy & Document**
+- Full rollout if A/B test successful
+- Update design system documentation
+- Notify users of improvements in release notes
+
+**Example Past Iterations:**
+- **Issue Found:** 30% of students skipped tutorial
+- **Solution:** Made tutorial interactive mini-case instead of slides
+- **Result:** Tutorial completion increased to 85%
+
+---
+
+### 12.6 Usability Testing Plan
+
+#### 12.6.1 Pre-Launch Usability Testing
+
+**Objective:** Validate core user flows before public pilot
+
+**Participants:**
+- 12 students (4 per grade P4, P5, P6)
+- 4 teachers (2 English specialists, 2 form teachers)
+- 2 parents (1 tech-savvy, 1 non-tech-savvy)
+
+**Testing Scenarios:**
+
+**Students:**
+1. **Task 1:** Create account and complete tutorial (Success criteria: <5 minutes, no help needed)
+2. **Task 2:** Play "The Missing Painting" case and answer all 5 questions (Success: Complete without frustration)
+3. **Task 3:** Find and start a new case from dashboard (Success: <2 minutes)
+4. **Task 4:** Check your progress and badges (Success: Understand what they mean)
+
+**Teachers:**
+5. **Task 1:** Create a class and add 5 students (Success: <3 minutes)
+6. **Task 2:** Assign a case with due date (Success: <2 minutes)
+7. **Task 3:** Identify which student needs support from dashboard (Success: Find correct student in <1 minute)
+8. **Task 4:** Export progress report (Success: Download CSV without help)
+
+**Metrics Tracked:**
+- Task Success Rate (target: >90%)
+- Time on Task (benchmark against competitors)
+- Error Rate (how many misclicks, wrong paths)
+- Satisfaction (SUS Score target: >75)
+- Qualitative: "Think aloud" observations
+
+**Testing Tools:**
+- Zoom/Teams (Remote moderated testing)
+- Screen recording (Loom/OBS)
+- Survey (Post-test questionnaire)
+
+---
+
+#### 12.6.2 Ongoing Usability Validation
+
+**Monthly Guerrilla Testing:**
+- Test 1 new feature or design change with 5 users
+- Quick, informal sessions (15-20 minutes)
+- Record key pain points for backlog
+
+**Quarterly Formal Testing:**
+- Comprehensive usability audit (all key flows)
+- Mix of moderated and unmoderated tests
+- Include accessibility testing with assistive tech users
+
+**Annual Benchmark Testing:**
+- Compare against previous year's metrics
+- Measure: NPS, SUS, task success rates, engagement time
+- Validate: Are design changes improving outcomes?
+
+---
+
+### 12.7 Design-Related Success Metrics
+
+| Metric | Target | Measurement Method |
+|--------|--------|-------------------|
+| **Student Engagement** | 80%+ case completion rate | Analytics: Cases started vs finished |
+| **Ease of Use (Students)** | SUS Score >75 | Post-case survey |
+| **Ease of Use (Teachers)** | <5 min to assign first case | Onboarding analytics |
+| **Accessibility Compliance** | 100% WCAG 2.1 AA | Automated scans + manual testing |
+| **Mobile Usability** | <2% mobile bounce rate | Analytics: Mobile session duration |
+| **Load Time** | <3 seconds (desktop), <5 sec (mobile) | Google PageSpeed Insights |
+| **Teacher Satisfaction** | NPS >50 | Quarterly NPS survey |
+| **Parent Satisfaction** | 4+ stars average | In-app rating + app store reviews |
+
+---
+
+## 13. Appendices
+
+### Appendix A: Glossary
+
+| Term | Definition |
+|------|------------|
+| **AL (Achievement Level)** | MOE grading system for PSLE (AL1 = 90%+, AL2 = 85-89%, etc.) |
+| **PDPA** | Personal Data Protection Act (Singapore data privacy law) |
+| **PSLE** | Primary School Leaving Examination (national exam at end of Primary 6) |
+| **SLS** | Student Learning Space (MOE's official learning platform) |
+| **MOE** | Ministry of Education (Singapore) |
+| **EdTech** | Educational Technology |
+| **SSO** | Single Sign-On (login with one set of credentials across platforms) |
+| **SAML** | Security Assertion Markup Language (SSO protocol) |
+| **WCAG** | Web Content Accessibility Guidelines |
+| **HOD** | Head of Department (school leadership position) |
+| **NPS** | Net Promoter Score (customer satisfaction metric) |
+
+### Appendix B: MOE English Syllabus (P4-P6) Overview
+
+**Reading Skills:**
+1. Literal comprehension (who, what, when, where)
+2. Inferential comprehension (why, how, author's intent)
+3. Evaluative comprehension (opinion, judgment, effectiveness)
+
+**Key Competencies:**
+- Make inferences and draw conclusions
+- Identify main ideas and supporting details
+- Understand vocabulary in context
+- Recognize cause and effect
+- Sequence events logically
+- Compare and contrast information
+- Distinguish fact from opinion
+- Identify author's purpose and tone
+
+**PSLE Paper 2 Format (Comprehension):**
+- Visual Text Comprehension (5 questions, 15 marks)
+- Comprehension Cloze (12 blanks, 12 marks)
+- Editing for Spelling and Grammar (12 items, 12 marks)
+- Comprehension Open-Ended (15 questions, 50 marks)
+
+### Appendix C: Competitive Analysis Matrix
+
+| Feature | Our Platform | Koobits | MOE SLS | Private Tuition |
+|---------|-------------|---------|---------|-----------------|
+| **Price** | Free-$10/student/year | $240/year | Free | $3600-9600/year |
+| **Engagement** | High (gamified) | Medium | Low | High (1:1) |
+| **MOE Alignment** | 100% (by design) | 80% | 100% | Varies |
+| **Personalization** | Medium (adaptive) | High | Low | Very High |
+| **Scalability** | Infinite | High | High | Very Low |
+| **Teacher Dashboard** | Yes (detailed) | Yes (basic) | Yes (basic) | Manual reports |
+| **Real-time Feedback** | Instant | Instant | Delayed | Session-based |
+| **Accessibility** | 24/7 online | 24/7 online | School hours mostly | Fixed schedule |
+| **Progress Tracking** | Skill-level granular | Topic-level | Assignment-level | Subjective |
+
+### Appendix D: Sample Parent Consent Form
+
+```
+PARENT/GUARDIAN CONSENT FORM
+Detective Learning Academy
+
+Dear Parent/Guardian,
+
+Your child's school is piloting an educational game platform called
+"Detective Learning Academy" to help improve English comprehension skills.
+
+WHAT DATA WE COLLECT:
+- School email address (for login)
+- First name or nickname (for personalization)
+- Learning progress (cases completed, quiz scores)
+- Time spent on platform
+
+WHAT WE DO NOT COLLECT:
+- Full name or NRIC
+- Home address or phone number
+- Photos or personal information
+- Location data
+
+HOW DATA IS USED:
+- To provide personalized learning experiences
+- To help teachers track student progress
+- To improve our educational content
+
+YOUR RIGHTS:
+- View your child's data anytime (email us)
+- Request corrections to inaccurate data
+- Withdraw consent and delete data (30 days)
+
+DATA SECURITY:
+- Stored on secure servers in Singapore
+- Encrypted in transit and at rest
+- Never shared with third parties
+
+By clicking "I Consent" below, you acknowledge that you have read and
+understood this notice and consent to the collection and use of your
+child's data as described.
+
+[I Consent] [I Do Not Consent]
+
+Parent Name: ___________________________
+Email: _________________________________
+Date: __________________________________
+
+Questions? Contact us at: privacy@detectivelearning.sg
+```
+
+### Appendix E: Sample School Partnership Agreement (MOU)
+
+```
+MEMORANDUM OF UNDERSTANDING
+Between [School Name] and Detective Learning Academy
+
+1. PURPOSE
+   This MOU establishes a pilot partnership to evaluate the Detective
+   Learning Academy platform for improving Primary 4-6 English comprehension.
+
+2. DURATION
+   Pilot period: [Start Date] to [End Date] (3 months)
+
+3. SCHOOL COMMITMENTS
+   - Provide access to 1-2 classes (approximately 30-60 students)
+   - Assign at least 3 cases during pilot period
+   - Collect pre-test and post-test data
+   - Provide feedback via teacher surveys
+
+4. PROVIDER COMMITMENTS (Detective Learning Academy)
+   - Provide free access to platform for pilot duration
+   - Conduct 1-hour teacher training session
+   - Provide technical support via email (respond within 24 hours)
+   - Maintain 99% uptime during school hours
+   - Ensure PDPA compliance
+
+5. DATA USAGE
+   - School owns student data
+   - Provider may use anonymized data for research and improvement
+   - Provider may publish case study with school's approval
+   - No student names or identifiable information published
+
+6. TERMINATION
+   Either party may terminate with 2 weeks' written notice.
+
+7. NO FINANCIAL OBLIGATION
+   This is a free pilot program. No fees required.
+
+Signed:
+_________________________ (Principal/VP, School Name)
+_________________________ (Founder, Detective Learning Academy)
+Date: ___________________
+```
+
+### Appendix F: Case Development Template
+
+```markdown
+# Case Development Template
+
+## Case Metadata
+- **Case ID:** CASE-[NUMBER]-[THEME]
+- **Title:** [Catchy, kid-friendly title]
+- **Difficulty:** Primary [4/5/6]
+- **Estimated Time:** [20-40] minutes
+- **Theme:** [Mystery type: theft, disappearance, sabotage, etc.]
+
+## Learning Objectives (MOE Syllabus Mapping)
+- **Primary Skill:** [Inference, Main Idea, Sequencing, etc.]
+- **Secondary Skills:** [List 2-3]
+- **Vocabulary Target:** [10-15 new words]
+- **PSLE Alignment:** [Paper 2 Section A/B/C]
+
+## Story Outline
+**Setting:** [Location within school environment]
+**Protagonist:** Student detective (player)
+**Mentor:** Detective guide (provides hints)
+**Conflict:** [What mystery needs solving?]
+**Resolution:** [Who/what/why - answer]
+
+## Scenes (3-5 recommended)
+### Scene 1: [Name]
+- **Description:** [What player sees]
+- **Interactive Objects:** [List clickable items]
+- **Clues Revealed:** [Which clues found here]
+
+## Clues (8-12 recommended)
+### Clue 1: [Name]
+- **Type:** [Document, Physical Evidence, Photo, Audio]
+- **Content:** [Actual text/description]
+- **Relevance:** [How it helps solve case - don't reveal to player!]
+- **Comprehension Check:** [Hidden question testing understanding]
+
+## Witnesses (2-4 recommended)
+### Witness 1: [Name]
+- **Role:** [Student, teacher, janitor, etc.]
+- **Personality:** [Helpful, nervous, secretive, etc.]
+- **Dialogue:**
+  - Player Question: "..."
+  - Witness Answer: "..."
+  - [Include deliberate clues in natural dialogue]
+
+## Quiz Questions (10-15 recommended)
+### Question 1: [Type: MCQ/Open-ended/Vocabulary]
+- **Question Text:** "..."
+- **Options (if MCQ):** A) ... B) ... C) ... D) ...
+- **Correct Answer:** [Letter or expected response]
+- **Skill Tested:** [Inference, literal comprehension, etc.]
+- **Explanation:** [Why this is correct]
+- **Evidence Location:** [Which clue/scene contains answer]
+
+## Solution
+- **Culprit:** [Who]
+- **Motive:** [Why]
+- **Method:** [How]
+- **Evidence Trail:** [Key clues in order]
+
+## Assets Required
+- [ ] Scene illustrations (JPG, 1920x1080)
+- [ ] Character avatars (PNG, 400x400, transparent)
+- [ ] Clue images (if applicable)
+- [ ] Background music (optional, MP3)
+- [ ] Sound effects (optional, click, reveal, correct/incorrect)
+
+## Quality Checklist
+- [ ] Storyline age-appropriate (no violence, scary content)
+- [ ] Clues logically lead to solution
+- [ ] All answers findable in case content
+- [ ] Vocabulary appropriate for target grade
+- [ ] Cultural sensitivity (Singapore context, diverse characters)
+- [ ] Tested with 3+ students (pilot)
+- [ ] Reviewed by MOE-trained teacher
+```
+
+### Appendix G: Teacher Training Agenda
+
+**Detective Learning Academy Teacher Onboarding**  
+**Duration:** 60 minutes
+
+**0:00-0:10 | Welcome & Introduction**
+- Platform overview and benefits
+- Pilot objectives
+
+**0:10-0:25 | Live Demo (Teacher Plays Case 1)**
+- Experience student journey
+- See interactive elements
+- Complete quiz questions
+
+**0:25-0:40 | Teacher Dashboard Tutorial**
+- Create classes and add students
+- Assign cases
+- View progress and scores
+- Export reports
+
+**0:40-0:50 | Best Practices**
+- When to assign (homework vs in-class)
+- How to integrate with lesson plans
+- Supporting struggling students
+- Encouraging completion
+
+**0:50-0:60 | Q&A and Support Resources**
+- Technical support (email, response time)
+- Feedback channels
+- Pilot expectations
+
+**Post-Training:**
+- Send follow-up email with:
+  - Login credentials for teacher account
+  - Student account creation instructions
+  - FAQ document
+  - Contact information
+
+### Appendix H: Pilot Evaluation Survey (Teacher)
+
+**Detective Learning Academy Pilot Feedback**
+
+**Section 1: Overall Satisfaction**
+1. How would you rate your overall experience with the platform? (1-5 stars)
+2. How likely are you to recommend this to other teachers? (0-10, NPS)
+3. What did you like most about the platform?
+4. What needs improvement?
+
+**Section 2: Usability**
+5. How easy was it to assign cases to your students? (Very easy / Easy / Neutral / Difficult / Very difficult)
+6. How useful was the teacher dashboard? (Very useful / Useful / Neutral / Not very useful / Not useful)
+7. Were you able to identify struggling students from the data? (Yes / Somewhat / No)
+
+**Section 3: Student Engagement**
+8. Did students seem more engaged compared to traditional worksheets? (Much more / Somewhat more / Same / Less)
+9. What was the approximate completion rate for assigned cases? (0-20% / 21-40% / 41-60% / 61-80% / 81-100%)
+10. Did students ask to play more cases voluntarily? (Yes, often / Sometimes / Rarely / No)
+
+**Section 4: Learning Outcomes**
+11. Do you believe students' comprehension skills improved? (Significantly / Somewhat / Not sure / No change / Worsened)
+12. Which skills improved most? (Check all: Inference, Vocabulary, Main idea, Sequencing, Critical thinking)
+13. Were the cases well-aligned with the MOE syllabus? (Perfectly / Mostly / Somewhat / Not really / Not at all)
+
+**Section 5: Workload Impact**
+14. Did this platform save you time on grading? (Yes, significant / Yes, some / No change / No, more work)
+15. Approximately how much time saved per week? (Hours: ___)
+
+**Section 6: Open Feedback**
+16. What specific content would you like to see added?
+17. Any technical issues encountered?
+18. Would you use this platform again next year? (Definitely / Probably / Maybe / Probably not / Definitely not)
+19. Additional comments:
+
+---
+
+**Document Control**
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 0.1 | 2025-12-01 | olivermgs-TitanGS | Initial draft |
+| 1.0 | 2025-12-01 | olivermgs-TitanGS | Complete BRD |
+
+**Approval:**
+- [ ] Founder/Product Owner: _______________ Date: ______
+- [ ] Technical Lead (if applicable): _______________ Date: ______
+
+**Next Review Date:** 2026-03-01 (Quarterly review)
+
+---
+
+*End of Business Requirements Document*
+
