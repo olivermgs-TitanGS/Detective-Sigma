@@ -252,26 +252,61 @@ export default function Game() {
                                 <Users className="w-4 h-4 mr-2" /> Suspects
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="bg-slate-900 border-slate-800 text-slate-200">
-                             <SheetHeader>
-                                <SheetTitle className="text-red-500 font-mono uppercase tracking-widest border-b border-slate-800 pb-4">Suspect List</SheetTitle>
+                        <SheetContent side="right" className="wood-texture border-l-4 border-red-900/50 w-[400px] overflow-hidden">
+                            <SheetHeader className="relative">
+                                <div className="absolute -top-2 -right-2 transform -rotate-6">
+                                    <div className="confidential-stamp text-xs" style={{ color: '#8b0000', borderColor: '#8b0000' }}>PERSONS OF INTEREST</div>
+                                </div>
+                                <SheetTitle className="newspaper-headline text-red-900 text-xl tracking-widest border-b-2 border-red-800/30 pb-4 flex items-center gap-3">
+                                    <Users className="w-5 h-5" />
+                                    SUSPECT DOSSIERS
+                                </SheetTitle>
                             </SheetHeader>
-                            <div className="grid gap-4 mt-4">
-                                {suspects?.map(s => (
-                                    <div key={s.id} className="flex items-center gap-3 p-3 bg-slate-950 rounded border border-slate-800 hover:border-red-900 cursor-pointer transition-all" onClick={() => setActiveDialogueSuspect(s)}>
-                                        <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-700">
-                                            <img src={s.image_url} alt={s.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-sm">{s.name}</p>
-                                            <p className="text-xs text-slate-500">{s.role}</p>
-                                        </div>
-                                        <div className="ml-auto">
-                                            <MessageSquare className="w-4 h-4 text-slate-600" />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <ScrollArea className="h-[80vh] mt-6 pr-2">
+                                <div className="space-y-6 p-2">
+                                    {suspects?.map((s, index) => {
+                                        const rotations = [2, -1, 1, -2, 0];
+                                        const rotation = rotations[index % rotations.length];
+
+                                        return (
+                                            <motion.div
+                                                key={s.id}
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                                className="manila-folder p-4 rounded scattered-doc cursor-pointer relative"
+                                                style={{ transform: `rotate(${rotation}deg)` }}
+                                                onClick={() => setActiveDialogueSuspect(s)}
+                                            >
+                                                {/* Paper clip */}
+                                                <div className="paper-clip" style={{ top: '-8px', right: '15px' }}></div>
+
+                                                <div className="flex gap-4">
+                                                    {/* Polaroid-style photo */}
+                                                    <div className="suspect-photo w-20 shrink-0" style={{ transform: `rotate(${-rotation - 2}deg)` }}>
+                                                        <img
+                                                            src={s.image_url}
+                                                            alt={s.name}
+                                                            className="w-full aspect-square object-cover sepia-photo"
+                                                        />
+                                                        <p className="text-[8px] text-center mt-1 typewriter-text text-amber-900/70 truncate">{s.name}</p>
+                                                    </div>
+
+                                                    {/* Info on case paper */}
+                                                    <div className="case-paper flex-1 p-3 rounded" style={{ transform: `rotate(${rotation / 2}deg)` }}>
+                                                        <h4 className="typewriter-text font-bold text-amber-900 text-sm">{s.name}</h4>
+                                                        <p className="text-xs text-amber-800/60 mt-1 font-serif">{s.role}</p>
+                                                        <div className="flex items-center gap-2 mt-3 text-amber-700/50">
+                                                            <MessageSquare className="w-3 h-3" />
+                                                            <span className="text-[10px] typewriter-text">INTERROGATE</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                            </ScrollArea>
                         </SheetContent>
                     </Sheet>
                     
@@ -285,37 +320,84 @@ export default function Game() {
                     {/* Hidden Trigger for Accusation Modal reuse or separate component */}
                     <Sheet>
                         <SheetTrigger id="accusation-trigger" className="hidden" />
-                        <SheetContent side="bottom" className="h-[80vh] bg-slate-950 border-t border-amber-900">
-                            <SheetHeader className="text-center">
-                                <SheetTitle className="text-3xl font-mono text-red-500 tracking-widest uppercase">Identify The Culprit</SheetTitle>
-                                <p className="text-slate-400">Review your evidence. Select the suspect who committed the crime.</p>
+                        <SheetContent side="bottom" className="h-[85vh] wood-texture border-t-4 border-red-900">
+                            <SheetHeader className="text-center relative">
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2">
+                                    <div className="confidential-stamp text-lg px-6 py-2" style={{ color: '#8b0000', borderColor: '#8b0000' }}>
+                                        FINAL ACCUSATION
+                                    </div>
+                                </div>
+                                <SheetTitle className="newspaper-headline text-red-900 text-4xl tracking-widest pt-8">
+                                    IDENTIFY THE CULPRIT
+                                </SheetTitle>
+                                <p className="typewriter-text text-amber-800/70 mt-2">Review your evidence carefully. Once you make an accusation, there's no going back.</p>
                             </SheetHeader>
-                            <div className="flex flex-wrap justify-center gap-8 mt-10">
-                                {suspects?.map(s => (
-                                    <motion.div 
-                                        key={s.id}
-                                        whileHover={{ scale: 1.05 }}
-                                        className="group relative w-48 cursor-pointer"
-                                        onClick={() => handleAccuse(s)}
-                                    >
-                                        <div className="aspect-[3/4] rounded-lg overflow-hidden border-2 border-slate-700 group-hover:border-red-600 transition-colors relative">
-                                            <img src={s.image_url} alt={s.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
-                                            <div className="absolute inset-0 bg-red-900/0 group-hover:bg-red-900/20 transition-colors" />
-                                        </div>
-                                        <div className="mt-4 text-center">
-                                            <h3 className="text-xl font-bold text-slate-200 group-hover:text-red-400">{s.name}</h3>
-                                            <p className="text-sm text-slate-500">{s.role}</p>
-                                        </div>
-                                    </motion.div>
-                                ))}
+
+                            {/* Evidence board style with red string connections */}
+                            <div className="flex flex-wrap justify-center gap-10 mt-12 px-8">
+                                {suspects?.map((s, index) => {
+                                    const rotations = [-5, 3, -2, 4, -3];
+                                    const rotation = rotations[index % rotations.length];
+
+                                    return (
+                                        <motion.div
+                                            key={s.id}
+                                            initial={{ opacity: 0, y: 30 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.15 }}
+                                            whileHover={{ scale: 1.08, rotate: 0, zIndex: 50 }}
+                                            className="group relative cursor-pointer"
+                                            style={{ transform: `rotate(${rotation}deg)` }}
+                                            onClick={() => handleAccuse(s)}
+                                        >
+                                            {/* Manila folder background */}
+                                            <div className="manila-folder p-3 rounded-lg w-52">
+                                                {/* Paper clip */}
+                                                <div className="paper-clip" style={{ top: '-10px', right: '20px' }}></div>
+
+                                                {/* Suspect polaroid */}
+                                                <div className="suspect-photo mx-auto w-40" style={{ transform: `rotate(${-rotation / 2}deg)` }}>
+                                                    <img
+                                                        src={s.image_url}
+                                                        alt={s.name}
+                                                        className="w-full aspect-[3/4] object-cover sepia-photo group-hover:filter-none transition-all duration-300"
+                                                    />
+                                                </div>
+
+                                                {/* Name tag */}
+                                                <div className="case-paper mt-3 p-2 rounded text-center" style={{ transform: `rotate(${rotation / 3}deg)` }}>
+                                                    <h3 className="typewriter-text font-bold text-amber-900 text-lg">{s.name}</h3>
+                                                    <p className="text-xs text-amber-800/60 font-serif">{s.role}</p>
+                                                </div>
+
+                                                {/* Hover effect - red X mark */}
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                                    <div className="text-red-600 text-8xl font-bold transform rotate-12 drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+                                                        ?
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Red pin at top */}
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 shadow-md border border-red-800"></div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Warning text */}
+                            <div className="absolute bottom-8 left-0 right-0 text-center">
+                                <p className="typewriter-text text-red-900/60 text-sm animate-pulse">
+                                    ⚠ SELECT A SUSPECT TO FILE CHARGES ⚠
+                                </p>
                             </div>
                         </SheetContent>
                     </Sheet>
                 </div>
             </header>
 
-            {/* Main Game View */}
-            <div className="flex-1 relative flex items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')]">
+            {/* Main Game View - Detective Desk */}
+            <div className="flex-1 relative flex items-center justify-center p-4 detective-desk">
                 
                 <div className="w-full max-w-6xl relative z-10">
                     {/* Scene */}

@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, Play, Star, AlertTriangle, Search } from 'lucide-react';
+import { Lock, Play, Star, AlertTriangle, Search, FileText, Stamp } from 'lucide-react';
 
 export default function Dashboard() {
     const { data: cases, isLoading } = useQuery({
@@ -61,11 +61,17 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-12">
-            <div className="max-w-4xl mx-auto mb-12 text-center">
-                <h2 className="text-4xl font-bold text-slate-100 mb-4 font-mono">CASE FILES</h2>
-                <p className="text-slate-400 text-lg">Select a mystery to investigate. The city is counting on you, Detective.</p>
-            </div>
+        <div className="min-h-screen detective-desk">
+            <div className="container mx-auto px-4 py-12">
+                {/* Header styled as newspaper masthead */}
+                <div className="max-w-4xl mx-auto mb-12 text-center">
+                    <div className="case-paper inline-block px-12 py-6 rounded transform -rotate-1">
+                        <div className="border-b-4 border-double border-amber-900/30 pb-4 mb-4">
+                            <h2 className="newspaper-headline text-5xl text-amber-900 tracking-wider">CASE FILES</h2>
+                        </div>
+                        <p className="typewriter-text text-amber-800/70 text-lg">Select a mystery to investigate. The city is counting on you, Detective.</p>
+                    </div>
+                </div>
 
             {isLoading ? (
                 <div className="flex justify-center py-20">
@@ -112,54 +118,91 @@ export default function Dashboard() {
                         </Link>
                     </div>
 
-                    {sortedCases.map((c) => {
+                    {sortedCases.map((c, index) => {
                         const status = getStatus(c.id);
-                        
+                        const rotations = [-2, 1, -1, 2, 0, -1.5, 1.5];
+                        const rotation = rotations[index % rotations.length];
+
                         return (
                             <motion.div key={c.id} variants={item}>
-                                <Card className="bg-slate-900 border-slate-800 overflow-hidden hover:border-amber-700/50 transition-all group h-full flex flex-col">
-                                    <div className="relative h-48 bg-slate-950 overflow-hidden">
-                                        <div className="absolute inset-0 bg-slate-900 opacity-50 group-hover:opacity-30 transition-opacity" />
-                                        {c.cover_image ? (
-                                            <img src={c.cover_image} alt={c.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-slate-950">
-                                                <AlertTriangle className="w-12 h-12 text-slate-800" />
+                                <div
+                                    className="manila-folder rounded-lg overflow-hidden scattered-doc group h-full flex flex-col relative"
+                                    style={{ transform: `rotate(${rotation}deg)` }}
+                                >
+                                    {/* Paper clip */}
+                                    <div className="paper-clip" style={{ top: '-8px', right: '20px' }}></div>
+
+                                    {/* Status stamp */}
+                                    {status === 'solved' && (
+                                        <div className="absolute top-4 right-4 z-20">
+                                            <div className="confidential-stamp text-[10px] px-2 py-1" style={{ color: '#166534', borderColor: '#166534' }}>
+                                                CASE CLOSED
                                             </div>
-                                        )}
-                                        <div className="absolute top-3 right-3">
-                                            <Badge variant={status === 'solved' ? 'default' : 'secondary'} className={status === 'solved' ? 'bg-green-900 text-green-300 border-green-700' : 'bg-slate-800 text-slate-400 border-slate-700'}>
-                                                {status === 'solved' ? 'EVIDENCE SECURED' : 'ACTIVE FILE'}
-                                            </Badge>
                                         </div>
-                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900 to-transparent h-24" />
+                                    )}
+
+                                    {/* Case photo/cover */}
+                                    <div className="relative m-3 mb-0">
+                                        <div className="suspect-photo" style={{ transform: `rotate(${-rotation}deg)`, padding: '6px 6px 16px 6px' }}>
+                                            {c.cover_image ? (
+                                                <img
+                                                    src={c.cover_image}
+                                                    alt={c.title}
+                                                    className="w-full h-32 object-cover sepia-photo group-hover:filter-none transition-all duration-500"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-32 flex items-center justify-center bg-amber-100">
+                                                    <FileText className="w-12 h-12 text-amber-800/30" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    
-                                    <CardHeader className="pb-2 relative z-10">
-                                        <div className="flex justify-between items-start">
-                                            <Badge variant="outline" className="mb-2 border-amber-900/50 text-amber-600">{c.subject_focus}</Badge>
-                                            <div className="flex gap-1">
+
+                                    {/* Case info on paper */}
+                                    <div className="case-paper m-3 p-4 rounded flex-grow flex flex-col" style={{ transform: `rotate(${rotation / 2}deg)` }}>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="evidence-tag text-[9px]">{c.subject_focus}</span>
+                                            <div className="flex gap-0.5">
                                                 {[...Array(c.difficulty === 'Rookie' ? 1 : c.difficulty === 'Inspector' ? 2 : 3)].map((_, i) => (
-                                                    <Star key={i} className="w-3 h-3 text-amber-500 fill-amber-500" />
+                                                    <Star key={i} className="w-3 h-3 text-amber-700 fill-amber-600" />
                                                 ))}
                                             </div>
                                         </div>
-                                        <h3 className="text-xl font-bold text-slate-100 group-hover:text-amber-500 transition-colors">{c.title}</h3>
-                                    </CardHeader>
 
-                                    <CardContent className="flex-grow">
-                                        <p className="text-sm text-slate-400 line-clamp-3">{c.description}</p>
-                                    </CardContent>
+                                        <h3 className="typewriter-text font-bold text-amber-900 text-lg mb-2 group-hover:text-red-800 transition-colors">
+                                            {c.title}
+                                        </h3>
 
-                                    <CardFooter className="pt-4 border-t border-slate-800/50">
-                                        <Link to={createPageUrl(`Game?caseId=${c.id}`)} className="w-full">
-                                            <Button className={`w-full text-white ${status === 'solved' ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-amber-700 hover:bg-amber-600'}`}>
-                                                {status === 'solved' ? 'Review Case Log' : 'Start Investigation'}
-                                                <Play className="w-4 h-4 ml-2" />
-                                            </Button>
-                                        </Link>
-                                    </CardFooter>
-                                </Card>
+                                        <p className="text-xs text-amber-800/60 font-serif line-clamp-3 flex-grow leading-relaxed">
+                                            {c.description}
+                                        </p>
+
+                                        <div className="mt-4 pt-3 border-t border-amber-900/20">
+                                            <Link to={createPageUrl(`Game?caseId=${c.id}`)} className="w-full">
+                                                <Button
+                                                    className={`w-full typewriter-text text-xs tracking-wider ${
+                                                        status === 'solved'
+                                                            ? 'bg-amber-800/20 hover:bg-amber-800/40 text-amber-900 border border-amber-800/30'
+                                                            : 'bg-red-900 hover:bg-red-800 text-white border border-red-800'
+                                                    }`}
+                                                >
+                                                    {status === 'solved' ? 'REVIEW CASE LOG' : 'OPEN INVESTIGATION'}
+                                                    <Play className="w-3 h-3 ml-2" />
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    </div>
+
+                                    {/* Coffee stain on some folders */}
+                                    {index % 4 === 0 && (
+                                        <div
+                                            className="absolute bottom-8 left-4 w-14 h-14 rounded-full pointer-events-none"
+                                            style={{
+                                                background: 'radial-gradient(ellipse at center, transparent 25%, rgba(101, 67, 33, 0.15) 35%, rgba(101, 67, 33, 0.08) 55%, transparent 65%)'
+                                            }}
+                                        />
+                                    )}
+                                </div>
                             </motion.div>
                         );
                     })}
