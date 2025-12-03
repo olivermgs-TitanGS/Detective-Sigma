@@ -1,8 +1,34 @@
+import MusicPlayer from '@/components/MusicPlayer';
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Crime Scene Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-950 via-black to-black"></div>
+    <div className="min-h-screen crime-scene-bg relative overflow-hidden">
+      {/* Chalk Body Outlines */}
+      <div className="chalk-body-outline" style={{ top: '15%', left: '10%', transform: 'rotate(15deg)', width: '250px' }}></div>
+      <div className="chalk-body-outline" style={{ top: '60%', right: '8%', transform: 'rotate(-20deg)', width: '280px' }}></div>
+      <div className="chalk-body-outline" style={{ bottom: '5%', left: '50%', transform: 'rotate(45deg) translateX(-50%)', width: '200px' }}></div>
+
+      {/* Floating Dust Particles */}
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="dust-particle"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 15}s`,
+            animationDuration: `${10 + Math.random() * 10}s`
+          }}
+        />
+      ))}
+
+      {/* Scanner Lines */}
+      <div className="scanner-line" style={{ animationDelay: '0s' }}></div>
+      <div className="scanner-line" style={{ animationDelay: '2s', top: '33%' }}></div>
+      <div className="scanner-line" style={{ animationDelay: '4s', top: '66%' }}></div>
+
+      {/* Background Music */}
+      <MusicPlayer />
 
       {/* Caution Tape Effect - Top */}
       <div className="absolute top-0 w-full h-12 bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-y-4 border-amber-500 transform -rotate-2"></div>

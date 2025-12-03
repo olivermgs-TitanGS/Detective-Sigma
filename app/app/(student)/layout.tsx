@@ -1,9 +1,33 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import MusicPlayer from '@/components/MusicPlayer';
 
 export default function StudentLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen crime-scene-bg relative">
+      {/* Chalk Outline Decorations */}
+      <div className="chalk-body-outline" style={{ top: '20%', right: '5%', transform: 'rotate(-15deg)' }}></div>
+      <div className="chalk-body-outline" style={{ bottom: '10%', left: '10%', transform: 'rotate(25deg)' }}></div>
+
+      {/* Floating Dust Particles */}
+      {[...Array(15)].map((_, i) => (
+        <div
+          key={i}
+          className="dust-particle"
+          style={{
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 15}s`,
+            animationDuration: `${10 + Math.random() * 10}s`
+          }}
+        />
+      ))}
+
+      {/* Scanner Line Effect */}
+      <div className="scanner-line" style={{ animationDelay: '0s' }}></div>
+      <div className="scanner-line" style={{ animationDelay: '1.5s', top: '50%' }}></div>
+
+      {/* Background Music Player */}
+      <MusicPlayer />
       {/* Crime Scene Tape Header - Repeating Text */}
       <div className="relative border-y-4 border-amber-500 bg-amber-500/20 py-2 overflow-hidden transform -rotate-1">
         <div className="animate-marquee whitespace-nowrap inline-block">
