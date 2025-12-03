@@ -1,16 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
 export default function StudentDashboard() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to cases page immediately
-    router.replace('/student/cases');
-  }, [router]);
-
   return (
     <div className="space-y-8">
       {/* Welcome Section - Crime Scene Style */}

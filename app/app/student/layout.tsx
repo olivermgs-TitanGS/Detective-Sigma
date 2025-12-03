@@ -1,8 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import { signOut } from 'next-auth/react';
 import MusicPlayer from '@/components/MusicPlayer';
 
 export default function StudentLayout({ children }: { children: ReactNode }) {
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
   return (
     <div className="min-h-screen crime-scene-bg relative">
       {/* Chalk Outline Decorations */}
@@ -109,7 +115,10 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-slate-500 font-mono text-sm tracking-wider">DETECTIVE</span>
-              <button className="border-2 border-red-800 bg-black hover:bg-red-900 text-red-400 px-4 py-2 font-mono tracking-wider text-sm transition-colors">
+              <button
+                onClick={handleLogout}
+                className="border-2 border-red-800 bg-black hover:bg-red-900 text-red-400 px-4 py-2 font-mono tracking-wider text-sm transition-colors"
+              >
                 LOGOUT
               </button>
             </div>
