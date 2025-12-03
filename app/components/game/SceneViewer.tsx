@@ -22,9 +22,21 @@ interface SceneViewerProps {
   scene: Scene;
   collectedClues: string[];
   onClueClick: (clue: Clue) => void;
+  currentSceneIndex: number;
+  totalScenes: number;
+  onNextScene: () => void;
+  onPreviousScene: () => void;
 }
 
-export default function SceneViewer({ scene, collectedClues, onClueClick }: SceneViewerProps) {
+export default function SceneViewer({
+  scene,
+  collectedClues,
+  onClueClick,
+  currentSceneIndex,
+  totalScenes,
+  onNextScene,
+  onPreviousScene
+}: SceneViewerProps) {
   return (
     <div className="border-2 border-amber-600/50 bg-black/80 backdrop-blur-sm p-6">
       <div className="mb-4">
@@ -106,11 +118,29 @@ export default function SceneViewer({ scene, collectedClues, onClueClick }: Scen
 
       {/* Scene Navigation */}
       <div className="mt-4 flex items-center justify-between font-mono">
-        <button className="text-slate-600 hover:text-amber-400 transition-colors opacity-50 cursor-not-allowed tracking-wider">
+        <button
+          onClick={onPreviousScene}
+          disabled={currentSceneIndex === 0}
+          className={`tracking-wider transition-colors ${
+            currentSceneIndex === 0
+              ? 'text-slate-600 opacity-50 cursor-not-allowed'
+              : 'text-amber-400 hover:text-amber-300'
+          }`}
+        >
           ← PREVIOUS
         </button>
-        <span className="text-slate-500 text-sm tracking-widest">SCENE 1 OF 3</span>
-        <button className="text-amber-400 hover:text-amber-300 transition-colors tracking-wider">
+        <span className="text-slate-500 text-sm tracking-widest">
+          SCENE {currentSceneIndex + 1} OF {totalScenes}
+        </span>
+        <button
+          onClick={onNextScene}
+          disabled={currentSceneIndex === totalScenes - 1}
+          className={`tracking-wider transition-colors ${
+            currentSceneIndex === totalScenes - 1
+              ? 'text-slate-600 opacity-50 cursor-not-allowed'
+              : 'text-amber-400 hover:text-amber-300'
+          }`}
+        >
           NEXT →
         </button>
       </div>

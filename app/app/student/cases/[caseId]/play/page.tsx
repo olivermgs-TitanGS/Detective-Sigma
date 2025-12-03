@@ -11,43 +11,100 @@ import SuspectDialog from '@/components/game/SuspectDialog';
 const gameData = {
   caseId: '1',
   caseTitle: 'The Missing Canteen Money',
-  currentScene: {
-    id: 'scene1',
-    name: 'School Canteen',
-    description: 'The bustling canteen where the money went missing',
-    imageUrl: '/scenes/canteen.jpg',
-    clues: [
-      {
-        id: 'clue1',
-        name: 'Cash Register Receipt',
-        positionX: 30,
-        positionY: 40,
-        description: 'A receipt from Friday showing total sales of $450',
-        requiredPuzzleId: null,
-        contentRevealed: 'The receipt shows that Friday\'s total sales were $450. Mrs. Tan counted $400 in the cash box.',
-        isCollected: false,
-      },
-      {
-        id: 'clue2',
-        name: 'Security Camera Footage',
-        positionX: 70,
-        positionY: 20,
-        description: 'Footage showing who entered the canteen',
-        requiredPuzzleId: 'puzzle1',
-        isCollected: false,
-      },
-      {
-        id: 'clue3',
-        name: 'Time Log Book',
-        positionX: 50,
-        positionY: 60,
-        description: 'Sign-in times for staff and helpers',
-        requiredPuzzleId: null,
-        contentRevealed: 'Mr. Lim (cleaner) signed in at 6:00 PM. Alex (student) left at 5:45 PM. Miss Chen (teacher) came at 6:30 PM.',
-        isCollected: false,
-      },
-    ],
-  },
+  scenes: [
+    {
+      id: 'scene1',
+      name: 'School Canteen',
+      description: 'The bustling canteen where the money went missing',
+      imageUrl: '/scenes/canteen.jpg',
+      clues: [
+        {
+          id: 'clue1',
+          name: 'Cash Register Receipt',
+          positionX: 30,
+          positionY: 40,
+          description: 'A receipt from Friday showing total sales of $450',
+          requiredPuzzleId: null,
+          contentRevealed: 'The receipt shows that Friday\'s total sales were $450. Mrs. Tan counted $400 in the cash box.',
+          isCollected: false,
+        },
+        {
+          id: 'clue2',
+          name: 'Security Camera Footage',
+          positionX: 70,
+          positionY: 20,
+          description: 'Footage showing who entered the canteen',
+          requiredPuzzleId: 'puzzle1',
+          isCollected: false,
+        },
+        {
+          id: 'clue3',
+          name: 'Time Log Book',
+          positionX: 50,
+          positionY: 60,
+          description: 'Sign-in times for staff and helpers',
+          requiredPuzzleId: null,
+          contentRevealed: 'Mr. Lim (cleaner) signed in at 6:00 PM. Alex (student) left at 5:45 PM. Miss Chen (teacher) came at 6:30 PM.',
+          isCollected: false,
+        },
+      ],
+    },
+    {
+      id: 'scene2',
+      name: 'Kitchen Storage',
+      description: 'The staff kitchen where supplies are kept',
+      imageUrl: '/scenes/kitchen.jpg',
+      clues: [
+        {
+          id: 'clue4',
+          name: 'Staff Schedule',
+          positionX: 25,
+          positionY: 35,
+          description: 'Weekly schedule showing who worked Friday evening',
+          requiredPuzzleId: null,
+          contentRevealed: 'Only Alex was scheduled to close the canteen on Friday. He had the keys.',
+          isCollected: false,
+        },
+        {
+          id: 'clue5',
+          name: 'Fingerprints on Safe',
+          positionX: 65,
+          positionY: 45,
+          description: 'Fingerprints found on the office safe',
+          requiredPuzzleId: 'puzzle2',
+          isCollected: false,
+        },
+      ],
+    },
+    {
+      id: 'scene3',
+      name: 'School Office',
+      description: 'The administrative office',
+      imageUrl: '/scenes/office.jpg',
+      clues: [
+        {
+          id: 'clue6',
+          name: 'Alex\'s Locker',
+          positionX: 40,
+          positionY: 50,
+          description: 'Student helper lockers',
+          requiredPuzzleId: null,
+          contentRevealed: 'Alex\'s locker contains $50 in cash - exactly the amount that went missing!',
+          isCollected: false,
+        },
+        {
+          id: 'clue7',
+          name: 'Confession Letter',
+          positionX: 60,
+          positionY: 30,
+          description: 'A handwritten note',
+          requiredPuzzleId: null,
+          contentRevealed: 'Alex wrote: "I needed money for my mother\'s medicine. I\'m so sorry."',
+          isCollected: false,
+        },
+      ],
+    },
+  ],
   puzzles: [
     {
       id: 'puzzle1',
@@ -57,6 +114,17 @@ const gameData = {
       questionImage: null,
       correctAnswer: '50',
       hint: 'Subtract the counted money from the total sales: $450 - $400 = ?',
+      points: 10,
+      options: null,
+    },
+    {
+      id: 'puzzle2',
+      title: 'Time Problem',
+      type: 'math_word',
+      questionText: 'If Alex left at 5:45 PM and Mr. Lim arrived at 6:00 PM, how many minutes was the canteen unsupervised?',
+      questionImage: null,
+      correctAnswer: '15',
+      hint: 'Calculate the time difference between 5:45 PM and 6:00 PM in minutes.',
       points: 10,
       options: null,
     },
@@ -90,12 +158,16 @@ const gameData = {
 };
 
 export default function GameplayPage({ params }: { params: { caseId: string } }) {
+  const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [collectedClues, setCollectedClues] = useState<string[]>([]);
   const [solvedPuzzles, setSolvedPuzzles] = useState<string[]>([]);
   const [selectedClue, setSelectedClue] = useState<any>(null);
   const [activePuzzle, setActivePuzzle] = useState<any>(null);
   const [showSuspects, setShowSuspects] = useState(false);
   const [showEvidenceBoard, setShowEvidenceBoard] = useState(false);
+
+  const currentScene = gameData.scenes[currentSceneIndex];
+  const totalScenes = gameData.scenes.length;
 
   const handleClueClick = (clue: any) => {
     // If clue requires puzzle and puzzle not solved yet
@@ -119,7 +191,7 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
     setActivePuzzle(null);
 
     // Find and show the clue that was locked
-    const unlockedClue = gameData.currentScene.clues.find(
+    const unlockedClue = currentScene.clues.find(
       (c) => c.requiredPuzzleId === puzzleId
     );
     if (unlockedClue) {
@@ -130,9 +202,21 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
     }
   };
 
-  const progressPercentage = Math.round(
-    (collectedClues.length / gameData.currentScene.clues.length) * 100
-  );
+  const handleNextScene = () => {
+    if (currentSceneIndex < totalScenes - 1) {
+      setCurrentSceneIndex(currentSceneIndex + 1);
+    }
+  };
+
+  const handlePreviousScene = () => {
+    if (currentSceneIndex > 0) {
+      setCurrentSceneIndex(currentSceneIndex - 1);
+    }
+  };
+
+  // Calculate total clues across all scenes
+  const totalClues = gameData.scenes.reduce((sum, scene) => sum + scene.clues.length, 0);
+  const progressPercentage = Math.round((collectedClues.length / totalClues) * 100);
 
   return (
     <div className="min-h-screen bg-black relative">
@@ -142,14 +226,14 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-white">{gameData.caseTitle}</h1>
-              <p className="text-sm text-purple-200">{gameData.currentScene.name}</p>
+              <p className="text-sm text-purple-200">{currentScene.name}</p>
             </div>
 
             <div className="flex items-center gap-4">
               {/* Progress Bar */}
               <div className="hidden md:block">
                 <div className="text-sm text-purple-200 mb-1">
-                  Clues: {collectedClues.length}/{gameData.currentScene.clues.length}
+                  Clues: {collectedClues.length}/{totalClues}
                 </div>
                 <div className="w-48 bg-black/80  h-2">
                   <div
@@ -183,9 +267,13 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
           {/* Scene Viewer (Main Area) */}
           <div className="lg:col-span-2">
             <SceneViewer
-              scene={gameData.currentScene}
+              scene={currentScene}
               collectedClues={collectedClues}
               onClueClick={handleClueClick}
+              currentSceneIndex={currentSceneIndex}
+              totalScenes={totalScenes}
+              onNextScene={handleNextScene}
+              onPreviousScene={handlePreviousScene}
             />
 
             {/* Instructions */}
@@ -204,9 +292,10 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
           {/* Side Panel - Evidence Board (Desktop) */}
           <div className="hidden lg:block">
             <EvidenceBoard
-              clues={gameData.currentScene.clues.filter((c) =>
-                collectedClues.includes(c.id)
-              )}
+              clues={gameData.scenes
+                .flatMap(scene => scene.clues)
+                .filter((c) => collectedClues.includes(c.id))
+              }
               onClueClick={(clue) => setSelectedClue(clue)}
             />
           </div>
@@ -266,9 +355,10 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
               </button>
             </div>
             <EvidenceBoard
-              clues={gameData.currentScene.clues.filter((c) =>
-                collectedClues.includes(c.id)
-              )}
+              clues={gameData.scenes
+                .flatMap(scene => scene.clues)
+                .filter((c) => collectedClues.includes(c.id))
+              }
               onClueClick={(clue) => {
                 setSelectedClue(clue);
                 setShowEvidenceBoard(false);
