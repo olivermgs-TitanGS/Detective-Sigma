@@ -122,6 +122,7 @@ model Case {
   id String @id @default(uuid())
   title String
   description String?
+  subject String // "Mathematics", "Science", etc.
   subjectFocus SubjectFocus
   difficulty Difficulty
   status CaseStatus @default(DRAFT)
@@ -132,6 +133,11 @@ model Case {
   chapterOrder Int?
   estimatedMinutes Int @default(30)
 
+  // Enhanced fields for FSD compliance
+  skillsAssessed Json @default("{}") // {problem_solving: 40, computation: 30, etc.}
+  vocabularyWords Json @default("[]") // [{word: "perimeter", meaning: "..."}]
+  learningObjectives Json @default("{}") // {primary: "...", secondary: [...]}
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -140,6 +146,8 @@ model Case {
   suspects Suspect[]
   puzzles Puzzle[]
   progress Progress[]
+  assignments CaseAssignment[]
+  quizzes Quiz[]
 
   @@index([status])
   @@index([subjectFocus])
@@ -268,6 +276,8 @@ model Progress {
 
   status ProgressStatus @default(NEW)
   score Int @default(0)
+  currentSceneIndex Int @default(0)
+  timeSpent Int @default(0) // seconds
 
   // Arrays stored as JSON
   cluesCollected Json @default("[]") // Array of clue IDs
@@ -283,4 +293,100 @@ model Progress {
   @@index([userId])
   @@index([caseId])
   @@index([status])
+}
+
+// ============= QUIZ SYSTEM =============
+
+model Quiz {
+  id String @id @default(uuid())
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  questions Json // Array of question objects
+  orderIndex Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  submissions QuizSubmission[]
+
+  @@index([caseId])
+}
+
+model QuizSubmission {
+  id String @id @default(uuid())
+  quizId String
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId String
+
+  answers Json // Array of user's answers
+  correctAnswers Json // Array of correct answers
+  score Int // Total score achieved
+  maxScore Int // Maximum possible score
+  percentageScore Decimal // Calculated percentage
+
+  // Skill-based scores
+  skillScores Json @default("{}") // {inference: 80, computation: 90, etc.}
+
+  submittedAt DateTime @default(now())
+
+  @@index([quizId])
+  @@index([userId])
+}
+
+// ============= ASSIGNMENT SYSTEM =============
+
+model CaseAssignment {
+  id String @id @default(uuid())
+  caseId String
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  teacherId String
+
+  // Can be assigned to entire class or individual student
+  classId String?
+  studentId String?
+
+  dueDate DateTime?
+  assignedAt DateTime @default(now())
+
+  @@index([caseId])
+  @@index([teacherId])
+  @@index([classId])
+  @@index([studentId])
+}
+
+// ============= SKILL ASSESSMENT =============
+
+model SkillAssessment {
+  id String @id @default(uuid())
+  userId String
+  subject String // "Mathematics", "Science"
+  skillName String // "Problem Solving", "Computation", etc.
+  proficiencyLevel Decimal // 0-100 score
+  assessedAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([subject])
+  @@index([skillName])
+}
+
+// ============= AUDIT LOG =============
+
+model AuditLog {
+  id String @id @default(uuid())
+  userId String?
+  userEmail String?
+  action String // "LOGIN", "CREATE_CASE", "SUBMIT_QUIZ", etc.
+  entityType String? // "Case", "Quiz", "Progress"
+  entityId String?
+  details Json? // Additional context
+  ipAddress String?
+  userAgent String?
+
+  timestamp DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
 }
