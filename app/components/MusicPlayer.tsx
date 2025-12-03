@@ -22,7 +22,7 @@ const shuffleArray = (array: string[]) => {
 };
 
 export default function MusicPlayer() {
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted to enable autoplay
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [playlist, setPlaylist] = useState<string[]>([]);
@@ -37,6 +37,7 @@ export default function MusicPlayer() {
   useEffect(() => {
     if (audioRef.current && playlist.length > 0) {
       audioRef.current.volume = 0.15; // Low volume for ambiance
+      audioRef.current.muted = true; // Start muted to enable autoplay
 
       // Handle track ending - play next track
       const handleEnded = () => {
@@ -45,16 +46,23 @@ export default function MusicPlayer() {
 
       audioRef.current.addEventListener('ended', handleEnded);
 
-      // Try to autoplay after a short delay
+      // Autoplay (muted autoplay is allowed by browsers)
       const playAudio = () => {
         audioRef.current?.play().then(() => {
           setIsPlaying(true);
+          // Unmute after 500ms once playback starts
+          setTimeout(() => {
+            if (audioRef.current) {
+              audioRef.current.muted = false;
+              setIsMuted(false);
+            }
+          }, 500);
         }).catch(() => {
           // Autoplay blocked, wait for user interaction
         });
       };
 
-      setTimeout(playAudio, 1000);
+      setTimeout(playAudio, 500);
 
       return () => {
         audioRef.current?.removeEventListener('ended', handleEnded);
@@ -97,7 +105,7 @@ export default function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} />
+      <audio ref={audioRef} autoPlay muted loop={false} />
 
       {/* Music Control Buttons */}
       <div className="fixed bottom-6 right-6 z-50 flex gap-2">

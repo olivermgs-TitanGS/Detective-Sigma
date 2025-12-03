@@ -43,11 +43,11 @@ export default function Home() {
           <span
             className="font-black tracking-[1em] text-xl"
             style={{
-              color: '#FFFFFF',
-              WebkitTextStroke: '3px #000000',
-              textShadow: '0 0 20px rgba(0,0,0,1), 4px 4px 0px #000000, -2px -2px 0px #000000',
+              color: '#000000',
+              WebkitTextStroke: '2px #FFFFFF',
+              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 10px rgba(0,0,0,1))'
+              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
             }}
           >
             CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
@@ -66,11 +66,11 @@ export default function Home() {
           <span
             className="font-black tracking-[1em] text-xl"
             style={{
-              color: '#FFFFFF',
-              WebkitTextStroke: '3px #000000',
-              textShadow: '0 0 20px rgba(0,0,0,1), 4px 4px 0px #000000, -2px -2px 0px #000000',
+              color: '#000000',
+              WebkitTextStroke: '2px #FFFFFF',
+              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 10px rgba(0,0,0,1))'
+              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
             }}
           >
             POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
@@ -89,11 +89,11 @@ export default function Home() {
           <span
             className="font-black tracking-[1em] text-xl"
             style={{
-              color: '#FFFFFF',
-              WebkitTextStroke: '3px #000000',
-              textShadow: '0 0 20px rgba(0,0,0,1), 4px 4px 0px #000000, -2px -2px 0px #000000',
+              color: '#000000',
+              WebkitTextStroke: '2px #FFFFFF',
+              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 10px rgba(0,0,0,1))'
+              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
             }}
           >
             CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
@@ -112,11 +112,11 @@ export default function Home() {
           <span
             className="font-black tracking-[1em] text-xl"
             style={{
-              color: '#FFFFFF',
-              WebkitTextStroke: '3px #000000',
-              textShadow: '0 0 20px rgba(0,0,0,1), 4px 4px 0px #000000, -2px -2px 0px #000000',
+              color: '#000000',
+              WebkitTextStroke: '2px #FFFFFF',
+              textShadow: '0 0 10px rgba(255,255,255,0.9), 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8)',
               fontFamily: 'Impact, Arial Black, sans-serif',
-              filter: 'drop-shadow(0 0 10px rgba(0,0,0,1))'
+              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.9))'
             }}
           >
             POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
