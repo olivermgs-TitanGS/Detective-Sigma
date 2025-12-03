@@ -3,32 +3,32 @@ export default function UsersPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold text-white mb-2">User Management 👥</h1>
-        <p className="text-red-200 text-lg">Manage students, teachers, and admin accounts</p>
+        <h1 className="text-4xl font-bold text-red-400 font-mono tracking-[0.2em] mb-2">USER MANAGEMENT 👥</h1>
+        <p className="text-slate-400 text-lg font-mono tracking-wider">&gt; Manage students, teachers, and admin accounts</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 text-white">
-          <div className="text-3xl font-bold mb-2">0</div>
-          <div className="text-blue-100">Students</div>
+        <div className="border-2 border-red-800/30 bg-black/60 backdrop-blur-sm p-6">
+          <div className="text-4xl font-bold text-red-500 font-mono mb-2">0</div>
+          <div className="text-slate-400 font-mono text-sm tracking-wider">STUDENTS</div>
         </div>
-        <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-6 text-white">
-          <div className="text-3xl font-bold mb-2">0</div>
-          <div className="text-green-100">Teachers</div>
+        <div className="border-2 border-red-800/30 bg-black/60 backdrop-blur-sm p-6">
+          <div className="text-4xl font-bold text-red-500 font-mono mb-2">0</div>
+          <div className="text-slate-400 font-mono text-sm tracking-wider">TEACHERS</div>
         </div>
-        <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-xl p-6 text-white">
-          <div className="text-3xl font-bold mb-2">1</div>
-          <div className="text-red-100">Admins</div>
+        <div className="border-2 border-red-800/30 bg-black/60 backdrop-blur-sm p-6">
+          <div className="text-4xl font-bold text-red-500 font-mono mb-2">1</div>
+          <div className="text-slate-400 font-mono text-sm tracking-wider">ADMINS</div>
         </div>
       </div>
 
       {/* User List */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-8">
-        <div className="text-center py-12 text-red-200">
-          <div className="text-6xl mb-4">👥</div>
-          <p className="text-lg">No users yet.</p>
-          <p className="text-sm mt-2">Users will appear here once they register.</p>
+      <div className="border-2 border-red-800/50 bg-black/80 backdrop-blur-sm p-8">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4 filter drop-shadow-[0_0_20px_rgba(220,38,38,0.3)]">👥</div>
+          <p className="text-red-400 text-lg font-mono tracking-wider">NO USERS YET</p>
+          <p className="text-slate-500 text-sm mt-2 font-mono tracking-wide">&gt; Users will appear here once they register</p>
         </div>
       </div>
     </div>
