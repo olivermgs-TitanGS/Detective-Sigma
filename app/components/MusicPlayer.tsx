@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+// Main gameplay music (excluding ending credits tracks)
 const MUSIC_TRACKS = [
   '/music/Shadow Clues.mp3',
   '/music/Shadow Clues (1).mp3',
@@ -9,6 +10,18 @@ const MUSIC_TRACKS = [
   '/music/Shadow Clues (3).mp3',
   '/music/Whispers in the Fog.mp3',
   '/music/Whispers in the Fog (1).mp3',
+  '/music/Shadows Whispered Lies.mp3',
+  '/music/Shadows Whispered Lies (1).mp3',
+  '/music/Shadows in the Fog.mp3',
+  '/music/Shadows in the Fog (1).mp3',
+  '/music/Shadows in the Fog (2).mp3',
+  '/music/Shadows in the Fog (3).mp3',
+];
+
+// Ending credits music (used only on results/credits page)
+export const ENDING_CREDITS_TRACKS = [
+  '/music/Midnight Whispers.mp3',
+  '/music/Midnight Whispers (1).mp3',
 ];
 
 // Shuffle array using Fisher-Yates algorithm
