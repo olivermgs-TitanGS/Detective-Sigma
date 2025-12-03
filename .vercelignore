@@ -1,0 +1,7 @@
+# Ignore old implementation
+Detective_Sigma/
+Documents/
+.git/
+.github/
+*.md
+!app/

@@ -1,4 +1,4 @@
-# Vercel Deployment Guide - Detective Learning Academy
+# Vercel Deployment Guide - Detective Sigma
 
 ## 🚀 Simple Deployment (No Docker/VM Needed!)
 
@@ -9,7 +9,7 @@ Vercel is much simpler - just connect your GitHub repo and deploy. Everything ru
 1. **Go to Vercel**: https://vercel.com
 2. **Sign up/Login** with your GitHub account
 3. **Import Project**: Click "Add New" → "Project"
-4. **Select Repository**: Choose `Detective-Murder-Learning`
+4. **Select Repository**: Choose `detective_sigma`
 5. **Configure**:
    - Framework Preset: `Other`
    - Root Directory: `./`
@@ -43,7 +43,7 @@ vercel
 # - Set up and deploy? Yes
 # - Which scope? Your account
 # - Link to existing project? No
-# - Project name? detective-learning-academy
+# - Project name? detective_sigma
 # - Directory? ./
 ```
 
@@ -215,3 +215,4 @@ This combination is:
 - ✅ No Docker knowledge needed
 - ✅ No VM management
 - ✅ Deploys in 5 minutes
+

@@ -4,7 +4,7 @@
 
 ## 🚀 Quick Deploy to Vercel (Recommended - Free & Simple)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/olivermgs-TitanGS/Detective-Sigma)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/olivermgs-TitanGS/detective_sigma)
 
 ### Steps:
 1. Click the deploy button above
@@ -79,8 +79,8 @@ See [Detective_Sigma/DOCKER_HUB_DEPLOYMENT.md](Detective_Sigma/DOCKER_HUB_DEPLOY
 
 ```bash
 # Clone repository
-git clone https://github.com/olivermgs-TitanGS/Detective-Sigma.git
-cd Detective-Sigma/Detective_Sigma
+git clone https://github.com/olivermgs-TitanGS/detective_sigma.git
+cd Detective_Sigma
 
 # Install dependencies
 cd backend && npm install
@@ -125,9 +125,10 @@ Built for Singapore Primary School students to make learning Math and Science fu
 
 ## 📧 Support
 
-- GitHub Issues: https://github.com/olivermgs-TitanGS/Detective-Sigma/issues
-- Email: support@detectivesigma.com
+- GitHub Issues: https://github.com/olivermgs-TitanGS/detective_sigma/issues
+- Email: support@detective-sigma.vercel.app
 
 ---
 
 Made with ❤️ for young detectives
+

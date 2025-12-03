@@ -2571,7 +2571,7 @@ Parent Name: ___________________________
 Email: _________________________________
 Date: __________________________________
 
-Questions? Contact us at: privacy@detectivesigma.sg
+Questions? Contact us at: privacy@detective-sigma.vercel.app
 ```
 
 ### Appendix E: Sample School Partnership Agreement (MOU)
@@ -2788,4 +2788,5 @@ Date: ___________________
 ---
 
 *End of Business Requirements Document*
+
 

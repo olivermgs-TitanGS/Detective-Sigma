@@ -867,7 +867,7 @@ Free to try. $5/month if they can't stop playing.
 
 ## Contact & Next Steps
 
-**Demo:** [Prototype at detectivesigma.sg - 1 Math case playable]  
+**Demo:** [Prototype at detective-sigma.vercel.app - 1 Math case playable]  
 **Pitch Deck:** [Available upon request]  
 **Early Traction:** Currently in development; seeking pilot schools (no results yet)  
 
@@ -901,4 +901,5 @@ Free to try. $5/month if they can't stop playing.
 ---
 
 *Built for Singapore students. Math & Science mastery through detective mysteries. English comprehension naturally embedded. Designed for MOE alignment. Zero-cost scaling.*
+
 

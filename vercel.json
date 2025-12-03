@@ -1,33 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "Detective_Sigma/frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    },
-    {
-      "src": "Detective_Sigma/backend/src/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "Detective_Sigma/backend/src/index.js"
-    },
-    {
-      "src": "/health",
-      "dest": "Detective_Sigma/backend/src/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "Detective_Sigma/frontend/$1"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2
 }

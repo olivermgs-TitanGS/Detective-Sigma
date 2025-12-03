@@ -235,8 +235,8 @@ VS Code: Latest (recommended)
 
 ```bash
 # Clone repository
-git clone https://github.com/olivermgs-TitanGS/detective-learning-academy.git
-cd detective-learning-academy
+git clone https://github.com/olivermgs-TitanGS/detective_sigma.git
+cd detective_sigma
 
 # Install dependencies
 npm install
@@ -362,7 +362,7 @@ Live in 60 seconds at https://your-app.vercel.app
 ### 3.1 Application Structure
 
 ```
-detective-learning-academy/
+detective_sigma/
 ├── app/                          # Next.js App Router
 │   ├── (auth)/                   # Authentication routes
 │   │   ├── login/
@@ -1488,10 +1488,10 @@ async function main() {
   // Create admin user
   const adminPassword = await hash("admin123", 12)
   const admin = await prisma.user.upsert({
-    where: { email: "admin@detectivesigma.sg" },
+    where: { email: "admin@detective-sigma.vercel.app" },
     update: {},
     create: {
-      email: "admin@detectivesigma.sg",
+      email: "admin@detective-sigma.vercel.app",
       hashedPassword: adminPassword,
       role: UserRole.ADMIN,
       emailVerified: new Date(),
@@ -3652,7 +3652,7 @@ const securityHeaders = [
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: https:;
       font-src 'self' data:;
-      connect-src 'self' https://api.detectivesigma.sg;
+      connect-src 'self' https://api.detective-sigma.vercel.app;
       media-src 'self' https:;
       object-src 'none';
       frame-ancestors 'none';
@@ -3704,9 +3704,9 @@ import { Strategy as SAMLStrategy } from "passport-saml"
 
 export const moeSSO = new SAMLStrategy(
   {
-    callbackUrl: "https://detectivesigma.sg/auth/moe/callback",
+    callbackUrl: "https://detective-sigma.vercel.app/auth/moe/callback",
     entryPoint: "https://vle.learning.moe.edu.sg/saml/sso",
-    issuer: "detective-learning-sg",
+    issuer: "detective-sigma-sg",
     cert: process.env.MOE_SAML_CERT!, // Provided by MOE
   },
   async (profile, done) => {
@@ -3870,7 +3870,7 @@ export async function sendVerificationEmail(email: string, token: string) {
 
   try {
     await resend.emails.send({
-      from: "Detective Sigma <noreply@detectivesigma.sg>",
+      from: "Detective Sigma <noreply@detective-sigma.vercel.app>",
       to: email,
       subject: "Verify your email address",
       html: `
@@ -3902,7 +3902,7 @@ export async function sendParentConsentEmail(
   const consentUrl = `${process.env.NEXT_PUBLIC_APP_URL}/consent?token=${consentToken}`
 
   await resend.emails.send({
-    from: "Detective Sigma <noreply@detectivesigma.sg>",
+    from: "Detective Sigma <noreply@detective-sigma.vercel.app>",
     to: parentEmail,
     subject: "Parent Consent Required - Detective Sigma",
     html: `
@@ -3938,7 +3938,7 @@ export async function sendParentConsentEmail(
         border-radius: 6px;
       ">Review & Give Consent</a>
 
-      <p>If you have questions, contact us at: <a href="mailto:privacy@detectivesigma.sg">privacy@detectivesigma.sg</a></p>
+      <p>If you have questions, contact us at: <a href="mailto:privacy@detective-sigma.vercel.app">privacy@detective-sigma.vercel.app</a></p>
     `,
   })
 }
@@ -3949,7 +3949,7 @@ export async function sendWeeklyProgressEmail(
   stats: any
 ) {
   await resend.emails.send({
-    from: "Detective Sigma <progress@detectivesigma.sg>",
+    from: "Detective Sigma <progress@detective-sigma.vercel.app>",
     to: parentEmail,
     subject: `Weekly Progress Report - ${studentName}`,
     html: `
@@ -4535,7 +4535,7 @@ BACKUP_DIR="/backups/$DATE"
 pg_dump $DATABASE_URL > "$BACKUP_DIR/database.sql"
 
 # 2. Upload to S3
-aws s3 cp "$BACKUP_DIR/database.sql" s3://detective-learning-backups/$DATE/
+aws s3 cp "$BACKUP_DIR/database.sql" s3://detective-sigma-backups/$DATE/
 
 # 3. Keep last 30 days only
 find /backups/* -type d -mtime +30 -exec rm -rf {} \;
@@ -4724,4 +4724,5 @@ export enum ErrorCode {
 ---
 
 *End of Functional Specification Document*
+
 
