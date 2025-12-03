@@ -28,15 +28,47 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
 
       {/* Background Music Player */}
       <MusicPlayer />
-      {/* Crime Scene Tape Header - Repeating Text */}
-      <div className="relative border-y-4 border-amber-500 bg-amber-500/20 py-2 overflow-hidden transform -rotate-1">
+      {/* Realistic Crime Scene Tape - Physical Look */}
+      <div
+        className="relative py-4 overflow-hidden transform -rotate-2 shadow-lg"
+        style={{
+          background: 'repeating-linear-gradient(45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.3)'
+        }}
+      >
         <div className="animate-marquee whitespace-nowrap inline-block">
-          <span className="text-black font-mono font-black tracking-[0.5em] text-sm mx-8">⚠️ CRIME SCENE DO NOT CROSS ⚠️ CRIME SCENE DO NOT CROSS ⚠️ CRIME SCENE DO NOT CROSS ⚠️ CRIME SCENE DO NOT CROSS ⚠️ CRIME SCENE DO NOT CROSS ⚠️ CRIME SCENE DO NOT CROSS ⚠️</span>
+          <span
+            className="font-black tracking-[0.8em] text-xl mx-12"
+            style={{
+              color: '#000000',
+              textShadow: '2px 2px 0px rgba(255,215,0,0.3), -1px -1px 0px rgba(0,0,0,0.5)',
+              fontFamily: 'Impact, Arial Black, sans-serif'
+            }}
+          >
+            CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
+          </span>
         </div>
       </div>
-      <div className="relative border-y-4 border-amber-500 bg-amber-500/20 py-2 overflow-hidden transform rotate-1 mt-2">
+
+      <div
+        className="relative py-4 overflow-hidden transform rotate-1 shadow-lg"
+        style={{
+          background: 'repeating-linear-gradient(-45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.3)',
+          marginTop: '8px'
+        }}
+      >
         <div className="animate-marquee-reverse whitespace-nowrap inline-block">
-          <span className="text-black font-mono font-black tracking-[0.5em] text-sm mx-8">⚠️ POLICE LINE DO NOT CROSS ⚠️ POLICE LINE DO NOT CROSS ⚠️ POLICE LINE DO NOT CROSS ⚠️ POLICE LINE DO NOT CROSS ⚠️ POLICE LINE DO NOT CROSS ⚠️ POLICE LINE DO NOT CROSS ⚠️</span>
+          <span
+            className="font-black tracking-[0.8em] text-xl mx-12"
+            style={{
+              color: '#000000',
+              textShadow: '2px 2px 0px rgba(255,215,0,0.3), -1px -1px 0px rgba(0,0,0,0.5)',
+              fontFamily: 'Impact, Arial Black, sans-serif'
+            }}
+          >
+            POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
+          </span>
         </div>
       </div>
 

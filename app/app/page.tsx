@@ -30,9 +30,48 @@ export default function Home() {
       {/* Background Music */}
       <MusicPlayer />
 
-      {/* Caution Tape Effect - Top */}
-      <div className="absolute top-0 w-full h-12 bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-y-4 border-amber-500 transform -rotate-2"></div>
-      <div className="absolute top-0 w-full h-12 bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-y-4 border-amber-500 transform rotate-1 mt-20"></div>
+      {/* Realistic Crime Scene Tape - Crossing Page */}
+      <div
+        className="absolute top-0 w-full py-3 overflow-hidden transform -rotate-3 shadow-2xl z-20"
+        style={{
+          background: 'repeating-linear-gradient(45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
+          boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 -3px 6px rgba(0,0,0,0.4)'
+        }}
+      >
+        <div className="animate-marquee whitespace-nowrap inline-block">
+          <span
+            className="font-black tracking-[1em] text-lg"
+            style={{
+              color: '#000000',
+              textShadow: '2px 2px 0px rgba(255,215,0,0.3)',
+              fontFamily: 'Impact, Arial Black, sans-serif'
+            }}
+          >
+            CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="absolute top-20 w-full py-3 overflow-hidden transform rotate-2 shadow-2xl z-20"
+        style={{
+          background: 'repeating-linear-gradient(-45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
+          boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 -3px 6px rgba(0,0,0,0.4)'
+        }}
+      >
+        <div className="animate-marquee-reverse whitespace-nowrap inline-block">
+          <span
+            className="font-black tracking-[1em] text-lg"
+            style={{
+              color: '#000000',
+              textShadow: '2px 2px 0px rgba(255,215,0,0.3)',
+              fontFamily: 'Impact, Arial Black, sans-serif'
+            }}
+          >
+            POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
+          </span>
+        </div>
+      </div>
 
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-24">
         <div className="max-w-5xl w-full">
