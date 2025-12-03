@@ -159,24 +159,50 @@ This Functional Specification Document (FSD) provides detailed technical specifi
 | **NextAuth.js** | 5+ | Authentication | OAuth support, session management |
 | **bcrypt** | 5+ | Password hashing | Industry standard, secure |
 
-#### 2.2.3 Infrastructure (MVP)
+#### 2.2.3 Infrastructure (MVP) - Zero-Cost Vercel Deployment
 
-| Service | Tier | Purpose |
-|---------|------|---------|
-| **Vercel** | Free | Hosting, CI/CD, serverless functions |
-| **Supabase** | Free (512MB) | PostgreSQL database, auth, storage |
-| **Cloudflare R2** | Free (10GB) | Asset storage (images, audio) |
-| **GitHub** | Free | Version control, CI/CD |
+| Service | Tier | Purpose | Limits | Cost |
+|---------|------|---------|--------|------|
+| **Vercel** (Hobby) | Free | Hosting, auto-deployment, serverless | 100GB bandwidth/month | **$0** |
+| **GitHub** (public) | Free | Version control | Unlimited repos | **$0** |
+| **Vercel Postgres** | Free | Database (Neon-powered) | 512MB storage, 10K rows | **$0** |
+| **Vercel Blob Storage** | Free | File uploads (images, assets) | 1GB storage | **$0** |
+| **Vercel Analytics** | Free | Traffic monitoring | Unlimited page views | **$0** |
+| **Total Monthly Cost** | - | Complete infrastructure | - | **$0/month** |
 
-#### 2.2.4 Infrastructure (Production - Phase 2+)
+**Deployment Architecture (Super Simple):**
+```
+Developer (Your Laptop)
+    │ git push main
+    ▼
+GitHub (Public Repo)
+    │ Vercel auto-detects push
+    ▼
+Vercel (Auto-Deploy)
+    ├─ Builds Next.js app
+    ├─ Deploys to edge network
+    ├─ Connects to Postgres database
+    └─ Live at: https://your-app.vercel.app
+```
 
-| Service | Tier | Purpose |
-|---------|------|---------|
-| **AWS EC2/Fargate** | t3.small → Auto-scale | Application hosting (Singapore region) |
-| **AWS RDS** | PostgreSQL Multi-AZ | Database (high availability) |
-| **AWS S3 + CloudFront** | Standard | Asset storage + CDN |
-| **AWS CloudWatch** | Standard | Monitoring, logs, alerts |
-| **Sentry** | Business | Error tracking, performance monitoring |
+**Why Vercel is Simpler:**
+- ✅ No Docker setup required
+- ✅ No Windows VM configuration
+- ✅ Auto-deploys on git push (zero commands!)
+- ✅ Free HTTPS/SSL included
+- ✅ Global CDN included
+- ✅ Automatic scaling
+- ✅ Database included (Vercel Postgres)
+
+#### 2.2.4 Infrastructure (Production - Phase 2+ Scaling)
+
+**Vercel Scaling (still mostly free):**
+
+| Service | When Needed | Purpose | Cost |
+|---------|-------------|---------|------|
+| **Vercel Pro** | 1M+ page views/month | More bandwidth | $20/month (optional) |
+| **Supabase** (switch from Vercel Postgres) | 500MB+ database | Larger database | Free up to 500MB |
+| **Cloudflare R2** | 10GB+ assets | Cheaper file storage | Free 10GB, then $0.015/GB |
 
 #### 2.2.5 Third-Party APIs
 
@@ -228,67 +254,106 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### 2.4 Deployment Strategy
+### 2.4 Deployment Strategy (Vercel - Zero-Cost & Super Simple)
 
 #### 2.4.1 Environments
 
 | Environment | Purpose | URL | Deployment Trigger |
 |-------------|---------|-----|-------------------|
-| **Development** | Local development | localhost:3000 | Manual (`npm run dev`) |
-| **Preview** | Feature testing | preview-*.vercel.app | Pull request opened |
-| **Staging** | Pre-production testing | staging.detectivelearning.sg | Merge to `develop` branch |
-| **Production** | Live platform | detectivelearning.sg | Merge to `main` branch |
+| **Development** | Local development | `localhost:3000` | Manual (`npm run dev`) |
+| **Preview** | Testing PRs | `pr-123.vercel.app` | Pull request opened |
+| **Production** | Live platform | `your-app.vercel.app` | Push to `main` branch |
 
-#### 2.4.2 CI/CD Pipeline (GitHub Actions)
+#### 2.4.2 Vercel Deployment (Automatic - Zero Configuration)
 
-```yaml
-# .github/workflows/ci.yml
-name: CI/CD Pipeline
+**Setup Steps (One-Time, 5 Minutes):**
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+1. **Sign up for Vercel** (FREE - no credit card required)
+   - Go to: https://vercel.com/signup
+   - Sign in with GitHub
+   - Authorize Vercel to access your repos
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-      - run: npm run test
-      - run: npm run build
+2. **Import Project**
+   - Click "Add New Project"
+   - Select your `detective-academy` repository
+   - Vercel auto-detects Next.js → Click "Deploy"
+   - Done! Your app is live instantly
 
-  deploy-preview:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+3. **Add Database** (Vercel Postgres - FREE)
+   - In Vercel Dashboard → Your Project → Storage
+   - Click "Create Database" → Select "Postgres"
+   - Copy connection string → Add to Environment Variables
 
-  deploy-production:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+4. **Set Environment Variables**
+   - Settings → Environment Variables:
+     ```
+     DATABASE_URL=<from Vercel Postgres>
+     NEXTAUTH_SECRET=<generate random string>
+     NEXTAUTH_URL=<your vercel app URL>
+     ```
+
+**That's It! No GitHub Actions, No Docker, No VM Setup!**
+
+**Automatic Deployment Workflow:**
 ```
+You: git push origin main
+    ↓
+GitHub: Receives commit
+    ↓
+Vercel: Auto-detects push, builds, deploys
+    ↓
+Live in 60 seconds at https://your-app.vercel.app
+```
+
+**What Vercel Does Automatically:**
+- ✅ Builds Next.js on every push
+- ✅ Runs TypeScript type checks
+- ✅ Optimizes images
+- ✅ Deploys to global CDN
+- ✅ Provides HTTPS certificate
+- ✅ Creates preview URLs for PRs
+- ✅ Monitors performance
+
+**Cost Verification:**
+- ✅ Vercel Hobby tier = 100% FREE
+- ✅ Includes: Hosting + Database + File Storage
+- ✅ Public GitHub repo = No usage limits
+- ✅ No credit card required
+
+**Zero-Cost Limits (More Than Enough for MVP):**
+- 100GB bandwidth/month (~100K page views)
+- 512MB database (stores 10,000+ rows)
+- 1GB file storage (1,000+ images)
+- Unlimited deployments
+
+---
+
+### 2.5 Zero-Cost Deployment Safeguards
+
+**To Ensure Zero Monthly Costs with Vercel:**
+
+1. ✅ **Vercel Account:**
+   - Use **Hobby (Free)** tier
+   - Don't add credit card unless you want to upgrade
+   - Monitor usage: Dashboard → Settings → Usage
+
+2. ✅ **GitHub Repository:**
+   - Keep repo **Public** (no private repo limits)
+   - Vercel auto-deploys on every push
+
+3. ✅ **Database:**
+   - Use **Vercel Postgres** (512MB free)
+   - Or **Supabase** (500MB free, more features)
+   - Both are PostgreSQL-compatible
+
+4. ✅ **File Uploads:**
+   - Use **Vercel Blob Storage** (1GB free)
+   - Or **Cloudflare R2** (10GB free)
+
+**Warning Signs of Charges:**
+- ❌ Vercel asks to "Upgrade to Pro" → Just click "Continue with Hobby"
+- ❌ Usage page shows "Over limit" → Won't charge, just throttles
+- ❌ You won't be charged unless you explicitly add payment method
 
 ---
 
@@ -4284,102 +4349,97 @@ test.describe("Accessibility", () => {
 
 ---
 
-## 11. Deployment & Operations
+## 11. Deployment & Operations (Vercel - Zero-Cost & Simple)
 
 ### 11.1 Environment Variables
 
+**For Development** (`.env.local`):
 ```bash
-# .env.example
-
-# App
-NEXT_PUBLIC_APP_URL=https://detectivelearning.sg
-NODE_ENV=production
-
-# Database
-DATABASE_URL="postgresql://user:password@host:5432/detective_learning?sslmode=require"
+# Database (Vercel Postgres or Supabase)
+DATABASE_URL="postgresql://username:password@localhost:5432/detective_academy"
 
 # Authentication
 NEXTAUTH_SECRET="your-super-secret-key-here-32-chars-min"
-NEXTAUTH_URL="https://detectivelearning.sg"
+NEXTAUTH_URL="http://localhost:3000"
 
-# OAuth Providers
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# MOE SSO (Phase 2)
-MOE_SAML_CERT="-----BEGIN CERTIFICATE-----..."
-MOE_SSO_ENTRY_POINT="https://vle.learning.moe.edu.sg/saml/sso"
-
-# File Storage
-CLOUDFLARE_R2_ACCOUNT_ID="your-account-id"
-CLOUDFLARE_R2_ACCESS_KEY_ID="your-access-key"
-CLOUDFLARE_R2_SECRET_ACCESS_KEY="your-secret-key"
-CLOUDFLARE_R2_BUCKET_URL="https://pub-xxxxx.r2.dev"
-
-# AI (Phase 2)
-GEMINI_API_KEY="your-gemini-api-key"
-
-# Email
-RESEND_API_KEY="re_xxxxx"
-
-# Monitoring
-SENTRY_DSN="https://xxxxx@sentry.io/xxxxx"
-SENTRY_AUTH_TOKEN="your-sentry-auth-token"
-
-# Rate Limiting (Phase 2)
-UPSTASH_REDIS_REST_URL="https://xxxxx.upstash.io"
-UPSTASH_REDIS_REST_TOKEN="your-upstash-token"
-
-# Security
-CSRF_SECRET="your-csrf-secret-32-chars"
-ENCRYPTION_KEY="your-encryption-key-64-hex-chars"
+# Development
+NODE_ENV=development
 ```
 
-### 11.2 Deployment Checklist
+**For Production on Vercel** (Vercel Dashboard → Settings → Environment Variables):
+```bash
+# Database (auto-populated from Vercel Postgres)
+DATABASE_URL="<copied from Vercel Postgres connection string>"
+
+# Authentication
+NEXTAUTH_SECRET="<generate with: openssl rand -base64 32>"
+NEXTAUTH_URL="https://your-app.vercel.app"
+
+# Application
+NODE_ENV=production
+```
+
+**Phase 2 Additions** (add when needed - all have free tiers):
+```bash
+# AI Hints (Google Gemini - Free 1M tokens/month)
+GEMINI_API_KEY="your-gemini-api-key"
+
+# Email (Resend - Free 3K/month)
+RESEND_API_KEY="re_xxxxx"
+FROM_EMAIL="noreply@your-vercel-app.vercel.app"
+
+# File Storage (Vercel Blob - Free 1GB or Cloudflare R2 - Free 10GB)
+BLOB_READ_WRITE_TOKEN="<from Vercel Blob Storage>"
+
+# Error Tracking (Sentry - Free 5K events/month, auto-integrates with Vercel)
+SENTRY_DSN="<auto-populated by Vercel integration>"
+
+# MOE SSO (Phase 3)
+MOE_SSO_ENTRY_POINT="https://vle.learning.moe.edu.sg/saml/sso"
+MOE_SAML_CERT="-----BEGIN CERTIFICATE-----..."
+```
+
+### 11.2 Vercel Deployment Checklist (Simplified)
 
 ```markdown
-## Pre-Deployment Checklist
+## Pre-Deployment Checklist (Vercel - Most Things Auto-Handled!)
 
-### Code Quality
-- [ ] All tests passing (`npm run test`)
-- [ ] No ESLint errors (`npm run lint`)
-- [ ] Type-check passed (`npm run type-check`)
-- [ ] Build successful (`npm run build`)
+### One-Time Setup (5 Minutes)
+- [ ] Create Vercel account (free, no credit card)
+- [ ] Connect GitHub repository
+- [ ] Import project to Vercel
+- [ ] Create Vercel Postgres database (free)
+- [ ] Add environment variables in Vercel
 
-### Security
-- [ ] Environment variables set in production
-- [ ] HTTPS configured (SSL certificate)
-- [ ] Security headers configured
-- [ ] Rate limiting enabled
-- [ ] Database backups configured
-- [ ] Audit logging enabled
+### Before Each Deploy (Auto-Checked by Vercel)
+- [ ] No TypeScript errors (`npm run type-check` - optional local check)
+- [ ] No ESLint errors (`npm run lint` - optional local check)
+- [ ] Build successful (Vercel will fail deploy if build fails)
 
-### Performance
-- [ ] Images optimized (WebP format)
-- [ ] Code splitting implemented
-- [ ] Database indexes created
-- [ ] CDN configured for static assets
-- [ ] Caching strategy implemented
+### Automatic (Vercel Handles These)
+- [x] HTTPS/SSL certificate (auto-generated)
+- [x] Security headers (auto-configured)
+- [x] Image optimization (auto-optimized)
+- [x] Code splitting (auto-handled by Next.js)
+- [x] CDN distribution (auto-deployed globally)
+- [x] Performance monitoring (Vercel Analytics - free)
+- [x] Deployment previews for PRs (auto-created)
 
-### Compliance
-- [ ] Privacy Policy published
-- [ ] Terms of Service published
-- [ ] Parent consent mechanism tested
+### Manual Configuration (Do Once)
+- [ ] Set custom domain (optional, or use vercel.app subdomain)
+- [ ] Add team members (optional)
+- [ ] Configure database backups (Vercel Postgres auto-backups)
+
+### Compliance (Your Responsibility)
+- [ ] Privacy Policy page created (`/privacy`)
+- [ ] Terms of Service page created (`/terms`)
+- [ ] Parent consent flow implemented
 - [ ] PDPA compliance documented
-- [ ] Data retention policy automated
 
-### Monitoring
-- [ ] Sentry error tracking configured
-- [ ] Vercel Analytics enabled
-- [ ] Database monitoring set up
-- [ ] Uptime monitoring configured (UptimeRobot)
-- [ ] Alert notifications tested (email/Slack)
-
-### Documentation
-- [ ] README.md updated with setup instructions
-- [ ] API documentation generated
-- [ ] User guides published (student, teacher)
-- [ ] Architecture diagrams updated
+### Optional Enhancements (Phase 2)
+- [ ] Sentry integration for error tracking (1-click install in Vercel)
+- [ ] Vercel Speed Insights (1-click enable)
+- [ ] Vercel Web Analytics (1-click enable)
 ```
 
 ### 11.3 Monitoring & Alerting
