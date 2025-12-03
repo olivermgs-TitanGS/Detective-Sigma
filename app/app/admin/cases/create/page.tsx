@@ -46,7 +46,7 @@ export default function CreateCasePage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-8">
+        <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-8">
           <h2 className="text-2xl font-bold text-white mb-6">Basic Information</h2>
 
           <div className="space-y-4">
@@ -62,7 +62,7 @@ export default function CreateCasePage() {
                 onChange={handleChange}
                 required
                 placeholder="e.g., The Missing Canteen Money"
-                className="w-full bg-slate-900 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full bg-black border border-red-500/30  px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
 
@@ -78,7 +78,7 @@ export default function CreateCasePage() {
                 required
                 rows={4}
                 placeholder="Brief description of the case..."
-                className="w-full bg-slate-900 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full bg-black border border-red-500/30  px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
 
@@ -92,7 +92,7 @@ export default function CreateCasePage() {
                   name="subjectFocus"
                   value={formData.subjectFocus}
                   onChange={handleChange}
-                  className="w-full bg-slate-900 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full bg-black border border-red-500/30  px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
                   <option value="MATH">Math</option>
                   <option value="SCIENCE">Science</option>
@@ -108,7 +108,7 @@ export default function CreateCasePage() {
                   name="difficulty"
                   value={formData.difficulty}
                   onChange={handleChange}
-                  className="w-full bg-slate-900 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full bg-black border border-red-500/30  px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
                   <option value="ROOKIE">Rookie (P4)</option>
                   <option value="INSPECTOR">Inspector (P5)</option>
@@ -131,7 +131,7 @@ export default function CreateCasePage() {
                 required
                 min="10"
                 max="120"
-                className="w-full bg-slate-900 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full bg-black border border-red-500/30  px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
 
@@ -144,7 +144,7 @@ export default function CreateCasePage() {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full bg-slate-900 border border-red-500/30 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full bg-black border border-red-500/30  px-4 py-3 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               >
                 <option value="DRAFT">Draft (not visible to students)</option>
                 <option value="PUBLISHED">Published (visible to students)</option>
@@ -154,14 +154,14 @@ export default function CreateCasePage() {
         </div>
 
         {/* Next Steps Info */}
-        <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-6">
+        <div className="bg-red-900/30 border border-red-800/30  p-6">
           <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
             💡 Next Steps
           </h3>
-          <p className="text-blue-200 text-sm mb-3">
+          <p className="text-red-300 text-sm mb-3">
             After creating this case, you'll be able to add:
           </p>
-          <ul className="text-blue-200 text-sm space-y-1 ml-4">
+          <ul className="text-red-300 text-sm space-y-1 ml-4">
             <li>• Scenes (investigation locations)</li>
             <li>• Clues (evidence to collect)</li>
             <li>• Puzzles (challenges to unlock clues)</li>
@@ -173,14 +173,14 @@ export default function CreateCasePage() {
         <div className="flex items-center gap-4">
           <button
             type="submit"
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg transition-colors"
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-4  transition-colors"
           >
             Create Case
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-lg transition-colors"
+            className="flex-1 bg-black/80 hover:bg-slate-600 text-white font-bold py-4  transition-colors"
           >
             Cancel
           </button>

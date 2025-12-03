@@ -89,7 +89,7 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
           <p className="text-purple-200 mb-6">This mystery doesn't exist yet!</p>
           <Link
             href="/student/cases"
-            className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg transition-colors font-semibold"
+            className="inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3  transition-colors font-semibold"
           >
             Back to Case Library
           </Link>
@@ -116,16 +116,16 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
       </Link>
 
       {/* Case Header */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8 text-center">
+      <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8 text-center">
         <div className="text-8xl mb-6">{caseData.coverImage}</div>
         <div className="flex items-center justify-center gap-3 mb-4">
-          <span className={`${difficultyColors[caseData.difficulty as keyof typeof difficultyColors]} text-white text-sm px-4 py-1 rounded-full font-semibold`}>
+          <span className={`${difficultyColors[caseData.difficulty as keyof typeof difficultyColors]} text-white text-sm px-4 py-1  font-semibold`}>
             {caseData.difficulty}
           </span>
-          <span className="bg-blue-600 text-white text-sm px-4 py-1 rounded-full font-semibold">
+          <span className="bg-amber-600 text-white text-sm px-4 py-1  font-semibold">
             {caseData.subjectFocus}
           </span>
-          <span className="bg-purple-600 text-white text-sm px-4 py-1 rounded-full font-semibold">
+          <span className="bg-amber-700 text-white text-sm px-4 py-1  font-semibold">
             ⏱️ {caseData.estimatedMinutes} mins
           </span>
         </div>
@@ -134,7 +134,7 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
       </div>
 
       {/* Case Briefing */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
+      <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8">
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
           📋 Case Briefing
         </h2>
@@ -144,7 +144,7 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
       </div>
 
       {/* Learning Objectives */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
+      <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8">
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
           🎯 Learning Objectives
         </h2>
@@ -159,7 +159,7 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
       </div>
 
       {/* Skills Practiced */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
+      <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8">
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
           💡 Skills You'll Practice
         </h2>
@@ -167,7 +167,7 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
           {caseData.skills.map((skill: string, index: number) => (
             <span
               key={index}
-              className="bg-purple-600/30 text-purple-200 px-4 py-2 rounded-lg border border-purple-500/20"
+              className="bg-amber-700/30 text-purple-200 px-4 py-2  border border-purple-500/20"
             >
               {skill}
             </span>
@@ -176,12 +176,12 @@ export default function CaseDetail({ params }: { params: { caseId: string } }) {
       </div>
 
       {/* Start Button */}
-      <div className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-8 text-center">
+      <div className="bg-gradient-to-br from-purple-600 to-purple-800  p-8 text-center">
         <h3 className="text-2xl font-bold text-white mb-2">Ready to Solve This Mystery?</h3>
         <p className="text-purple-100 mb-6">Put on your detective hat and start investigating!</p>
         <Link
           href={`/student/cases/${caseData.id}/play`}
-          className="inline-block bg-white text-purple-900 px-12 py-4 rounded-lg font-bold text-lg hover:bg-purple-100 transition-colors"
+          className="inline-block bg-white text-purple-900 px-12 py-4  font-bold text-lg hover:bg-purple-100 transition-colors"
         >
           Start Investigation 🔍
         </Link>

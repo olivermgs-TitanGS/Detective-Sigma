@@ -97,7 +97,7 @@ export default function CaseLibrary() {
                 <span className={`${difficultyColors[caseItem.difficulty as keyof typeof difficultyColors]} border-2 text-white text-xs px-3 py-1 font-mono font-bold tracking-wider`}>
                   {caseItem.difficulty}
                 </span>
-                <span className="bg-slate-900/80 border-2 border-slate-600 text-slate-300 text-xs px-3 py-1 font-mono font-bold tracking-wider">
+                <span className="bg-black/80 border-2 border-slate-600 text-slate-300 text-xs px-3 py-1 font-mono font-bold tracking-wider">
                   {caseItem.subjectFocus}
                 </span>
               </div>

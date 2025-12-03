@@ -26,34 +26,34 @@ export default function BulkImportPage() {
 
       {/* Import Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-8">
+        <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-8">
           <div className="text-6xl mb-4">📚</div>
           <h3 className="text-2xl font-bold text-white mb-2">Import Cases</h3>
           <p className="text-red-200 mb-4">
             Upload a CSV file with case data, scenes, clues, and puzzles
           </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold">
+          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold">
             Download Template
           </button>
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-8">
+        <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-8">
           <div className="text-6xl mb-4">👥</div>
           <h3 className="text-2xl font-bold text-white mb-2">Import Users</h3>
           <p className="text-red-200 mb-4">
             Upload a CSV file with student or teacher accounts
           </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold">
+          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold">
             Download Template
           </button>
         </div>
       </div>
 
       {/* Upload Area */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-8">
+      <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-8">
         <h2 className="text-2xl font-bold text-white mb-6">Upload CSV File</h2>
 
-        <div className="border-2 border-dashed border-red-500/30 rounded-xl p-12 text-center hover:border-red-500/50 transition-colors">
+        <div className="border-2 border-dashed border-red-500/30  p-12 text-center hover:border-red-500/50 transition-colors">
           <div className="text-6xl mb-4">📁</div>
           <p className="text-white font-semibold mb-2">Drag and drop your CSV file here</p>
           <p className="text-red-200 text-sm mb-4">or click to browse</p>
@@ -67,7 +67,7 @@ export default function BulkImportPage() {
           />
           <label
             htmlFor="file-upload"
-            className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold cursor-pointer"
+            className="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold cursor-pointer"
           >
             Choose File
           </label>
@@ -82,7 +82,7 @@ export default function BulkImportPage() {
         {selectedFile && (
           <button
             onClick={handleUpload}
-            className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors"
+            className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3  transition-colors"
           >
             Upload and Import
           </button>
@@ -90,11 +90,11 @@ export default function BulkImportPage() {
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-6">
+      <div className="bg-red-900/30 border border-red-800/30  p-6">
         <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
           💡 CSV Format Guidelines
         </h3>
-        <ul className="text-blue-200 text-sm space-y-2">
+        <ul className="text-red-300 text-sm space-y-2">
           <li>• First row must contain column headers</li>
           <li>• Use UTF-8 encoding</li>
           <li>• Required fields cannot be empty</li>

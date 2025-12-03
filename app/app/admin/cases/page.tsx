@@ -51,7 +51,7 @@ export default function CasesListPage() {
         </div>
         <Link
           href="/admin/cases/create"
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold flex items-center gap-2"
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3  transition-colors font-semibold flex items-center gap-2"
         >
           <span className="text-xl">+</span>
           <span>Create New Case</span>
@@ -60,17 +60,17 @@ export default function CasesListPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-6">
+        <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-6">
           <div className="text-3xl font-bold text-white mb-1">{cases.length}</div>
           <div className="text-red-200">Total Cases</div>
         </div>
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-6">
+        <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-6">
           <div className="text-3xl font-bold text-white mb-1">
             {cases.filter((c) => c.status === 'PUBLISHED').length}
           </div>
           <div className="text-red-200">Published</div>
         </div>
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl p-6">
+        <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  p-6">
           <div className="text-3xl font-bold text-white mb-1">
             {cases.filter((c) => c.status === 'DRAFT').length}
           </div>
@@ -79,9 +79,9 @@ export default function CasesListPage() {
       </div>
 
       {/* Cases Table */}
-      <div className="bg-slate-800/50 backdrop-blur-sm border border-red-500/20 rounded-xl overflow-hidden">
+      <div className="bg-black/60 backdrop-blur-sm border border-red-500/20  overflow-hidden">
         <table className="w-full">
-          <thead className="bg-slate-900/50 border-b border-red-500/20">
+          <thead className="bg-black/70 border-b border-red-500/20">
             <tr className="text-left text-red-200 text-sm">
               <th className="p-4 font-semibold">Title</th>
               <th className="p-4 font-semibold">Subject</th>
@@ -95,13 +95,13 @@ export default function CasesListPage() {
             {cases.map((caseItem) => (
               <tr
                 key={caseItem.id}
-                className="border-b border-red-500/10 hover:bg-slate-700/30 transition-colors"
+                className="border-b border-red-500/10 hover:bg-black/80/30 transition-colors"
               >
                 <td className="p-4">
                   <div className="text-white font-semibold">{caseItem.title}</div>
                 </td>
                 <td className="p-4">
-                  <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-semibold">
+                  <span className="bg-red-600 text-white text-xs px-3 py-1  font-semibold">
                     {caseItem.subjectFocus}
                   </span>
                 </td>
@@ -109,7 +109,7 @@ export default function CasesListPage() {
                   <span
                     className={`${
                       difficultyColors[caseItem.difficulty as keyof typeof difficultyColors]
-                    } text-white text-xs px-3 py-1 rounded-full font-semibold`}
+                    } text-white text-xs px-3 py-1  font-semibold`}
                   >
                     {caseItem.difficulty}
                   </span>
@@ -118,7 +118,7 @@ export default function CasesListPage() {
                   <span
                     className={`${
                       statusColors[caseItem.status as keyof typeof statusColors]
-                    } text-white text-xs px-3 py-1 rounded-full font-semibold`}
+                    } text-white text-xs px-3 py-1  font-semibold`}
                   >
                     {caseItem.status}
                   </span>
@@ -130,13 +130,13 @@ export default function CasesListPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/admin/cases/${caseItem.id}/edit`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
                     >
                       Edit
                     </Link>
                     <Link
                       href={`/admin/cases/${caseItem.id}/scenes`}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                      className="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded text-sm transition-colors"
                     >
                       Scenes
                     </Link>

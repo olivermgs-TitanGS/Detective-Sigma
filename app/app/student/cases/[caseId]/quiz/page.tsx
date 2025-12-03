@@ -67,7 +67,7 @@ export default function QuizPage({ params }: { params: { caseId: string } }) {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8 text-center">
+        <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8 text-center">
           <h1 className="text-4xl font-bold text-white mb-2">Final Quiz 📝</h1>
           <p className="text-xl text-purple-200 mb-4">{quizData.caseTitle}</p>
           <p className="text-purple-300">
@@ -80,10 +80,10 @@ export default function QuizPage({ params }: { params: { caseId: string } }) {
           {quizData.questions.map((question, index) => (
             <div
               key={question.id}
-              className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6"
+              className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-6"
             >
               <div className="flex items-start gap-4 mb-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="flex-shrink-0 w-10 h-10 bg-amber-700  flex items-center justify-center text-white font-bold">
                   {index + 1}
                 </div>
                 <div className="flex-1">
@@ -97,10 +97,10 @@ export default function QuizPage({ params }: { params: { caseId: string } }) {
                     key={option}
                     onClick={() => handleAnswerSelect(question.id, option)}
                     disabled={submitted}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                    className={`w-full text-left p-4  border-2 transition-all ${
                       answers[question.id] === option
-                        ? 'bg-purple-600 border-purple-500 text-white'
-                        : 'bg-slate-700/50 border-purple-500/20 text-purple-200 hover:border-purple-500/50'
+                        ? 'bg-amber-700 border-purple-500 text-white'
+                        : 'bg-black/80/50 border-purple-500/20 text-purple-200 hover:border-purple-500/50'
                     } ${submitted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                   >
                     {option}
@@ -112,7 +112,7 @@ export default function QuizPage({ params }: { params: { caseId: string } }) {
         </div>
 
         {/* Submit Section */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
+        <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8">
           {!submitted ? (
             <>
               <div className="text-center mb-6">
@@ -129,10 +129,10 @@ export default function QuizPage({ params }: { params: { caseId: string } }) {
               <button
                 onClick={handleSubmit}
                 disabled={!allAnswered}
-                className={`w-full font-bold py-4 rounded-lg text-lg transition-colors ${
+                className={`w-full font-bold py-4  text-lg transition-colors ${
                   allAnswered
                     ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                    : 'bg-black/80 text-slate-400 cursor-not-allowed'
                 }`}
               >
                 {allAnswered ? 'Submit Quiz & Solve Case!' : 'Answer All Questions First'}

@@ -37,7 +37,7 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Success Banner */}
-        <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-12 text-center border-2 border-green-500/50">
+        <div className="bg-gradient-to-br from-green-600 to-green-800  p-12 text-center border-2 border-green-500/50">
           <div className="text-8xl mb-4">🎉</div>
           <h1 className="text-5xl font-bold text-white mb-3">Case Solved!</h1>
           <p className="text-2xl text-green-100 mb-2">{resultsData.caseTitle}</p>
@@ -46,28 +46,28 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
 
         {/* Score Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6 text-center">
+          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-6 text-center">
             <div className={`text-5xl font-bold mb-2 ${gradeColor}`}>{grade}</div>
             <div className="text-purple-200 text-sm">Grade</div>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6 text-center">
+          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-6 text-center">
             <div className="text-5xl font-bold text-white mb-2">{resultsData.score}%</div>
             <div className="text-purple-200 text-sm">Score</div>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6 text-center">
+          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-6 text-center">
             <div className="text-5xl font-bold text-white mb-2">
               {resultsData.correctAnswers}/{resultsData.totalQuestions}
             </div>
             <div className="text-purple-200 text-sm">Correct Answers</div>
           </div>
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6 text-center">
+          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-6 text-center">
             <div className="text-5xl font-bold text-white mb-2">{resultsData.pointsEarned}</div>
             <div className="text-purple-200 text-sm">Points Earned</div>
           </div>
         </div>
 
         {/* Feedback */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
+        <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8">
           <h2 className="text-2xl font-bold text-white mb-4">📊 Performance Summary</h2>
           <p className="text-purple-100 mb-6 leading-relaxed">{resultsData.feedback.summary}</p>
 
@@ -105,7 +105,7 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
         </div>
 
         {/* Stats */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8">
+        <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8">
           <h2 className="text-2xl font-bold text-white mb-4">📈 Case Statistics</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
@@ -124,15 +124,15 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
         </div>
 
         {/* Next Case Recommendation */}
-        <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl p-8">
+        <div className="bg-gradient-to-br from-purple-600 to-blue-600  p-8">
           <h2 className="text-2xl font-bold text-white mb-3">🎯 Ready for Your Next Case?</h2>
           <p className="text-purple-100 mb-6">
             Based on your performance, we recommend this case next:
           </p>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-6">
+          <div className="bg-white/10 backdrop-blur-sm  p-6 mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <span className="bg-yellow-600 text-white text-sm px-3 py-1 rounded-full font-semibold">
+              <span className="bg-yellow-600 text-white text-sm px-3 py-1  font-semibold">
                 {resultsData.nextRecommendation.difficulty}
               </span>
             </div>
@@ -145,13 +145,13 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href={`/student/cases/${resultsData.nextRecommendation.id}`}
-              className="flex-1 bg-white text-purple-900 px-6 py-3 rounded-lg font-bold text-center hover:bg-purple-100 transition-colors"
+              className="flex-1 bg-white text-purple-900 px-6 py-3  font-bold text-center hover:bg-purple-100 transition-colors"
             >
               Start Next Case →
             </Link>
             <Link
               href="/student/cases"
-              className="flex-1 bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-bold text-center hover:bg-white/10 transition-colors"
+              className="flex-1 bg-transparent border-2 border-white text-white px-6 py-3  font-bold text-center hover:bg-white/10 transition-colors"
             >
               Browse All Cases
             </Link>

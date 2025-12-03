@@ -135,7 +135,7 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
   );
 
   return (
-    <div className="min-h-screen bg-slate-900 relative">
+    <div className="min-h-screen bg-black relative">
       {/* Top Bar */}
       <div className="bg-slate-800/90 backdrop-blur-sm border-b border-purple-500/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -151,9 +151,9 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
                 <div className="text-sm text-purple-200 mb-1">
                   Clues: {collectedClues.length}/{gameData.currentScene.clues.length}
                 </div>
-                <div className="w-48 bg-slate-700 rounded-full h-2">
+                <div className="w-48 bg-black/80  h-2">
                   <div
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2  transition-all duration-500"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
@@ -162,13 +162,13 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
               {/* Action Buttons */}
               <button
                 onClick={() => setShowEvidenceBoard(!showEvidenceBoard)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2  transition-colors font-semibold text-sm"
               >
                 📋 Evidence ({collectedClues.length})
               </button>
               <button
                 onClick={() => setShowSuspects(!showSuspects)}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm"
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2  transition-colors font-semibold text-sm"
               >
                 👥 Suspects ({gameData.suspects.length})
               </button>
@@ -189,7 +189,7 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
             />
 
             {/* Instructions */}
-            <div className="mt-6 bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-6">
+            <div className="mt-6 bg-black/60 backdrop-blur-sm border border-purple-500/20  p-6">
               <h3 className="text-lg font-bold text-white mb-2">🔍 How to Play</h3>
               <ul className="text-purple-200 text-sm space-y-1">
                 <li>• Click on glowing hotspots to discover clues</li>
@@ -214,14 +214,14 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
 
         {/* Complete Investigation Button */}
         {progressPercentage === 100 && (
-          <div className="mt-8 bg-gradient-to-br from-green-600 to-green-800 rounded-xl p-8 text-center">
+          <div className="mt-8 bg-gradient-to-br from-green-600 to-green-800  p-8 text-center">
             <h3 className="text-2xl font-bold text-white mb-2">🎉 Investigation Complete!</h3>
             <p className="text-green-100 mb-6">
               You've collected all the clues. Ready to solve the case?
             </p>
             <a
               href={`/student/cases/${params.caseId}/quiz`}
-              className="inline-block bg-white text-green-900 px-12 py-4 rounded-lg font-bold text-lg hover:bg-green-100 transition-colors"
+              className="inline-block bg-white text-green-900 px-12 py-4  font-bold text-lg hover:bg-green-100 transition-colors"
             >
               Take Final Quiz →
             </a>
