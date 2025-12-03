@@ -42,19 +42,19 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-800 border-2 border-yellow-500/50 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-br from-yellow-600 to-orange-600 p-6 border-b border-yellow-500/50">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-black border-2 border-amber-600 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header - Puzzle Challenge */}
+        <div className="sticky top-0 bg-gradient-to-r from-amber-600 to-orange-600 p-6 border-b-2 border-amber-800">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="text-sm text-yellow-200 mb-1">🧩 Puzzle Challenge</div>
-              <h2 className="text-2xl font-bold text-white">{puzzle.title}</h2>
-              <div className="text-yellow-100 text-sm mt-2">Worth {puzzle.points} points</div>
+              <div className="text-sm text-black font-mono tracking-widest mb-1 font-bold">🧩 PUZZLE CHALLENGE</div>
+              <h2 className="text-2xl font-bold text-black font-mono tracking-wider">{puzzle.title}</h2>
+              <div className="text-black text-sm mt-2 font-mono tracking-wide">REWARD: {puzzle.points} POINTS</div>
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:text-yellow-200 text-3xl leading-none transition-colors"
+              className="text-black hover:text-amber-950 text-3xl leading-none transition-colors font-bold"
             >
               ×
             </button>
@@ -64,11 +64,11 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Puzzle Question */}
-          <div className="bg-slate-900/50 rounded-lg p-6 border border-yellow-500/20">
-            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-              ❓ Question
+          <div className="bg-black/50 p-6 border-2 border-amber-600/30">
+            <h3 className="text-amber-400 font-mono font-bold mb-3 flex items-center gap-2 tracking-wider">
+              ❓ QUESTION
             </h3>
-            <p className="text-white text-lg leading-relaxed">{puzzle.questionText}</p>
+            <p className="text-amber-50 text-lg leading-relaxed font-mono">{puzzle.questionText}</p>
           </div>
 
           {/* Answer Input */}
@@ -81,10 +81,10 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
                     <button
                       key={index}
                       onClick={() => setAnswer(option)}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                      className={`w-full text-left p-4 border-2 transition-all font-mono ${
                         answer === option
-                          ? 'bg-purple-600 border-purple-500 text-white'
-                          : 'bg-slate-700/50 border-purple-500/20 text-purple-200 hover:border-purple-500/50'
+                          ? 'bg-amber-600 border-amber-500 text-black font-bold'
+                          : 'bg-black/60 border-amber-600/30 text-amber-400 hover:border-amber-600'
                       }`}
                     >
                       {option}
@@ -94,14 +94,14 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
               ) : (
                 // Text Input
                 <div>
-                  <label className="block text-purple-200 mb-2 font-medium">Your Answer:</label>
+                  <label className="block text-amber-400 mb-2 font-mono font-bold tracking-wider">YOUR ANSWER:</label>
                   <input
                     type="text"
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                    placeholder="Type your answer here..."
-                    className="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-4 py-3 text-white text-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Type your answer..."
+                    className="w-full bg-black border-2 border-amber-600/30 px-4 py-3 text-amber-50 text-lg font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600"
                     autoFocus
                   />
                 </div>
@@ -111,63 +111,62 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
               <button
                 onClick={handleSubmit}
                 disabled={!answer}
-                className={`w-full font-bold py-3 rounded-lg transition-colors ${
+                className={`w-full font-mono font-bold py-3 transition-all tracking-wider ${
                   answer
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                    ? 'border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400'
+                    : 'border-2 border-slate-700 bg-black text-slate-600 cursor-not-allowed'
                 }`}
               >
-                Submit Answer
+                SUBMIT ANSWER
               </button>
             </div>
           )}
 
           {/* Feedback Messages */}
           {isCorrect === false && (
-            <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-4 animate-shake">
-              <p className="text-red-200 font-semibold flex items-center gap-2">
+            <div className="bg-red-900/30 border-2 border-red-600/50 p-4 animate-shake">
+              <p className="text-red-200 font-mono font-bold flex items-center gap-2 tracking-wide">
                 <span className="text-2xl">❌</span>
-                <span>Not quite right. Try again!</span>
+                <span>INCORRECT. TRY AGAIN!</span>
               </p>
               {attempts >= 2 && !showHint && (
                 <button
                   onClick={() => setShowHint(true)}
-                  className="mt-3 text-yellow-300 hover:text-yellow-200 text-sm underline"
+                  className="mt-3 text-amber-300 hover:text-amber-200 text-sm font-mono tracking-wider underline"
                 >
-                  Show Hint
+                  &gt; REQUEST HINT
                 </button>
               )}
             </div>
           )}
 
           {isCorrect === true && (
-            <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-4">
-              <p className="text-green-200 font-semibold flex items-center gap-2 text-lg">
+            <div className="bg-green-900/30 border-2 border-green-600/50 p-4">
+              <p className="text-green-200 font-mono font-bold flex items-center gap-2 text-lg tracking-wide">
                 <span className="text-3xl">✅</span>
-                <span>Correct! You earned {puzzle.points} points!</span>
+                <span>CORRECT! +{puzzle.points} POINTS!</span>
               </p>
-              <p className="text-green-300 text-sm mt-2">Unlocking clue...</p>
+              <p className="text-green-300 text-sm mt-2 font-mono tracking-wide">&gt; Unlocking evidence...</p>
             </div>
           )}
 
           {/* Hint Section */}
           {showHint && isCorrect !== true && (
-            <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4">
-              <h4 className="text-yellow-200 font-semibold mb-2 flex items-center gap-2">
-                💡 Hint
+            <div className="bg-amber-900/30 border-2 border-amber-600/50 p-4">
+              <h4 className="text-amber-400 font-mono font-bold mb-2 flex items-center gap-2 tracking-wider">
+                💡 HINT
               </h4>
-              <p className="text-yellow-100">{puzzle.hint}</p>
+              <p className="text-amber-100 font-mono leading-relaxed">{puzzle.hint}</p>
             </div>
           )}
 
           {/* Help Text */}
           {isCorrect === null && (
-            <div className="bg-purple-900/30 rounded-lg p-4 border border-purple-500/20">
-              <p className="text-purple-200 text-sm flex items-start gap-2">
+            <div className="bg-amber-900/20 p-4 border-2 border-amber-600/30">
+              <p className="text-amber-400 text-sm flex items-start gap-2 font-mono leading-relaxed">
                 <span className="text-lg">📚</span>
-                <span>
-                  Take your time and use your math skills. If you're stuck after a few attempts,
-                  you can request a hint!
+                <span className="tracking-wide">
+                  &gt; Apply your skills carefully. Request hint after multiple attempts if needed.
                 </span>
               </p>
             </div>
