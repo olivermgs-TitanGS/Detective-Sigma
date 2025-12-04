@@ -129,7 +129,7 @@ export default function LoginPage() {
                 textShadow: '0 0 10px rgba(255, 149, 0, 0.6)',
               }}
             >
-              221B Baker Street
+              Block 221B, Tanjong Pagar
             </p>
             <div className="mt-4 flex items-center justify-center gap-4">
               <div className="h-0.5 w-20 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
