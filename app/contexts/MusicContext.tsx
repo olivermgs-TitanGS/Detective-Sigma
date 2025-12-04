@@ -26,8 +26,7 @@ const PLAYLISTS: Record<MusicTheme, string[]> = {
     '/music/Whispers in the Fog (1).mp3',
   ],
   results: [
-    '/music/Shadow Clues.mp3',
-    '/music/Whispers in the Fog.mp3',
+    '/music/Shadow Clues (2).mp3',
   ],
   credits: [
     '/music/Midnight Whispers.mp3',
@@ -39,7 +38,7 @@ const PLAYLISTS: Record<MusicTheme, string[]> = {
 };
 
 // Themes that should loop a single track instead of shuffling playlist
-const LOOP_THEMES: MusicTheme[] = ['registration', 'credits'];
+const LOOP_THEMES: MusicTheme[] = ['registration', 'credits', 'results'];
 
 // Shuffle array using Fisher-Yates algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
