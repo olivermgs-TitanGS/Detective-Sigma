@@ -295,3 +295,345 @@ body {
   pointer-events: none;
   z-index: 0;
 }
+
+/* ============================================
+   CASE FILE ANIMATIONS
+   ============================================ */
+
+/* File folder hover lift effect */
+@keyframes file-hover-lift {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-8px) rotate(-2deg); }
+}
+
+/* File opening animation - folder flips open */
+@keyframes file-open {
+  0% {
+    transform: perspective(1000px) rotateX(0deg) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: perspective(1000px) rotateX(-15deg) scale(1.02);
+  }
+  100% {
+    transform: perspective(1000px) rotateX(-90deg) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* Contents sliding out from folder */
+@keyframes contents-reveal {
+  0% {
+    transform: translateY(50px) scale(0.8);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  40% {
+    filter: blur(5px);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* Typewriter text effect */
+@keyframes typewriter-cursor {
+  0%, 100% { border-right-color: transparent; }
+  50% { border-right-color: #f59e0b; }
+}
+
+.typewriter-text {
+  overflow: hidden;
+  border-right: 3px solid #f59e0b;
+  white-space: nowrap;
+  animation: typewriter-cursor 0.7s step-end infinite;
+}
+
+/* Classified stamp slam */
+@keyframes stamp-slam {
+  0% {
+    transform: scale(4) rotate(-25deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.9) rotate(3deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Photo scatter onto desk */
+@keyframes photo-scatter {
+  0% {
+    transform: translateY(-100px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10px) rotate(var(--scatter-rotation, 5deg)) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(var(--scatter-rotation, 5deg)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Paper shuffle effect */
+@keyframes paper-shuffle {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-3px) rotate(-0.5deg); }
+  75% { transform: translateX(3px) rotate(0.5deg); }
+}
+
+/* Evidence photo zoom */
+@keyframes photo-zoom-in {
+  0% {
+    transform: scale(0.3) rotate(-10deg);
+    opacity: 0;
+    filter: brightness(2) blur(20px);
+  }
+  50% {
+    filter: brightness(1.2) blur(5px);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1) blur(0);
+  }
+}
+
+/* Red string connection animation */
+@keyframes string-draw {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Pin drop animation */
+@keyframes pin-drop {
+  0% {
+    transform: translateY(-50px) scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(5px) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Magnifying glass hover */
+@keyframes magnify-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.3));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.6));
+  }
+}
+
+/* File tab wiggle */
+@keyframes tab-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* Document slide in from side */
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%) rotate(5deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-100%) rotate(-5deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Coffee stain appear */
+@keyframes stain-appear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.15;
+  }
+}
+
+/* Desk lamp spotlight */
+@keyframes spotlight-on {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Page flip animation */
+@keyframes page-flip {
+  0% {
+    transform: perspective(1000px) rotateY(0deg);
+    transform-origin: left center;
+  }
+  100% {
+    transform: perspective(1000px) rotateY(-180deg);
+    transform-origin: left center;
+  }
+}
+
+/* Shake animation for incorrect/alert */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Case file folder styling */
+.case-file-folder {
+  position: relative;
+  background: linear-gradient(135deg, #92400e 0%, #78350f 50%, #713f12 100%);
+  border-radius: 4px 4px 0 0;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.case-file-folder:hover {
+  transform: translateY(-8px) rotate(-2deg);
+  box-shadow:
+    0 12px 20px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.case-file-folder::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 10px;
+  width: 60%;
+  height: 12px;
+  background: linear-gradient(135deg, #a16207 0%, #92400e 100%);
+  border-radius: 4px 4px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Paper texture overlay */
+.paper-texture {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 29px,
+      rgba(0, 0, 0, 0.03) 29px,
+      rgba(0, 0, 0, 0.03) 30px
+    );
+  background-color: #fef3c7;
+}
+
+/* Aged paper effect */
+.aged-paper {
+  background: linear-gradient(
+    135deg,
+    #fef3c7 0%,
+    #fde68a 25%,
+    #fef3c7 50%,
+    #fcd34d 75%,
+    #fef3c7 100%
+  );
+  box-shadow:
+    inset 0 0 50px rgba(120, 53, 15, 0.1),
+    0 0 0 1px rgba(120, 53, 15, 0.2);
+}
+
+/* Photo polaroid effect */
+.polaroid {
+  background: #fff;
+  padding: 10px 10px 40px 10px;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  transform: rotate(var(--rotation, 0deg));
+}
+
+/* Red string for evidence board */
+.red-string {
+  stroke: #dc2626;
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+.red-string.animate {
+  animation: string-draw 1.5s ease-out forwards;
+}
+
+/* Push pin */
+.push-pin {
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b);
+  border-radius: 50%;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Desk surface */
+.detective-desk {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 100px,
+      rgba(0, 0, 0, 0.1) 100px,
+      rgba(0, 0, 0, 0.1) 102px
+    ),
+    linear-gradient(180deg, #1c1917 0%, #292524 50%, #1c1917 100%);
+  box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.5);
+}
