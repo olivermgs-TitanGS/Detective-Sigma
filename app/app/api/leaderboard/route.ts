@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET /api/leaderboard - Get global leaderboard
 export async function GET(request: Request) {
   try {
@@ -71,7 +75,14 @@ export async function GET(request: Request) {
 
     console.log('[Leaderboard] Returning', leaderboardWithScores.length, 'entries');
 
-    return NextResponse.json({ leaderboard: leaderboardWithScores });
+    return NextResponse.json(
+      { leaderboard: leaderboardWithScores },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     return NextResponse.json(
