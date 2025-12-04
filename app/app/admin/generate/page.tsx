@@ -163,36 +163,71 @@ export default function GenerateCasePage() {
     gender: string;
     age: string;
     ageDescriptor: string;
+    agePrompt: string;
     religiousAttire: string;
     religion: string | null;
   } => {
     const roleText = role.toLowerCase();
 
     // Detect gender from name or role
-    const femaleNames = /^(siti|nur|fatimah|aminah|mary|sarah|elizabeth|priya|lakshmi|devi|mei|ling|hui|xin|yan|aishah|zainab|khadijah|hajar|noraini|rosnah|rohani|kavitha|lakshmi|sumathi|mei ling|xiao|jia|hui|ying)/i;
-    const femaleRoles = /\b(mother|wife|sister|daughter|aunt|grandmother|mrs|ms|miss|woman|lady|girl|waitress|actress|hostess|saleswoman|businesswoman|female|makcik|aunty|kakak)\b/i;
-    const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male|pakcik|abang|encik)\b/i;
+    // FEMALE first names - Singapore context
+    const femaleNames = /^(siti|nur|fatimah|aminah|mary|sarah|elizabeth|priya|lakshmi|devi|mei|ling|hui|xin|yan|aishah|zainab|khadijah|hajar|noraini|rosnah|rohani|kavitha|sumathi|mei ling|xiao|jia|ying|emily|amanda|jessica|jennifer|michelle|nicole|rachel|rebecca|susan|karen|lisa|linda|angela|patricia|sandra|nancy|betty|helen|dorothy|anna|grace|chloe|emma|olivia|sophia|mia|ava|isabella|amelia|charlotte|harper|evelyn|abigail|ella|scarlett|lily|hannah|aria|ellie|nora|zoey|riley|victoria|aurora|savannah|penelope|camila|lucy|layla|lillian|stella|hazel|violet|claire|samantha|natalie|julia|madelyn|brooklyn|alyssa|leah|zoe|audrey|maya|aaliyah|elena|gabriella|naomi|alice|sadie|hailey|eva|paisley|genesis|kaylee|caroline|adeline|kennedy|ruby|ivy|ariana|eleanor|athena|faith|melody|autumn|serenity|nevaeh|trinity|peyton|lydia|piper|taylor|madeline|mackenzie|kinsley|maria|anastasia|delilah|elena|everleigh|katherine|alexandra|jade|sarah|diana|valentina|melody|bailey|quinn|london|gianna|sienna|gracie|nadia|brianna|willow|cali|juniper|emilia|jasmine|isabelle|josie|charlie|emery|makayla|payton|brooke|reese|teagan|eden|wren|elliana|margaret|lila|molly|rose|phoebe|daisy|isla|june|freya|paige|kenzie|kimberly|nicole|christine|fiona|heather|diana|vanessa|cindy|tina|crystal|laura|carol|holly|jamie|brittany|kelly|danielle|brenda|pamela|gloria|cynthia|diana|rita|wendy|andrea|monica|sharon|tiffany|anna|marie|carol|joan|janice|julia|denise|anne|judith|frances|louise|phyllis|norma|paula|irene|alice|josephine|helen|margaret|ruth|virginia|judith|janice|jean|alice|frances|carolyn|janet|doris|catherine|maria|nancy|anne|bonnie|cheryl|julie|jacqueline|diane|donna|eve|judith|annie|rosa|sally|beverly|emma|clara|harriet|eva|sue|martha|gladys|agnes|ruby|ann|ellen|florence|jean|alice|marie|lucy|nina|rosa|stella|zelda|violet|vera|daisy|winnie|blossom|ivy|lily|petunia|hazel|pearl|opal|jade|ruby|amber|jasmine|rose|violet|daisy|poppy|flora|willow|ivy|fern|holly|iris|dahlia|lavender|marigold|orchid|tulip|lily|rose|camellia|jasmine|orchid|peony|magnolia|wisteria|begonia|gardenia|lotus|chrysanthemum|aster|azalea|freesia|hibiscus|honeysuckle|hydrangea|snapdragon|sunflower|zinnia|acacia|amaryllis|anemone|bluebell|buttercup|carnation|clover|columbine|cornflower|crocus|daffodil|dandelion|delphinium|erica|foxglove|geranium|gladiolus|heather|hyacinth|jonquil|larkspur|lilac|lupin|mimosa|narcissus|oleander|pansy|periwinkle|petunia|primrose|rhododendron|snowdrop|sweetpea|tansy|verbena|veronica|wallflower|yarrow|zinnia)/i;
+
+    // MALE first names - Singapore context (Chinese, Malay, Indian, Eurasian)
+    const maleNames = /^(ahmad|muhammad|ali|hassan|ibrahim|ismail|mohamed|abdul|razak|rahman|yusof|hamid|zainal|aziz|azman|azhar|hafiz|hakim|kamal|rashid|rahim|salleh|osman|omar|idris|jalil|jamal|farid|fauzi|rizal|roslan|rosman|sharif|sulaiman|zulkifli|nasir|naim|raj|kumar|suresh|ramesh|venkat|krishnan|gopal|rajan|chandran|sundaram|bala|subra|thana|velu|arumugam|selvam|murugan|ganesh|prabhu|anand|vijay|arun|siva|shankar|mohan|guru|sunder|ravi|balakrishnan|raghavan|srinivasan|natarajan|muthu|wei|jun|ming|jian|hao|chen|yang|lei|feng|long|tao|bo|kai|liang|fang|yu|zhi|qiang|gang|jie|cheng|peng|lin|xiang|yi|zheng|wen|bin|song|wang|li|zhang|liu|wu|zhou|xu|sun|ma|zhu|hu|guo|he|luo|jia|lin|huang|deng|xie|james|john|michael|david|peter|paul|george|william|richard|thomas|robert|joseph|charles|edward|henry|arthur|albert|frederick|francis|philip|raymond|benjamin|martin|kevin|brian|steven|mark|donald|anthony|gary|larry|jerry|dennis|terry|raymond|eugene|gerald|roger|lawrence|samuel|gregory|patrick|frank|roy|jack|dennis|jerry|harold|carl|henry|arthur|ralph|albert|joe|willie|lawrence|harry|terry|george|bruce|douglas|phillip|randy|russell|wayne|johnny|howard|eugene|walter|henry|arthur|jesse|joshua|nicholas|jeffrey|christopher|timothy|andrew|daniel|matthew|anthony|joshua|ryan|eric|jacob|sean|adam|nathan|zachary|justin|aaron|jose|juan|carlos|luis|miguel|angel|francisco|manuel|antonio|ricardo|fernando|eduardo|mario|sergio|raul|rafael|roberto|enrique|pablo|alejandro|diego|gabriel|hector|jorge|oscar|adrian|ruben|marco|javier|victor|cesar|ivan|arturo|alfredo|andres|gerardo|julio|jesus|alberto|ignacio|ramon|armando|felipe|pedro|ernesto|salvador|gilberto|alejandro|gonzalo|gustavo|guillermo|leonardo|lorenzo|mariano|martin|mauricio|nicolas|orlando|rodrigo|santiago|sebastian|xavier|henry|alfred|bernard|clarence|ernest|harold|herbert|howard|leonard|norman|raymond|stanley|theodore|walter|gordon|gilbert|clifford|lloyd|lester|martin|russell|warren|wallace|harvey|vernon|eugene|cecil|clyde|elmer|milton|chester|leo|victor|morris|luther|marion|max|otis|felix|ellis|irving|leroy|wilbur|homer|emmett|oscar|archie|virgil|alvin|clement|nelson|dewey|levi|sherman|garland|roscoe|forrest|grover|harley|rufus|sylvester|ira|woodrow|lonnie|loyd|mack|cleo|lemuel|percy|maynard|jasper|edmond|ollie|sterling|elbert|hubert|norris|erwin|dudley|millard|orville|merle|odell|alphonso|gus|wendell|isaiah|grady|buford|columbus|cornelius|basil|herschel|horace|aubrey|denver|barney|claud|elijah|ezra|irvin|jonas|lawson|lowell|marcus|moses|noah|reuben|russel|shelby|silas|thurman|ulysses|wilfred|abraham|adolf|alonzo|ambrose|amos|augustus|casper|cleveland|cyrus|emery|ephraim|ezekiel|freeman|gideon|granville|hiram|isaac|isidore|jabez|jehiel|jeremiah|joel|josiah|judson|julius|leonidas|lester|lincoln|lucian|mahlon|malachi|marshall|mathias|matthias|melvin|merrill|micah|milford|mitchell|murray|myron|noel|oliver|parker|perry|phineas|prosper|quincy|randall|reginald|rodney|rollin|sanford|seymour|sigmund|silvester|solomon|spencer|thaddeus|tilden|truman|urban|valentine|vern|wallace|ward|webber|whitney|wiley|wilmer|winfred|zacharias)/i;
+
+    const femaleRoles = /\b(mother|wife|sister|daughter|aunt|grandmother|mrs|ms|miss|woman|lady|girl|waitress|actress|hostess|saleswoman|businesswoman|female|makcik|aunty|kakak|madam|mdm)\b/i;
+    const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male|pakcik|abang|encik|sir)\b/i;
 
     let gender = 'person';
-    if (femaleNames.test(name) || femaleRoles.test(roleText)) {
+    // Check names FIRST (more reliable), then roles
+    if (femaleNames.test(name.split(' ')[0])) {
+      gender = 'woman';
+    } else if (maleNames.test(name.split(' ')[0])) {
+      gender = 'man';
+    } else if (femaleRoles.test(roleText)) {
       gender = 'woman';
     } else if (maleRoles.test(roleText)) {
       gender = 'man';
+    } else {
+      // Default based on common patterns - if name ends with 'a' often female
+      // Otherwise default to man (most common in Singapore workforce)
+      gender = 'man';
     }
 
-    // Detect age from role
-    const childRoles = /\b(child|kid|boy|girl|student|pupil|teen|teenager|youth|young)\b/i;
-    const elderRoles = /\b(elderly|old|senior|grandfather|grandmother|grandpa|grandma|retired|pakcik|makcik)\b/i;
+    // Detect age from role - MORE DETAILED age categories
+    const childRoles = /\b(child|kid|boy|girl|student|pupil|primary school|elementary)\b/i;
+    const teenRoles = /\b(teen|teenager|secondary school|high school|youth|young adult|polytechnic|ite|jc|junior college)\b/i;
+    const youngAdultRoles = /\b(university|undergraduate|graduate|intern|trainee|fresh graduate|nsf|national service)\b/i;
+    const middleAgedRoles = /\b(manager|supervisor|director|executive|professional|experienced)\b/i;
+    const elderRoles = /\b(elderly|old|senior|grandfather|grandmother|grandpa|grandma|retired|pakcik|makcik|veteran|retiree)\b/i;
 
     let age = 'adult';
-    let ageDescriptor = '30-40 years old';
+    let ageDescriptor = '35-45 years old adult';
+    let agePrompt = 'middle-aged adult';
+
     if (childRoles.test(roleText)) {
-      age = 'young';
-      ageDescriptor = '10-16 years old';
-      gender = gender === 'woman' ? 'girl' : gender === 'man' ? 'boy' : 'young person';
+      age = 'child';
+      ageDescriptor = '8-12 years old child';
+      agePrompt = 'young child, childlike face, small stature, innocent appearance';
+      gender = gender === 'woman' ? 'girl' : gender === 'man' ? 'boy' : 'young child';
+    } else if (teenRoles.test(roleText)) {
+      age = 'teenager';
+      ageDescriptor = '14-18 years old teenager';
+      agePrompt = 'teenage appearance, adolescent, youthful face';
+      gender = gender === 'woman' ? 'teenage girl' : gender === 'man' ? 'teenage boy' : 'teenager';
+    } else if (youngAdultRoles.test(roleText)) {
+      age = 'young adult';
+      ageDescriptor = '20-28 years old young adult';
+      agePrompt = 'young adult, fresh face, energetic appearance';
+    } else if (middleAgedRoles.test(roleText)) {
+      age = 'middle-aged';
+      ageDescriptor = '40-55 years old';
+      agePrompt = 'middle-aged adult, mature appearance, some wrinkles';
     } else if (elderRoles.test(roleText)) {
       age = 'elderly';
-      ageDescriptor = '60-70 years old';
+      ageDescriptor = '60-75 years old elderly';
+      agePrompt = 'elderly person, gray hair, wrinkles, wise appearance, aged face';
       gender = gender === 'woman' ? 'elderly woman' : gender === 'man' ? 'elderly man' : 'elderly person';
     }
 
@@ -238,7 +273,7 @@ export default function GenerateCasePage() {
       religiousAttire = 'wearing dignified clerical attire, respectful religious vestments';
     }
 
-    return { gender, age, ageDescriptor, religiousAttire, religion };
+    return { gender, age, ageDescriptor, agePrompt, religiousAttire, religion };
   };
 
   // Infer ethnicity from name for Singapore context (CMIO: Chinese, Malay, Indian, Others)
@@ -403,9 +438,11 @@ export default function GenerateCasePage() {
         promptParts.push(
           'photorealistic', 'realistic', 'real life photo', 'photograph', 'real person',
           'dignified', 'respectful portrayal', 'professional appearance',
-          // Person details
+          // Person details - GENDER and AGE are CRITICAL
           `1${personInfo.gender}`, 'solo',
-          personInfo.ageDescriptor
+          // AGE - VERY IMPORTANT for accurate portrayal
+          personInfo.ageDescriptor,
+          personInfo.agePrompt
         );
 
         // RACE - CRITICAL: Must be accurate, respectful, no fantasy colors
