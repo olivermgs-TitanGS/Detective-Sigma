@@ -72,18 +72,17 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolumeState] = useState(0.5);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [isReady, setIsReady] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playlistRef = useRef<string[]>([]);
+  const hasStartedRef = useRef(false);
 
   // Keep playlistRef in sync
   useEffect(() => {
     playlistRef.current = playlist;
   }, [playlist]);
 
-  // Initialize audio element once
+  // Initialize audio element and set up global interaction listener
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -92,53 +91,65 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     audio.preload = 'auto';
     audioRef.current = audio;
 
-    // Handle track end - play next
+    // Handle track end
     const handleEnded = () => {
       const currentPlaylist = playlistRef.current;
       if (currentPlaylist.length > 1) {
         setCurrentTrackIndex(prev => (prev + 1) % currentPlaylist.length);
       }
-      // For single track playlists, loop is already enabled
     };
 
     audio.addEventListener('ended', handleEnded);
 
-    // Set ready state
-    setIsReady(true);
+    // Global listener to start music on ANY interaction
+    const startMusic = () => {
+      if (hasStartedRef.current) return;
+
+      const audio = audioRef.current;
+      if (audio && audio.src && !audio.paused) return;
+
+      if (audio && playlistRef.current.length > 0) {
+        const track = playlistRef.current[0];
+        if (track && audio.src !== track) {
+          audio.src = track;
+          audio.load();
+        }
+
+        audio.play()
+          .then(() => {
+            hasStartedRef.current = true;
+            setIsPlaying(true);
+          })
+          .catch(() => {});
+      }
+    };
+
+    // Listen for any interaction
+    document.addEventListener('click', startMusic, { capture: true });
+    document.addEventListener('keydown', startMusic, { capture: true });
+    document.addEventListener('touchstart', startMusic, { capture: true });
+    document.addEventListener('mousedown', startMusic, { capture: true });
+    document.addEventListener('scroll', startMusic, { capture: true, passive: true });
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
+      document.removeEventListener('click', startMusic, { capture: true });
+      document.removeEventListener('keydown', startMusic, { capture: true });
+      document.removeEventListener('touchstart', startMusic, { capture: true });
+      document.removeEventListener('mousedown', startMusic, { capture: true });
+      document.removeEventListener('scroll', startMusic, { capture: true });
       audio.pause();
       audio.src = '';
       audioRef.current = null;
     };
   }, []);
 
-  // Listen for first user interaction
-  useEffect(() => {
-    if (hasUserInteracted) return;
-
-    const handleInteraction = () => {
-      setHasUserInteracted(true);
-    };
-
-    // Listen on capture phase to catch interaction early
-    document.addEventListener('click', handleInteraction, { capture: true, once: true });
-    document.addEventListener('keydown', handleInteraction, { capture: true, once: true });
-    document.addEventListener('touchstart', handleInteraction, { capture: true, once: true });
-
-    return () => {
-      document.removeEventListener('click', handleInteraction, { capture: true });
-      document.removeEventListener('keydown', handleInteraction, { capture: true });
-      document.removeEventListener('touchstart', handleInteraction, { capture: true });
-    };
-  }, [hasUserInteracted]);
-
   // Update playlist when theme changes
   useEffect(() => {
     const tracks = PLAYLISTS[currentTheme];
     if (tracks.length > 0) {
-      setPlaylist(shuffleArray(tracks));
+      const shuffled = shuffleArray(tracks);
+      setPlaylist(shuffled);
       setCurrentTrackIndex(0);
     } else {
       setPlaylist([]);
@@ -149,9 +160,9 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   }, [currentTheme]);
 
-  // Play track when ready conditions are met
+  // Play track when playlist or index changes
   useEffect(() => {
-    if (!isReady || !audioRef.current || playlist.length === 0) return;
+    if (!audioRef.current || playlist.length === 0 || isMuted) return;
 
     const audio = audioRef.current;
     const track = playlist[currentTrackIndex];
@@ -159,50 +170,24 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
     // Configure audio
     audio.loop = LOOP_THEMES.includes(currentTheme);
-    audio.src = track;
-    audio.load();
 
-    // Try to play if not muted
-    if (!isMuted) {
-      const tryPlay = () => {
-        audio.play()
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch((err) => {
-            console.log('Autoplay blocked, waiting for interaction');
-            setIsPlaying(false);
-          });
-      };
-
-      if (hasUserInteracted) {
-        tryPlay();
-      } else {
-        // Wait for interaction then play
-        const handleFirstInteraction = () => {
-          tryPlay();
-        };
-        document.addEventListener('click', handleFirstInteraction, { once: true });
-        document.addEventListener('keydown', handleFirstInteraction, { once: true });
-        document.addEventListener('touchstart', handleFirstInteraction, { once: true });
-
-        return () => {
-          document.removeEventListener('click', handleFirstInteraction);
-          document.removeEventListener('keydown', handleFirstInteraction);
-          document.removeEventListener('touchstart', handleFirstInteraction);
-        };
-      }
+    // Only change source if different
+    if (audio.src !== window.location.origin + track) {
+      audio.src = track;
+      audio.load();
     }
-  }, [isReady, playlist, currentTrackIndex, isMuted, currentTheme, hasUserInteracted]);
 
-  // Start playing when user interacts (if was waiting)
-  useEffect(() => {
-    if (hasUserInteracted && !isMuted && audioRef.current && playlist.length > 0 && !isPlaying) {
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
-    }
-  }, [hasUserInteracted, isMuted, playlist.length, isPlaying]);
+    // Try to play
+    audio.play()
+      .then(() => {
+        hasStartedRef.current = true;
+        setIsPlaying(true);
+      })
+      .catch(() => {
+        // Will start on interaction
+        setIsPlaying(false);
+      });
+  }, [playlist, currentTrackIndex, isMuted, currentTheme]);
 
   // Update volume
   useEffect(() => {
@@ -221,14 +206,17 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     if (!audioRef.current) return;
 
     if (isMuted) {
-      // Unmuting - try to play
+      // Unmuting
       audioRef.current.muted = false;
       audioRef.current.play()
-        .then(() => setIsPlaying(true))
+        .then(() => {
+          hasStartedRef.current = true;
+          setIsPlaying(true);
+        })
         .catch(() => {});
       setIsMuted(false);
     } else {
-      // Muting - pause
+      // Muting
       audioRef.current.muted = true;
       audioRef.current.pause();
       setIsPlaying(false);
