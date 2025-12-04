@@ -269,7 +269,7 @@ export default function LoginPage() {
                 textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
               }}
             >
-              "Every case has clues. Every clue tells a story."
+              "The truth is out there. Will you find it?"
             </p>
           </div>
         </div>
