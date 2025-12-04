@@ -78,7 +78,7 @@ export default function CaseLibrary() {
 
   return (
     <div className="space-y-8">
-      <MusicThemeSetter theme="menu" />
+      <MusicThemeSetter theme="cases" />
 
       {/* Header - Evidence Board Style */}
       <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">

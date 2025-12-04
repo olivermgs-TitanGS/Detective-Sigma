@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 
 // Define music themes for different page contexts
-export type MusicTheme = 'menu' | 'investigation' | 'quiz' | 'results' | 'credits' | 'registration' | 'silent';
+export type MusicTheme = 'menu' | 'cases' | 'investigation' | 'quiz' | 'results' | 'credits' | 'registration' | 'silent';
 
 // Track playlists for each theme
 const PLAYLISTS: Record<MusicTheme, string[]> = {
@@ -11,6 +11,9 @@ const PLAYLISTS: Record<MusicTheme, string[]> = {
     '/music/Shadow Clues.mp3',
     '/music/Shadow Clues (1).mp3',
     '/music/Whispers in the Fog.mp3',
+  ],
+  cases: [
+    '/music/Case_Files.mp3',
   ],
   investigation: [
     '/music/Shadow Clues (2).mp3',
@@ -38,7 +41,7 @@ const PLAYLISTS: Record<MusicTheme, string[]> = {
 };
 
 // Themes that should loop a single track instead of shuffling playlist
-const LOOP_THEMES: MusicTheme[] = ['registration', 'credits', 'results'];
+const LOOP_THEMES: MusicTheme[] = ['registration', 'credits', 'results', 'cases'];
 
 // Shuffle array using Fisher-Yates algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
