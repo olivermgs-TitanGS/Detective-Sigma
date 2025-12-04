@@ -23,10 +23,8 @@ export default function StudentRegisterPage() {
     setIsLoading(true);
 
     try {
-      // Validate input
       const validatedData = studentRegisterSchema.parse(formData);
 
-      // Call registration API
       const response = await fetch('/api/auth/register/student', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +39,6 @@ export default function StudentRegisterPage() {
         return;
       }
 
-      // Redirect to login on success
       router.push('/login?registered=true');
     } catch (err: any) {
       if (err.errors) {
@@ -54,80 +51,140 @@ export default function StudentRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen crime-scene-bg relative overflow-hidden flex items-center justify-center py-12">
-      {/* Background decorations */}
-      <div className="chalk-body-outline" style={{ top: '10%', left: '5%', transform: 'rotate(25deg)', width: '200px', opacity: 0.1 }}></div>
-      <div className="chalk-body-outline" style={{ bottom: '15%', right: '10%', transform: 'rotate(-15deg)', width: '180px', opacity: 0.1 }}></div>
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black py-8">
+      {/* Dramatic Background */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: `
+            radial-gradient(circle at 50% 50%, rgba(255, 180, 0, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(255, 200, 0, 0.1) 0%, transparent 40%),
+            linear-gradient(180deg, #000000 0%, #0a0a0a 100%)
+          `,
+        }}
+      />
 
-      {/* Floating Dust Particles */}
-      {[...Array(15)].map((_, i) => (
+      {/* Grid Pattern */}
+      <div
+        className="absolute inset-0 z-1 opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 200, 0, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 200, 0, 0.3) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+        }}
+      />
+
+      {/* Decorative Icons */}
+      <div className="absolute top-6 left-6 text-6xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🎓</div>
+      <div className="absolute top-6 right-6 text-5xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🔍</div>
+      <div className="absolute bottom-6 left-6 text-5xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">📚</div>
+      <div className="absolute bottom-6 right-6 text-5xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">🏆</div>
+
+      {/* Registration Card */}
+      <div className="relative z-30 w-full max-w-md mx-4">
+        {/* Glowing Border */}
         <div
-          key={i}
-          className="dust-particle"
+          className="absolute -inset-1 rounded-lg opacity-75 blur-sm"
           style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 15}s`,
-            animationDuration: `${10 + Math.random() * 10}s`
+            background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
           }}
         />
-      ))}
 
-      {/* Scanner Lines */}
-      <div className="scanner-line" style={{ animationDelay: '0s' }}></div>
-      <div className="scanner-line" style={{ animationDelay: '2s', top: '50%' }}></div>
-
-      {/* Registration Form */}
-      <div className="relative z-30 w-full max-w-md mx-4">
-        <div className="border-4 border-amber-600/50 bg-black/95 p-8 backdrop-blur-sm shadow-[0_0_50px_rgba(245,158,11,0.3)]">
+        <div
+          className="relative p-8 rounded-lg"
+          style={{
+            background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
+            border: '2px solid #ffd700',
+            boxShadow: '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(0, 0, 0, 0.8)',
+          }}
+        >
           {/* Header */}
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-block mb-4">
-              <h1 className="text-3xl font-black text-amber-500 tracking-[0.3em] font-mono hover:text-amber-400 transition-colors">
-                DETECTIVE SIGMA
-              </h1>
-            </Link>
-            <div className="border-2 border-amber-600/50 bg-black px-4 py-2 inline-block">
-              <p className="text-amber-400 font-mono text-xs tracking-wider">
-                👤 STUDENT REGISTRATION
-              </p>
+          <div className="text-center mb-6">
+            <div
+              className="mb-3 text-5xl"
+              style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))' }}
+            >
+              🎓
             </div>
+            <h1
+              className="text-3xl font-black tracking-[0.15em] mb-2"
+              style={{
+                color: '#ffd700',
+                textShadow: '0 0 20px rgba(255, 215, 0, 0.8)',
+                fontFamily: "'Impact', 'Arial Black', sans-serif",
+              }}
+            >
+              STUDENT REGISTRATION
+            </h1>
+            <p
+              className="text-sm tracking-[0.3em] uppercase font-bold"
+              style={{ color: '#ff9500' }}
+            >
+              Join the Detective Agency
+            </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 border-2 border-red-600 bg-red-900/20 p-4">
-              <p className="text-red-400 font-mono text-xs text-center">⚠️ {error}</p>
+            <div
+              className="mb-4 p-3 text-center rounded"
+              style={{
+                background: 'rgba(220, 38, 38, 0.2)',
+                border: '2px solid #dc2626',
+                boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)',
+              }}
+            >
+              <p className="text-red-400 font-bold text-sm">⚠ {error}</p>
             </div>
           )}
 
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-amber-400 font-mono text-xs tracking-wider mb-2">
-                USERNAME
+              <label
+                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                style={{ color: '#ffd700' }}
+              >
+                Detective Name
               </label>
               <input
-                id="username"
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full bg-black border-2 border-amber-600/50 text-amber-50 px-4 py-2 font-mono text-sm focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-600/50 transition-all"
-                placeholder="detective_name"
+                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  border: '2px solid #ff9500',
+                  color: '#ffffff',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                }}
+                placeholder="Enter your detective name"
                 required
                 disabled={isLoading}
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-amber-400 font-mono text-xs tracking-wider mb-2">
-                SCHOOL EMAIL (@students.edu.sg)
+              <label
+                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                style={{ color: '#ffd700' }}
+              >
+                School Email
               </label>
               <input
-                id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-black border-2 border-amber-600/50 text-amber-50 px-4 py-2 font-mono text-sm focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-600/50 transition-all"
+                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  border: '2px solid #ff9500',
+                  color: '#ffffff',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                }}
                 placeholder="name@students.edu.sg"
                 required
                 disabled={isLoading}
@@ -135,91 +192,126 @@ export default function StudentRegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-amber-400 font-mono text-xs tracking-wider mb-2">
-                PASSWORD (MIN. 6 CHARACTERS)
+              <label
+                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                style={{ color: '#ffd700' }}
+              >
+                Secret Cipher (Password)
               </label>
               <input
-                id="password"
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-black border-2 border-amber-600/50 text-amber-50 px-4 py-2 font-mono text-sm focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-600/50 transition-all"
-                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  border: '2px solid #ff9500',
+                  color: '#ffffff',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                }}
+                placeholder="Min. 6 characters"
                 required
                 disabled={isLoading}
               />
             </div>
 
             <div>
-              <label htmlFor="gradeLevel" className="block text-amber-400 font-mono text-xs tracking-wider mb-2">
-                GRADE LEVEL
+              <label
+                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                style={{ color: '#ffd700' }}
+              >
+                Grade Level
               </label>
               <select
-                id="gradeLevel"
                 value={formData.gradeLevel}
                 onChange={(e) => setFormData({ ...formData, gradeLevel: e.target.value as 'P4' | 'P5' | 'P6' })}
-                className="w-full bg-black border-2 border-amber-600/50 text-amber-50 px-4 py-2 font-mono text-sm focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-600/50 transition-all"
+                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  border: '2px solid #ff9500',
+                  color: '#ffffff',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                }}
                 required
                 disabled={isLoading}
               >
-                <option value="P4">PRIMARY 4</option>
-                <option value="P5">PRIMARY 5</option>
-                <option value="P6">PRIMARY 6</option>
+                <option value="P4">PRIMARY 4 (Rookie Detective)</option>
+                <option value="P5">PRIMARY 5 (Junior Detective)</option>
+                <option value="P6">PRIMARY 6 (Senior Detective)</option>
               </select>
             </div>
 
-            <div className="flex items-start gap-3">
+            <div
+              className="flex items-start gap-3 p-3 rounded"
+              style={{
+                background: 'rgba(255, 215, 0, 0.05)',
+                border: '1px solid rgba(255, 215, 0, 0.3)',
+              }}
+            >
               <input
-                id="parentConsent"
                 type="checkbox"
                 checked={formData.parentConsent}
                 onChange={(e) => setFormData({ ...formData, parentConsent: e.target.checked })}
-                className="mt-1 w-5 h-5 bg-black border-2 border-amber-600/50 text-amber-600 focus:ring-amber-600/50"
+                className="mt-1 w-5 h-5"
+                style={{ accentColor: '#ffd700' }}
                 required
                 disabled={isLoading}
               />
-              <label htmlFor="parentConsent" className="text-slate-400 font-mono text-xs leading-relaxed">
-                I confirm that my parent/guardian has given consent for me to use this platform for educational purposes.
+              <label className="text-sm" style={{ color: '#cccccc' }}>
+                I confirm my parent/guardian has given consent for me to join Detective Sigma for educational purposes.
               </label>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-amber-600 hover:bg-amber-500 text-black font-mono font-bold py-3 tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(245,158,11,0.6)]"
+              className="w-full py-4 rounded font-black text-lg tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+              style={{
+                background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
+                color: '#000000',
+                boxShadow: '0 0 30px rgba(255, 215, 0, 0.5)',
+                border: '2px solid #ffea00',
+              }}
             >
-              {isLoading ? 'REGISTERING...' : 'REGISTER →'}
+              {isLoading ? '🔄 REGISTERING...' : '🎓 CREATE ACCOUNT'}
             </button>
           </form>
 
           {/* Login Link */}
-          <div className="mt-6 pt-6 border-t border-amber-600/30 text-center">
-            <p className="text-slate-500 font-mono text-xs tracking-wider">
-              ALREADY HAVE AN ACCOUNT?{' '}
-              <Link href="/login" className="text-amber-400 hover:text-amber-300 transition-colors">
-                LOGIN
+          <div className="mt-6 pt-4 text-center" style={{ borderTop: '2px solid rgba(255, 215, 0, 0.3)' }}>
+            <p className="text-sm" style={{ color: '#999999' }}>
+              Already a detective?{' '}
+              <Link
+                href="/login"
+                className="font-bold hover:underline"
+                style={{ color: '#ffd700' }}
+              >
+                LOGIN HERE
               </Link>
             </p>
           </div>
-
-          {/* Back to Home */}
-          <div className="mt-4 text-center">
-            <Link
-              href="/"
-              className="text-slate-600 hover:text-amber-400 font-mono text-xs tracking-wider transition-colors"
-            >
-              ← BACK TO HOME
-            </Link>
-          </div>
         </div>
 
-        {/* Case File Number */}
+        {/* Bottom Text */}
         <div className="mt-4 text-center">
-          <p className="text-slate-700 font-mono text-xs tracking-wider">
-            CASE FILE #REG-STUDENT-2025 • CLEARANCE: CADET
+          <p
+            className="text-sm font-bold tracking-[0.2em]"
+            style={{ color: '#ff9500', textShadow: '0 0 10px rgba(255, 149, 0, 0.5)' }}
+          >
+            CASE FILE #REG-2025 • CADET CLEARANCE
           </p>
         </div>
       </div>
+
+      <style jsx>{`
+        input::placeholder, select::placeholder {
+          color: rgba(255, 200, 0, 0.4);
+        }
+        input:focus, select:focus {
+          border-color: #ffd700 !important;
+          box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
+        }
+      `}</style>
     </div>
   );
 }
