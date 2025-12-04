@@ -146,80 +146,150 @@ export default function GenerateCasePage() {
     }
   };
 
-  // Parse suspect description for age and gender
-  const parsePersonInfo = (name: string, role: string): { gender: string; age: string; ageDescriptor: string } => {
-    const text = `${name} ${role}`.toLowerCase();
+  // Parse suspect description for age, gender, and religion (Singapore-sensitive)
+  const parsePersonInfo = (name: string, role: string): {
+    gender: string;
+    age: string;
+    ageDescriptor: string;
+    religiousAttire: string;
+    religion: string | null;
+  } => {
+    const roleText = role.toLowerCase();
 
     // Detect gender from name or role
-    const femaleNames = /^(siti|nur|fatimah|aminah|mary|sarah|elizabeth|priya|lakshmi|devi|mei|ling|hui|xin|yan)/i;
-    const femaleRoles = /\b(mother|wife|sister|daughter|aunt|grandmother|mrs|ms|miss|woman|lady|girl|waitress|actress|hostess|saleswoman|businesswoman|female)\b/i;
-    const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male)\b/i;
+    const femaleNames = /^(siti|nur|fatimah|aminah|mary|sarah|elizabeth|priya|lakshmi|devi|mei|ling|hui|xin|yan|aishah|zainab|khadijah|hajar|noraini|rosnah|rohani|kavitha|lakshmi|sumathi|mei ling|xiao|jia|hui|ying)/i;
+    const femaleRoles = /\b(mother|wife|sister|daughter|aunt|grandmother|mrs|ms|miss|woman|lady|girl|waitress|actress|hostess|saleswoman|businesswoman|female|makcik|aunty|kakak)\b/i;
+    const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male|pakcik|abang|encik)\b/i;
 
     let gender = 'person';
-    if (femaleNames.test(name) || femaleRoles.test(role)) {
+    if (femaleNames.test(name) || femaleRoles.test(roleText)) {
       gender = 'woman';
-    } else if (maleRoles.test(role)) {
+    } else if (maleRoles.test(roleText)) {
       gender = 'man';
     }
 
     // Detect age from role
     const childRoles = /\b(child|kid|boy|girl|student|pupil|teen|teenager|youth|young)\b/i;
-    const elderRoles = /\b(elderly|old|senior|grandfather|grandmother|grandpa|grandma|retired)\b/i;
+    const elderRoles = /\b(elderly|old|senior|grandfather|grandmother|grandpa|grandma|retired|pakcik|makcik)\b/i;
 
     let age = 'adult';
     let ageDescriptor = '30-40 years old';
-    if (childRoles.test(role)) {
+    if (childRoles.test(roleText)) {
       age = 'young';
       ageDescriptor = '10-16 years old';
       gender = gender === 'woman' ? 'girl' : gender === 'man' ? 'boy' : 'young person';
-    } else if (elderRoles.test(role)) {
+    } else if (elderRoles.test(roleText)) {
       age = 'elderly';
       ageDescriptor = '60-70 years old';
       gender = gender === 'woman' ? 'elderly woman' : gender === 'man' ? 'elderly man' : 'elderly person';
     }
 
-    return { gender, age, ageDescriptor };
+    // IMPORTANT: Religion is ONLY detected if EXPLICITLY mentioned in role
+    // Do NOT assume religion from race - this is Singapore-sensitive
+    let religion: string | null = null;
+    let religiousAttire = '';
+
+    // Muslim - only if explicitly stated
+    if (/\b(muslim|islamic|imam|ustaz|ustazah|hajj|haji|hajjah)\b/i.test(roleText)) {
+      religion = 'Muslim';
+      if (gender === 'woman' || gender === 'girl' || gender === 'elderly woman') {
+        religiousAttire = 'wearing modest hijab headscarf';
+      } else {
+        religiousAttire = 'wearing songkok or kopiah cap'; // Optional for men
+      }
+    }
+    // Sikh - only if explicitly stated
+    else if (/\b(sikh|singh|kaur)\b/i.test(roleText) || /\b(singh|kaur)$/i.test(name)) {
+      religion = 'Sikh';
+      if (gender === 'man' || gender === 'boy' || gender === 'elderly man') {
+        religiousAttire = 'wearing Sikh turban dastar';
+      }
+    }
+    // Hindu - only if explicitly stated (usually no specific attire required)
+    else if (/\b(hindu|temple priest|pandit)\b/i.test(roleText)) {
+      religion = 'Hindu';
+      // No specific attire unless temple priest
+      if (/\b(priest|pandit)\b/i.test(roleText)) {
+        religiousAttire = 'wearing traditional Hindu religious attire';
+      }
+    }
+    // Buddhist/Taoist monk - only if explicitly stated
+    else if (/\b(buddhist monk|taoist priest|monk)\b/i.test(roleText)) {
+      religion = 'Buddhist';
+      religiousAttire = 'wearing Buddhist monk robes';
+    }
+    // Christian clergy - only if explicitly stated
+    else if (/\b(pastor|priest|reverend|father|nun|sister)\b/i.test(roleText)) {
+      religion = 'Christian';
+      religiousAttire = 'wearing clerical attire';
+    }
+
+    return { gender, age, ageDescriptor, religiousAttire, religion };
   };
 
-  // Infer ethnicity from name for Singapore context - detailed for realistic portraits
-  const inferEthnicity = (name: string): { ethnicity: string; skinTone: string; features: string } => {
-    // Chinese names
-    if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap|Mei|Ling|Hui|Xin|Yan)/i.test(name)) {
+  // Infer ethnicity from name for Singapore context (CMIO: Chinese, Malay, Indian, Others)
+  // IMPORTANT: Race is determined by NAME only, never by religion
+  // This respects Singapore's multi-racial, multi-religious society
+  const inferEthnicity = (name: string): { ethnicity: string; skinTone: string; features: string; race: string } => {
+    // CHINESE names - Singapore's largest ethnic group (~74%)
+    // Includes Hokkien, Teochew, Cantonese, Hakka, Hainanese surnames
+    const chineseNames = /^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap|Wee|Phua|Quek|Chia|Gan|Poh|Soh|Toh|Lau|Leong|Yong|Kwok|Loh|Mok|Lai|Heng|Kang|Khoo|Seet|Chong|Ting|Choo|Chiang|Mei|Ling|Hui|Xin|Yan|Xiao|Jia|Ying|Wei|Min|Fang|Qing|Yu|Zhi|Jun|Jing|Xuan)/i;
+
+    // MALAY names - Singapore's second largest ethnic group (~13%)
+    // Note: Not all Malays are Muslim, and not all Muslims are Malay
+    const malayNames = /^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim|Mohamed|Ismail|Hassan|Ali|Fatimah|Aminah|Razak|Rahman|Yusof|Hamid|Zainal|Zainab|Aishah|Khadijah|Hajar|Noraini|Rosnah|Rohani|Aziz|Azman|Azhar|Hafiz|Hakim|Kamal|Rashid|Rahim|Salleh|Osman|Omar|Idris|Jalil|Jamal|Farid|Fauzi|Rizal|Roslan|Rosman|Sharif|Sulaiman|Zulkifli|Noor|Nordin|Noordin|Nasir|Naim|Hidayah|Huda|Izzah|Fatin|Balqis|Safiah|Maryam)/i;
+
+    // INDIAN names - Singapore's third largest ethnic group (~9%)
+    // Includes Tamil, Malayalam, Telugu, Punjabi, Gujarati names
+    // Note: Indian Singaporeans can be Hindu, Muslim, Sikh, Christian, or others
+    const indianNames = /^(Raj|Kumar|Sharma|Singh|Kaur|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal|Rajan|Chandran|Sundaram|Bala|Subra|Thana|Velu|Arumugam|Selvam|Murugan|Ganesh|Prabhu|Anand|Vijay|Arun|Siva|Shankar|Mohan|Guru|Sunder|Kavitha|Sumathi|Devi|Meena|Geetha|Radha|Padma|Malathi|Vani|Jaya|Nalini|Sarala|Kamala|Indira|Deepa|Asha|Ravi|Balakrishnan|Raghavan|Srinivasan|Natarajan)/i;
+
+    // EURASIAN and OTHER names - (~3%)
+    // Includes Portuguese-Eurasian, Dutch-Eurasian, British, and other mixed heritage
+    const eurasianNames = /^(James|John|Mary|Michael|David|Sarah|Peter|Paul|George|Elizabeth|William|Richard|Thomas|Robert|Joseph|Charles|Edward|Henry|Arthur|Albert|Frederick|Francis|Philip|Raymond|Benjamin|Martin|De Souza|Pereira|Rodrigues|Fernandez|Gomes|Braga|Shepherdson|Westerhout|Scully|Clarke|Oliveiro|Tessensohn|Woodford|Aroozoo|Doss|Sta Maria|D'Silva)/i;
+
+    if (chineseNames.test(name)) {
       return {
+        race: 'Chinese',
         ethnicity: 'Chinese Singaporean',
-        skinTone: 'natural light tan East Asian skin, realistic human skin color',
-        features: 'East Asian facial features, natural brown or dark brown eyes, straight black hair'
+        skinTone: 'natural East Asian skin tone ranging from fair to light tan, realistic human skin',
+        features: 'East Asian Chinese facial features, natural dark brown or brown eyes, straight black hair'
       };
     }
-    // Malay names
-    if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim|Mohamed|Ismail|Hassan|Ali|Fatimah|Aminah|Razak|Rahman|Yusof|Hamid|Zainal)/i.test(name)) {
+
+    if (malayNames.test(name)) {
       return {
+        race: 'Malay',
         ethnicity: 'Malay Singaporean',
-        skinTone: 'natural warm brown Southeast Asian skin, realistic human skin color',
+        skinTone: 'natural Southeast Asian Malay skin tone, warm brown complexion, realistic human skin',
         features: 'Southeast Asian Malay facial features, natural dark brown eyes, black hair'
       };
     }
-    // Indian names
-    if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal)/i.test(name)) {
+
+    if (indianNames.test(name)) {
       return {
+        race: 'Indian',
         ethnicity: 'Indian Singaporean',
-        skinTone: 'natural brown South Asian skin, realistic human skin color',
-        features: 'South Asian Indian facial features, natural dark brown eyes, black hair'
+        skinTone: 'natural South Asian Indian skin tone, medium to dark brown complexion, realistic human skin',
+        features: 'South Asian Indian facial features, natural dark brown or black eyes, black hair'
       };
     }
-    // Eurasian or Western names
-    if (/^(James|John|Mary|Michael|David|Sarah|Peter|Paul|George|Elizabeth|William|Richard)/i.test(name)) {
+
+    if (eurasianNames.test(name)) {
       return {
+        race: 'Eurasian',
         ethnicity: 'Eurasian Singaporean',
-        skinTone: 'natural olive mixed heritage skin, realistic human skin color',
-        features: 'mixed Eurasian facial features, natural eye color'
+        skinTone: 'natural mixed heritage skin tone, olive to light brown complexion, realistic human skin',
+        features: 'mixed Eurasian facial features, natural eye color varies'
       };
     }
-    // Default to generic Singaporean
+
+    // Default - don't assume race, use neutral description
     return {
+      race: 'Singaporean',
       ethnicity: 'Singaporean',
-      skinTone: 'natural Asian skin, realistic human skin color',
-      features: 'Asian facial features, natural dark eyes'
+      skinTone: 'natural Asian skin tone, realistic human skin',
+      features: 'Asian facial features, natural dark eyes, black hair'
     };
   };
 
@@ -297,8 +367,8 @@ export default function GenerateCasePage() {
         const personInfo = parsePersonInfo(suspect.name, suspect.role);
         const expression = suspect.isGuilty ? 'slightly nervous expression' : 'calm confident expression';
 
-        // Build an ULTRA-realistic portrait prompt with exact age/gender
-        const portraitPrompt = [
+        // Build prompt parts - race and religion are SEPARATE
+        const promptParts = [
           // Quality tags for Pony Diffusion
           'score_9, score_8_up, score_7_up',
           // CRITICAL: Force realism
@@ -306,13 +376,23 @@ export default function GenerateCasePage() {
           // Person details - exact match to description
           `1${personInfo.gender}`, 'solo',
           personInfo.ageDescriptor,
+          // RACE (from name) - separate from religion
+          `${ethnicityInfo.race} race`,
           ethnicityInfo.ethnicity,
           ethnicityInfo.skinTone,
           ethnicityInfo.features,
           // Role context
           suspect.role,
           expression,
-          // Photography style
+        ];
+
+        // Add religious attire ONLY if explicitly mentioned in role
+        if (personInfo.religiousAttire) {
+          promptParts.push(personInfo.religiousAttire);
+        }
+
+        // Add photography style
+        promptParts.push(
           'professional ID photo', 'passport photo style',
           'front facing', 'looking at camera',
           'neutral expression', 'natural pose',
@@ -323,7 +403,9 @@ export default function GenerateCasePage() {
           // Technical
           'high resolution', 'sharp focus', 'detailed',
           '35mm photograph', 'natural colors'
-        ].join(', ');
+        );
+
+        const portraitPrompt = promptParts.join(', ');
 
         // ULTRA-strong negative prompt - block ALL fantasy/anime/unnatural elements
         const negativePrompt = [
