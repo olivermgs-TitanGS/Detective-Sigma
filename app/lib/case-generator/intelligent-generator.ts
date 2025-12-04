@@ -1,25 +1,82 @@
 /**
- * INTELLIGENT CASE GENERATOR v2.0
+ * INTELLIGENT CASE GENERATOR v3.0
  *
- * Creates TRULY UNIQUE detective cases through:
- * 1. Modular story building blocks that combine differently each time
- * 2. Procedurally generated puzzles with random numbers/contexts
- * 3. Dynamic character generation with varied backgrounds
- * 4. Multiple crime variants and twists
- * 5. Time-based and seasonal variations
- * 6. Singapore-specific cultural elements
+ * Designed to generate 1,000,000+ unique cases through:
+ * - 130+ Singapore locations
+ * - 95+ crime types
+ * - 10,000+ character name combinations
+ * - 120+ clue templates
+ * - 15 plot structures
+ * - 10 briefing formats
+ * - 68,600 context combinations (time × season × event × day × weather)
+ * - Procedurally generated puzzles with random numbers
+ *
+ * Total theoretical combinations: 10^15+ unique cases
  */
 
 import { nanoid } from 'nanoid';
-import {
-  SyllabusTopic,
-  fullSyllabus,
-  getTopicsByGrade,
-} from './syllabus';
 import { GenerationRequest, GeneratedCase, Suspect, Clue, Puzzle, Scene } from './types';
+import { fullSyllabus, SyllabusTopic } from './syllabus';
+
+// Import modular data
+import {
+  allLocations,
+  getRandomLocation,
+  getLocationsByType,
+  Location,
+} from './data/locations';
+
+import {
+  plotTemplates,
+  briefingTemplates,
+  getRandomPlot,
+  getBriefingTemplate,
+  PlotTemplate,
+  BriefingFormat,
+} from './data/plots';
+
+import {
+  generateCharacterName,
+  getFullName,
+  getOccupationsForLocation,
+  getRandomPersonality,
+  getRandomMotive,
+  getRandomAlibi,
+  getRandomRelationship,
+  CharacterName,
+  Occupation,
+} from './data/characters';
+
+import {
+  allCrimes,
+  getRandomCrime,
+  getCrimesForLocation,
+  generateCrimeValue,
+  CrimeType,
+} from './data/crimes';
+
+import {
+  allClueTemplates,
+  getRandomClue,
+  getCluesByType,
+  generateClueDescription,
+  ClueTemplate,
+} from './data/clues';
+
+import {
+  getRandomTimeContext,
+  getRandomSeasonContext,
+  getRandomEventContext,
+  getRandomWeatherContext,
+  getDayContext,
+  TimeContext,
+  SeasonContext,
+  EventContext,
+  WeatherContext,
+} from './data/contexts';
 
 // ============================================
-// RANDOMIZATION UTILITIES
+// UTILITY FUNCTIONS
 // ============================================
 
 function random(min: number, max: number): number {
@@ -45,222 +102,276 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 // ============================================
-// BUILDING BLOCKS - SETTINGS
+// CASE SEED GENERATOR
 // ============================================
 
-const settings = {
-  school: [
-    { name: 'Raffles Primary School', area: 'Bishan', type: 'school' },
-    { name: 'Nanyang Primary School', area: 'Bukit Timah', type: 'school' },
-    { name: 'Tao Nan School', area: 'Marine Parade', type: 'school' },
-    { name: 'Fairfield Methodist Primary', area: 'Dover', type: 'school' },
-    { name: 'CHIJ St. Nicholas Girls', area: 'Ang Mo Kio', type: 'school' },
-  ],
-  hawkerCentre: [
-    { name: 'Old Airport Road Hawker', area: 'Geylang', type: 'hawker' },
-    { name: 'Maxwell Food Centre', area: 'Chinatown', type: 'hawker' },
-    { name: 'Tiong Bahru Market', area: 'Tiong Bahru', type: 'hawker' },
-    { name: 'Chomp Chomp Food Centre', area: 'Serangoon', type: 'hawker' },
-    { name: 'Adam Road Food Centre', area: 'Bukit Timah', type: 'hawker' },
-  ],
-  mall: [
-    { name: 'Vivocity', area: 'HarbourFront', type: 'mall' },
-    { name: 'NEX', area: 'Serangoon', type: 'mall' },
-    { name: 'Jurong Point', area: 'Jurong', type: 'mall' },
-    { name: 'Tampines Mall', area: 'Tampines', type: 'mall' },
-    { name: 'Northpoint City', area: 'Yishun', type: 'mall' },
-  ],
-  nature: [
-    { name: 'Singapore Botanic Gardens', area: 'Tanglin', type: 'nature' },
-    { name: 'East Coast Park', area: 'East Coast', type: 'nature' },
-    { name: 'Sungei Buloh Wetland', area: 'Kranji', type: 'nature' },
-    { name: 'MacRitchie Reservoir', area: 'Bishan', type: 'nature' },
-    { name: 'Labrador Nature Reserve', area: 'Labrador', type: 'nature' },
-  ],
-  hdb: [
-    { name: 'Block 123', area: 'Ang Mo Kio', type: 'hdb' },
-    { name: 'Block 456', area: 'Bedok', type: 'hdb' },
-    { name: 'Block 789', area: 'Tampines', type: 'hdb' },
-    { name: 'Block 234', area: 'Woodlands', type: 'hdb' },
-    { name: 'Block 567', area: 'Jurong East', type: 'hdb' },
-  ],
-  community: [
-    { name: 'Bishan Community Club', area: 'Bishan', type: 'cc' },
-    { name: 'Tampines Hub', area: 'Tampines', type: 'cc' },
-    { name: 'Our Tampines Hub', area: 'Tampines', type: 'cc' },
-    { name: 'Pasir Ris Sports Centre', area: 'Pasir Ris', type: 'cc' },
-  ],
-};
-
-// ============================================
-// BUILDING BLOCKS - CRIMES
-// ============================================
-
-const crimeTypes = {
-  theft: [
-    { item: 'collection money', value: () => random(50, 500), unit: 'dollars' },
-    { item: 'donation box funds', value: () => random(100, 800), unit: 'dollars' },
-    { item: 'sports equipment', value: () => random(200, 1000), unit: 'dollars worth' },
-    { item: 'camera equipment', value: () => random(500, 2000), unit: 'dollars worth' },
-    { item: 'laptop', value: () => random(800, 1500), unit: 'dollar' },
-    { item: 'science lab supplies', value: () => random(300, 700), unit: 'dollars worth' },
-    { item: 'prize money', value: () => random(100, 500), unit: 'dollars' },
-    { item: 'charity funds', value: () => random(200, 1000), unit: 'dollars' },
-  ],
-  sabotage: [
-    { target: 'science project', description: 'data was tampered with' },
-    { target: 'sports equipment', description: 'was deliberately damaged' },
-    { target: 'competition entry', description: 'was mysteriously ruined' },
-    { target: 'garden plants', description: 'were poisoned overnight' },
-    { target: 'cooking ingredients', description: 'were spoiled intentionally' },
-    { target: 'art installation', description: 'was vandalized' },
-  ],
-  mystery: [
-    { event: 'Strange noises at night', clue: 'unusual sounds recorded' },
-    { event: 'Missing pet', clue: 'paw prints found' },
-    { event: 'Anonymous threats', clue: 'mysterious notes left' },
-    { event: 'Power outages', clue: 'electrical tampering detected' },
-    { event: 'Food contamination', clue: 'foreign substances found' },
-  ],
-  fraud: [
-    { scheme: 'fake tickets', amount: () => random(20, 100) },
-    { scheme: 'counterfeit coupons', amount: () => random(50, 200) },
-    { scheme: 'altered receipts', amount: () => random(100, 500) },
-    { scheme: 'false expense claims', amount: () => random(200, 800) },
-  ],
-};
-
-// ============================================
-// BUILDING BLOCKS - CHARACTERS
-// ============================================
-
-const firstNames = {
-  chinese: ['Wei Jie', 'Xiao Ming', 'Jia Hui', 'Zhi Wei', 'Mei Ling', 'Jun Hao', 'Xin Yi', 'Yi Xuan', 'Kai Wen', 'Yu Ting', 'Zi Yang', 'Hui Min', 'Jing Wen', 'Shi Jie', 'Xue Ying'],
-  malay: ['Ahmad', 'Fatimah', 'Iskandar', 'Nurul', 'Hafiz', 'Aisyah', 'Rizwan', 'Siti', 'Amir', 'Zainab', 'Farhan', 'Nadia', 'Imran', 'Aishah', 'Danish'],
-  indian: ['Priya', 'Raj', 'Ananya', 'Arjun', 'Kavitha', 'Vikram', 'Lakshmi', 'Karthik', 'Deepa', 'Suresh', 'Divya', 'Rahul', 'Meera', 'Arun', 'Shreya'],
-  others: ['Daniel', 'Michelle', 'Adrian', 'Sophie', 'Marcus', 'Emma', 'Nathan', 'Chloe', 'Ryan', 'Sarah', 'Ethan', 'Olivia', 'Joshua', 'Grace', 'Lucas'],
-};
-
-const surnames = {
-  chinese: ['Tan', 'Lim', 'Lee', 'Ng', 'Wong', 'Goh', 'Chua', 'Ong', 'Koh', 'Teo', 'Chen', 'Ho', 'Yeo', 'Sim', 'Chong'],
-  malay: ['bin Ahmad', 'binti Hassan', 'bin Osman', 'binti Rahman', 'bin Yusof', 'binti Ali'],
-  indian: ['Pillai', 'Nair', 'Menon', 'Kumar', 'Sharma', 'Patel', 'Singh', 'Rao'],
-  others: ['Pereira', 'Rozario', 'Shepherdson', 'Clarke', 'Williams', 'Johnson'],
-};
-
-const occupations = {
-  school: ['Teacher', 'Principal', 'Clerk', 'Canteen Vendor', 'Security Guard', 'Librarian', 'Lab Assistant', 'Gardener', 'Coach', 'Counsellor'],
-  hawker: ['Stall Owner', 'Assistant', 'Cleaner', 'Delivery Rider', 'Regular Customer', 'Food Supplier', 'NEA Inspector'],
-  mall: ['Shop Manager', 'Sales Assistant', 'Security Officer', 'Cleaner', 'Promoter', 'Customer Service'],
-  nature: ['Park Ranger', 'Volunteer Guide', 'Photographer', 'Jogger', 'Bird Watcher', 'Maintenance Worker'],
-  hdb: ['Town Council Staff', 'Resident', 'Cleaner', 'Security Guard', 'Delivery Person', 'Estate Manager'],
-  cc: ['Manager', 'Instructor', 'Volunteer', 'Member', 'Event Organizer', 'Receptionist'],
-};
-
-const personalities = [
-  ['nervous', 'fidgety'], ['calm', 'collected'], ['aggressive', 'defensive'],
-  ['friendly', 'helpful'], ['quiet', 'reserved'], ['loud', 'attention-seeking'],
-  ['suspicious', 'evasive'], ['confident', 'articulate'], ['confused', 'scattered'],
-  ['angry', 'hostile'], ['sad', 'withdrawn'], ['cheerful', 'optimistic'],
-];
-
-const motives = [
-  'needed money urgently for family medical bills',
-  'was jealous of someone else\'s success',
-  'wanted revenge for a past grievance',
-  'was pressured by someone threatening them',
-  'believed they deserved it more than others',
-  'made a mistake and tried to cover it up',
-  'wanted to impress someone important to them',
-  'was struggling financially and saw an opportunity',
-  'had a gambling debt to pay off',
-  'wanted to sabotage a competitor',
-  'felt underappreciated and resentful',
-  'was blackmailed into doing it',
-  'thought no one would notice or care',
-  'did it as a prank that went too far',
-  'was trying to help someone else in trouble',
-];
-
-const alibis = [
-  'was at a doctor\'s appointment',
-  'was picking up children from school',
-  'was stuck in traffic on the PIE',
-  'was attending a family gathering',
-  'was on the phone with a client',
-  'was working overtime in another location',
-  'was at a religious service',
-  'was grocery shopping at NTUC',
-  'was exercising at the gym',
-  'was meeting a friend for coffee',
-  'was at the bank handling some matters',
-  'was helping a neighbor move furniture',
-  'was at the clinic waiting to see a doctor',
-  'was attending a course at the CC',
-];
-
-// ============================================
-// BUILDING BLOCKS - CLUES
-// ============================================
-
-const clueTemplates = {
-  physical: [
-    { name: 'Fingerprint', desc: () => `A partial fingerprint was found on the ${pickRandom(['door handle', 'window', 'desk drawer', 'locker', 'cabinet'])}` },
-    { name: 'Footprint', desc: () => `A ${pickRandom(['muddy', 'dusty', 'wet'])} footprint (size ${random(36, 44)}) was discovered near the scene` },
-    { name: 'Fabric', desc: () => `A small piece of ${pickRandom(['blue', 'red', 'green', 'black', 'white'])} ${pickRandom(['cotton', 'polyester', 'denim'])} was caught on a ${pickRandom(['nail', 'fence', 'door hinge'])}` },
-    { name: 'Hair Strand', desc: () => `A ${pickRandom(['black', 'brown', 'grey'])} hair was found at the scene` },
-    { name: 'Dropped Item', desc: () => `A ${pickRandom(['pen', 'button', 'coin', 'keychain', 'card'])} was found on the floor` },
-  ],
-  document: [
-    { name: 'Receipt', desc: () => `A receipt from ${pickRandom(['7-Eleven', 'NTUC', 'Cold Storage', 'a coffee shop'])} dated ${randomDate()} at ${randomTime()}` },
-    { name: 'Note', desc: () => `A handwritten note with ${pickRandom(['a phone number', 'an address', 'a cryptic message', 'a to-do list'])}` },
-    { name: 'Schedule', desc: () => `A printed schedule showing activities from ${randomTime()} to ${randomTime()}` },
-    { name: 'Log Book Entry', desc: () => `An entry in the ${pickRandom(['visitor', 'security', 'maintenance'])} log at ${randomTime()}` },
-    { name: 'Photo', desc: () => `A ${pickRandom(['blurry', 'clear', 'partially obscured'])} photo from a ${pickRandom(['phone', 'security camera', 'CCTV'])}` },
-  ],
-  testimony: [
-    { name: 'Witness Account', desc: () => `Someone saw a person ${pickRandom(['running', 'walking quickly', 'acting suspiciously', 'carrying something'])} at around ${randomTime()}` },
-    { name: 'Sound Evidence', desc: () => `A ${pickRandom(['loud noise', 'argument', 'door slamming', 'footsteps'])} was heard at approximately ${randomTime()}` },
-    { name: 'Sighting', desc: () => `The suspect was spotted at ${pickRandom(['the void deck', 'the carpark', 'the stairwell', 'near the scene'])} before the incident` },
-  ],
-  digital: [
-    { name: 'CCTV Footage', desc: () => `CCTV captured movement at ${randomTime()}, showing a figure ${pickRandom(['entering', 'leaving', 'lingering near'])} the area` },
-    { name: 'Access Log', desc: () => `The access card system recorded an entry at ${randomTime()} using card #${random(1000, 9999)}` },
-    { name: 'Phone Records', desc: () => `Phone records show a ${random(2, 15)} minute call at ${randomTime()}` },
-    { name: 'Transaction History', desc: () => `A ${pickRandom(['cash withdrawal', 'transfer', 'payment'])} of $${random(20, 500)} was made at ${randomTime()}` },
-  ],
-};
-
-function randomDate(): string {
-  const day = random(1, 28);
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${day} ${pickRandom(months)}`;
+interface CaseSeed {
+  location: Location;
+  crime: CrimeType;
+  crimeValue: number;
+  plot: PlotTemplate;
+  timeContext: TimeContext;
+  seasonContext: SeasonContext;
+  eventContext: EventContext | null;
+  weatherContext: WeatherContext;
+  dayOfWeek: string;
 }
 
-function randomTime(): string {
-  const hour = random(6, 22);
-  const minute = random(0, 59);
-  const period = hour < 12 ? 'am' : 'pm';
-  const displayHour = hour > 12 ? hour - 12 : hour;
-  return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+function generateCaseSeed(): CaseSeed {
+  const location = getRandomLocation();
+  const crimes = getCrimesForLocation(location.type);
+  const crime = crimes.length > 0 ? pickRandom(crimes) : getRandomCrime();
+  const crimeValue = generateCrimeValue(crime);
+  const plot = getRandomPlot();
+
+  const timeContext = getRandomTimeContext();
+  const seasonContext = getRandomSeasonContext();
+  const weatherContext = getRandomWeatherContext();
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dayOfWeek = pickRandom(days);
+
+  // 50% chance of having a special event context
+  const eventContext = Math.random() > 0.5
+    ? getRandomEventContext(location.type)
+    : null;
+
+  return {
+    location,
+    crime,
+    crimeValue,
+    plot,
+    timeContext,
+    seasonContext,
+    eventContext,
+    weatherContext,
+    dayOfWeek,
+  };
 }
 
 // ============================================
-// PUZZLE GENERATION - TRULY RANDOM
+// CHARACTER GENERATOR
+// ============================================
+
+interface GeneratedCharacter {
+  id: string;
+  name: string;
+  role: string;
+  age: number;
+  personality: [string, string];
+  alibi: string;
+  isGuilty: boolean;
+  motive?: string;
+  relationship?: string;
+}
+
+function generateCharacters(
+  location: Location,
+  count: number,
+  guiltyIndex: number
+): GeneratedCharacter[] {
+  const characters: GeneratedCharacter[] = [];
+  const occupations = shuffle(getOccupationsForLocation(location.type));
+  const ethnicities = shuffle(['chinese', 'malay', 'indian', 'eurasian'] as const);
+
+  for (let i = 0; i < count; i++) {
+    const ethnicity = ethnicities[i % ethnicities.length];
+    const gender = pickRandom(['male', 'female'] as const);
+    const charName = generateCharacterName(ethnicity, gender);
+    const occupation = occupations[i % occupations.length];
+    const isGuilty = i === guiltyIndex;
+
+    const [minAge, maxAge] = occupation.ageRange;
+    const age = random(minAge, maxAge);
+
+    characters.push({
+      id: `suspect-${nanoid(6)}`,
+      name: getFullName(charName),
+      role: occupation.title,
+      age,
+      personality: getRandomPersonality(),
+      alibi: isGuilty
+        ? pickRandom([
+            'Claims to have been alone in a back room',
+            'Says they were doing inventory by themselves',
+            'Insists they were in the toilet',
+            'Claims they were on a personal phone call',
+            'Says they stepped out for fresh air',
+          ])
+        : getRandomAlibi(),
+      isGuilty,
+      motive: isGuilty ? getRandomMotive() : undefined,
+      relationship: i > 0 ? getRandomRelationship() : undefined,
+    });
+  }
+
+  return characters;
+}
+
+// ============================================
+// BRIEFING GENERATOR
+// ============================================
+
+function generateBriefing(
+  seed: CaseSeed,
+  characters: GeneratedCharacter[],
+  caseNumber: string
+): string {
+  const template = getBriefingTemplate(seed.plot.briefingFormat);
+  const dayContext = getDayContext(seed.dayOfWeek);
+
+  // Build context description
+  const contextDesc = [
+    seed.timeContext.description,
+    seed.weatherContext.description,
+    seed.seasonContext.description,
+  ].join('. ');
+
+  // Build crime description
+  let crimeDesc = seed.crime.description;
+  if (seed.crimeValue > 0) {
+    crimeDesc += ` Estimated value: $${seed.crimeValue} ${seed.crime.valueUnit || ''}.`;
+  }
+
+  // Event context if applicable
+  const eventDesc = seed.eventContext
+    ? `This occurred during ${seed.eventContext.name}, when the area was ${seed.eventContext.crowdLevel === 'high' ? 'very crowded' : seed.eventContext.crowdLevel === 'medium' ? 'moderately busy' : 'relatively quiet'}.`
+    : '';
+
+  // Generate witness/reporter
+  const reporter = pickRandom(characters);
+
+  // Build briefing using template structure
+  const header = pickRandom(template.header)
+    .replace('{caseNumber}', caseNumber)
+    .replace('{date}', `${seed.dayOfWeek}, ${pickRandom(seed.seasonContext.months)} ${random(1, 28)}`);
+
+  const bodyStart = pickRandom(template.bodyStart)
+    .replace('{date}', seed.dayOfWeek)
+    .replace('{time}', seed.timeContext.name)
+    .replace('{location}', `${seed.location.name}, ${seed.location.area}`)
+    .replace('{officer}', `Officer ${pickRandom(['Tan', 'Lim', 'Lee', 'Ahmad', 'Singh'])}`)
+    .replace('{headline}', seed.crime.name)
+    .replace('{caseNumber}', caseNumber);
+
+  const bodyMiddle = `
+${crimeDesc}
+
+${contextDesc}
+${eventDesc}
+
+The incident was reported by ${reporter.name} (${reporter.role}). Initial assessment suggests ${pickRandom([
+    'this was a planned action',
+    'someone with inside knowledge was involved',
+    'the timing was deliberate',
+    'multiple opportunities existed',
+    'security measures were bypassed',
+  ])}.
+
+SUSPECTS IDENTIFIED:
+${characters.map(c => `• ${c.name} - ${c.role}, ${c.age} years old`).join('\n')}
+  `.trim();
+
+  const bodyEnd = pickRandom(template.bodyEnd);
+  const signature = pickRandom(template.signature)
+    .replace('{officer}', `Detective ${pickRandom(['Wong', 'Goh', 'Kumar', 'Hassan'])}`)
+    .replace('{station}', `${seed.location.area} Division`)
+    .replace('{classification}', 'PRIORITY');
+
+  return `${header}
+
+${bodyStart}
+
+${bodyMiddle}
+
+${bodyEnd}
+
+${signature}
+
+---
+Case Difficulty: ${seed.plot.difficulty.join('/')}
+Structure: ${seed.plot.structure.toUpperCase()}
+Location Type: ${seed.location.type}
+  `.trim();
+}
+
+// ============================================
+// CLUE GENERATOR
+// ============================================
+
+function generateClues(
+  seed: CaseSeed,
+  characters: GeneratedCharacter[],
+  count: number
+): Clue[] {
+  const clues: Clue[] = [];
+  const guiltyCharacter = characters.find(c => c.isGuilty)!;
+  const innocentCharacters = characters.filter(c => !c.isGuilty);
+
+  // Get clue types relevant to the crime
+  const relevantTypes = seed.crime.clueTypes;
+
+  // 1. Critical clue pointing to guilty party
+  const criticalTemplate = getRandomClue(pickRandom(relevantTypes) as any);
+  clues.push({
+    id: `clue-${nanoid(6)}`,
+    title: `Key Evidence: ${criticalTemplate.name}`,
+    description: `${generateClueDescription(criticalTemplate)} This evidence strongly suggests ${guiltyCharacter.name}'s involvement.`,
+    type: criticalTemplate.type,
+    relevance: 'critical',
+    linkedTo: [guiltyCharacter.id],
+  });
+
+  // 2. Supporting clues
+  const supportingCount = Math.min(count - 2, 4);
+  for (let i = 0; i < supportingCount; i++) {
+    const type = pickRandom(relevantTypes) as any;
+    const template = getRandomClue(type);
+    clues.push({
+      id: `clue-${nanoid(6)}`,
+      title: template.name,
+      description: generateClueDescription(template),
+      type: template.type,
+      relevance: 'supporting',
+      linkedTo: [],
+    });
+  }
+
+  // 3. Red herring pointing to innocent person
+  if (innocentCharacters.length > 0) {
+    const redHerringTarget = pickRandom(innocentCharacters);
+    const redHerringTemplate = getRandomClue();
+    clues.push({
+      id: `clue-${nanoid(6)}`,
+      title: 'Suspicious Finding',
+      description: `${generateClueDescription(redHerringTemplate)} This initially seems to implicate ${redHerringTarget.name}, but further investigation may reveal an innocent explanation.`,
+      type: redHerringTemplate.type,
+      relevance: 'red-herring',
+      linkedTo: [redHerringTarget.id],
+    });
+  }
+
+  return clues;
+}
+
+// ============================================
+// PUZZLE GENERATORS (WITH RANDOM VALUES)
 // ============================================
 
 interface PuzzleContext {
   setting: string;
   characters: string[];
-  items: string[];
   crimeValue: number;
+  timeContext: TimeContext;
 }
 
-function generateMathPuzzle(topic: SyllabusTopic, difficulty: number, ctx: PuzzleContext): Puzzle {
+function generateMathPuzzle(
+  topic: SyllabusTopic,
+  difficulty: number,
+  ctx: PuzzleContext
+): Puzzle {
   const puzzleId = `puzzle-${nanoid(6)}`;
   const strand = topic.strand;
 
-  // Generate completely unique puzzles based on strand
   switch (strand) {
     case 'numbers': return generateNumbersPuzzle(puzzleId, difficulty, ctx);
     case 'measurement': return generateMeasurementPuzzle(puzzleId, difficulty, ctx);
@@ -272,27 +383,27 @@ function generateMathPuzzle(topic: SyllabusTopic, difficulty: number, ctx: Puzzl
 }
 
 function generateNumbersPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzle {
-  const puzzleTypes = [
-    // Addition/Subtraction word problems
+  const types = [
+    // Addition/Subtraction
     () => {
       const n1 = random(100 * diff, 500 * diff);
       const n2 = random(50 * diff, 300 * diff);
       const n3 = random(20 * diff, 100 * diff);
       const char = pickRandom(ctx.characters);
       return {
-        question: `${char} collected evidence items over 3 days: ${n1} on Monday, ${n2} on Tuesday, and ${n3} on Wednesday. How many items were collected in total?`,
-        answer: String(n1 + n2 + n3),
-        hint: 'Add all three numbers together',
+        q: `${char} collected evidence items over 3 days: ${n1} on Day 1, ${n2} on Day 2, and ${n3} on Day 3. What is the total?`,
+        a: String(n1 + n2 + n3),
+        h: 'Add all three numbers together',
       };
     },
     // Multiplication
     () => {
       const boxes = random(3 * diff, 8 * diff);
-      const itemsPerBox = random(10, 30 + diff * 10);
+      const items = random(10, 30 + diff * 10);
       return {
-        question: `The evidence room has ${boxes} boxes, each containing ${itemsPerBox} items. How many items are there in total?`,
-        answer: String(boxes * itemsPerBox),
-        hint: 'Multiply the number of boxes by items per box',
+        q: `The evidence room has ${boxes} boxes with ${items} items each. How many items total?`,
+        a: String(boxes * items),
+        h: 'Multiply boxes by items per box',
       };
     },
     // Division
@@ -300,9 +411,9 @@ function generateNumbersPuzzle(id: string, diff: number, ctx: PuzzleContext): Pu
       const people = random(3, 6 + diff);
       const total = people * random(10 * diff, 30 * diff);
       return {
-        question: `$${total} was split equally among ${people} suspects as their share of the stolen money. How much did each person receive?`,
-        answer: String(total / people),
-        hint: 'Divide the total by the number of people',
+        q: `$${total} was divided equally among ${people} people. How much did each receive?`,
+        a: String(total / people),
+        h: 'Divide total by number of people',
       };
     },
     // Multi-step
@@ -310,59 +421,55 @@ function generateNumbersPuzzle(id: string, diff: number, ctx: PuzzleContext): Pu
       const initial = random(500 * diff, 1000 * diff);
       const spent = random(100 * diff, 300 * diff);
       const received = random(50 * diff, 200 * diff);
-      const char = pickRandom(ctx.characters);
       return {
-        question: `${char} had $${initial} in their account. They withdrew $${spent} and later deposited $${received}. How much is in the account now?`,
-        answer: String(initial - spent + received),
-        hint: 'First subtract, then add',
+        q: `An account started with $${initial}. After withdrawing $${spent} and depositing $${received}, what's the balance?`,
+        a: String(initial - spent + received),
+        h: 'First subtract, then add',
       };
     },
-    // Fraction of quantity
+    // Fractions
     () => {
-      const fractionNum = pickRandom([1, 2, 3]);
-      const fractionDen = pickRandom([2, 3, 4, 5]);
-      const total = fractionDen * random(10 * diff, 30 * diff);
+      const num = pickRandom([1, 2, 3]);
+      const den = pickRandom([2, 3, 4, 5]);
+      const total = den * random(10 * diff, 30 * diff);
       return {
-        question: `${fractionNum}/${fractionDen} of the ${total} fingerprints found at the scene belonged to staff members. How many fingerprints were from staff?`,
-        answer: String((total * fractionNum) / fractionDen),
-        hint: `Multiply ${total} by ${fractionNum}/${fractionDen}`,
+        q: `${num}/${den} of the ${total} fingerprints found belonged to staff. How many fingerprints were from staff?`,
+        a: String((total * num) / den),
+        h: `Multiply ${total} by ${num}/${den}`,
       };
     },
     // Percentage
     () => {
       const total = random(5, 20) * 10 * diff;
       const pct = pickRandom([10, 20, 25, 30, 40, 50, 60, 75]);
-      const char = pickRandom(ctx.characters);
       return {
-        question: `${char}'s alibi checks out for ${pct}% of the ${total} minutes they claimed to be elsewhere. For how many minutes is the alibi verified?`,
-        answer: String((pct * total) / 100),
-        hint: `${pct}% of ${total} = ${pct}/100 × ${total}`,
+        q: `An alibi is verified for ${pct}% of ${total} minutes claimed. How many minutes verified?`,
+        a: String((pct * total) / 100),
+        h: `${pct}% of ${total} = ${pct}/100 × ${total}`,
       };
     },
     // Ratio
     () => {
-      const ratio1 = random(2, 5);
-      const ratio2 = random(2, 5);
-      const multiplier = random(3 * diff, 8 * diff);
-      const total = (ratio1 + ratio2) * multiplier;
-      const char1 = ctx.characters[0];
-      const char2 = ctx.characters[1] || 'another suspect';
+      const r1 = random(2, 5);
+      const r2 = random(2, 5);
+      const mult = random(3 * diff, 8 * diff);
+      const total = (r1 + r2) * mult;
       return {
-        question: `${char1} and ${char2} divided the stolen goods in the ratio ${ratio1}:${ratio2}. If there were ${total} items in total, how many did ${char1} take?`,
-        answer: String(ratio1 * multiplier),
-        hint: `Total parts = ${ratio1 + ratio2}. One part = ${total}/${ratio1 + ratio2}`,
+        q: `Items were divided in ratio ${r1}:${r2}. With ${total} items total, how many in the first share?`,
+        a: String(r1 * mult),
+        h: `Total parts = ${r1 + r2}. One part = ${total}/${r1 + r2}`,
       };
     },
   ];
 
-  const selected = pickRandom(puzzleTypes)();
+  const selected = pickRandom(types)();
   return {
     id,
-    title: pickRandom(['Evidence Analysis', 'Number Investigation', 'Calculation Clue', 'The Numbers Game', 'Mathematical Evidence']),
+    title: pickRandom(['Evidence Analysis', 'Number Investigation', 'Calculation Clue', 'The Numbers Game']),
     type: 'math',
-    question: selected.question,
-    answer: selected.answer,
-    hint: selected.hint,
+    question: selected.q,
+    answer: selected.a,
+    hint: selected.h,
     points: 10 + diff * 5,
     difficulty: diff,
     complexity: diff <= 2 ? 'STANDARD' : 'CHALLENGING',
@@ -372,83 +479,79 @@ function generateNumbersPuzzle(id: string, diff: number, ctx: PuzzleContext): Pu
 }
 
 function generateMeasurementPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzle {
-  const puzzleTypes = [
-    // Time duration
+  const types = [
+    // Time
     () => {
-      const startHour = random(8, 16);
-      const startMin = random(0, 5) * 10;
-      const durationHours = random(1, 4);
-      const durationMins = random(1, 5) * 10;
-      const endHour = startHour + durationHours + Math.floor((startMin + durationMins) / 60);
-      const endMin = (startMin + durationMins) % 60;
+      const hours = random(1, 4);
+      const mins = random(1, 5) * 10;
       return {
-        question: `The incident occurred between ${startHour}:${startMin.toString().padStart(2, '0')} and ${endHour}:${endMin.toString().padStart(2, '0')}. How long was this time window in minutes?`,
-        answer: String(durationHours * 60 + durationMins),
-        hint: 'Convert hours to minutes, then add the extra minutes',
+        q: `The incident window was ${hours} hour${hours > 1 ? 's' : ''} and ${mins} minutes. How many minutes total?`,
+        a: String(hours * 60 + mins),
+        h: 'Convert hours to minutes, then add',
       };
     },
     // Area
     () => {
-      const length = random(5 * diff, 15 * diff);
-      const width = random(3 * diff, 10 * diff);
+      const l = random(5 * diff, 15 * diff);
+      const w = random(3 * diff, 10 * diff);
       return {
-        question: `The crime scene is a rectangular area measuring ${length}m by ${width}m. What is the total area that needs to be searched?`,
-        answer: String(length * width),
-        hint: 'Area = length × width',
+        q: `The search area is ${l}m by ${w}m. What's the total area in m²?`,
+        a: String(l * w),
+        h: 'Area = length × width',
       };
     },
     // Perimeter
     () => {
-      const length = random(8 * diff, 20 * diff);
-      const width = random(4 * diff, 12 * diff);
+      const l = random(8 * diff, 20 * diff);
+      const w = random(4 * diff, 12 * diff);
       return {
-        question: `Security tape needs to surround a ${length}m by ${width}m area. How many meters of tape are needed?`,
-        answer: String(2 * (length + width)),
-        hint: 'Perimeter = 2 × (length + width)',
+        q: `Security tape surrounds a ${l}m by ${w}m area. How many meters of tape needed?`,
+        a: String(2 * (l + w)),
+        h: 'Perimeter = 2 × (length + width)',
       };
     },
-    // Speed/Distance/Time
+    // Speed/Distance
     () => {
       const speed = pickRandom([30, 40, 50, 60, 80]);
       const time = random(1, 3);
       return {
-        question: `The suspect's vehicle traveled at ${speed} km/h for ${time} hour${time > 1 ? 's' : ''}. How far did they travel?`,
-        answer: String(speed * time),
-        hint: 'Distance = Speed × Time',
+        q: `A vehicle traveled at ${speed} km/h for ${time} hour${time > 1 ? 's' : ''}. How far?`,
+        a: String(speed * time),
+        h: 'Distance = Speed × Time',
       };
     },
-    // Volume/Capacity
+    // Volume
     () => {
-      const length = random(2 * diff, 5 * diff);
-      const width = random(2 * diff, 4 * diff);
-      const height = random(1 * diff, 3 * diff);
+      const l = random(2 * diff, 5 * diff);
+      const w = random(2 * diff, 4 * diff);
+      const h = random(1 * diff, 3 * diff);
       return {
-        question: `A box measuring ${length}cm × ${width}cm × ${height}cm was used to hide the stolen items. What is its volume in cm³?`,
-        answer: String(length * width * height),
-        hint: 'Volume = length × width × height',
+        q: `A box measuring ${l}cm × ${w}cm × ${h}cm was used. What's its volume in cm³?`,
+        a: String(l * w * h),
+        h: 'Volume = length × width × height',
       };
     },
-    // Money calculation
+    // Money
     () => {
-      const notes50 = random(2, 8);
-      const notes10 = random(3, 12);
-      const notes5 = random(5, 20);
+      const n50 = random(2, 8);
+      const n10 = random(3, 12);
+      const n5 = random(5, 20);
       return {
-        question: `The recovered money consisted of ${notes50} fifty-dollar notes, ${notes10} ten-dollar notes, and ${notes5} five-dollar notes. What was the total amount?`,
-        answer: String(notes50 * 50 + notes10 * 10 + notes5 * 5),
-        hint: 'Calculate each denomination and add them up',
+        q: `Recovered money: ${n50} fifty-dollar notes, ${n10} ten-dollar notes, ${n5} five-dollar notes. Total?`,
+        a: String(n50 * 50 + n10 * 10 + n5 * 5),
+        h: 'Calculate each denomination and add',
       };
     },
   ];
 
-  const selected = pickRandom(puzzleTypes)();
+  const selected = pickRandom(types)();
   return {
     id,
-    title: pickRandom(['Time Analysis', 'Measurement Mystery', 'Distance Detective', 'Area Investigation', 'Dimension Clue']),
+    title: pickRandom(['Measurement Mystery', 'Distance Detective', 'Time Analysis', 'Area Investigation']),
     type: 'math',
-    question: selected.question,
-    answer: selected.answer,
-    hint: selected.hint,
+    question: selected.q,
+    answer: selected.a,
+    hint: selected.h,
     points: 10 + diff * 5,
     difficulty: diff,
     complexity: diff <= 2 ? 'STANDARD' : 'CHALLENGING',
@@ -458,36 +561,33 @@ function generateMeasurementPuzzle(id: string, diff: number, ctx: PuzzleContext)
 }
 
 function generateGeometryPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzle {
-  const puzzleTypes = [
-    // Angles on straight line
+  const types = [
+    // Angles on line
     () => {
-      const angle1 = random(30 * diff, 70 * diff);
-      const answer = 180 - angle1;
+      const a1 = random(30, 150);
       return {
-        question: `Two pieces of evidence were found forming angles on a straight line. If one angle measures ${angle1}°, what is the other angle?`,
-        answer: String(answer),
-        hint: 'Angles on a straight line add up to 180°',
+        q: `Two angles on a straight line: one is ${a1}°. What's the other?`,
+        a: String(180 - a1),
+        h: 'Angles on a straight line = 180°',
       };
     },
     // Triangle angles
     () => {
       const a1 = random(30, 80);
       const a2 = random(30, 80);
-      const a3 = 180 - a1 - a2;
       return {
-        question: `A triangular piece of evidence has two angles measuring ${a1}° and ${a2}°. What is the third angle?`,
-        answer: String(a3),
-        hint: 'The angles in a triangle add up to 180°',
+        q: `A triangle has angles ${a1}° and ${a2}°. What's the third angle?`,
+        a: String(180 - a1 - a2),
+        h: 'Triangle angles sum to 180°',
       };
     },
-    // Quadrilateral angles
+    // Quadrilateral
     () => {
       const angles = [random(70, 100), random(70, 100), random(70, 100)];
-      const fourth = 360 - angles[0] - angles[1] - angles[2];
       return {
-        question: `A quadrilateral-shaped mark has three angles: ${angles[0]}°, ${angles[1]}°, and ${angles[2]}°. What is the fourth angle?`,
-        answer: String(fourth),
-        hint: 'The angles in a quadrilateral add up to 360°',
+        q: `A quadrilateral has angles ${angles[0]}°, ${angles[1]}°, ${angles[2]}°. Fourth angle?`,
+        a: String(360 - angles[0] - angles[1] - angles[2]),
+        h: 'Quadrilateral angles sum to 360°',
       };
     },
     // Triangle area
@@ -495,30 +595,30 @@ function generateGeometryPuzzle(id: string, diff: number, ctx: PuzzleContext): P
       const base = random(6 * diff, 16 * diff);
       const height = random(4 * diff, 12 * diff);
       return {
-        question: `A triangular piece of broken glass has a base of ${base}cm and a height of ${height}cm. What is its area?`,
-        answer: String((base * height) / 2),
-        hint: 'Triangle area = ½ × base × height',
+        q: `A triangular evidence piece: base ${base}cm, height ${height}cm. Area?`,
+        a: String((base * height) / 2),
+        h: 'Triangle area = ½ × base × height',
       };
     },
-    // Circle (P6)
+    // Circle
     () => {
-      const radius = random(3, 10) * diff;
+      const r = random(3, 10) * diff;
       return {
-        question: `A circular mark with radius ${radius}cm was found. What is its circumference? (Use π = 3.14)`,
-        answer: String((2 * 3.14 * radius).toFixed(2)),
-        hint: 'Circumference = 2 × π × radius',
+        q: `A circular mark has radius ${r}cm. Circumference? (π = 3.14)`,
+        a: String((2 * 3.14 * r).toFixed(2)),
+        h: 'Circumference = 2 × π × radius',
       };
     },
   ];
 
-  const selected = pickRandom(puzzleTypes)();
+  const selected = pickRandom(types)();
   return {
     id,
-    title: pickRandom(['Angle Analysis', 'Shape Evidence', 'Geometric Clue', 'The Shape Mystery', 'Angular Evidence']),
+    title: pickRandom(['Shape Evidence', 'Angle Analysis', 'Geometric Clue', 'Angular Evidence']),
     type: 'math',
-    question: selected.question,
-    answer: selected.answer,
-    hint: selected.hint,
+    question: selected.q,
+    answer: selected.a,
+    hint: selected.h,
     points: 10 + diff * 5,
     difficulty: diff,
     complexity: diff <= 2 ? 'STANDARD' : 'CHALLENGING',
@@ -528,30 +628,26 @@ function generateGeometryPuzzle(id: string, diff: number, ctx: PuzzleContext): P
 }
 
 function generateDataPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzle {
-  const puzzleTypes = [
+  const types = [
     // Average
     () => {
       const count = random(3, 5 + diff);
       const values = Array.from({ length: count }, () => random(10 * diff, 50 * diff));
       const sum = values.reduce((a, b) => a + b, 0);
-      const avg = sum / count;
       return {
-        question: `Incident reports for ${count} days showed: ${values.join(', ')} reports. What was the average number of reports per day?`,
-        answer: String(avg),
-        hint: `Sum all values and divide by ${count}`,
+        q: `Reports over ${count} days: ${values.join(', ')}. Average per day?`,
+        a: String(sum / count),
+        h: `Sum all values, divide by ${count}`,
       };
     },
-    // Reading from data
+    // Range
     () => {
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
       const values = days.map(() => random(5 * diff, 30 * diff));
-      const maxDay = days[values.indexOf(Math.max(...values))];
-      const maxVal = Math.max(...values);
-      const minVal = Math.min(...values);
       return {
-        question: `Visitor log:\n${days.map((d, i) => `${d}: ${values[i]}`).join('\n')}\n\nWhat is the difference between the highest and lowest number of visitors?`,
-        answer: String(maxVal - minVal),
-        hint: 'Find the highest and lowest, then subtract',
+        q: `Visitors: ${days.map((d, i) => `${d}:${values[i]}`).join(', ')}. Difference between highest and lowest?`,
+        a: String(Math.max(...values) - Math.min(...values)),
+        h: 'Find highest and lowest, then subtract',
       };
     },
     // Total from average
@@ -559,32 +655,32 @@ function generateDataPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzl
       const avg = random(10 * diff, 30 * diff);
       const count = random(4, 8);
       return {
-        question: `The average number of clues found per scene was ${avg} across ${count} scenes. How many clues were found in total?`,
-        answer: String(avg * count),
-        hint: 'Total = Average × Number of items',
+        q: `Average ${avg} clues across ${count} scenes. Total clues found?`,
+        a: String(avg * count),
+        h: 'Total = Average × Number',
       };
     },
-    // Missing value from average
+    // Missing value
     () => {
       const values = [random(20, 50), random(20, 50), random(20, 50)];
       const targetAvg = random(30, 45);
-      const missingVal = targetAvg * 4 - values.reduce((a, b) => a + b, 0);
+      const missing = targetAvg * 4 - values.reduce((a, b) => a + b, 0);
       return {
-        question: `Three test scores are ${values.join(', ')}. What must the fourth score be to get an average of ${targetAvg}?`,
-        answer: String(missingVal),
-        hint: 'Total needed = Average × 4. Then subtract the known values.',
+        q: `Three scores: ${values.join(', ')}. Fourth score needed for average ${targetAvg}?`,
+        a: String(missing),
+        h: 'Total needed = Average × 4, then subtract known values',
       };
     },
   ];
 
-  const selected = pickRandom(puzzleTypes)();
+  const selected = pickRandom(types)();
   return {
     id,
-    title: pickRandom(['Data Analysis', 'Statistics Clue', 'Average Investigation', 'The Data Trail', 'Number Patterns']),
+    title: pickRandom(['Data Analysis', 'Statistics Clue', 'Average Investigation', 'Number Patterns']),
     type: 'math',
-    question: selected.question,
-    answer: selected.answer,
-    hint: selected.hint,
+    question: selected.q,
+    answer: selected.a,
+    hint: selected.h,
     points: 15 + diff * 5,
     difficulty: diff,
     complexity: 'CHALLENGING',
@@ -594,61 +690,50 @@ function generateDataPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzl
 }
 
 function generateAlgebraPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzle {
-  const puzzleTypes = [
+  const types = [
     // Simple equation
     () => {
       const x = random(3, 15);
-      const constant = random(5, 20);
-      const result = 2 * x + constant;
+      const c = random(5, 20);
+      const result = 2 * x + c;
       return {
-        question: `If 2x + ${constant} = ${result}, what is the value of x?`,
-        answer: String(x),
-        hint: 'First subtract the constant, then divide by 2',
+        q: `If 2x + ${c} = ${result}, what is x?`,
+        a: String(x),
+        h: 'Subtract constant, then divide by 2',
       };
     },
-    // Word problem to equation
+    // Word problem
     () => {
       const x = random(5, 20);
       const extra = random(10, 30);
       const total = 3 * x + extra;
-      const char = pickRandom(ctx.characters);
       return {
-        question: `${char} has some items. If we triple the number and add ${extra}, we get ${total}. How many items does ${char} have?`,
-        answer: String(x),
-        hint: 'Let the items be x. Solve: 3x + ' + extra + ' = ' + total,
+        q: `Triple a number and add ${extra} gives ${total}. What's the number?`,
+        a: String(x),
+        h: 'Solve: 3x + ' + extra + ' = ' + total,
       };
     },
-    // Two unknowns (substitution)
-    () => {
-      const x = random(5, 15);
-      const y = random(3, 12);
-      return {
-        question: `If x + y = ${x + y} and x = ${x}, what is y?`,
-        answer: String(y),
-        hint: 'Substitute x into the first equation',
-      };
-    },
-    // Pattern finding
+    // Pattern
     () => {
       const start = random(2, 10);
-      const diff_seq = random(3, 7);
-      const seq = [start, start + diff_seq, start + 2 * diff_seq, start + 3 * diff_seq];
+      const step = random(3, 7);
+      const seq = [start, start + step, start + 2 * step, start + 3 * step];
       return {
-        question: `A coded message shows: ${seq.join(', ')}, ?. What number comes next?`,
-        answer: String(start + 4 * diff_seq),
-        hint: 'Find the pattern - what is added each time?',
+        q: `Pattern: ${seq.join(', ')}, ?. What comes next?`,
+        a: String(start + 4 * step),
+        h: 'Find what\'s added each time',
       };
     },
   ];
 
-  const selected = pickRandom(puzzleTypes)();
+  const selected = pickRandom(types)();
   return {
     id,
-    title: pickRandom(['Code Breaker', 'Algebra Evidence', 'The Unknown Variable', 'Pattern Detective', 'Equation Mystery']),
+    title: pickRandom(['Code Breaker', 'Pattern Detective', 'Equation Mystery', 'The Unknown Variable']),
     type: 'math',
-    question: selected.question,
-    answer: selected.answer,
-    hint: selected.hint,
+    question: selected.q,
+    answer: selected.a,
+    hint: selected.h,
     points: 15 + diff * 5,
     difficulty: diff,
     complexity: 'CHALLENGING',
@@ -657,129 +742,122 @@ function generateAlgebraPuzzle(id: string, diff: number, ctx: PuzzleContext): Pu
   };
 }
 
-function generateSciencePuzzle(topic: SyllabusTopic, difficulty: number, ctx: PuzzleContext): Puzzle {
+function generateSciencePuzzle(topic: SyllabusTopic, diff: number, ctx: PuzzleContext): Puzzle {
   const puzzleId = `puzzle-${nanoid(6)}`;
 
-  // Generate based on topic strand
-  const sciencePuzzles = [
+  const types = [
     // Classification
     () => {
       const animals = [
-        { name: 'dolphin', group: 'mammal', reason: 'breathes air, gives birth to live young, feeds milk' },
-        { name: 'penguin', group: 'bird', reason: 'has feathers, lays eggs, has beak' },
-        { name: 'crocodile', group: 'reptile', reason: 'has scales, cold-blooded, lays eggs on land' },
-        { name: 'frog', group: 'amphibian', reason: 'moist skin, lives in water and land, undergoes metamorphosis' },
-        { name: 'whale', group: 'mammal', reason: 'breathes air, feeds milk to young' },
-        { name: 'bat', group: 'mammal', reason: 'has fur, gives birth to live young' },
+        { name: 'dolphin', group: 'mammal' },
+        { name: 'penguin', group: 'bird' },
+        { name: 'crocodile', group: 'reptile' },
+        { name: 'frog', group: 'amphibian' },
+        { name: 'whale', group: 'mammal' },
+        { name: 'bat', group: 'mammal' },
+        { name: 'salamander', group: 'amphibian' },
+        { name: 'turtle', group: 'reptile' },
       ];
       const animal = pickRandom(animals);
       return {
-        question: `A ${animal.name} was spotted near the crime scene. What group of animals does it belong to? (mammal/bird/reptile/amphibian/fish)`,
-        answer: animal.group,
-        hint: animal.reason,
+        q: `A ${animal.name} was spotted. What animal group? (mammal/bird/reptile/amphibian/fish)`,
+        a: animal.group,
+        h: 'Think about its characteristics',
       };
     },
     // Life cycles
     () => {
       const cycles = [
-        { organism: 'butterfly', stages: 'egg, caterpillar (larva), pupa (chrysalis), adult butterfly', missing: 'pupa' },
-        { organism: 'frog', stages: 'egg, tadpole, tadpole with legs, froglet, adult frog', missing: 'tadpole' },
-        { organism: 'plant', stages: 'seed, germination, seedling, adult plant, flowering, fruiting', missing: 'germination' },
+        { org: 'butterfly', stages: 'egg → caterpillar → pupa → adult', missing: 'pupa' },
+        { org: 'frog', stages: 'egg → tadpole → froglet → adult', missing: 'tadpole' },
+        { org: 'mosquito', stages: 'egg → larva → pupa → adult', missing: 'larva' },
       ];
       const cycle = pickRandom(cycles);
       return {
-        question: `Evidence shows a ${cycle.organism} life cycle with a missing stage: egg → ? → adult. What stage comes in between? (Hint: ${cycle.organism} life cycle)`,
-        answer: cycle.missing,
-        hint: `Think about the ${cycle.organism} life cycle: ${cycle.stages}`,
+        q: `${cycle.org} life cycle: egg → ? → adult. What's missing?`,
+        a: cycle.missing,
+        h: `Think about ${cycle.org} development`,
       };
     },
-    // Food chains
+    // Food chain
     () => {
       const chains = [
-        { chain: ['grass', 'grasshopper', 'frog', 'snake', 'eagle'], question: 'grass → grasshopper → ? → snake', answer: 'frog' },
-        { chain: ['algae', 'small fish', 'big fish', 'shark'], question: 'algae → ? → big fish → shark', answer: 'small fish' },
-        { chain: ['plant', 'caterpillar', 'bird', 'cat'], question: 'plant → caterpillar → bird → ?', answer: 'cat' },
+        { q: 'grass → grasshopper → ? → snake', a: 'frog' },
+        { q: 'algae → ? → big fish → shark', a: 'small fish' },
+        { q: 'plant → caterpillar → bird → ?', a: 'cat' },
+        { q: '? → rabbit → fox → eagle', a: 'grass' },
       ];
-      const fc = pickRandom(chains);
+      const chain = pickRandom(chains);
       return {
-        question: `Complete this food chain found in the evidence: ${fc.question}`,
-        answer: fc.answer,
-        hint: 'Think about what eats what in the food chain',
+        q: `Complete the food chain: ${chain.q}`,
+        a: chain.a,
+        h: 'What eats what?',
       };
     },
-    // Energy conversion
+    // Energy
     () => {
-      const conversions = [
-        { device: 'solar panel', from: 'light/solar', to: 'electrical' },
-        { device: 'electric fan', from: 'electrical', to: 'kinetic' },
-        { device: 'light bulb', from: 'electrical', to: 'light and heat' },
-        { device: 'battery-powered toy car', from: 'chemical', to: 'kinetic' },
-        { device: 'microphone', from: 'sound', to: 'electrical' },
+      const conv = [
+        { device: 'solar panel', from: 'light', to: 'electrical' },
+        { device: 'fan', from: 'electrical', to: 'kinetic' },
+        { device: 'light bulb', from: 'electrical', to: 'light' },
+        { device: 'battery toy', from: 'chemical', to: 'kinetic' },
       ];
-      const conv = pickRandom(conversions);
+      const c = pickRandom(conv);
       return {
-        question: `A ${conv.device} was found at the scene. What energy conversion occurs in a ${conv.device}? (from ___ energy to ___ energy)`,
-        answer: `${conv.from} to ${conv.to}`,
-        hint: `Think about what goes IN and what comes OUT of a ${conv.device}`,
+        q: `A ${c.device} converts what energy to what? (from ___ to ___)`,
+        a: `${c.from} to ${c.to}`,
+        h: 'What goes in? What comes out?',
       };
     },
     // Body systems
     () => {
-      const systems = [
-        { parts: 'heart, arteries, veins, blood', system: 'circulatory' },
-        { parts: 'lungs, trachea, diaphragm', system: 'respiratory' },
-        { parts: 'stomach, intestines, liver', system: 'digestive' },
+      const sys = [
+        { parts: 'heart, arteries, blood', system: 'circulatory' },
+        { parts: 'lungs, trachea', system: 'respiratory' },
+        { parts: 'stomach, intestines', system: 'digestive' },
       ];
-      const sys = pickRandom(systems);
+      const s = pickRandom(sys);
       return {
-        question: `Medical evidence mentions: ${sys.parts}. What body system do these belong to?`,
-        answer: sys.system,
-        hint: 'Think about what these organs do together',
+        q: `These organs: ${s.parts}. What system?`,
+        a: s.system,
+        h: 'What do they do together?',
       };
     },
     // Circuits
+    () => ({
+      q: 'A bulb in a circuit doesn\'t light. The battery is new. What\'s likely wrong?',
+      a: 'circuit not complete',
+      h: 'Electricity needs a complete path',
+    }),
+    // Materials
     () => {
-      const scenarios = [
-        { setup: 'battery connected to bulb with wire, but bulb doesn\'t light', reason: 'circuit is not complete/closed', fix: 'complete the circuit' },
-        { setup: 'two bulbs in series, one burns out', result: 'both bulbs go out', reason: 'series circuit breaks when one component fails' },
-        { setup: 'wire connected to both terminals of same battery end', result: 'short circuit', reason: 'electricity takes the shortest path' },
+      const mat = [
+        { item: 'copper wire', property: 'conductor' },
+        { item: 'rubber', property: 'insulator' },
+        { item: 'metal spoon', property: 'conductor' },
+        { item: 'plastic', property: 'insulator' },
       ];
-      const scenario = pickRandom(scenarios);
+      const m = pickRandom(mat);
       return {
-        question: `The electrical evidence shows: ${scenario.setup}. What happened and why?`,
-        answer: scenario.reason,
-        hint: 'Think about how electricity flows in circuits',
-      };
-    },
-    // Materials and properties
-    () => {
-      const materials = [
-        { material: 'copper wire', property: 'conductor', test: 'electricity flows through it' },
-        { material: 'rubber gloves', property: 'insulator', test: 'electricity does not flow through' },
-        { material: 'metal spoon', property: 'conductor', test: 'heat transfers quickly' },
-        { material: 'wooden handle', property: 'insulator', test: 'stays cool to touch' },
-      ];
-      const mat = pickRandom(materials);
-      return {
-        question: `${pickRandom(['A', 'Evidence shows a'])} ${mat.material} was used. Is it a conductor or insulator of ${mat.test.includes('electricity') ? 'electricity' : 'heat'}?`,
-        answer: mat.property,
-        hint: mat.test,
+        q: `Is ${m.item} a conductor or insulator?`,
+        a: m.property,
+        h: 'Does it let electricity/heat pass?',
       };
     },
   ];
 
-  const selected = pickRandom(sciencePuzzles)();
+  const selected = pickRandom(types)();
   return {
     id: puzzleId,
-    title: pickRandom(['Scientific Evidence', 'Nature Clue', 'Science Investigation', 'Biology Evidence', 'Energy Analysis']),
+    title: pickRandom(['Scientific Evidence', 'Nature Clue', 'Science Investigation', 'Biology Evidence']),
     type: 'logic',
-    question: selected.question,
-    answer: selected.answer,
-    hint: selected.hint,
-    points: 10 + difficulty * 5,
-    difficulty,
-    complexity: difficulty <= 2 ? 'STANDARD' : 'CHALLENGING',
-    estimatedMinutes: 4 + difficulty,
+    question: selected.q,
+    answer: selected.a,
+    hint: selected.h,
+    points: 10 + diff * 5,
+    difficulty: diff,
+    complexity: diff <= 2 ? 'STANDARD' : 'CHALLENGING',
+    estimatedMinutes: 4 + diff,
     requiresMultipleSteps: false,
   };
 }
@@ -790,175 +868,47 @@ function generateSciencePuzzle(topic: SyllabusTopic, difficulty: number, ctx: Pu
 
 export async function generateIntelligentCase(request: GenerationRequest): Promise<GeneratedCase> {
   const caseId = `case-${nanoid(10)}`;
+  const caseNumber = `SG${random(10000, 99999)}`;
   const { difficulty, subject, gradeLevel, puzzleComplexity = 'STANDARD' } = request;
 
+  // 1. Generate unique case seed
+  const seed = generateCaseSeed();
+
+  // 2. Determine suspect count based on difficulty
   const diffMap: Record<string, number> = { ROOKIE: 1, INSPECTOR: 2, DETECTIVE: 3, CHIEF: 4 };
   const diffNum = diffMap[difficulty] || 2;
+  const suspectCount = Math.max(3, Math.min(seed.plot.suspectCount.min + diffNum - 1, seed.plot.suspectCount.max));
+  const guiltyIndex = random(0, suspectCount - 1);
 
-  // 1. Pick random setting
-  const settingType = pickRandom(Object.keys(settings)) as keyof typeof settings;
-  const location = pickRandom(settings[settingType]);
+  // 3. Generate characters
+  const characters = generateCharacters(seed.location, suspectCount, guiltyIndex);
+  const guiltyCharacter = characters[guiltyIndex];
 
-  // 2. Pick crime type and generate details
-  const crimeCategory = pickRandom(['theft', 'sabotage', 'mystery'] as const);
-  const crime = crimeCategory === 'theft'
-    ? pickRandom(crimeTypes.theft)
-    : crimeCategory === 'sabotage'
-    ? pickRandom(crimeTypes.sabotage)
-    : pickRandom(crimeTypes.mystery);
+  // 4. Generate case title
+  const titleAdjectives = ['Mysterious', 'Strange', 'Puzzling', 'Curious', 'Baffling', 'Perplexing', 'Intriguing'];
+  const titleNouns = ['Case', 'Mystery', 'Incident', 'Affair', 'Investigation', 'Enigma'];
+  const title = `The ${pickRandom(titleAdjectives)} ${pickRandom(titleNouns)} at ${seed.location.name}`;
 
-  const crimeValue = 'value' in crime ? crime.value() : 0;
-  const crimeItem = 'item' in crime ? crime.item : 'target' in crime ? crime.target : 'event' in crime ? crime.event : 'evidence';
+  // 5. Generate briefing
+  const briefing = generateBriefing(seed, characters, caseNumber);
 
-  // 3. Generate unique characters
-  const ethnicities = shuffle(['chinese', 'malay', 'indian', 'others'] as const);
-  const suspectCount = diffNum >= 3 ? 4 : 3;
-  const suspects: Suspect[] = [];
-  const characterNames: string[] = [];
+  // 6. Generate clues
+  const clueCount = Math.max(4, Math.min(seed.plot.clueCount.min + diffNum, seed.plot.clueCount.max));
+  const clues = generateClues(seed, characters, clueCount);
 
-  const availableOccupations = shuffle([...(occupations[settingType as keyof typeof occupations] || occupations.school)]);
-
-  for (let i = 0; i < suspectCount; i++) {
-    const ethnicity = ethnicities[i % ethnicities.length];
-    const firstName = pickRandom(firstNames[ethnicity]);
-    const surname = pickRandom(surnames[ethnicity]);
-    const fullName = ethnicity === 'malay' ? `${firstName} ${surname}` : `${firstName} ${surname}`;
-
-    characterNames.push(fullName);
-
-    const isGuilty = i === random(0, suspectCount - 1);
-    const personality = pickRandom(personalities);
-
-    suspects.push({
-      id: `suspect-${nanoid(6)}`,
-      name: fullName,
-      role: availableOccupations[i] || 'Staff Member',
-      alibi: isGuilty ? pickRandom(['Claims to have been alone in the back room', 'Says they were doing inventory', 'Insists they were in the toilet']) : pickRandom(alibis),
-      personality,
-      isGuilty,
-      motive: isGuilty ? pickRandom(motives) : undefined,
-    });
-  }
-
-  // Ensure exactly one guilty
-  const guiltyCount = suspects.filter(s => s.isGuilty).length;
-  if (guiltyCount === 0) {
-    suspects[random(0, suspects.length - 1)].isGuilty = true;
-    suspects[suspects.length - 1].motive = pickRandom(motives);
-  } else if (guiltyCount > 1) {
-    let foundFirst = false;
-    for (const s of suspects) {
-      if (s.isGuilty) {
-        if (foundFirst) {
-          s.isGuilty = false;
-          s.motive = undefined;
-        }
-        foundFirst = true;
-      }
-    }
-  }
-
-  const guiltySuspect = suspects.find(s => s.isGuilty)!;
-
-  // 4. Generate story
-  const title = `The ${pickRandom(['Mysterious', 'Strange', 'Puzzling', 'Curious', 'Baffling'])} ${pickRandom(['Case', 'Mystery', 'Incident', 'Affair'])} at ${location.name}`;
-
-  const timeOfDay = pickRandom(['early morning', 'mid-morning', 'afternoon', 'evening', 'night']);
-  const dayOfWeek = pickRandom(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
-
-  const briefing = `
-CASE FILE #${random(1000, 9999)}
-Location: ${location.name}, ${location.area}
-Time: ${dayOfWeek}, ${timeOfDay}
-Reported by: ${pickRandom(characterNames)}
-
-INCIDENT SUMMARY:
-${crimeCategory === 'theft'
-  ? `${crimeItem.charAt(0).toUpperCase() + crimeItem.slice(1)} worth ${'value' in crime ? crimeValue : 'unknown'} ${crime.unit || ''} has gone missing from ${location.name}.`
-  : crimeCategory === 'sabotage'
-  ? `The ${'target' in crime ? crime.target : 'evidence'} ${'description' in crime ? crime.description : 'was tampered with'}.`
-  : `${'event' in crime ? crime.event : 'Something strange happened'}. ${'clue' in crime ? crime.clue : 'Investigation needed'}.`
-}
-
-The incident was discovered when staff arrived ${timeOfDay}. Initial inspection shows signs of ${pickRandom(['forced entry', 'inside knowledge', 'careful planning', 'opportunistic action'])}.
-
-YOUR MISSION:
-Interview the ${suspectCount} suspects, collect clues, and solve the puzzles to identify the culprit.
-
-SUSPECTS:
-${suspects.map(s => `• ${s.name} (${s.role})`).join('\n')}
-
-Grade Level: ${gradeLevel}
-Difficulty: ${difficulty}
-Estimated Time: ${request.constraints?.estimatedMinutes || 25} minutes
-  `.trim();
-
-  // 5. Generate clues
-  const clues: Clue[] = [];
-
-  // Critical clue pointing to guilty
-  clues.push({
-    id: `clue-${nanoid(6)}`,
-    title: 'Key Evidence',
-    description: pickRandom(clueTemplates.physical).desc() + ` This evidence strongly suggests ${guiltySuspect.name}'s involvement.`,
-    type: 'physical',
-    relevance: 'critical',
-    linkedTo: [guiltySuspect.id],
-  });
-
-  // Supporting clues
-  clues.push({
-    id: `clue-${nanoid(6)}`,
-    title: pickRandom(clueTemplates.document).name,
-    description: pickRandom(clueTemplates.document).desc(),
-    type: 'document',
-    relevance: 'supporting',
-    linkedTo: [],
-  });
-
-  clues.push({
-    id: `clue-${nanoid(6)}`,
-    title: pickRandom(clueTemplates.testimony).name,
-    description: pickRandom(clueTemplates.testimony).desc(),
-    type: 'testimony',
-    relevance: 'supporting',
-    linkedTo: [],
-  });
-
-  clues.push({
-    id: `clue-${nanoid(6)}`,
-    title: pickRandom(clueTemplates.digital).name,
-    description: pickRandom(clueTemplates.digital).desc(),
-    type: 'digital',
-    relevance: 'supporting',
-    linkedTo: [],
-  });
-
-  // Red herring
-  const innocentSuspect = suspects.find(s => !s.isGuilty)!;
-  clues.push({
-    id: `clue-${nanoid(6)}`,
-    title: 'Suspicious Finding',
-    description: `Evidence that initially seems to implicate ${innocentSuspect.name}, but upon closer inspection, has an innocent explanation.`,
-    type: 'physical',
-    relevance: 'red-herring',
-    linkedTo: [innocentSuspect.id],
-  });
-
-  // 6. Generate puzzles based on syllabus
+  // 7. Generate puzzles based on syllabus
   const gradeTopics = fullSyllabus.filter(t => t.gradeLevel === gradeLevel);
   const subjectTopics = subject === 'INTEGRATED'
     ? gradeTopics
     : gradeTopics.filter(t => t.subject === subject);
-
   const selectedTopics = pickMultiple(subjectTopics, 3);
   const puzzleCount = puzzleComplexity === 'BASIC' ? 4 : puzzleComplexity === 'STANDARD' ? 3 : 2;
 
   const puzzleContext: PuzzleContext = {
-    setting: location.name,
-    characters: characterNames,
-    items: [crimeItem, 'evidence', 'clue', 'document'],
-    crimeValue,
+    setting: seed.location.name,
+    characters: characters.map(c => c.name),
+    crimeValue: seed.crimeValue,
+    timeContext: seed.timeContext,
   };
 
   const puzzles: Puzzle[] = [];
@@ -970,30 +920,46 @@ Estimated Time: ${request.constraints?.estimatedMinutes || 25} minutes
     puzzles.push(puzzle);
   }
 
-  // 7. Generate scenes
+  // 8. Generate scenes
   const scenes: Scene[] = [
     {
       id: `scene-${nanoid(6)}`,
-      name: location.name,
-      description: `${location.name} in ${location.area}. ${pickRandom([
+      name: seed.location.name,
+      description: `${seed.location.name} in ${seed.location.area}. ${pickRandom(seed.timeContext.atmosphere)} ${seed.weatherContext.description.toLowerCase()}. ${pickRandom([
         'The area shows signs of recent activity.',
         'Everything appears normal at first glance.',
-        'There are subtle clues scattered around.',
-        'The atmosphere is tense as investigation begins.',
+        'Subtle clues are scattered around.',
+        'The atmosphere is tense.',
       ])}`,
-      interactiveElements: ['Evidence Board', 'Witness Area', 'Investigation Zone', 'Clue Collection Point'],
-      cluesAvailable: clues.slice(0, 3).map(c => c.id),
+      interactiveElements: ['Evidence Board', 'Witness Area', 'Investigation Zone', 'Clue Collection'],
+      cluesAvailable: clues.slice(0, Math.ceil(clues.length / 2)).map(c => c.id),
     },
     {
       id: `scene-${nanoid(6)}`,
       name: 'Investigation Room',
       description: 'A quiet space to review evidence, interview suspects, and piece together the mystery.',
       interactiveElements: ['Evidence Table', 'Suspect Profiles', 'Timeline Board', 'Puzzle Station'],
-      cluesAvailable: clues.slice(3).map(c => c.id),
+      cluesAvailable: clues.slice(Math.ceil(clues.length / 2)).map(c => c.id),
     },
   ];
 
-  // 8. Return complete case
+  // 9. Convert characters to suspects
+  const suspects: Suspect[] = characters.map(c => ({
+    id: c.id,
+    name: c.name,
+    role: c.role,
+    alibi: c.alibi,
+    personality: c.personality,
+    isGuilty: c.isGuilty,
+    motive: c.motive,
+  }));
+
+  // 10. Build story summary
+  const crimeDescription = seed.crimeValue > 0
+    ? `${seed.crime.name} - ${seed.crime.description} Value: $${seed.crimeValue}`
+    : `${seed.crime.name} - ${seed.crime.description}`;
+
+  // 11. Return complete case
   return {
     caseId,
     title,
@@ -1002,17 +968,13 @@ Estimated Time: ${request.constraints?.estimatedMinutes || 25} minutes
       difficulty,
       gradeLevel,
       subjectFocus: subject,
-      estimatedMinutes: puzzleCount * (puzzleComplexity === 'BASIC' ? 3 : puzzleComplexity === 'STANDARD' ? 7 : 15),
+      estimatedMinutes: puzzleCount * (puzzleComplexity === 'BASIC' ? 5 : puzzleComplexity === 'STANDARD' ? 8 : 12),
       puzzleComplexity,
     },
     story: {
-      setting: `${location.name}, ${location.area}`,
-      crime: crimeCategory === 'theft'
-        ? `${crimeItem} worth $${crimeValue} was stolen`
-        : crimeCategory === 'sabotage'
-        ? `${'target' in crime ? crime.target : 'The target'} ${'description' in crime ? crime.description : 'was sabotaged'}`
-        : `${'event' in crime ? crime.event : 'A mysterious incident occurred'}`,
-      resolution: `Through careful analysis of the evidence and solving the puzzles, you discovered that ${guiltySuspect.name} (${guiltySuspect.role}) was responsible. ${guiltySuspect.motive ? `They did it because they ${guiltySuspect.motive}.` : ''}`,
+      setting: `${seed.location.name}, ${seed.location.area}`,
+      crime: crimeDescription,
+      resolution: `Through careful analysis of the evidence and solving the puzzles, you discovered that ${guiltyCharacter.name} (${guiltyCharacter.role}) was responsible. ${guiltyCharacter.motive ? `They did it because they ${guiltyCharacter.motive}.` : ''}`,
     },
     suspects,
     clues,
@@ -1021,5 +983,12 @@ Estimated Time: ${request.constraints?.estimatedMinutes || 25} minutes
   };
 }
 
-// Export for API
-export { settings, crimeTypes, clueTemplates };
+// Export for statistics
+export const generatorStats = {
+  locations: allLocations.length,
+  crimes: allCrimes.length,
+  clueTemplates: allClueTemplates.length,
+  plotTemplates: plotTemplates.length,
+  briefingFormats: Object.keys(briefingTemplates).length,
+  estimatedUniqueCases: '10^15+',
+};
