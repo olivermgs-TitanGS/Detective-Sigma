@@ -33,7 +33,7 @@ const PLAYLISTS: Record<MusicTheme, string[]> = {
     '/music/Midnight Whispers.mp3',
   ],
   registration: [
-    '/music/Midnight Whispers (1).mp3',  // Single track, loops continuously
+    '/music/Midnight Whispers (1).mp3',
   ],
   silent: [],
 };
@@ -72,30 +72,67 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolumeState] = useState(0.5);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const hasInitialized = useRef(false);
+  const playlistRef = useRef<string[]>([]);
+
+  // Keep playlistRef in sync
+  useEffect(() => {
+    playlistRef.current = playlist;
+  }, [playlist]);
 
   // Initialize audio element once
   useEffect(() => {
-    if (typeof window !== 'undefined' && !audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = volume;
+    if (typeof window === 'undefined') return;
 
-      // Handle track end - play next
-      audioRef.current.addEventListener('ended', () => {
-        setCurrentTrackIndex(prev => (prev + 1) % (playlist.length || 1));
-      });
-    }
+    const audio = new Audio();
+    audio.volume = volume;
+    audio.preload = 'auto';
+    audioRef.current = audio;
+
+    // Handle track end - play next
+    const handleEnded = () => {
+      const currentPlaylist = playlistRef.current;
+      if (currentPlaylist.length > 1) {
+        setCurrentTrackIndex(prev => (prev + 1) % currentPlaylist.length);
+      }
+      // For single track playlists, loop is already enabled
+    };
+
+    audio.addEventListener('ended', handleEnded);
+
+    // Set ready state
+    setIsReady(true);
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+      audio.src = '';
+      audioRef.current = null;
     };
   }, []);
+
+  // Listen for first user interaction
+  useEffect(() => {
+    if (hasUserInteracted) return;
+
+    const handleInteraction = () => {
+      setHasUserInteracted(true);
+    };
+
+    // Listen on capture phase to catch interaction early
+    document.addEventListener('click', handleInteraction, { capture: true, once: true });
+    document.addEventListener('keydown', handleInteraction, { capture: true, once: true });
+    document.addEventListener('touchstart', handleInteraction, { capture: true, once: true });
+
+    return () => {
+      document.removeEventListener('click', handleInteraction, { capture: true });
+      document.removeEventListener('keydown', handleInteraction, { capture: true });
+      document.removeEventListener('touchstart', handleInteraction, { capture: true });
+    };
+  }, [hasUserInteracted]);
 
   // Update playlist when theme changes
   useEffect(() => {
@@ -112,59 +149,60 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     }
   }, [currentTheme]);
 
-  // Play track when playlist or index changes
+  // Play track when ready conditions are met
   useEffect(() => {
-    if (!audioRef.current || playlist.length === 0) return;
+    if (!isReady || !audioRef.current || playlist.length === 0) return;
 
+    const audio = audioRef.current;
     const track = playlist[currentTrackIndex];
     if (!track) return;
 
-    // Enable looping for single-track themes
-    audioRef.current.loop = LOOP_THEMES.includes(currentTheme);
-    audioRef.current.src = track;
-    audioRef.current.load();
+    // Configure audio
+    audio.loop = LOOP_THEMES.includes(currentTheme);
+    audio.src = track;
+    audio.load();
 
+    // Try to play if not muted
     if (!isMuted) {
-      audioRef.current.play()
-        .then(() => {
-          setIsPlaying(true);
-          setAutoplayBlocked(false);
-        })
-        .catch(() => {
-          setAutoplayBlocked(true);
-          setIsPlaying(false);
-        });
-    }
-  }, [playlist, currentTrackIndex, isMuted, currentTheme]);
-
-  // Handle autoplay block - start on user interaction
-  useEffect(() => {
-    if (!autoplayBlocked) return;
-
-    const startOnInteraction = () => {
-      if (audioRef.current && !isMuted) {
-        audioRef.current.play()
+      const tryPlay = () => {
+        audio.play()
           .then(() => {
             setIsPlaying(true);
-            setAutoplayBlocked(false);
           })
-          .catch(() => {});
+          .catch((err) => {
+            console.log('Autoplay blocked, waiting for interaction');
+            setIsPlaying(false);
+          });
+      };
+
+      if (hasUserInteracted) {
+        tryPlay();
+      } else {
+        // Wait for interaction then play
+        const handleFirstInteraction = () => {
+          tryPlay();
+        };
+        document.addEventListener('click', handleFirstInteraction, { once: true });
+        document.addEventListener('keydown', handleFirstInteraction, { once: true });
+        document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+
+        return () => {
+          document.removeEventListener('click', handleFirstInteraction);
+          document.removeEventListener('keydown', handleFirstInteraction);
+          document.removeEventListener('touchstart', handleFirstInteraction);
+        };
       }
-      document.removeEventListener('click', startOnInteraction);
-      document.removeEventListener('keydown', startOnInteraction);
-      document.removeEventListener('touchstart', startOnInteraction);
-    };
+    }
+  }, [isReady, playlist, currentTrackIndex, isMuted, currentTheme, hasUserInteracted]);
 
-    document.addEventListener('click', startOnInteraction);
-    document.addEventListener('keydown', startOnInteraction);
-    document.addEventListener('touchstart', startOnInteraction);
-
-    return () => {
-      document.removeEventListener('click', startOnInteraction);
-      document.removeEventListener('keydown', startOnInteraction);
-      document.removeEventListener('touchstart', startOnInteraction);
-    };
-  }, [autoplayBlocked, isMuted]);
+  // Start playing when user interacts (if was waiting)
+  useEffect(() => {
+    if (hasUserInteracted && !isMuted && audioRef.current && playlist.length > 0 && !isPlaying) {
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
+    }
+  }, [hasUserInteracted, isMuted, playlist.length, isPlaying]);
 
   // Update volume
   useEffect(() => {
@@ -180,18 +218,21 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   }, [currentTheme]);
 
   const toggleMute = useCallback(() => {
-    if (audioRef.current) {
-      if (isMuted) {
-        audioRef.current.muted = false;
-        audioRef.current.play()
-          .then(() => setIsPlaying(true))
-          .catch(() => {});
-      } else {
-        audioRef.current.muted = true;
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
-      setIsMuted(!isMuted);
+    if (!audioRef.current) return;
+
+    if (isMuted) {
+      // Unmuting - try to play
+      audioRef.current.muted = false;
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
+      setIsMuted(false);
+    } else {
+      // Muting - pause
+      audioRef.current.muted = true;
+      audioRef.current.pause();
+      setIsPlaying(false);
+      setIsMuted(true);
     }
   }, [isMuted]);
 
@@ -200,7 +241,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const skipTrack = useCallback(() => {
-    if (playlist.length > 0) {
+    if (playlist.length > 1) {
       setCurrentTrackIndex(prev => (prev + 1) % playlist.length);
     }
   }, [playlist.length]);
