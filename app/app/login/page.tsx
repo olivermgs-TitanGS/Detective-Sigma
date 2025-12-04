@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginSchema } from '@/lib/validations/auth';
+import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,6 +58,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
+      <MusicThemeSetter theme="registration" />
       {/* Detective Background Image */}
       <div
         className="absolute inset-0 z-0"
