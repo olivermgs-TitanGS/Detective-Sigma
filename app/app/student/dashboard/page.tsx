@@ -109,25 +109,8 @@ export default function StudentDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen relative flex items-center justify-center">
-        {/* Background Image */}
-        <div
-          className="fixed inset-0 z-0"
-          style={{
-            backgroundImage: 'url(/images/student-dashboard-bg.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-        {/* Dark Overlay */}
-        <div
-          className="fixed inset-0 z-[1]"
-          style={{
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.9) 100%)',
-          }}
-        />
-        <div className="relative z-10 text-center">
+      <div className="flex items-center justify-center py-24">
+        <div className="text-center">
           <div className="text-6xl mb-4 animate-pulse">🔍</div>
           <p className="text-amber-500 font-mono">Loading dashboard...</p>
         </div>
@@ -136,27 +119,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background Image */}
-      <div
-        className="fixed inset-0 z-0"
-        style={{
-          backgroundImage: 'url(/images/student-dashboard-bg.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
-      {/* Dark Overlay for readability */}
-      <div
-        className="fixed inset-0 z-[1]"
-        style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.9) 100%)',
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 p-8 space-y-8">
+    <div className="space-y-8">
         {/* Welcome Section - Crime Scene Style */}
       <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
         <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
@@ -279,7 +242,6 @@ export default function StudentDashboard() {
             </p>
           </div>
         )}
-      </div>
       </div>
     </div>
   );

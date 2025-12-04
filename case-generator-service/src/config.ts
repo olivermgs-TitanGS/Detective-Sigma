@@ -49,6 +49,4 @@ export const config = {
     minUniquenessScore: parseFloat(process.env.MIN_UNIQUENESS_SCORE || '0.85'),
   },
 
-  // Logging
-  logLevel: process.env.LOG_LEVEL || 'info',
 };

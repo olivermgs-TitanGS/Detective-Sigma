@@ -1,4 +1,4 @@
-import { CaseFingerprint, Suspect, Puzzle, Scene } from '../../types';
+import { CaseFingerprint, Suspect, Puzzle, Scene } from '../types';
 import { StoryOutput } from '../generators/story';
 import { createGeneratorLogger } from '../utils/logger';
 import crypto from 'crypto';

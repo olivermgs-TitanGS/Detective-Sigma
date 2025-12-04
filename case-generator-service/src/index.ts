@@ -7,7 +7,7 @@ import { closeQueue } from './queue';
 import { logger } from './utils/logger';
 
 const fastify = Fastify({
-  logger: logger,
+  logger: logger as any,
 });
 
 // Register plugins
@@ -57,7 +57,5 @@ const start = async () => {
     process.exit(1);
   }
 };
-
-start();
 
 start();

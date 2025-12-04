@@ -8,9 +8,19 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const caseId = searchParams.get('caseId');
 
-    // Get top users by total score
+    // Build progress filter - only count SOLVED cases
+    const progressFilter: any = { status: 'SOLVED' };
+    if (caseId) {
+      progressFilter.caseId = caseId;
+    }
+
+    // Get users who have at least one solved case
     const leaderboard = await prisma.user.findMany({
-      take: limit,
+      where: {
+        progress: {
+          some: progressFilter,
+        },
+      },
       select: {
         id: true,
         username: true,
@@ -20,42 +30,35 @@ export async function GET(request: Request) {
           },
         },
         progress: {
-          where: caseId ? { caseId } : {},
+          where: progressFilter,
           select: {
             score: true,
-            case: {
-              select: {
-                title: true,
-              },
-            },
+            status: true,
           },
         },
       },
-      orderBy: {
-        progress: {
-          _count: 'desc',
-        },
-      },
     });
 
-    // Calculate total scores
-    const leaderboardWithScores = leaderboard.map((user, index) => {
-      const totalScore = user.progress.reduce((sum, p) => sum + (p.score || 0), 0);
-      const casesSolved = user.progress.filter(p => p.score > 0).length;
+    // Calculate total scores and sort
+    const leaderboardWithScores = leaderboard
+      .map((user) => {
+        const solvedProgress = user.progress.filter(p => p.status === 'SOLVED');
+        const totalScore = solvedProgress.reduce((sum, p) => sum + (p.score || 0), 0);
+        const casesSolved = solvedProgress.length;
 
-      return {
-        rank: index + 1,
-        username: user.username,
-        gradeLevel: user.studentProfile?.gradeLevel || 'N/A',
-        totalScore,
-        casesSolved,
-      };
-    });
+        return {
+          rank: 0,
+          username: user.username,
+          gradeLevel: user.studentProfile?.gradeLevel || 'N/A',
+          totalScore,
+          casesSolved,
+        };
+      })
+      .filter(entry => entry.totalScore > 0) // Only show users with points
+      .sort((a, b) => b.totalScore - a.totalScore) // Sort by score descending
+      .slice(0, limit); // Apply limit after sorting
 
-    // Sort by total score
-    leaderboardWithScores.sort((a, b) => b.totalScore - a.totalScore);
-
-    // Update ranks after sorting
+    // Assign ranks after sorting
     leaderboardWithScores.forEach((entry, index) => {
       entry.rank = index + 1;
     });

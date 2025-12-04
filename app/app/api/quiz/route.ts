@@ -73,7 +73,10 @@ export async function POST(request: Request) {
   try {
     const session = await auth();
 
+    console.log('[Quiz Submit] Session:', session?.user?.id ? `User ${session.user.id}` : 'NO SESSION');
+
     if (!session?.user?.id) {
+      console.log('[Quiz Submit] FAILED: No authenticated user');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -82,6 +85,8 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { caseId, answers } = body;
+
+    console.log('[Quiz Submit] CaseId:', caseId, 'Answers:', Object.keys(answers || {}).length);
 
     if (!caseId || !answers) {
       return NextResponse.json(
@@ -139,7 +144,7 @@ export async function POST(request: Request) {
 
     // Update progress to SOLVED
     const now = new Date();
-    await prisma.progress.upsert({
+    const updatedProgress = await prisma.progress.upsert({
       where: {
         userId_caseId: {
           userId: session.user.id,
@@ -159,6 +164,14 @@ export async function POST(request: Request) {
         startedAt: now,
         completedAt: now,
       },
+    });
+
+    console.log('[Quiz Submit] SUCCESS - Progress saved:', {
+      progressId: updatedProgress.id,
+      userId: session.user.id,
+      caseId: caseId,
+      status: updatedProgress.status,
+      score: updatedProgress.score,
     });
 
     // Determine feedback based on score

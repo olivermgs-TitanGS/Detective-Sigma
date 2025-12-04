@@ -1,4 +1,4 @@
-import { GeneratedCase, GenerationRequest } from '../../types';
+import { GeneratedCase, GenerationRequest, Suspect, Puzzle, Clue } from '../types';
 import { createGeneratorLogger } from '../utils/logger';
 import { checkUniqueness } from './uniqueness';
 import { config } from '../config';
@@ -35,7 +35,7 @@ export async function validateQuality(
   if (generatedCase.suspects.length < 2) {
     errors.push('Must have at least 2 suspects');
   }
-  const guiltyCount = generatedCase.suspects.filter((s) => s.isGuilty).length;
+  const guiltyCount = generatedCase.suspects.filter((s: Suspect) => s.isGuilty).length;
   if (guiltyCount !== 1) {
     errors.push(`Must have exactly 1 guilty suspect (found ${guiltyCount})`);
   }
@@ -44,14 +44,14 @@ export async function validateQuality(
   if (generatedCase.puzzles.length < 3) {
     errors.push('Must have at least 3 puzzles');
   }
-  generatedCase.puzzles.forEach((puzzle) => {
+  generatedCase.puzzles.forEach((puzzle: Puzzle) => {
     if (!puzzle.question || !puzzle.answer) {
       errors.push(`Puzzle ${puzzle.id} missing question or answer`);
     }
   });
 
   // 4. Validate clues
-  const criticalClues = generatedCase.clues.filter((c) => c.relevance === 'critical');
+  const criticalClues = generatedCase.clues.filter((c: Clue) => c.relevance === 'critical');
   if (criticalClues.length < 2) {
     warnings.push('Should have at least 2 critical clues');
   }
