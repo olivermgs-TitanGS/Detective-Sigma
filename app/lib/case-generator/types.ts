@@ -32,6 +32,28 @@ export type Subject = z.infer<typeof SubjectEnum>;
 export type GradeLevel = z.infer<typeof GradeLevelEnum>;
 export type PuzzleComplexity = z.infer<typeof PuzzleComplexityEnum>;
 
+// Image generation request interface
+export interface ImageRequest {
+  id: string;
+  type: 'scene' | 'suspect' | 'evidence' | 'clue' | 'puzzle' | 'cover';
+  prompt: string;
+  negativePrompt: string;
+  width: number;
+  height: number;
+  settings: {
+    model: string;
+    sampler: string;
+    steps: number;
+    cfgScale: number;
+    seed?: number;
+  };
+  metadata: Record<string, unknown>;
+  // Generated result (filled after image generation)
+  generatedUrl?: string;
+  generatedBase64?: string;
+  status: 'pending' | 'generating' | 'completed' | 'failed';
+}
+
 export interface GeneratedCase {
   caseId: string;
   title: string;
@@ -55,6 +77,13 @@ export interface GeneratedCase {
   clues: Clue[];
   puzzles: Puzzle[];
   scenes: Scene[];
+  // Image generation requests (for Pony Diffusion V6)
+  imageRequests?: {
+    cover: ImageRequest;
+    scenes: ImageRequest[];
+    suspects: ImageRequest[];
+    evidence: ImageRequest[];
+  };
 }
 
 export interface Suspect {
@@ -65,6 +94,11 @@ export interface Suspect {
   personality: string[];
   isGuilty: boolean;
   motive?: string;
+  // Visual representation
+  imageRequest?: ImageRequest;
+  ethnicity?: 'Chinese' | 'Malay' | 'Indian' | 'Eurasian';
+  gender?: 'male' | 'female';
+  ageGroup?: 'young' | 'middle' | 'senior';
 }
 
 export interface Clue {
@@ -74,6 +108,12 @@ export interface Clue {
   type: 'physical' | 'document' | 'testimony' | 'digital';
   relevance: 'critical' | 'supporting' | 'red-herring';
   linkedTo: string[];
+  // Enhanced clue data
+  imageRequest?: ImageRequest;
+  discoveryLocation?: string;
+  examinationDetails?: string[];
+  relatedTopicId?: string;
+  puzzleHint?: string;
 }
 
 export interface Puzzle {
@@ -100,4 +140,14 @@ export interface Scene {
   description: string;
   interactiveElements: string[];
   cluesAvailable: string[];
+  // Enhanced scene data
+  imageRequest?: ImageRequest;
+  locationType?: string;
+  ambiance?: 'day' | 'night' | 'evening' | 'morning';
+  mood?: 'mysterious' | 'tense' | 'calm' | 'urgent';
+  interactiveAreas?: {
+    name: string;
+    position: { x: number; y: number };
+    size: { width: number; height: number };
+  }[];
 }

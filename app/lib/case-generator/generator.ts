@@ -30,6 +30,19 @@ import {
   getRecommendedTopics,
 } from './learning-tracker';
 import { GradeLevel, Subject, getTopicsByGrade, getTopicsBySubject } from './syllabus';
+import {
+  generateAllCaseImageRequests,
+  createSceneImageRequest,
+  createSuspectImageRequest,
+  createCoverImageRequest,
+  CaseImageRequests,
+  ImageGenerationRequest,
+  SuspectPromptParams,
+} from './image-generator';
+import {
+  generateCaseClues,
+  EnhancedClue,
+} from './evidence-generator';
 
 function selectRandom<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
