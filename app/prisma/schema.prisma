@@ -38,10 +38,35 @@ model User {
   teacherProfile TeacherProfile?
   progress Progress[]
   classesEnrolled ClassMembership[]
+  authenticators Authenticator[]
 
   @@index([email])
   @@index([username])
   @@index([role])
+}
+
+// ============= WEBAUTHN / PASSKEYS =============
+
+model Authenticator {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  credentialId String @unique
+  credentialPublicKey Bytes
+  counter BigInt
+  credentialDeviceType String
+  credentialBackedUp Boolean
+  transports String? // Comma-separated list of transports
+
+  // Device info for user management
+  deviceName String?
+  lastUsedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([credentialId])
 }
 
 model StudentProfile {
