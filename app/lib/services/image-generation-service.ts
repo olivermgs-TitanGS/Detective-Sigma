@@ -1,7 +1,7 @@
 /**
  * IMAGE GENERATION SERVICE
  *
- * Connects to ComfyUI or Automatic1111 (Stable Diffusion WebUI)
+ * Connects to ComfyUI, Automatic1111 (Stable Diffusion WebUI), or Replicate (cloud)
  * to generate images from prompts created by the case generator.
  */
 
@@ -11,7 +11,7 @@ import { ImageGenerationRequest, toAutomatic1111Format, toComfyUIWorkflow } from
 // TYPES
 // ============================================
 
-export type ImageGenerationBackend = 'comfyui' | 'automatic1111';
+export type ImageGenerationBackend = 'comfyui' | 'automatic1111' | 'huggingface';
 
 export interface ImageGenerationConfig {
   backend: ImageGenerationBackend;
@@ -41,8 +41,8 @@ export interface BatchGenerationResult {
 // ============================================
 
 const defaultConfig: ImageGenerationConfig = {
-  backend: 'automatic1111',
-  baseUrl: process.env.IMAGE_GEN_URL || 'http://localhost:7860',
+  backend: 'comfyui',
+  baseUrl: process.env.IMAGE_GEN_URL || 'http://localhost:8188',
   timeout: 120000, // 2 minutes per image
 };
 
@@ -254,6 +254,83 @@ async function pollComfyUICompletion(
 }
 
 // ============================================
+// HUGGING FACE INFERENCE API (FREE TIER)
+// ============================================
+
+async function generateWithHuggingFace(
+  request: ImageGenerationRequest,
+  config: ImageGenerationConfig
+): Promise<GeneratedImageResult> {
+  const startTime = Date.now();
+
+  try {
+    // Use Stable Diffusion XL model (free on HF)
+    const modelId = 'stabilityai/stable-diffusion-xl-base-1.0';
+    const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
+
+    // Simplify prompt for HF (remove Pony-specific tags)
+    let cleanPrompt = request.prompt
+      .replace(/score_\d+,?\s*/gi, '')
+      .replace(/score_\d+_up,?\s*/gi, '')
+      .trim();
+
+    // Add quality keywords
+    cleanPrompt = `high quality, detailed, ${cleanPrompt}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: cleanPrompt,
+        parameters: {
+          negative_prompt: request.negativePrompt?.replace(/score_\d+,?\s*/gi, '') || 'low quality, blurry',
+          width: Math.min(request.width, 1024),
+          height: Math.min(request.height, 1024),
+          num_inference_steps: 25,
+          guidance_scale: 7.5,
+        },
+        options: {
+          wait_for_model: true,
+        },
+      }),
+      signal: AbortSignal.timeout(config.timeout || 120000),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      // Handle model loading (HF returns 503 while loading)
+      if (response.status === 503) {
+        throw new Error('Model is loading, please try again in a few seconds');
+      }
+
+      throw new Error(`Hugging Face API error: ${response.status} - ${errorText}`);
+    }
+
+    // HF returns raw image bytes
+    const imageBuffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(imageBuffer).toString('base64');
+
+    return {
+      success: true,
+      requestId: request.id,
+      imageBase64: base64Image,
+      generationTime: Date.now() - startTime,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      requestId: request.id,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      generationTime: Date.now() - startTime,
+    };
+  }
+}
+
+// ============================================
 // MAIN SERVICE CLASS
 // ============================================
 
@@ -269,16 +346,31 @@ export class ImageGenerationService {
    */
   async checkHealth(): Promise<{ available: boolean; backend: string; error?: string }> {
     try {
-      const endpoint = this.config.backend === 'comfyui'
-        ? `${this.config.baseUrl}/system_stats`
-        : `${this.config.baseUrl}/sdapi/v1/sd-models`;
+      let endpoint: string;
+      let headers: Record<string, string> = {};
+
+      if (this.config.backend === 'comfyui') {
+        endpoint = `${this.config.baseUrl}/system_stats`;
+      } else if (this.config.backend === 'huggingface') {
+        // Check HF API with a simple model info request
+        endpoint = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0';
+        if (this.config.apiKey) {
+          headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+        }
+      } else {
+        endpoint = `${this.config.baseUrl}/sdapi/v1/sd-models`;
+      }
 
       const response = await fetch(endpoint, {
-        signal: AbortSignal.timeout(5000),
+        headers,
+        signal: AbortSignal.timeout(10000),
       });
 
+      // For HF, 503 means model is loading (still available, just slow)
+      const isAvailable = response.ok || (this.config.backend === 'huggingface' && response.status === 503);
+
       return {
-        available: response.ok,
+        available: isAvailable,
         backend: this.config.backend,
       };
     } catch (error) {
@@ -296,6 +388,8 @@ export class ImageGenerationService {
   async generateImage(request: ImageGenerationRequest): Promise<GeneratedImageResult> {
     if (this.config.backend === 'comfyui') {
       return generateWithComfyUI(request, this.config);
+    } else if (this.config.backend === 'huggingface') {
+      return generateWithHuggingFace(request, this.config);
     } else {
       return generateWithAutomatic1111(request, this.config);
     }

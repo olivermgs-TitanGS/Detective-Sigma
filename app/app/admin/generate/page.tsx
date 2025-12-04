@@ -109,9 +109,21 @@ export default function GenerateCasePage() {
 
       const data = await response.json();
       setGeneratedCase(data.case);
-      // Auto-start image generation
+      // Check if image generation is available before auto-starting
       if (data.case) {
-        generateImagesForCase(data.case);
+        try {
+          const healthCheck = await fetch('/api/generate-image');
+          const health = await healthCheck.json();
+          if (health.status === 'online') {
+            generateImagesForCase(data.case);
+          } else {
+            console.log('[INFO] Image generation unavailable - using placeholders');
+            setImageGenError('Image generation unavailable (ComfyUI not connected). Click "Generate Images" when ready.');
+          }
+        } catch {
+          console.log('[INFO] Image generation service not reachable');
+          setImageGenError('Image generation unavailable. Run ComfyUI locally and click "Generate Images".');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -272,7 +284,8 @@ export default function GenerateCasePage() {
       return {
         race: 'Indian',
         ethnicity: 'Indian Singaporean',
-        skinTone: 'beautiful natural South Asian Indian skin tone, medium to dark brown complexion, realistic healthy human skin, dignified appearance',
+        // CRITICAL: Indian skin must be BROWN - NOT fair/light
+        skinTone: 'dark brown Indian skin, rich brown complexion, deep brown skin tone, South Asian brown skin color, NOT fair skin NOT light skin NOT pale skin, realistic healthy brown human skin, dignified appearance',
         features: 'elegant South Asian Indian facial features, natural dark brown or black eyes, black hair, respectful portrayal'
       };
     }
@@ -413,11 +426,43 @@ export default function GenerateCasePage() {
           promptParts.push(personInfo.religiousAttire);
         }
 
-        // Role context
-        promptParts.push(suspect.role, expression);
+        // Role context - INCLUDE JOB/OCCUPATION for accurate portrayal
+        // Extract occupation keywords from role
+        const roleKeywords = suspect.role.toLowerCase();
+        let occupationClothing = 'professional business attire';
 
-        // Photography style
+        if (/teacher|educator|professor/i.test(roleKeywords)) {
+          occupationClothing = 'teacher wearing professional work attire, formal shirt';
+        } else if (/doctor|nurse|medical/i.test(roleKeywords)) {
+          occupationClothing = 'medical professional wearing white coat, doctor attire';
+        } else if (/engineer|technician/i.test(roleKeywords)) {
+          occupationClothing = 'engineer wearing smart casual work clothes';
+        } else if (/chef|cook|kitchen/i.test(roleKeywords)) {
+          occupationClothing = 'chef wearing white chef uniform, chef hat';
+        } else if (/police|officer|security/i.test(roleKeywords)) {
+          occupationClothing = 'security officer wearing uniform';
+        } else if (/student|pupil/i.test(roleKeywords)) {
+          occupationClothing = 'student wearing school uniform, neat appearance';
+        } else if (/business|manager|executive|ceo/i.test(roleKeywords)) {
+          occupationClothing = 'business professional wearing formal suit and tie';
+        } else if (/worker|labor|construction/i.test(roleKeywords)) {
+          occupationClothing = 'worker wearing work clothes, safety vest';
+        } else if (/shopkeeper|vendor|seller/i.test(roleKeywords)) {
+          occupationClothing = 'shopkeeper wearing casual work clothes, apron';
+        } else if (/cleaner|janitor/i.test(roleKeywords)) {
+          occupationClothing = 'cleaner wearing work uniform';
+        } else if (/driver|taxi|delivery/i.test(roleKeywords)) {
+          occupationClothing = 'driver wearing casual work shirt';
+        } else if (/waiter|waitress|server/i.test(roleKeywords)) {
+          occupationClothing = 'waiter wearing restaurant uniform, bow tie';
+        }
+
+        promptParts.push(suspect.role, expression, occupationClothing);
+
+        // Photography style - CRITICAL: FULLY CLOTHED for children's app
         promptParts.push(
+          // MANDATORY: Fully clothed - CHILDREN'S APP
+          'FULLY CLOTHED', 'wearing complete outfit', 'modest clothing', 'appropriate attire',
           'professional ID photo', 'passport photo style',
           'front facing', 'looking at camera',
           'neutral expression', 'natural pose',
@@ -435,7 +480,22 @@ export default function GenerateCasePage() {
 
         // ULTRA-strong negative prompt - MUST block ALL fantasy/anime/unnatural elements
         // CRITICAL: Skin color accuracy is NON-NEGOTIABLE for Singapore context
+        // CRITICAL: ZERO TOLERANCE FOR NUDITY - THIS IS A CHILDREN'S EDUCATIONAL APP
         const negativePromptParts = [
+          // =========================================================
+          // ABSOLUTE PRIORITY #1: BLOCK ALL NSFW/NUDITY - CHILDREN'S APP
+          // =========================================================
+          'NSFW', 'nude', 'naked', 'nudity', 'bare skin', 'exposed skin',
+          'topless', 'shirtless', 'no clothes', 'no shirt', 'no pants',
+          'underwear', 'lingerie', 'bikini', 'swimsuit', 'bra', 'panties',
+          'cleavage', 'breasts', 'chest exposed', 'midriff', 'belly button',
+          'revealing clothes', 'skimpy outfit', 'tight clothes', 'low cut',
+          'suggestive', 'seductive', 'sexy', 'erotic', 'adult content',
+          'inappropriate', 'explicit', 'mature content', 'adult only',
+          'bedroom', 'bed scene', 'intimate', 'sensual',
+          'skin showing', 'bare shoulders', 'bare legs', 'bare arms',
+          'see through', 'transparent clothing', 'wet clothes',
+          // =========================================================
           // Quality
           'score_6, score_5, score_4, score_3',
           'worst quality, low quality, blurry, jpeg artifacts',
@@ -450,12 +510,13 @@ export default function GenerateCasePage() {
           // BLOCK UNNATURAL SKIN - ABSOLUTE PRIORITY - NO FANTASY COLORS
           'blue skin, green skin, purple skin, red skin, pink skin, orange skin, yellow skin',
           'grey skin, gray skin, silver skin, gold skin, metallic skin',
-          'white skin, pale white skin, snow white skin, albino',
           'unnatural skin color, fantasy skin color, wrong skin color',
           'alien skin, zombie skin, undead skin, corpse skin, dead skin',
           'glowing skin, luminous skin, shiny skin, reflective skin',
           'plastic skin, waxy skin, doll skin, mannequin skin, artificial skin',
           'painted skin, colored skin, tinted skin, dyed skin',
+          // BLOCK WRONG SKIN TONE FOR INDIANS - must be brown not fair
+          'fair Indian skin, light Indian skin, pale Indian skin, white Indian',
           // BLOCK NON-HUMAN
           'alien, extraterrestrial, monster, creature, demon, devil, angel',
           'elf, orc, dwarf, goblin, fairy, vampire, werewolf, zombie, ghost, spirit',
@@ -471,7 +532,6 @@ export default function GenerateCasePage() {
           'oversaturated, overexposed, underexposed, high contrast, low contrast',
           'watermark, text, logo, signature, border, frame, username',
           'multiple people, crowd, group, two people, three people',
-          'nsfw, nude, inappropriate, explicit',
           // BLOCK DISRESPECTFUL/OFFENSIVE CONTENT - ZERO TOLERANCE
           'caricature, stereotypical, mocking, offensive, disrespectful',
           'ugly portrayal, unflattering, degrading, humiliating',

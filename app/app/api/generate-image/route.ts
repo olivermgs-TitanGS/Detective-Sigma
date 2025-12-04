@@ -68,11 +68,16 @@ export async function POST(request: NextRequest) {
     // Check if service is available
     const health = await service.checkHealth();
     if (!health.available) {
+      const suggestion = health.backend === 'huggingface'
+        ? 'Check your HUGGING_FACE_API_KEY (IMAGE_GEN_API_KEY) in environment variables'
+        : 'Make sure ComfyUI or Automatic1111 is running locally';
+
       return NextResponse.json(
         {
           error: 'Image generation service unavailable',
           details: health.error,
-          suggestion: 'Make sure ComfyUI or Automatic1111 is running',
+          backend: health.backend,
+          suggestion,
         },
         { status: 503 }
       );
