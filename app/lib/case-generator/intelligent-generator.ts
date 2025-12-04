@@ -75,6 +75,13 @@ import {
   WeatherContext,
 } from './data/contexts';
 
+import {
+  getStoryForGrade,
+  buildFullNarrative,
+  generateCharacterStory,
+  StoryTemplate,
+} from './data/stories';
+
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
@@ -954,16 +961,135 @@ export async function generateIntelligentCase(request: GenerationRequest): Promi
     motive: c.motive,
   }));
 
-  // 10. Build story summary
+  // 10. Build detailed story using story templates
+  const storyTemplate = getStoryForGrade(gradeLevel as 'P4' | 'P5' | 'P6');
+
+  // Build narrative variables
+  const storyVars: Record<string, string> = {
+    class: `Class ${gradeLevel.replace('P', '')}${pickRandom(['A', 'B', 'C', 'D'])}`,
+    event: pickRandom(['Sports Day', 'the school concert', 'the graduation ceremony', 'Founders\' Day', 'the inter-school competition']),
+    items: pickRandom(['snacks and drinks', 'handmade crafts', 'second-hand books', 'baked goods', 'artwork']),
+    activity: pickRandom(['a mini carnival', 'a talent show', 'a food fair', 'game booths', 'a charity sale']),
+    amount: String(random(200, 800)),
+    stolen: String(seed.crimeValue || random(50, 300)),
+    day: seed.dayOfWeek,
+    discoverer: characters[0].name,
+    teacher: pickRandom(['Mrs. Tan', 'Mr. Lim', 'Ms. Chen', 'Mr. Kumar', 'Mrs. Hassan']),
+    location: seed.location.name,
+    container: pickRandom(['the cash box', 'the collection tin', 'the safe', 'the drawer']),
+    count: String(suspectCount),
+    time1: seed.timeContext.name.toLowerCase(),
+    time2: pickRandom(['the next morning', '6pm', '8am', 'noon']),
+    culprit: guiltyCharacter.name,
+    motive: guiltyCharacter.motive || 'personal reasons',
+    revelation: pickRandom([
+      `${guiltyCharacter.name} had been under a lot of pressure`,
+      'the situation was more complicated than it first appeared',
+      'there were circumstances no one knew about',
+    ]),
+    confession: pickRandom([
+      'everything',
+      'the whole truth',
+      'what really happened',
+    ]),
+    student: characters.find(c => c.role.includes('Student'))?.name || characters[0].name,
+    topic: pickRandom(['renewable energy', 'plant growth', 'water filtration', 'solar power', 'recycling']),
+    damage: pickRandom([
+      'The display board was torn apart',
+      'Chemicals had been spilled everywhere',
+      'Key components were missing',
+      'The experiment had been tampered with',
+    ]),
+    evidence: pickRandom(['a torn piece of fabric', 'fingerprints', 'footprints', 'a dropped item']),
+    mascot_name: pickRandom(['Siggy', 'Leo', 'Rex', 'Max', 'Lucky']),
+    animal: pickRandom(['Lion', 'Tiger', 'Eagle', 'Dragon', 'Dolphin']),
+    years: String(random(5, 20)),
+    generations: String(random(2, 4)),
+    stallowner: characters[0].name,
+    dish: pickRandom(['chicken rice', 'laksa', 'char kway teow', 'prawn noodles', 'fish soup']),
+    stallname: `${pickRandom(['Ah', 'Uncle', 'Auntie'])} ${pickRandom(['Tan', 'Lim', 'Lee', 'Ahmad'])}'s Stall`,
+    ingredient: pickRandom(['a secret spice blend', 'a special sauce', 'grandmother\'s recipe', 'a unique cooking technique']),
+    length: pickRandom(['30 meters', 'an hour', '50 people']),
+  };
+
+  const narrative = buildFullNarrative(storyTemplate, storyVars);
+
+  // Generate detailed character backstories
+  const detailedSuspects = characters.map((c, i) => {
+    const charType = c.role.toLowerCase().includes('teacher') ? 'teacher'
+      : c.role.toLowerCase().includes('student') || c.role.toLowerCase().includes('helper') ? 'student'
+      : c.role.toLowerCase().includes('parent') ? 'parent'
+      : 'staff';
+
+    const charStory = generateCharacterStory(charType, c.name, {
+      trait1: c.personality[0],
+      trait2: c.personality[1],
+      years: String(random(1, 10)),
+      reputation: pickRandom(['quiet one', 'class clown', 'overachiever', 'sports star', 'artistic one']),
+      skill: pickRandom(['mathematics', 'art', 'sports', 'music', 'science']),
+      subject: pickRandom(['Math', 'Science', 'English', 'Art', 'PE']),
+      activity: pickRandom(['basketball', 'choir', 'robotics club', 'art club', 'student council']),
+      teacher: pickRandom(['Mrs. Tan', 'Mr. Lim', 'Ms. Chen']),
+      task: pickRandom(['organizing files', 'preparing materials', 'cleaning up']),
+      time: pickRandom(['5pm', '6pm', '4:30pm', '5:30pm']),
+      reason: pickRandom(['a family appointment', 'not feeling well', 'CCA practice']),
+      project: pickRandom(['a group project', 'homework', 'extra practice']),
+      location: pickRandom(['the library', 'the classroom', 'the lab']),
+      worry: pickRandom(['their grades', 'a friend in trouble', 'family problems']),
+      expectation: pickRandom(['perfect grades', 'winning the competition', 'being the best']),
+      pressure_source: pickRandom(['parents', 'friends', 'teachers', 'themselves']),
+      other_character: characters[(i + 1) % characters.length].name,
+      profession: pickRandom(['an engineer', 'a doctor', 'a business owner', 'a teacher']),
+      trait: pickRandom(['very supportive', 'sometimes overprotective', 'ambitious', 'caring']),
+      contribution: pickRandom(['volunteering', 'donations', 'organizing events']),
+      position: pickRandom(['security guard', 'janitor', 'canteen helper', 'office assistant']),
+      superior: pickRandom(['the principal', 'the operations manager', 'the admin head']),
+      colleague: characters[(i + 1) % characters.length].name,
+      building: pickRandom(['Block A', 'the main building', 'the sports complex']),
+      situation: pickRandom(['a complaint', 'an emergency', 'a request']),
+      issue: pickRandom(['maintenance', 'schedules', 'security']),
+    });
+
+    return {
+      id: c.id,
+      name: c.name,
+      role: c.role,
+      alibi: c.isGuilty ? c.alibi : charStory.alibi,
+      personality: c.personality,
+      isGuilty: c.isGuilty,
+      motive: c.motive,
+      background: charStory.background,
+      secret: c.isGuilty ? charStory.secret : undefined,
+    };
+  });
+
   const crimeDescription = seed.crimeValue > 0
     ? `${seed.crime.name} - ${seed.crime.description} Value: $${seed.crimeValue}`
     : `${seed.crime.name} - ${seed.crime.description}`;
 
-  // 11. Return complete case
+  // Build the detailed briefing with story narrative
+  const detailedBriefing = `${briefing}
+
+---
+THE STORY
+---
+
+${narrative.introduction}
+
+${narrative.climax}
+
+YOUR INVESTIGATION BEGINS...
+
+${narrative.risingAction.slice(0, 3).join('\n\n')}
+
+Can you piece together the clues, interview the suspects, and solve the puzzles to uncover the truth?
+  `.trim();
+
+  // 11. Return complete case with detailed story
   return {
     caseId,
-    title,
-    briefing,
+    title: storyTemplate.title || title,
+    briefing: detailedBriefing,
     metadata: {
       difficulty,
       gradeLevel,
@@ -974,9 +1100,13 @@ export async function generateIntelligentCase(request: GenerationRequest): Promi
     story: {
       setting: `${seed.location.name}, ${seed.location.area}`,
       crime: crimeDescription,
-      resolution: `Through careful analysis of the evidence and solving the puzzles, you discovered that ${guiltyCharacter.name} (${guiltyCharacter.role}) was responsible. ${guiltyCharacter.motive ? `They did it because they ${guiltyCharacter.motive}.` : ''}`,
+      backstory: narrative.introduction,
+      incident: narrative.climax,
+      investigationHints: narrative.risingAction,
+      resolution: narrative.resolution.replace('{culprit}', guiltyCharacter.name).replace('{motive}', guiltyCharacter.motive || 'personal reasons'),
+      twist: pickRandom(storyTemplate.twistOptions || []),
     },
-    suspects,
+    suspects: detailedSuspects,
     clues,
     puzzles,
     scenes,

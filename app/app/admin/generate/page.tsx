@@ -30,6 +30,19 @@ interface GeneratedCase {
     alibi: string;
     isGuilty: boolean;
   }>;
+  scenes: Array<{
+    id: string;
+    name: string;
+    description: string;
+    locationType?: string;
+  }>;
+  clues: Array<{
+    id: string;
+    title: string;
+    description: string;
+    type: 'physical' | 'document' | 'testimony' | 'digital';
+    relevance: 'critical' | 'supporting' | 'red-herring';
+  }>;
   puzzles: Array<{
     id: string;
     title: string;
@@ -42,7 +55,8 @@ interface GeneratedCase {
 interface GeneratedImages {
   cover?: string;
   suspects: Record<string, string>;
-  scenes: string[];
+  scenes: Record<string, string>;
+  clues: Record<string, string>;
 }
 
 interface ImageGenProgress {
@@ -64,7 +78,7 @@ export default function GenerateCasePage() {
 
   // Image generation state
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImages>({ suspects: {}, scenes: [] });
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImages>({ suspects: {}, scenes: {}, clues: {} });
   const [imageGenProgress, setImageGenProgress] = useState<ImageGenProgress | null>(null);
   const [imageGenError, setImageGenError] = useState<string | null>(null);
 
@@ -74,7 +88,7 @@ export default function GenerateCasePage() {
     setGeneratedCase(null);
     setSavedCaseId(null);
     // Reset images when generating new case
-    setGeneratedImages({ suspects: {}, scenes: [] });
+    setGeneratedImages({ suspects: {}, scenes: {}, clues: {} });
     setImageGenError(null);
 
     try {
@@ -95,6 +109,10 @@ export default function GenerateCasePage() {
 
       const data = await response.json();
       setGeneratedCase(data.case);
+      // Auto-start image generation
+      if (data.case) {
+        generateImagesForCase(data.case);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -128,63 +146,86 @@ export default function GenerateCasePage() {
     }
   };
 
-  // Generate images for the case
-  const handleGenerateImages = async () => {
-    if (!generatedCase) return;
+  // Infer ethnicity from name for Singapore context
+  const inferEthnicity = (name: string) => {
+    if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen)/i.test(name)) return 'East Asian Singaporean Chinese';
+    if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim)/i.test(name)) return 'Southeast Asian Malay';
+    if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu)/i.test(name)) return 'South Asian Indian';
+    return 'Singaporean';
+  };
 
+  // Generate images for a case (called automatically after case generation)
+  const generateImagesForCase = async (caseData: GeneratedCase) => {
     setIsGeneratingImages(true);
     setImageGenError(null);
 
-    const newImages: GeneratedImages = { suspects: {}, scenes: [] };
-    const totalImages = 1 + generatedCase.suspects.length; // Cover + suspects
+    const newImages: GeneratedImages = { suspects: {}, scenes: {}, clues: {} };
+
+    // Count total images: cover + suspects + scenes + clues (excluding testimony type)
+    const cluesWithImages = (caseData.clues || []).filter(c => c.type !== 'testimony');
+    const totalImages = 1 + (caseData.suspects?.length || 0) + (caseData.scenes?.length || 0) + cluesWithImages.length;
 
     try {
       let completed = 0;
 
-      // Generate cover image - use case story setting for context
+      // 1. Generate cover image
       setImageGenProgress({ current: 'Case Cover', completed, total: totalImages });
-      const storyKeywords = generatedCase.story.setting.split(' ').slice(0, 10).join(' ');
+      const storyKeywords = caseData.story.setting.split(' ').slice(0, 10).join(' ');
       const coverResponse = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageRequest: {
-            id: `cover-${generatedCase.caseId}`,
+            id: `cover-${caseData.caseId}`,
             type: 'cover',
-            prompt: `score_9, score_8_up, score_7_up, manila case folder file, detective case file, classified document, confidential folder, red CLASSIFIED stamp, ${storyKeywords}, ${subject === 'MATH' ? 'mathematical equations subtly visible' : subject === 'SCIENCE' ? 'scientific equipment subtly visible' : 'math and science elements'}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, masterpiece, best quality, 8k`,
+            prompt: `score_9, score_8_up, score_7_up, manila case folder file, detective case file, classified document, ${storyKeywords}, ${subject === 'MATH' ? 'mathematical equations' : subject === 'SCIENCE' ? 'scientific equipment' : 'math and science elements'}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, masterpiece, best quality, 8k`,
             negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human',
-            width: 512,
-            height: 512,
+            width: 512, height: 512,
             settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
-            metadata: { caseId: generatedCase.caseId },
+            metadata: { caseId: caseData.caseId },
           },
           saveToPublic: false,
         }),
       });
-
       if (coverResponse.ok) {
-        const coverData = await coverResponse.json();
-        if (coverData.success && coverData.imageUrl) {
-          newImages.cover = coverData.imageUrl;
-        }
+        const data = await coverResponse.json();
+        if (data.success && data.imageUrl) newImages.cover = data.imageUrl;
       }
       completed++;
+      setGeneratedImages({ ...newImages });
 
-      // Generate suspect portraits - use name and role for context
-      for (const suspect of generatedCase.suspects) {
+      // 2. Generate crime scene images
+      for (const scene of (caseData.scenes || [])) {
+        setImageGenProgress({ current: `Scene: ${scene.name}`, completed, total: totalImages });
+        const sceneResponse = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageRequest: {
+              id: `scene-${scene.id}`,
+              type: 'scene',
+              prompt: `score_9, score_8_up, score_7_up, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area, evidence markers visible, forensic lighting, photorealistic, detailed environment, masterpiece, best quality, 8k, architectural photography`,
+              negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human figure',
+              width: 768, height: 512,
+              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+              metadata: { sceneId: scene.id, name: scene.name },
+            },
+            saveToPublic: false,
+          }),
+        });
+        if (sceneResponse.ok) {
+          const data = await sceneResponse.json();
+          if (data.success && data.imageUrl) newImages.scenes[scene.id] = data.imageUrl;
+        }
+        completed++;
+        setGeneratedImages({ ...newImages });
+      }
+
+      // 3. Generate suspect portraits
+      for (const suspect of (caseData.suspects || [])) {
         setImageGenProgress({ current: `Suspect: ${suspect.name}`, completed, total: totalImages });
-
-        // Infer ethnicity from name for Singapore context
-        const inferEthnicity = (name: string) => {
-          if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen)/i.test(name)) return 'East Asian Singaporean Chinese';
-          if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim)/i.test(name)) return 'Southeast Asian Malay';
-          if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu)/i.test(name)) return 'South Asian Indian';
-          return 'Singaporean';
-        };
-
         const ethnicity = inferEthnicity(suspect.name);
         const expression = suspect.isGuilty ? 'slightly nervous expression, avoiding eye contact' : 'calm confident expression';
-
         const suspectResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -192,36 +233,63 @@ export default function GenerateCasePage() {
             imageRequest: {
               id: `suspect-${suspect.id}`,
               type: 'suspect',
-              prompt: `score_9, score_8_up, score_7_up, 1person, solo, portrait, looking at viewer, ${ethnicity} ${suspect.role}, ${expression}, professional headshot, studio lighting, neutral grey background, photorealistic, detailed face, detailed eyes, Singapore setting, masterpiece, best quality, 8k, DSLR photo, 85mm portrait lens`,
+              prompt: `score_9, score_8_up, score_7_up, 1person, solo, portrait, looking at viewer, ${ethnicity} ${suspect.role}, ${expression}, professional headshot, studio lighting, neutral grey background, photorealistic, detailed face, Singapore setting, masterpiece, best quality, 8k, DSLR photo, 85mm portrait lens`,
               negativePrompt: 'score_6, score_5, worst quality, low quality, bad anatomy, bad face, deformed, blurry, watermark, text, multiple people',
-              width: 512,
-              height: 512,
+              width: 512, height: 512,
               settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
-              metadata: { suspectId: suspect.id, name: suspect.name, role: suspect.role },
+              metadata: { suspectId: suspect.id, name: suspect.name },
             },
             saveToPublic: false,
           }),
         });
-
         if (suspectResponse.ok) {
-          const suspectData = await suspectResponse.json();
-          if (suspectData.success && suspectData.imageUrl) {
-            newImages.suspects[suspect.id] = suspectData.imageUrl;
-          }
+          const data = await suspectResponse.json();
+          if (data.success && data.imageUrl) newImages.suspects[suspect.id] = data.imageUrl;
         }
         completed++;
-
-        // Update state progressively so images appear as they're generated
         setGeneratedImages({ ...newImages });
       }
 
-      setGeneratedImages(newImages);
+      // 4. Generate evidence/clue images (skip testimony type)
+      for (const clue of cluesWithImages) {
+        setImageGenProgress({ current: `Evidence: ${clue.title}`, completed, total: totalImages });
+        const clueResponse = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageRequest: {
+              id: `clue-${clue.id}`,
+              type: 'evidence',
+              prompt: `score_9, score_8_up, score_7_up, ${clue.description}, ${clue.type} evidence, forensic evidence photography, evidence marker visible, close-up documentation shot, ${clue.relevance === 'critical' ? 'key evidence highlighted' : ''}, photorealistic, detailed textures, masterpiece, best quality, 8k, macro photography`,
+              negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human hands',
+              width: 512, height: 512,
+              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+              metadata: { clueId: clue.id, title: clue.title },
+            },
+            saveToPublic: false,
+          }),
+        });
+        if (clueResponse.ok) {
+          const data = await clueResponse.json();
+          if (data.success && data.imageUrl) newImages.clues[clue.id] = data.imageUrl;
+        }
+        completed++;
+        setGeneratedImages({ ...newImages });
+      }
+
       setImageGenProgress(null);
     } catch (err) {
       setImageGenError(err instanceof Error ? err.message : 'Image generation failed');
     } finally {
       setIsGeneratingImages(false);
       setImageGenProgress(null);
+    }
+  };
+
+  // Re-generate images button handler
+  const handleGenerateImages = () => {
+    if (generatedCase) {
+      generateImagesForCase(generatedCase);
     }
   };
 
