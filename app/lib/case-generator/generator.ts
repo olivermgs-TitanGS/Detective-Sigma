@@ -58,7 +58,7 @@ Your task is to analyze the evidence, interview suspects, and use your ${subject
 
 Grade Level: ${request.gradeLevel}
 Difficulty: ${difficulty}
-Estimated Time: ${request.constraints?.estimatedMinutes || 45} minutes
+Estimated Time: ${request.constraints?.estimatedMinutes || 25} minutes
   `.trim();
 
   return {
@@ -179,15 +179,16 @@ function generateClues(suspects: Suspect[], clueCount: number = 5): Clue[] {
   return clues.slice(0, clueCount);
 }
 
-// Generate Puzzles
-function generatePuzzles(request: GenerationRequest, puzzleCount: number = 4): Puzzle[] {
+// Generate Puzzles (designed for 20-30 min total solve time)
+function generatePuzzles(request: GenerationRequest, puzzleCount: number = 3): Puzzle[] {
   const { subject, difficulty } = request;
 
-  const difficultyMultiplier: Record<string, number> = {
-    ROOKIE: 1,
-    INSPECTOR: 1.5,
-    DETECTIVE: 2,
-    CHIEF: 2.5,
+  // Points per puzzle (total case = ~50-100 points for 20-30 min)
+  const basePoints: Record<string, number> = {
+    ROOKIE: 15,      // ~30-45 total pts for 2-3 puzzles
+    INSPECTOR: 20,   // ~60 total pts for 3 puzzles
+    DETECTIVE: 25,   // ~75 total pts for 3 puzzles
+    CHIEF: 25,       // ~100 total pts for 4 puzzles
   };
 
   const templates = puzzleTemplates[subject as keyof typeof puzzleTemplates] || puzzleTemplates.INTEGRATED;
@@ -195,7 +196,7 @@ function generatePuzzles(request: GenerationRequest, puzzleCount: number = 4): P
 
   for (let i = 0; i < puzzleCount; i++) {
     const template = templates[i % templates.length];
-    const points = Math.round(20 * (difficultyMultiplier[difficulty] || 1));
+    const points = basePoints[difficulty] || 20;
 
     puzzles.push({
       id: `puzzle-${nanoid(6)}`,
@@ -240,11 +241,22 @@ function generateScenes(story: ReturnType<typeof generateStory>, clues: Clue[]):
 // Main Generator Function
 export async function generateCase(request: GenerationRequest): Promise<GeneratedCase> {
   const caseId = `case-${nanoid(10)}`;
+  const complexity = request.complexity || 'MEDIUM';
 
-  // Determine counts based on difficulty
-  const suspectCount = { ROOKIE: 3, INSPECTOR: 3, DETECTIVE: 4, CHIEF: 4 }[request.difficulty] || 3;
-  const puzzleCount = { ROOKIE: 3, INSPECTOR: 4, DETECTIVE: 5, CHIEF: 6 }[request.difficulty] || 4;
-  const clueCount = { ROOKIE: 4, INSPECTOR: 5, DETECTIVE: 6, CHIEF: 7 }[request.difficulty] || 5;
+  // Determine counts based on complexity (designed for 20-30 min gameplay)
+  // SIMPLE: Fewer puzzles, straightforward - ~20 min
+  // MEDIUM: Standard puzzles - ~25 min
+  // COMPLEX: More puzzles, challenging - ~30 min
+  const complexityCounts = {
+    SIMPLE: { suspects: 3, puzzles: 2, clues: 3 },
+    MEDIUM: { suspects: 3, puzzles: 3, clues: 4 },
+    COMPLEX: { suspects: 4, puzzles: 4, clues: 5 },
+  };
+
+  const counts = complexityCounts[complexity] || complexityCounts.MEDIUM;
+  const suspectCount = counts.suspects;
+  const puzzleCount = counts.puzzles;
+  const clueCount = counts.clues;
 
   // Generate all components
   const story = generateStory(request);
@@ -261,7 +273,7 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
       difficulty: request.difficulty,
       gradeLevel: request.gradeLevel,
       subjectFocus: request.subject,
-      estimatedMinutes: request.constraints?.estimatedMinutes || 45,
+      estimatedMinutes: request.constraints?.estimatedMinutes || 25,
     },
     story: {
       setting: story.setting,

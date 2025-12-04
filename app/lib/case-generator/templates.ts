@@ -239,74 +239,165 @@ export const clueTemplates = {
   ],
 };
 
-// Puzzle Templates by subject
+// Puzzle Templates by subject (designed for P4-P6 students, 5-10 min each)
 export const puzzleTemplates = {
   MATH: [
     {
-      title: 'Calculate Missing Amount',
-      question: 'The cash register started with $200. Sales receipts show $145 collected. The register now has $295. How much money is missing or extra?',
-      answer: '$50 missing (200 + 145 = 345, but register has 295, so 345 - 295 = 50 missing)',
-      hint: 'Calculate what should be in the register, then compare with actual amount.',
+      title: 'The Missing Money Mystery',
+      question: `The canteen's cash register log shows:
+- Opening balance: $150.00
+- Chicken rice sold: 45 plates at $3.50 each
+- Noodles sold: 32 bowls at $4.00 each
+- Drinks sold: 78 cups at $1.50 each
+- Closing balance: $512.50
+
+The manager says $50 is missing. Is the manager correct? Show your working to prove it.`,
+      answer: 'Total sales = (45 × $3.50) + (32 × $4.00) + (78 × $1.50) = $157.50 + $128.00 + $117.00 = $402.50. Expected closing = $150 + $402.50 = $552.50. Actual closing = $512.50. Missing = $552.50 - $512.50 = $40, NOT $50. The manager is wrong - only $40 is missing.',
+      hint: 'Calculate each type of sale separately, then add to opening balance. Compare with actual closing.',
       type: 'math' as const,
     },
     {
-      title: 'Time Analysis',
-      question: 'Receipt A is stamped 9:15 AM, Receipt B at 9:47 AM. How many minutes passed between transactions?',
-      answer: '32 minutes',
-      hint: 'Subtract the start time from the end time.',
+      title: 'Suspect Timeline Puzzle',
+      question: `Three suspects were seen at different times:
+- Mr. Lim: Arrived at 2:45 PM, stayed for 1 hour 35 minutes
+- Ms. Chen: Arrived 25 minutes after Mr. Lim left, stayed for 50 minutes
+- Alex: Left the scene at 5:30 PM after staying for 2 hours 15 minutes
+
+The crime happened between 4:00 PM and 4:30 PM. Which suspect(s) could have committed the crime?`,
+      answer: 'Mr. Lim: 2:45 PM + 1h 35min = Left at 4:20 PM (was there during crime window). Ms. Chen: Mr. Lim left 4:20 PM + 25min = Arrived 4:45 PM (too late). Alex: 5:30 PM - 2h 15min = Arrived 3:15 PM (was there during crime). Both Mr. Lim AND Alex could have committed the crime.',
+      hint: 'Calculate arrival and departure times for each suspect. Check who was present between 4:00-4:30 PM.',
       type: 'math' as const,
     },
     {
-      title: 'Pattern Recognition',
-      question: 'Transactions occurred at 8:15, 8:30, 8:45, 9:00. If the pattern continues, when is the next transaction?',
-      answer: '9:15 AM',
-      hint: 'Look for the time difference between each transaction.',
-      type: 'logic' as const,
+      title: 'The Ratio Riddle',
+      question: `The stolen items were divided among 3 people in the ratio 2:3:5.
+The person with the smallest share got items worth $48.
+How much was the total value of stolen items?
+How much did the person with the largest share receive?`,
+      answer: 'Ratio 2:3:5 means 10 parts total. Smallest share (2 parts) = $48, so 1 part = $24. Total (10 parts) = $240. Largest share (5 parts) = 5 × $24 = $120.',
+      hint: 'Find the value of one "part" first, then calculate the others.',
+      type: 'math' as const,
     },
     {
-      title: 'Price Calculation',
-      question: 'A meal costs $3.50 and a drink costs $1.20. A student paid $10 for 2 meals and 2 drinks. How much change should they receive?',
-      answer: '$0.60 (2 x $3.50 + 2 x $1.20 = $9.40, change = $10 - $9.40 = $0.60)',
-      hint: 'Calculate the total cost first, then subtract from amount paid.',
+      title: 'Percentage Problem',
+      question: `A sports equipment shop reported theft. The stolen items:
+- 15% of basketballs (they had 80 basketballs)
+- 25% of footballs (they had 60 footballs)
+- 40% of badminton rackets (they had 45 rackets)
+
+Each basketball costs $35, football costs $28, and racket costs $42.
+What is the total value of stolen items?`,
+      answer: 'Basketballs: 15% of 80 = 12 balls × $35 = $420. Footballs: 25% of 60 = 15 balls × $28 = $420. Rackets: 40% of 45 = 18 rackets × $42 = $756. Total = $420 + $420 + $756 = $1,596.',
+      hint: 'Find the quantity stolen for each item first (percentage × total), then multiply by price.',
+      type: 'math' as const,
+    },
+    {
+      title: 'Speed and Distance Clue',
+      question: `A witness saw the suspect running away at 12 km/h. The police arrived 15 minutes later.
+Another witness saw someone matching the description at a bus stop.
+The bus stop is 2.5 km from the crime scene.
+Could the suspect have reached the bus stop before police arrived?`,
+      answer: 'Speed = 12 km/h = 12 km per 60 min = 0.2 km per minute. Time to reach bus stop = 2.5 km ÷ 0.2 km/min = 12.5 minutes. Police arrived after 15 minutes. 12.5 < 15, so YES, the suspect could have reached the bus stop 2.5 minutes before police arrived.',
+      hint: 'Convert speed to km per minute. Then calculate time = distance ÷ speed.',
       type: 'math' as const,
     },
   ],
   SCIENCE: [
     {
-      title: 'Fingerprint Analysis',
-      question: 'Three fingerprints were found. Two match suspects. What scientific method would you use to identify the third?',
-      answer: 'Compare ridge patterns, minutiae points, and unique characteristics with known fingerprint samples.',
-      hint: 'Think about how forensic scientists compare fingerprints.',
+      title: 'Footprint Analysis',
+      question: `You found two sets of muddy footprints at the scene:
+- Set A: Deep heel prints, shallow toe prints, stride length 45cm
+- Set B: Even depth throughout, stride length 70cm, slight drag marks
+
+Based on this evidence:
+1. Was person A walking or running? Explain.
+2. Was person B walking or running? Explain.
+3. One person was carrying something heavy. Which one? How do you know?`,
+      answer: '1. Person A was walking - deep heel prints and short stride indicate normal walking pace (heel strikes first). 2. Person B was running - even footprint depth, longer stride, and drag marks suggest running. 3. Person A was carrying something heavy - the VERY deep heel prints indicate extra weight pushing down, while Person B\'s even depth shows normal body weight.',
+      hint: 'Think about how weight is distributed when walking vs running, and how carrying heavy items affects footprints.',
       type: 'observation' as const,
     },
     {
-      title: 'Chemical Test',
-      question: "A white powder was found. What safe tests could identify if it's salt, sugar, or flour?",
-      answer: "Taste test (if safe), dissolve in water (salt and sugar dissolve, flour doesn't), or burn test.",
-      hint: 'Consider the physical and chemical properties of each substance.',
+      title: 'Temperature Timeline',
+      question: `A cup of hot tea was found spilled on the desk. The tea temperature was measured at 42°C when discovered at 3:30 PM.
+Room temperature is 25°C.
+Hot tea starts at 85°C and cools by approximately 15°C every 30 minutes until it reaches room temperature.
+
+Approximately what time was the tea spilled?`,
+      answer: 'Tea cools: 85°C → 70°C (30 min) → 55°C (60 min) → 40°C (90 min). At 42°C, it has cooled about 85-90 minutes. So if found at 3:30 PM, tea was spilled around 2:00 PM (90 minutes earlier).',
+      hint: 'Work backwards from 85°C, subtracting 15°C for every 30 minutes until you get close to 42°C.',
       type: 'deduction' as const,
     },
     {
-      title: 'Light and Shadow',
-      question: 'A shadow was seen at 3 PM facing east. In which direction was the sun?',
-      answer: 'West (shadows point opposite to the light source)',
-      hint: 'Remember that shadows form on the opposite side of the light source.',
+      title: 'Circuit Clue',
+      question: `The alarm system was disabled. The circuit has:
+- A battery (power source)
+- A buzzer (makes sound when current flows)
+- An electromagnet (holds the door closed when ON)
+- A switch
+
+The door was found open and silent.
+The battery is still working (tested).
+What TWO things could the culprit have done to disable the alarm and open the door?`,
+      answer: '1. Opened/broke the switch - this stops current flow, so the electromagnet turns OFF (door can open) and buzzer stays silent. 2. Cut/disconnected the wire - same effect as opening the switch. The buzzer needs current to sound, and the electromagnet needs current to hold the door.',
+      hint: 'Think about what makes a circuit work. Both the buzzer and electromagnet need current flowing through them.',
+      type: 'deduction' as const,
+    },
+    {
+      title: 'Plant Evidence',
+      question: `Muddy shoes were found with plant material stuck to them. Identify which location the suspect visited:
+
+Location A (Sunny garden): Grass with thin leaves, dry soil
+Location B (Shady forest): Ferns, moss, damp soil
+Location C (Pond area): Water lilies, reeds, waterlogged soil
+
+Shoe evidence: Dark wet mud, small round leaf fragments, bits of spongy green material.
+
+Which location did the suspect visit? Explain your reasoning using plant adaptations.`,
+      answer: 'Location B (Shady forest). Evidence: 1) Dark wet mud = damp forest floor. 2) Spongy green material = moss (only grows in shady, damp places). 3) Round leaf fragments could be from ferns. The sunny garden would have dry soil, and pond area would have waterlogged (extremely wet) soil with different plants.',
+      hint: 'Consider where each type of plant grows and what conditions they need.',
       type: 'observation' as const,
     },
   ],
   INTEGRATED: [
     {
-      title: 'Timeline Reconstruction',
-      question: 'Using the receipts, witness statements, and camera timestamps, arrange these 5 events in chronological order.',
-      answer: 'Requires analyzing multiple evidence types to create correct sequence.',
-      hint: 'Look for timestamps and references to other events.',
+      title: 'The Complete Timeline',
+      question: `Reconstruct what happened using ALL the evidence:
+
+CCTV timestamps:
+- 2:15 PM: Mr. Tan enters building
+- 2:45 PM: Power outage (cameras go dark for 20 minutes)
+- 3:05 PM: Cameras back on, Mr. Tan seen leaving
+- 3:12 PM: Ms. Lee enters, discovers theft
+
+Witness statement: "I heard glass breaking around 2:50 PM"
+
+Physical evidence:
+- Broken display case (theft location)
+- Mr. Tan's fingerprints on door handle (not display case)
+- Fresh footprints in dust leading from window to display case
+
+Questions:
+1. Could Mr. Tan have committed the theft? Explain.
+2. How did the real thief likely enter?
+3. When did the theft most likely occur?`,
+      answer: '1. Unlikely - Mr. Tan\'s fingerprints are only on the door (normal entry), not the display case. Footprints lead from the WINDOW, not the door. 2. The real thief entered through the window - footprints lead from window to display case. 3. Around 2:50 PM during the power outage - glass breaking was heard then, cameras were off, giving the thief cover.',
+      hint: 'Match the physical evidence with the timeline. Who had opportunity AND left evidence at the crime scene?',
       type: 'logic' as const,
     },
     {
-      title: 'Deduction Challenge',
-      question: 'Based on alibis and evidence, which suspect had both opportunity and motive?',
-      answer: 'Cross-reference timing, location, and personal motivations.',
-      hint: 'Eliminate suspects who have solid alibis for the time of the incident.',
+      title: 'The Alibi Test',
+      question: `Three suspects, one thief. The theft occurred between 4:00-4:30 PM.
+
+Suspect A claims: "I was at the library. I borrowed 3 books at 3:45 PM and returned them at 4:45 PM. The library is 2 km from the crime scene."
+
+Suspect B claims: "I was jogging in the park from 3:30 PM to 5:00 PM. My fitness app shows I ran 7.5 km at 5 km/h average."
+
+Suspect C claims: "I was watching a 90-minute movie that started at 3:15 PM at the cinema 500m away."
+
+Which alibi has a problem? Show your working.`,
+      answer: 'Suspect B\'s alibi is impossible! At 5 km/h, running 7.5 km would take 7.5÷5 = 1.5 hours = 90 minutes. But they claim to have jogged from 3:30-5:00 PM = 90 minutes... which exactly matches 7.5 km. However, the AVERAGE speed of 5 km/h for continuous jogging is suspiciously slow (that\'s walking pace). More importantly, if they stopped at all during the "jog" (to commit the crime), they couldn\'t cover 7.5 km. Suspect B\'s alibi is suspicious.',
+      hint: 'Check if the math in each alibi adds up. Calculate distances, times, and speeds.',
       type: 'deduction' as const,
     },
   ],

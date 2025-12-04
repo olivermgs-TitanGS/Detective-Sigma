@@ -5,6 +5,7 @@ import { useState } from 'react';
 type Difficulty = 'ROOKIE' | 'INSPECTOR' | 'DETECTIVE' | 'CHIEF';
 type Subject = 'MATH' | 'SCIENCE' | 'INTEGRATED';
 type GradeLevel = 'P4' | 'P5' | 'P6';
+type Complexity = 'SIMPLE' | 'MEDIUM' | 'COMPLEX';
 
 interface GeneratedCase {
   caseId: string;
@@ -41,7 +42,8 @@ export default function GenerateCasePage() {
   const [difficulty, setDifficulty] = useState<Difficulty>('INSPECTOR');
   const [subject, setSubject] = useState<Subject>('MATH');
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>('P5');
-  const [estimatedMinutes, setEstimatedMinutes] = useState(45);
+  const [complexity, setComplexity] = useState<Complexity>('MEDIUM');
+  const [estimatedMinutes, setEstimatedMinutes] = useState(25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCase, setGeneratedCase] = useState<GeneratedCase | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -62,6 +64,7 @@ export default function GenerateCasePage() {
           difficulty,
           subject,
           gradeLevel,
+          complexity,
           constraints: { estimatedMinutes },
         }),
       });
@@ -123,7 +126,7 @@ export default function GenerateCasePage() {
       <div className="bg-black/60 border-2 border-amber-600/50 rounded-lg p-6 space-y-6">
         <h2 className="text-xl font-bold text-amber-400 font-mono">Generation Parameters</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {/* Difficulty */}
           <div>
             <label className="block text-slate-300 font-mono text-sm mb-2">
@@ -173,6 +176,22 @@ export default function GenerateCasePage() {
             </select>
           </div>
 
+          {/* Complexity */}
+          <div>
+            <label className="block text-slate-300 font-mono text-sm mb-2">
+              COMPLEXITY
+            </label>
+            <select
+              value={complexity}
+              onChange={(e) => setComplexity(e.target.value as Complexity)}
+              className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
+            >
+              <option value="SIMPLE">Simple (2-step)</option>
+              <option value="MEDIUM">Medium (3-4 step)</option>
+              <option value="COMPLEX">Complex (5+ step)</option>
+            </select>
+          </div>
+
           {/* Estimated Time */}
           <div>
             <label className="block text-slate-300 font-mono text-sm mb-2">
@@ -180,8 +199,8 @@ export default function GenerateCasePage() {
             </label>
             <input
               type="number"
-              min={15}
-              max={120}
+              min={20}
+              max={30}
               value={estimatedMinutes}
               onChange={(e) => setEstimatedMinutes(parseInt(e.target.value))}
               className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"

@@ -3,15 +3,17 @@ import { z } from 'zod';
 export const DifficultyEnum = z.enum(['ROOKIE', 'INSPECTOR', 'DETECTIVE', 'CHIEF']);
 export const SubjectEnum = z.enum(['MATH', 'SCIENCE', 'INTEGRATED']);
 export const GradeLevelEnum = z.enum(['P4', 'P5', 'P6']);
+export const ComplexityEnum = z.enum(['SIMPLE', 'MEDIUM', 'COMPLEX']);
 
 export const GenerationRequestSchema = z.object({
   difficulty: DifficultyEnum,
   subject: SubjectEnum,
   gradeLevel: GradeLevelEnum,
+  complexity: ComplexityEnum.optional(),
   constraints: z.object({
     excludeThemes: z.array(z.string()).optional(),
     requiredSkills: z.array(z.string()).optional(),
-    estimatedMinutes: z.number().min(15).max(120).optional(),
+    estimatedMinutes: z.number().min(20).max(30).optional(),
   }).optional(),
 });
 
