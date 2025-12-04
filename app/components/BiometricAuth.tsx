@@ -78,7 +78,7 @@ export function BiometricAuth({
         const { options, challengeKey } = await optionsRes.json();
 
         // Start authentication ceremony
-        const credential = await startAuthentication({ optionsJSON: options });
+        const credential = await startAuthentication(options);
 
         // Verify authentication
         const verifyRes = await fetch('/api/auth/webauthn/authenticate/verify', {
