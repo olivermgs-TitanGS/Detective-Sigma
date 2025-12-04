@@ -4,8 +4,8 @@ import { useState } from 'react';
 
 type Difficulty = 'ROOKIE' | 'INSPECTOR' | 'DETECTIVE' | 'CHIEF';
 type Subject = 'MATH' | 'SCIENCE' | 'INTEGRATED';
-type GradeLevel = 'P4' | 'P5' | 'P6';
-type Complexity = 'SIMPLE' | 'MEDIUM' | 'COMPLEX';
+type GradeLevel = 'P4' | 'P5' | 'P6' | 'SECONDARY' | 'ADULT';
+type PuzzleComplexity = 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT';
 
 interface GeneratedCase {
   caseId: string;
@@ -42,7 +42,7 @@ export default function GenerateCasePage() {
   const [difficulty, setDifficulty] = useState<Difficulty>('INSPECTOR');
   const [subject, setSubject] = useState<Subject>('MATH');
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>('P5');
-  const [complexity, setComplexity] = useState<Complexity>('MEDIUM');
+  const [puzzleComplexity, setPuzzleComplexity] = useState<PuzzleComplexity>('STANDARD');
   const [estimatedMinutes, setEstimatedMinutes] = useState(25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCase, setGeneratedCase] = useState<GeneratedCase | null>(null);
@@ -64,7 +64,7 @@ export default function GenerateCasePage() {
           difficulty,
           subject,
           gradeLevel,
-          complexity,
+          puzzleComplexity,
           constraints: { estimatedMinutes },
         }),
       });
@@ -173,22 +173,25 @@ export default function GenerateCasePage() {
               <option value="P4">Primary 4</option>
               <option value="P5">Primary 5</option>
               <option value="P6">Primary 6</option>
+              <option value="SECONDARY">Secondary</option>
+              <option value="ADULT">Adult</option>
             </select>
           </div>
 
-          {/* Complexity */}
+          {/* Puzzle Complexity */}
           <div>
             <label className="block text-slate-300 font-mono text-sm mb-2">
-              COMPLEXITY
+              PUZZLE COMPLEXITY
             </label>
             <select
-              value={complexity}
-              onChange={(e) => setComplexity(e.target.value as Complexity)}
+              value={puzzleComplexity}
+              onChange={(e) => setPuzzleComplexity(e.target.value as PuzzleComplexity)}
               className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
             >
-              <option value="SIMPLE">Simple (2-step)</option>
-              <option value="MEDIUM">Medium (3-4 step)</option>
-              <option value="COMPLEX">Complex (5+ step)</option>
+              <option value="BASIC">Basic (~3 min, 1-2 steps)</option>
+              <option value="STANDARD">Standard (~7 min, 2-4 steps)</option>
+              <option value="CHALLENGING">Challenging (~15 min, data tables)</option>
+              <option value="EXPERT">Expert (~25 min, complex analysis)</option>
             </select>
           </div>
 

@@ -13,6 +13,9 @@ import {
   nameTemplates,
   clueTemplates,
   puzzleTemplates,
+  challengingPuzzles,
+  expertPuzzles,
+  puzzleComplexityConfig,
 } from './templates';
 
 function selectRandom<T>(array: T[]): T {
@@ -179,24 +182,57 @@ function generateClues(suspects: Suspect[], clueCount: number = 5): Clue[] {
   return clues.slice(0, clueCount);
 }
 
-// Generate Puzzles (designed for 20-30 min total solve time)
+// Generate Puzzles based on complexity (designed for 20-30 min total solve time)
 function generatePuzzles(request: GenerationRequest, puzzleCount: number = 3): Puzzle[] {
   const { subject, difficulty } = request;
+  const complexity = request.puzzleComplexity || 'STANDARD';
 
-  // Points per puzzle (total case = ~50-100 points for 20-30 min)
+  // Get complexity configuration
+  const complexityConfig = puzzleComplexityConfig[complexity as keyof typeof puzzleComplexityConfig] || puzzleComplexityConfig.STANDARD;
+
+  // Points per puzzle based on difficulty and complexity
   const basePoints: Record<string, number> = {
-    ROOKIE: 15,      // ~30-45 total pts for 2-3 puzzles
-    INSPECTOR: 20,   // ~60 total pts for 3 puzzles
-    DETECTIVE: 25,   // ~75 total pts for 3 puzzles
-    CHIEF: 25,       // ~100 total pts for 4 puzzles
+    ROOKIE: 15,
+    INSPECTOR: 20,
+    DETECTIVE: 25,
+    CHIEF: 30,
   };
 
-  const templates = puzzleTemplates[subject as keyof typeof puzzleTemplates] || puzzleTemplates.INTEGRATED;
+  // Difficulty multiplier for puzzle selection
+  const difficultyMultiplier: Record<string, number> = {
+    ROOKIE: 1,
+    INSPECTOR: 2,
+    DETECTIVE: 3,
+    CHIEF: 4,
+  };
+
+  // Select puzzle templates based on complexity
+  let templates: Array<{
+    title: string;
+    question: string;
+    answer: string;
+    hint: string;
+    type: 'math' | 'logic' | 'observation' | 'deduction';
+    complexity?: string;
+  }>;
+
+  if (complexity === 'EXPERT') {
+    // Use expert puzzles for EXPERT complexity
+    templates = expertPuzzles[subject as keyof typeof expertPuzzles] || expertPuzzles.INTEGRATED;
+  } else if (complexity === 'CHALLENGING') {
+    // Use challenging puzzles for CHALLENGING complexity
+    templates = challengingPuzzles[subject as keyof typeof challengingPuzzles] || challengingPuzzles.INTEGRATED;
+  } else {
+    // Use standard puzzles for BASIC and STANDARD
+    templates = puzzleTemplates[subject as keyof typeof puzzleTemplates] || puzzleTemplates.INTEGRATED;
+  }
+
   const puzzles: Puzzle[] = [];
+  const shuffledTemplates = shuffleArray([...templates]);
 
   for (let i = 0; i < puzzleCount; i++) {
-    const template = templates[i % templates.length];
-    const points = basePoints[difficulty] || 20;
+    const template = shuffledTemplates[i % shuffledTemplates.length];
+    const points = Math.round((basePoints[difficulty] || 20) * complexityConfig.pointMultiplier);
 
     puzzles.push({
       id: `puzzle-${nanoid(6)}`,
@@ -207,6 +243,9 @@ function generatePuzzles(request: GenerationRequest, puzzleCount: number = 3): P
       hint: template.hint,
       points,
       difficulty: difficultyMultiplier[difficulty] || 1,
+      complexity: complexity as 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT',
+      estimatedMinutes: complexityConfig.estimatedMinutes,
+      requiresMultipleSteps: complexity !== 'BASIC',
     });
   }
 
@@ -241,21 +280,23 @@ function generateScenes(story: ReturnType<typeof generateStory>, clues: Clue[]):
 // Main Generator Function
 export async function generateCase(request: GenerationRequest): Promise<GeneratedCase> {
   const caseId = `case-${nanoid(10)}`;
-  const complexity = request.complexity || 'MEDIUM';
+  const puzzleComplexity = request.puzzleComplexity || 'STANDARD';
 
-  // Determine counts based on complexity (designed for 20-30 min gameplay)
-  // SIMPLE: Fewer puzzles, straightforward - ~20 min
-  // MEDIUM: Standard puzzles - ~25 min
-  // COMPLEX: More puzzles, challenging - ~30 min
-  const complexityCounts = {
-    SIMPLE: { suspects: 3, puzzles: 2, clues: 3 },
-    MEDIUM: { suspects: 3, puzzles: 3, clues: 4 },
-    COMPLEX: { suspects: 4, puzzles: 4, clues: 5 },
+  // Get complexity config for time estimation
+  const complexityConfig = puzzleComplexityConfig[puzzleComplexity as keyof typeof puzzleComplexityConfig] || puzzleComplexityConfig.STANDARD;
+
+  // Determine counts based on puzzle complexity
+  // More complex puzzles = fewer puzzles needed to fill time, but more depth
+  const complexityCounts: Record<string, { suspects: number; puzzles: number; clues: number }> = {
+    BASIC: { suspects: 3, puzzles: 4, clues: 4 },      // Many easy puzzles
+    STANDARD: { suspects: 3, puzzles: 3, clues: 4 },   // Balanced
+    CHALLENGING: { suspects: 4, puzzles: 3, clues: 5 }, // Fewer but harder puzzles
+    EXPERT: { suspects: 4, puzzles: 2, clues: 6 },     // Few very hard puzzles, more clues to analyze
   };
 
-  const counts = complexityCounts[complexity] || complexityCounts.MEDIUM;
+  const counts = complexityCounts[puzzleComplexity] || complexityCounts.STANDARD;
   const suspectCount = counts.suspects;
-  const puzzleCount = counts.puzzles;
+  const puzzleCount = request.constraints?.minPuzzles || counts.puzzles;
   const clueCount = counts.clues;
 
   // Generate all components
@@ -273,7 +314,9 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
       difficulty: request.difficulty,
       gradeLevel: request.gradeLevel,
       subjectFocus: request.subject,
-      estimatedMinutes: request.constraints?.estimatedMinutes || 25,
+      // Calculate estimated time based on puzzle complexity and count
+      estimatedMinutes: request.constraints?.estimatedMinutes || (puzzleCount * complexityConfig.estimatedMinutes),
+      puzzleComplexity: puzzleComplexity,
     },
     story: {
       setting: story.setting,
