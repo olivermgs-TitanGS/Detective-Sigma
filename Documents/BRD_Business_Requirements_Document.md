@@ -790,6 +790,41 @@ An interactive web-based detective game where students:
   - Case duration: 20-40 minutes
   - Mobile-responsive layout
 
+**BR-GC-001A: Case Folder Structure**
+- **Requirement:** Cases are presented as interactive "case folders" that students can open to view contents
+- **Priority:** P0 (Must Have - MVP)
+- **Acceptance Criteria:**
+  - Case list displays as visual folder icons that open/close on click
+  - Each case folder shows case number, title, difficulty, subject, and status
+  - Opening a folder reveals all puzzles and clues contained within
+  - Visual indication of folder state (open folder icon vs closed folder icon)
+  - Smooth animation for folder open/close transitions
+  - Progress indicator showing completed vs total puzzles
+
+**BR-GC-001B: Puzzle-Based Case Structure**
+- **Requirement:** Each case folder contains multiple puzzles and one Master Mystery puzzle
+- **Priority:** P0 (Must Have - MVP)
+- **Acceptance Criteria:**
+  - Cases contain 3-6 individual puzzles per case
+  - Puzzle types include: CLUE (evidence gathering), PUZZLE (problem-solving activities)
+  - Each puzzle has: name, icon, description, type, completion status
+  - CLUE puzzles: Analyze evidence, read witness statements, examine scenes
+  - PUZZLE puzzles: Math problems, calculations, reasoning challenges
+  - Visual distinction between CLUE (blue theme) and PUZZLE (purple theme) types
+  - Numbered progression through puzzles
+
+**BR-GC-001C: Master Mystery Puzzle**
+- **Requirement:** Each case has a final "Master Mystery" puzzle that completes the case
+- **Priority:** P0 (Must Have - MVP)
+- **Acceptance Criteria:**
+  - Master Mystery puzzle is locked until all other puzzles are completed
+  - Master Mystery is visually highlighted (gold/amber theme)
+  - Requires synthesis of all clues and puzzle solutions
+  - Solving the Master Mystery marks the entire case as complete
+  - Master Mystery involves identifying the culprit/solution using gathered evidence
+  - Special reward/points for solving the Master Mystery
+  - Clear "locked" indicator with unlock conditions displayed
+
 **BR-GC-002: Interactive Case Gameplay**
 - **Requirement:** Students can interact with case elements (scenes, clues, witnesses)
 - **Priority:** P0 (Must Have)
@@ -798,6 +833,8 @@ An interactive web-based detective game where students:
   - Read witness dialogues/testimonies
   - Drag-and-drop evidence to organize
   - Navigate between scenes seamlessly
+  - Click on individual puzzles within case folder to start them
+  - Progress saved for each puzzle independently
 
 **BR-GC-003: PSLE-Format Assessment (Math & Science)**
 - **Requirement:** Each case must include subject-specific questions in PSLE format
