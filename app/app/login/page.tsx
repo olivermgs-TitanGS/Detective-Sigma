@@ -19,10 +19,8 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Validate input
       const validatedData = loginSchema.parse({ email, password });
 
-      // Attempt login
       const result = await signIn('credentials', {
         redirect: false,
         email: validatedData.email,
@@ -35,7 +33,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirect based on user role (will be handled by middleware)
       router.push('/student/dashboard');
       router.refresh();
     } catch (err: any) {
@@ -49,100 +46,129 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-[#1a1510]">
-      {/* Sherlock Holmes Background */}
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
+      {/* Dramatic Background with Grid */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `
-            linear-gradient(to bottom, rgba(26, 21, 16, 0.7), rgba(26, 21, 16, 0.9)),
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3Cpattern id='victorian' patternUnits='userSpaceOnUse' width='100' height='100'%3E%3Cpath d='M50 0 L100 50 L50 100 L0 50 Z' fill='none' stroke='%23d4a574' stroke-width='0.5' opacity='0.1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23d4a574' stroke-width='0.3' opacity='0.08'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23victorian)'/%3E%3C/svg%3E")
+          background: `
+            radial-gradient(circle at 50% 50%, rgba(255, 180, 0, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(255, 200, 0, 0.1) 0%, transparent 40%),
+            linear-gradient(180deg, #000000 0%, #0a0a0a 100%)
           `,
-          backgroundSize: 'cover, 200px 200px',
         }}
       />
 
-      {/* Fog/Mist Effect */}
-      <div className="absolute inset-0 z-1 opacity-30">
-        <div className="absolute w-full h-full bg-gradient-to-t from-[#1a1510] via-transparent to-[#1a1510]" />
+      {/* Grid Pattern Overlay */}
+      <div
+        className="absolute inset-0 z-1 opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 200, 0, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 200, 0, 0.3) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+        }}
+      />
+
+      {/* Spotlight Effect */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] z-2"
+        style={{
+          background: 'radial-gradient(ellipse at top, rgba(255, 200, 0, 0.2) 0%, transparent 60%)',
+        }}
+      />
+
+      {/* Decorative Corner Elements */}
+      <div className="absolute top-6 left-6 text-7xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🔍</div>
+      <div className="absolute top-6 right-6 text-6xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🎩</div>
+      <div className="absolute bottom-6 left-6 text-6xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">🕯️</div>
+      <div className="absolute bottom-6 right-6 text-6xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">📜</div>
+
+      {/* Animated Light Beams */}
+      <div className="absolute inset-0 z-3 overflow-hidden pointer-events-none">
         <div
-          className="absolute w-[200%] h-full animate-fog"
+          className="absolute w-1 h-[200%] bg-gradient-to-b from-transparent via-amber-400/20 to-transparent"
           style={{
-            background: 'linear-gradient(90deg, transparent, rgba(200, 180, 160, 0.1), transparent)',
+            left: '20%',
+            animation: 'beam 8s ease-in-out infinite',
+            transform: 'rotate(15deg)',
+          }}
+        />
+        <div
+          className="absolute w-1 h-[200%] bg-gradient-to-b from-transparent via-amber-400/15 to-transparent"
+          style={{
+            right: '25%',
+            animation: 'beam 10s ease-in-out infinite reverse',
+            transform: 'rotate(-10deg)',
           }}
         />
       </div>
 
-      {/* Decorative Elements - Victorian Style */}
-      <div className="absolute top-8 left-8 text-amber-700/30 text-6xl z-10">🔍</div>
-      <div className="absolute top-8 right-8 text-amber-700/30 text-5xl z-10">🎩</div>
-      <div className="absolute bottom-8 left-8 text-amber-700/30 text-5xl z-10">🕯️</div>
-      <div className="absolute bottom-8 right-8 text-amber-700/30 text-5xl z-10">📜</div>
-
-      {/* Pipe Smoke Effect */}
-      <div className="absolute top-1/4 right-1/4 z-5">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 rounded-full bg-gray-400/20 animate-smoke"
-            style={{
-              animationDelay: `${i * 0.5}s`,
-              left: `${i * 10}px`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Login Card - Victorian Study Style */}
+      {/* Login Card */}
       <div className="relative z-30 w-full max-w-md mx-4">
-        {/* Decorative Frame */}
-        <div className="absolute -inset-4 border-2 border-amber-800/30 rounded-sm" />
-        <div className="absolute -inset-2 border border-amber-700/20 rounded-sm" />
+        {/* Glowing Border Effect */}
+        <div
+          className="absolute -inset-1 rounded-lg opacity-75 blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
+          }}
+        />
 
         <div
-          className="relative p-8 backdrop-blur-sm"
+          className="relative p-8 rounded-lg"
           style={{
-            background: 'linear-gradient(135deg, rgba(40, 32, 24, 0.98) 0%, rgba(30, 24, 18, 0.98) 100%)',
-            boxShadow: '0 0 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 215, 0, 0.1)',
-            border: '1px solid rgba(212, 165, 116, 0.3)',
+            background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
+            border: '2px solid #ffd700',
+            boxShadow: '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(0, 0, 0, 0.8)',
           }}
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="mb-4 text-5xl">🔎</div>
+            <div
+              className="mb-4 text-6xl"
+              style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))' }}
+            >
+              🔎
+            </div>
             <h1
-              className="text-3xl font-bold tracking-widest mb-2"
+              className="text-4xl font-black tracking-[0.2em] mb-2"
               style={{
-                fontFamily: "'Times New Roman', serif",
-                color: '#d4a574',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                color: '#ffd700',
+                textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4)',
+                fontFamily: "'Impact', 'Arial Black', sans-serif",
               }}
             >
               DETECTIVE SIGMA
             </h1>
             <p
-              className="text-sm tracking-[0.3em] uppercase"
-              style={{ color: '#8b7355' }}
+              className="text-lg tracking-[0.4em] uppercase font-bold"
+              style={{
+                color: '#ff9500',
+                textShadow: '0 0 10px rgba(255, 149, 0, 0.6)',
+              }}
             >
               221B Baker Street
             </p>
             <div className="mt-4 flex items-center justify-center gap-4">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-700/50" />
-              <span className="text-amber-700/70 text-xs">EST. 2025</span>
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-700/50" />
+              <div className="h-0.5 w-20 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+              <span className="text-amber-400 text-sm font-bold tracking-widest">EST. 2025</span>
+              <div className="h-0.5 w-20 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
             <div
-              className="mb-6 p-4 text-center"
+              className="mb-6 p-4 text-center rounded"
               style={{
-                background: 'rgba(139, 69, 19, 0.2)',
-                border: '1px solid rgba(139, 69, 19, 0.4)',
+                background: 'rgba(220, 38, 38, 0.2)',
+                border: '2px solid #dc2626',
+                boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)',
               }}
             >
-              <p className="text-red-400 text-sm" style={{ fontFamily: "'Times New Roman', serif" }}>
+              <p className="text-red-400 font-bold text-sm tracking-wider">
                 ⚠ {error}
               </p>
             </div>
@@ -153,8 +179,8 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs tracking-widest mb-2 uppercase"
-                style={{ color: '#8b7355' }}
+                className="block text-sm font-bold tracking-[0.2em] mb-2 uppercase"
+                style={{ color: '#ffd700' }}
               >
                 Electronic Mail
               </label>
@@ -163,11 +189,12 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 text-amber-100 placeholder-amber-900/50 focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
                 style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  border: '1px solid rgba(212, 165, 116, 0.3)',
-                  fontFamily: "'Times New Roman', serif",
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  border: '2px solid #ff9500',
+                  color: '#ffffff',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
                 }}
                 placeholder="detective@bakerstreet.com"
                 required
@@ -178,8 +205,8 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs tracking-widest mb-2 uppercase"
-                style={{ color: '#8b7355' }}
+                className="block text-sm font-bold tracking-[0.2em] mb-2 uppercase"
+                style={{ color: '#ffd700' }}
               >
                 Secret Cipher
               </label>
@@ -188,11 +215,12 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 text-amber-100 placeholder-amber-900/50 focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
                 style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  border: '1px solid rgba(212, 165, 116, 0.3)',
-                  fontFamily: "'Times New Roman', serif",
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  border: '2px solid #ff9500',
+                  color: '#ffffff',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
                 }}
                 placeholder="••••••••"
                 required
@@ -203,48 +231,51 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 font-bold tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110"
+              className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
               style={{
-                background: 'linear-gradient(135deg, #8b6914 0%, #6b4f0f 100%)',
-                color: '#1a1510',
-                fontFamily: "'Times New Roman', serif",
-                boxShadow: '0 4px 15px rgba(139, 105, 20, 0.3)',
-                border: '1px solid rgba(212, 165, 116, 0.5)',
+                background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
+                color: '#000000',
+                boxShadow: '0 0 30px rgba(255, 215, 0, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3)',
+                border: '2px solid #ffea00',
+                textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
               }}
             >
-              {isLoading ? 'DEDUCING...' : 'ENTER THE STUDY'}
+              {isLoading ? '🔄 DEDUCING...' : '🔓 ENTER THE STUDY'}
             </button>
           </form>
 
           {/* Register Links */}
-          <div className="mt-8 pt-6" style={{ borderTop: '1px solid rgba(212, 165, 116, 0.2)' }}>
-            <p className="text-center text-xs tracking-widest mb-4 uppercase" style={{ color: '#6b5344' }}>
+          <div className="mt-8 pt-6" style={{ borderTop: '2px solid rgba(255, 215, 0, 0.3)' }}>
+            <p
+              className="text-center text-sm font-bold tracking-[0.2em] mb-4 uppercase"
+              style={{ color: '#ff9500' }}
+            >
               New to the Agency?
             </p>
             <div className="space-y-3">
               <Link
                 href="/register/student"
-                className="block w-full py-3 text-center text-sm tracking-wider transition-all hover:brightness-125"
+                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02]"
                 style={{
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  color: '#d4a574',
-                  border: '1px solid rgba(212, 165, 116, 0.3)',
-                  fontFamily: "'Times New Roman', serif",
+                  background: 'rgba(255, 215, 0, 0.1)',
+                  color: '#ffd700',
+                  border: '2px solid #ffd700',
+                  boxShadow: '0 0 15px rgba(255, 215, 0, 0.2)',
                 }}
               >
-                Register as Student Detective
+                🎓 REGISTER AS STUDENT
               </Link>
               <Link
                 href="/register/teacher"
-                className="block w-full py-3 text-center text-sm tracking-wider transition-all hover:brightness-125"
+                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02]"
                 style={{
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  color: '#8b7355',
-                  border: '1px solid rgba(139, 115, 85, 0.3)',
-                  fontFamily: "'Times New Roman', serif",
+                  background: 'rgba(255, 149, 0, 0.1)',
+                  color: '#ff9500',
+                  border: '2px solid #ff9500',
+                  boxShadow: '0 0 15px rgba(255, 149, 0, 0.2)',
                 }}
               >
-                Register as Master Detective
+                👨‍🏫 REGISTER AS TEACHER
               </Link>
             </div>
           </div>
@@ -252,8 +283,11 @@ export default function LoginPage() {
           {/* Quote */}
           <div className="mt-6 text-center">
             <p
-              className="text-xs italic"
-              style={{ color: '#5a4a3a', fontFamily: "'Times New Roman', serif" }}
+              className="text-base italic font-medium"
+              style={{
+                color: '#ffd700',
+                textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
+              }}
             >
               "The game is afoot!"
             </p>
@@ -262,7 +296,13 @@ export default function LoginPage() {
 
         {/* Bottom Decoration */}
         <div className="mt-6 text-center">
-          <p className="text-xs tracking-widest" style={{ color: '#4a3a2a' }}>
+          <p
+            className="text-sm font-bold tracking-[0.3em] uppercase"
+            style={{
+              color: '#ff9500',
+              textShadow: '0 0 10px rgba(255, 149, 0, 0.5)',
+            }}
+          >
             CASE FILE #2025 • CONFIDENTIAL
           </p>
         </div>
@@ -270,25 +310,22 @@ export default function LoginPage() {
 
       {/* CSS for animations */}
       <style jsx>{`
-        @keyframes fog {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0%); }
-        }
-        .animate-fog {
-          animation: fog 30s linear infinite;
-        }
-        @keyframes smoke {
-          0% {
+        @keyframes beam {
+          0%, 100% {
             opacity: 0.3;
-            transform: translateY(0) scale(1);
+            transform: translateY(-50%) rotate(15deg);
           }
-          100% {
-            opacity: 0;
-            transform: translateY(-100px) scale(2);
+          50% {
+            opacity: 0.6;
+            transform: translateY(-30%) rotate(15deg);
           }
         }
-        .animate-smoke {
-          animation: smoke 3s ease-out infinite;
+        input::placeholder {
+          color: rgba(255, 200, 0, 0.4);
+        }
+        input:focus {
+          border-color: #ffd700 !important;
+          box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
         }
       `}</style>
     </div>
