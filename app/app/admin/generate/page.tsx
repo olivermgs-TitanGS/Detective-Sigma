@@ -190,40 +190,40 @@ export default function GenerateCasePage() {
     let religiousAttire = '';
 
     // Muslim - only if explicitly stated
-    // CRITICAL: Muslim women MUST wear hijab - this is mandatory and non-negotiable
+    // CRITICAL: Muslim women MUST wear hijab - this is mandatory, respectful, and non-negotiable
     if (/\b(muslim|islamic|imam|ustaz|ustazah|hajj|haji|hajjah)\b/i.test(roleText)) {
       religion = 'Muslim';
       if (gender === 'woman' || gender === 'girl' || gender === 'elderly woman') {
-        // MANDATORY hijab for Muslim women - emphasize heavily in prompt
-        religiousAttire = 'MUST wear hijab headscarf covering hair, modest Muslim woman wearing hijab, traditional Muslim headscarf, hair completely covered by hijab';
+        // MANDATORY hijab for Muslim women - dignified and respectful portrayal
+        religiousAttire = 'wearing elegant hijab headscarf, modest dignified Muslim woman with beautiful hijab, respectful traditional Muslim headscarf covering hair completely, graceful hijab style';
       } else {
-        religiousAttire = 'wearing songkok or kopiah cap';
+        religiousAttire = 'wearing dignified songkok or kopiah cap, respectful Muslim attire';
       }
     }
-    // Sikh - only if explicitly stated
+    // Sikh - only if explicitly stated - respectful portrayal
     else if (/\b(sikh|singh|kaur)\b/i.test(roleText) || /\b(singh|kaur)$/i.test(name)) {
       religion = 'Sikh';
       if (gender === 'man' || gender === 'boy' || gender === 'elderly man') {
-        religiousAttire = 'wearing Sikh turban dastar';
+        religiousAttire = 'wearing dignified Sikh turban dastar, respectful traditional Sikh attire';
       }
     }
-    // Hindu - only if explicitly stated (usually no specific attire required)
+    // Hindu - only if explicitly stated - respectful portrayal
     else if (/\b(hindu|temple priest|pandit)\b/i.test(roleText)) {
       religion = 'Hindu';
       // No specific attire unless temple priest
       if (/\b(priest|pandit)\b/i.test(roleText)) {
-        religiousAttire = 'wearing traditional Hindu religious attire';
+        religiousAttire = 'wearing dignified traditional Hindu religious attire, respectful ceremonial dress';
       }
     }
-    // Buddhist/Taoist monk - only if explicitly stated
+    // Buddhist/Taoist monk - only if explicitly stated - respectful portrayal
     else if (/\b(buddhist monk|taoist priest|monk)\b/i.test(roleText)) {
       religion = 'Buddhist';
-      religiousAttire = 'wearing Buddhist monk robes';
+      religiousAttire = 'wearing dignified Buddhist monk robes, respectful monastic attire';
     }
-    // Christian clergy - only if explicitly stated
+    // Christian clergy - only if explicitly stated - respectful portrayal
     else if (/\b(pastor|priest|reverend|father|nun|sister)\b/i.test(roleText)) {
       religion = 'Christian';
-      religiousAttire = 'wearing clerical attire';
+      religiousAttire = 'wearing dignified clerical attire, respectful religious vestments';
     }
 
     return { gender, age, ageDescriptor, religiousAttire, religion };
@@ -254,8 +254,8 @@ export default function GenerateCasePage() {
       return {
         race: 'Chinese',
         ethnicity: 'Chinese Singaporean',
-        skinTone: 'natural East Asian skin tone ranging from fair to light tan, realistic human skin',
-        features: 'East Asian Chinese facial features, natural dark brown or brown eyes, straight black hair'
+        skinTone: 'beautiful natural East Asian skin tone ranging from fair to light tan, realistic healthy human skin, dignified appearance',
+        features: 'elegant East Asian Chinese facial features, natural dark brown or brown eyes, straight black hair, respectful portrayal'
       };
     }
 
@@ -263,8 +263,8 @@ export default function GenerateCasePage() {
       return {
         race: 'Malay',
         ethnicity: 'Malay Singaporean',
-        skinTone: 'natural Southeast Asian Malay skin tone, warm brown complexion, realistic human skin',
-        features: 'Southeast Asian Malay facial features, natural dark brown eyes, black hair'
+        skinTone: 'beautiful natural Southeast Asian Malay skin tone, warm brown complexion, realistic healthy human skin, dignified appearance',
+        features: 'elegant Southeast Asian Malay facial features, natural dark brown eyes, black hair, respectful portrayal'
       };
     }
 
@@ -272,8 +272,8 @@ export default function GenerateCasePage() {
       return {
         race: 'Indian',
         ethnicity: 'Indian Singaporean',
-        skinTone: 'natural South Asian Indian skin tone, medium to dark brown complexion, realistic human skin',
-        features: 'South Asian Indian facial features, natural dark brown or black eyes, black hair'
+        skinTone: 'beautiful natural South Asian Indian skin tone, medium to dark brown complexion, realistic healthy human skin, dignified appearance',
+        features: 'elegant South Asian Indian facial features, natural dark brown or black eyes, black hair, respectful portrayal'
       };
     }
 
@@ -281,17 +281,17 @@ export default function GenerateCasePage() {
       return {
         race: 'Eurasian',
         ethnicity: 'Eurasian Singaporean',
-        skinTone: 'natural mixed heritage skin tone, olive to light brown complexion, realistic human skin',
-        features: 'mixed Eurasian facial features, natural eye color varies'
+        skinTone: 'beautiful natural mixed heritage skin tone, olive to light brown complexion, realistic healthy human skin, dignified appearance',
+        features: 'elegant mixed Eurasian facial features, natural eye color varies, respectful portrayal'
       };
     }
 
-    // Default - don't assume race, use neutral description
+    // Default - don't assume race, use neutral description with respect
     return {
       race: 'Singaporean',
       ethnicity: 'Singaporean',
-      skinTone: 'natural Asian skin tone, realistic human skin',
-      features: 'Asian facial features, natural dark eyes, black hair'
+      skinTone: 'beautiful natural Asian skin tone, realistic healthy human skin, dignified appearance',
+      features: 'elegant Asian facial features, natural dark eyes, black hair, respectful portrayal'
     };
   };
 
@@ -328,9 +328,13 @@ export default function GenerateCasePage() {
           saveToPublic: false,
         }),
       });
-      if (coverResponse.ok) {
-        const data = await coverResponse.json();
-        if (data.success && data.imageUrl) newImages.cover = data.imageUrl;
+      const coverData = await coverResponse.json();
+      console.log('[DEBUG] Cover response:', { status: coverResponse.status, success: coverData.success, hasUrl: !!coverData.imageUrl, error: coverData.error });
+      if (coverResponse.ok && coverData.success && coverData.imageUrl) {
+        newImages.cover = coverData.imageUrl;
+        console.log('[DEBUG] Cover image set, length:', coverData.imageUrl.length);
+      } else {
+        console.error('[DEBUG] Cover generation failed:', coverData);
       }
       completed++;
       setGeneratedImages({ ...newImages });
@@ -354,9 +358,10 @@ export default function GenerateCasePage() {
             saveToPublic: false,
           }),
         });
-        if (sceneResponse.ok) {
-          const data = await sceneResponse.json();
-          if (data.success && data.imageUrl) newImages.scenes[scene.id] = data.imageUrl;
+        const sceneData = await sceneResponse.json();
+        console.log(`[DEBUG] Scene ${scene.name}:`, { status: sceneResponse.status, success: sceneData.success, hasUrl: !!sceneData.imageUrl, error: sceneData.error });
+        if (sceneResponse.ok && sceneData.success && sceneData.imageUrl) {
+          newImages.scenes[scene.id] = sceneData.imageUrl;
         }
         completed++;
         setGeneratedImages({ ...newImages });
@@ -381,23 +386,25 @@ export default function GenerateCasePage() {
           promptParts.push(personInfo.religiousAttire);
         }
 
-        // Force realism
+        // Force realism with RESPECTFUL, DIGNIFIED portrayal
         promptParts.push(
           'photorealistic', 'realistic', 'real life photo', 'photograph', 'real person',
+          'dignified', 'respectful portrayal', 'professional appearance',
           // Person details
           `1${personInfo.gender}`, 'solo',
           personInfo.ageDescriptor
         );
 
-        // RACE - CRITICAL: Must be accurate, no fantasy colors
-        // Emphasize natural realistic skin tone for this specific race
+        // RACE - CRITICAL: Must be accurate, respectful, no fantasy colors
+        // Emphasize natural realistic skin tone for this specific race with dignity
         promptParts.push(
           `${ethnicityInfo.race} ethnicity`,
           ethnicityInfo.ethnicity,
-          // Double-emphasize natural realistic skin color
+          // Double-emphasize natural realistic skin color with respect
           ethnicityInfo.skinTone,
           'natural realistic human skin color',
           'accurate ethnic skin tone',
+          'beautiful natural complexion',
           ethnicityInfo.features
         );
 
@@ -464,7 +471,14 @@ export default function GenerateCasePage() {
           'oversaturated, overexposed, underexposed, high contrast, low contrast',
           'watermark, text, logo, signature, border, frame, username',
           'multiple people, crowd, group, two people, three people',
-          'nsfw, nude, inappropriate, explicit'
+          'nsfw, nude, inappropriate, explicit',
+          // BLOCK DISRESPECTFUL/OFFENSIVE CONTENT - ZERO TOLERANCE
+          'caricature, stereotypical, mocking, offensive, disrespectful',
+          'ugly portrayal, unflattering, degrading, humiliating',
+          'racist, discriminatory, insensitive, inappropriate attire',
+          'wrong religious attire, incorrect cultural dress, misrepresented religion',
+          'bare head muslim woman, uncovered hair hijabi, missing hijab',
+          'wrong turban, incorrect religious symbols, cultural appropriation'
         ];
 
         // Add religion-specific negative prompts
