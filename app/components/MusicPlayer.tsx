@@ -35,7 +35,7 @@ const shuffleArray = (array: string[]) => {
 };
 
 export default function MusicPlayer() {
-  const [isMuted, setIsMuted] = useState(true); // Start muted to enable autoplay
+  const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [volume, setVolume] = useState(0.5); // 50% default volume
@@ -50,8 +50,8 @@ export default function MusicPlayer() {
   // Setup audio and autoplay
   useEffect(() => {
     if (audioRef.current && playlist.length > 0) {
-      audioRef.current.volume = volume; // Use state volume
-      audioRef.current.muted = true; // Start muted to enable autoplay
+      audioRef.current.volume = volume;
+      audioRef.current.muted = false;
 
       // Handle track ending - play next track
       const handleEnded = () => {
@@ -60,17 +60,10 @@ export default function MusicPlayer() {
 
       audioRef.current.addEventListener('ended', handleEnded);
 
-      // Autoplay (muted autoplay is allowed by browsers)
+      // Try autoplay
       const playAudio = () => {
         audioRef.current?.play().then(() => {
           setIsPlaying(true);
-          // Unmute after 500ms once playback starts
-          setTimeout(() => {
-            if (audioRef.current) {
-              audioRef.current.muted = false;
-              setIsMuted(false);
-            }
-          }, 500);
         }).catch(() => {
           // Autoplay blocked, wait for user interaction
         });
