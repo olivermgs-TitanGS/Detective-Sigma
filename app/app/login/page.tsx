@@ -211,16 +211,34 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+              className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed hover:scale-[1.02] relative overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
-                color: '#000000',
-                boxShadow: '0 0 30px rgba(255, 215, 0, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3)',
-                border: '2px solid #ffea00',
-                textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                background: isLoading
+                  ? 'linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%)'
+                  : 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
+                color: isLoading ? '#00ff00' : '#000000',
+                boxShadow: isLoading
+                  ? '0 0 30px rgba(0, 255, 0, 0.3), inset 0 0 20px rgba(0, 255, 0, 0.1)'
+                  : '0 0 30px rgba(255, 215, 0, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3)',
+                border: isLoading ? '2px solid #00ff00' : '2px solid #ffea00',
+                textShadow: isLoading ? '0 0 10px rgba(0, 255, 0, 0.8)' : '0 1px 0 rgba(255, 255, 255, 0.3)',
+                fontFamily: isLoading ? "'Courier New', monospace" : 'inherit',
               }}
             >
-              {isLoading ? 'VERIFYING CREDENTIALS...' : 'ACCESS CASE FILES'}
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span
+                    className="inline-block w-2 h-2 bg-green-400 rounded-full"
+                    style={{ animation: 'pulse 1s ease-in-out infinite' }}
+                  />
+                  <span style={{ animation: 'pulse 2s ease-in-out infinite' }}>VERIFYING</span>
+                  <span className="inline-flex tracking-[0.3em]">
+                    <span style={{ animation: 'blink 1s ease-in-out infinite' }}>.</span>
+                    <span style={{ animation: 'blink 1s ease-in-out 0.2s infinite' }}>.</span>
+                    <span style={{ animation: 'blink 1s ease-in-out 0.4s infinite' }}>.</span>
+                  </span>
+                </span>
+              ) : 'ACCESS CASE FILES'}
             </button>
           </form>
 
@@ -295,6 +313,14 @@ export default function LoginPage() {
         input:focus {
           border-color: #ffd700 !important;
           box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 1; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
         }
       `}</style>
     </div>
