@@ -146,12 +146,46 @@ export default function GenerateCasePage() {
     }
   };
 
-  // Infer ethnicity from name for Singapore context
-  const inferEthnicity = (name: string) => {
-    if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen)/i.test(name)) return 'East Asian Singaporean Chinese';
-    if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim)/i.test(name)) return 'Southeast Asian Malay';
-    if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu)/i.test(name)) return 'South Asian Indian';
-    return 'Singaporean';
+  // Infer ethnicity from name for Singapore context - detailed for realistic portraits
+  const inferEthnicity = (name: string): { ethnicity: string; skinTone: string; features: string } => {
+    // Chinese names
+    if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap)/i.test(name)) {
+      return {
+        ethnicity: 'Chinese Singaporean',
+        skinTone: 'light tan East Asian skin tone',
+        features: 'East Asian facial features, monolid or double eyelid eyes, straight black hair'
+      };
+    }
+    // Malay names
+    if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim|Mohamed|Ismail|Hassan|Ali|Fatimah|Aminah|Razak|Rahman|Yusof|Hamid|Zainal)/i.test(name)) {
+      return {
+        ethnicity: 'Malay Singaporean',
+        skinTone: 'warm brown Southeast Asian skin tone',
+        features: 'Southeast Asian Malay facial features, dark brown eyes, black hair'
+      };
+    }
+    // Indian names
+    if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal)/i.test(name)) {
+      return {
+        ethnicity: 'Indian Singaporean',
+        skinTone: 'brown South Asian skin tone',
+        features: 'South Asian Indian facial features, dark brown eyes, black hair'
+      };
+    }
+    // Eurasian or Western names
+    if (/^(James|John|Mary|Michael|David|Sarah|Peter|Paul|George|Elizabeth|William|Richard)/i.test(name)) {
+      return {
+        ethnicity: 'Eurasian Singaporean',
+        skinTone: 'olive mixed heritage skin tone',
+        features: 'mixed Eurasian facial features'
+      };
+    }
+    // Default to generic Singaporean
+    return {
+      ethnicity: 'Singaporean',
+      skinTone: 'natural Asian skin tone',
+      features: 'Asian facial features'
+    };
   };
 
   // Generate images for a case (called automatically after case generation)
@@ -224,8 +258,52 @@ export default function GenerateCasePage() {
       // 3. Generate suspect portraits
       for (const suspect of (caseData.suspects || [])) {
         setImageGenProgress({ current: `Suspect: ${suspect.name}`, completed, total: totalImages });
-        const ethnicity = inferEthnicity(suspect.name);
-        const expression = suspect.isGuilty ? 'slightly nervous expression, avoiding eye contact' : 'calm confident expression';
+        const ethnicityInfo = inferEthnicity(suspect.name);
+        const expression = suspect.isGuilty ? 'slightly nervous expression, natural eyes looking slightly away' : 'calm confident expression, natural eye contact';
+
+        // Build a realistic portrait prompt
+        const portraitPrompt = [
+          'score_9, score_8_up, score_7_up',
+          'solo, 1person',
+          'photorealistic portrait photo',
+          'real human person',
+          ethnicityInfo.skinTone,
+          ethnicityInfo.features,
+          `${ethnicityInfo.ethnicity} adult`,
+          suspect.role,
+          expression,
+          'professional corporate headshot',
+          'soft studio lighting',
+          'plain neutral grey background',
+          'natural skin texture',
+          'natural eye color',
+          'no makeup or minimal makeup',
+          'realistic photograph',
+          'DSLR photo',
+          'Canon 85mm f1.4 portrait lens',
+          'sharp focus on face',
+          'professional photography'
+        ].join(', ');
+
+        // Strong negative prompt to avoid anime/fantasy/alien features
+        const negativePrompt = [
+          'score_6, score_5, score_4',
+          'worst quality, low quality, blurry',
+          'anime, cartoon, illustration, drawing, painting, sketch',
+          'glowing eyes, bright eyes, unnatural eyes, fantasy eyes, colored eyes, red eyes, yellow eyes',
+          'alien, monster, creature, inhuman, non-human',
+          'fantasy, sci-fi, supernatural',
+          'deformed, disfigured, mutated, ugly',
+          'bad anatomy, bad proportions, extra limbs',
+          'plastic skin, artificial, CGI, 3D render',
+          'oversaturated, overexposed',
+          'watermark, text, logo, signature',
+          'multiple people, crowd',
+          'animal ears, horns, wings',
+          'makeup, heavy makeup, lipstick',
+          'accessories, jewelry, hat'
+        ].join(', ');
+
         const suspectResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -233,10 +311,10 @@ export default function GenerateCasePage() {
             imageRequest: {
               id: `suspect-${suspect.id}`,
               type: 'suspect',
-              prompt: `score_9, score_8_up, score_7_up, 1person, solo, portrait, looking at viewer, ${ethnicity} ${suspect.role}, ${expression}, professional headshot, studio lighting, neutral grey background, photorealistic, detailed face, Singapore setting, masterpiece, best quality, 8k, DSLR photo, 85mm portrait lens`,
-              negativePrompt: 'score_6, score_5, worst quality, low quality, bad anatomy, bad face, deformed, blurry, watermark, text, multiple people',
+              prompt: portraitPrompt,
+              negativePrompt: negativePrompt,
               width: 512, height: 512,
-              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 25, cfgScale: 7.5 },
               metadata: { suspectId: suspect.id, name: suspect.name },
             },
             saveToPublic: false,
@@ -581,6 +659,95 @@ export default function GenerateCasePage() {
               ))}
             </div>
           </div>
+
+          {/* Scenes / Locations */}
+          {generatedCase.scenes && generatedCase.scenes.length > 0 && (
+            <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-green-400 font-mono mb-4">CRIME SCENES ({generatedCase.scenes.length})</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {generatedCase.scenes.map((scene) => (
+                  <div key={scene.id} className="p-4 bg-slate-800 rounded border border-slate-600">
+                    <div className="flex gap-4">
+                      {generatedImages.scenes[scene.id] ? (
+                        <img
+                          src={generatedImages.scenes[scene.id]}
+                          alt={scene.name}
+                          className="w-32 h-24 object-cover rounded border border-slate-500 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-32 h-24 bg-slate-700 rounded border border-slate-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-slate-500 text-xs text-center">No image</span>
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="font-bold text-white">{scene.name}</div>
+                        {scene.locationType && (
+                          <div className="text-green-400 text-sm font-mono">{scene.locationType}</div>
+                        )}
+                        <div className="text-slate-400 text-sm mt-1">{scene.description}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Clues / Evidence */}
+          {generatedCase.clues && generatedCase.clues.length > 0 && (
+            <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-cyan-400 font-mono mb-4">EVIDENCE ({generatedCase.clues.length})</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {generatedCase.clues.map((clue) => (
+                  <div
+                    key={clue.id}
+                    className={`p-4 rounded border-2 ${
+                      clue.relevance === 'critical'
+                        ? 'bg-amber-900/30 border-amber-600'
+                        : clue.relevance === 'red-herring'
+                        ? 'bg-red-900/20 border-red-600/50'
+                        : 'bg-slate-800 border-slate-600'
+                    }`}
+                  >
+                    <div className="flex gap-3">
+                      {clue.type !== 'testimony' && generatedImages.clues[clue.id] ? (
+                        <img
+                          src={generatedImages.clues[clue.id]}
+                          alt={clue.title}
+                          className="w-16 h-16 object-cover rounded border border-slate-500 flex-shrink-0"
+                        />
+                      ) : clue.type !== 'testimony' ? (
+                        <div className="w-16 h-16 bg-slate-700 rounded border border-slate-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-slate-500 text-xs">?</span>
+                        </div>
+                      ) : null}
+                      <div className="flex-1">
+                        <div className="font-bold text-white text-sm">{clue.title}</div>
+                        <div className="flex gap-2 mt-1">
+                          <span className={`text-xs font-mono px-1 rounded ${
+                            clue.type === 'physical' ? 'bg-blue-800 text-blue-200' :
+                            clue.type === 'document' ? 'bg-yellow-800 text-yellow-200' :
+                            clue.type === 'testimony' ? 'bg-purple-800 text-purple-200' :
+                            'bg-green-800 text-green-200'
+                          }`}>
+                            {clue.type}
+                          </span>
+                          <span className={`text-xs font-mono px-1 rounded ${
+                            clue.relevance === 'critical' ? 'bg-amber-700 text-amber-100' :
+                            clue.relevance === 'red-herring' ? 'bg-red-700 text-red-100' :
+                            'bg-slate-600 text-slate-200'
+                          }`}>
+                            {clue.relevance}
+                          </span>
+                        </div>
+                        <div className="text-slate-400 text-xs mt-1 line-clamp-2">{clue.description}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Puzzles */}
           <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
