@@ -14,14 +14,10 @@ export async function GET(
           include: {
             clues: true,
           },
-          orderBy: { order: 'asc' },
+          orderBy: { orderIndex: 'asc' },
         },
-        puzzles: {
-          orderBy: { order: 'asc' },
-        },
-        suspects: {
-          orderBy: { order: 'asc' },
-        },
+        puzzles: true,
+        suspects: true,
       },
     });
 

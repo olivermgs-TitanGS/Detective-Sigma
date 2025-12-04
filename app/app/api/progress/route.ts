@@ -14,6 +14,34 @@ export async function GET(request: Request) {
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const caseId = searchParams.get('caseId');
+
+    // If caseId provided, get specific progress
+    if (caseId) {
+      const progress = await prisma.progress.findUnique({
+        where: {
+          userId_caseId: {
+            userId: session.user.id,
+            caseId: caseId,
+          },
+        },
+        include: {
+          case: {
+            select: {
+              id: true,
+              title: true,
+              coverImage: true,
+              difficulty: true,
+              estimatedMinutes: true,
+            },
+          },
+        },
+      });
+      return NextResponse.json({ progress });
+    }
+
+    // Otherwise get all progress
     const progress = await prisma.progress.findMany({
       where: { userId: session.user.id },
       include: {
@@ -52,7 +80,29 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { caseId, status, cluesCollected, puzzlesSolved, score } = body;
+    const { caseId, status, cluesCollected, puzzlesSolved, score, timeSpent, currentSceneIndex } = body;
+
+    // Get existing progress to check if this is a new start
+    const existing = await prisma.progress.findUnique({
+      where: {
+        userId_caseId: {
+          userId: session.user.id,
+          caseId: caseId,
+        },
+      },
+    });
+
+    const now = new Date();
+
+    // Build update data
+    const updateData: any = {};
+    if (status !== undefined) updateData.status = status;
+    if (cluesCollected !== undefined) updateData.cluesCollected = cluesCollected;
+    if (puzzlesSolved !== undefined) updateData.puzzlesSolved = puzzlesSolved;
+    if (score !== undefined) updateData.score = score;
+    if (timeSpent !== undefined) updateData.timeSpent = timeSpent;
+    if (currentSceneIndex !== undefined) updateData.currentSceneIndex = currentSceneIndex;
+    if (status === 'SOLVED') updateData.completedAt = now;
 
     // Upsert progress
     const progress = await prisma.progress.upsert({
@@ -62,19 +112,17 @@ export async function POST(request: Request) {
           caseId: caseId,
         },
       },
-      update: {
-        status,
-        cluesCollected,
-        puzzlesSolved,
-        score,
-      },
+      update: updateData,
       create: {
         userId: session.user.id,
         caseId,
-        status: status || 'NEW',
+        status: status || 'IN_PROGRESS',
         cluesCollected: cluesCollected || [],
         puzzlesSolved: puzzlesSolved || [],
         score: score || 0,
+        timeSpent: timeSpent || 0,
+        currentSceneIndex: currentSceneIndex || 0,
+        startedAt: now,
       },
     });
 

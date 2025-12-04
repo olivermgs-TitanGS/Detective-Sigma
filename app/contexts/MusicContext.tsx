@@ -32,7 +32,7 @@ const PLAYLISTS: Record<MusicTheme, string[]> = {
     '/music/Midnight Whispers.mp3',
   ],
   registration: [
-    '/music/Midnight Whispers (1).mp3',
+    '/music/Shadows in the Fog.wav',
   ],
   silent: [],
 };

@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     
     if (difficulty) where.difficulty = difficulty;
     if (subject) where.subjectFocus = subject;
-    if (published !== null) where.published = published === 'true';
+    if (published === 'true') where.status = 'PUBLISHED';
 
     const cases = await prisma.case.findMany({
       where,
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
         subjectFocus: true,
         estimatedMinutes: true,
         coverImage: true,
-        published: true,
+        status: true,
         createdAt: true,
       },
     });
@@ -54,10 +54,10 @@ export async function POST(request: Request) {
         subjectFocus: body.subjectFocus,
         estimatedMinutes: body.estimatedMinutes,
         coverImage: body.coverImage,
-        storyIntro: body.storyIntro,
-        learningObjectives: body.learningObjectives,
-        skills: body.skills,
-        published: body.published || false,
+        subject: body.subject || 'Mathematics',
+        learningObjectives: body.learningObjectives || {},
+        skillsAssessed: body.skillsAssessed || {},
+        status: body.status || 'DRAFT',
       },
     });
 
