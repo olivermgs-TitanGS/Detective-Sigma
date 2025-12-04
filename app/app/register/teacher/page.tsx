@@ -44,12 +44,24 @@ export default function TeacherRegisterPage() {
       router.push('/login?registered=true');
     } catch (err: any) {
       console.error('Registration error:', err);
-      if (err.errors) {
-        // Zod validation error
+
+      // Check for Zod validation errors
+      if (err.issues && Array.isArray(err.issues)) {
+        setError(err.issues[0].message);
+      } else if (err.errors && Array.isArray(err.errors)) {
         setError(err.errors[0].message);
       } else if (err.message) {
-        // Network or other error with message
-        setError(`Error: ${err.message}`);
+        // Try to parse if it's a JSON string (Zod stringifies errors)
+        try {
+          const parsed = JSON.parse(err.message);
+          if (Array.isArray(parsed) && parsed[0]?.message) {
+            setError(parsed[0].message);
+          } else {
+            setError(err.message);
+          }
+        } catch {
+          setError(err.message);
+        }
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
