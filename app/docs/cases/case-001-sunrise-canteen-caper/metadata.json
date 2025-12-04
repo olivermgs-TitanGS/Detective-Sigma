@@ -1,0 +1,103 @@
+{
+  "caseId": "case-001",
+  "title": "The Sunrise Canteen Caper",
+  "slug": "sunrise-canteen-caper",
+  "version": "1.0.0",
+  
+  "metadata": {
+    "difficulty": "ROOKIE",
+    "gradeLevel": "P4",
+    "subjectFocus": "MATH",
+    "estimatedMinutes": 30,
+    "status": "PUBLISHED"
+  },
+  
+  "learning": {
+    "primaryObjective": "Apply addition and subtraction with money",
+    "secondaryObjectives": [
+      "Understand time calculations",
+      "Analyze data from receipts",
+      "Practice problem-solving with real-world scenarios"
+    ],
+    "skillsAssessed": {
+      "problemSolving": 40,
+      "computation": 30,
+      "logicalReasoning": 20,
+      "dataAnalysis": 10
+    },
+    "vocabularyWords": [
+      {
+        "word": "receipt",
+        "meaning": "A written proof of payment"
+      },
+      {
+        "word": "alibi",
+        "meaning": "Proof that someone was somewhere else when something happened"
+      },
+      {
+        "word": "evidence",
+        "meaning": "Information that proves something is true"
+      }
+    ]
+  },
+  
+  "content": {
+    "briefingFile": "briefing.md",
+    "coverImage": "/cases/case-001/cover.jpg",
+    "briefingVideo": null,
+    "masterClueFragment": "The security log shows Alex entered the canteen at 5:45 PM, exactly when the cash was last counted. The calculator has fingerprints matching Alex's, and the $50 was found in their backpack."
+  },
+  
+  "assets": {
+    "scenes": [
+      {
+        "id": "canteen-exterior",
+        "name": "Canteen Exterior",
+        "image": "/cases/case-001/scenes/canteen-exterior.jpg"
+      },
+      {
+        "id": "cash-register",
+        "name": "Cash Register Area",
+        "image": "/cases/case-001/scenes/cash-register.jpg"
+      },
+      {
+        "id": "storage-room",
+        "name": "Storage Room",
+        "image": "/cases/case-001/scenes/storage-room.jpg"
+      }
+    ],
+    "suspects": [
+      {
+        "id": "mr-lim",
+        "name": "Mr. Lim",
+        "role": "Cleaner",
+        "portrait": "/cases/case-001/suspects/mr-lim.png"
+      },
+      {
+        "id": "miss-chen",
+        "name": "Miss Chen",
+        "role": "Science Teacher",
+        "portrait": "/cases/case-001/suspects/miss-chen.png"
+      },
+      {
+        "id": "alex",
+        "name": "Alex",
+        "role": "Student Helper",
+        "portrait": "/cases/case-001/suspects/alex.png"
+      }
+    ]
+  },
+  
+  "database": {
+    "seedFile": "../../prisma/seed-data/case-001.json",
+    "includeInDefaultSeed": true
+  },
+  
+  "notes": {
+    "createdBy": "Detective Sigma Team",
+    "createdDate": "2025-12-04",
+    "lastModified": "2025-12-04",
+    "reviewStatus": "approved",
+    "playtested": false
+  }
+}

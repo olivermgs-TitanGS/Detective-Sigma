@@ -53,11 +53,18 @@ export default function StudentDashboard() {
         const res = await fetch('/api/dashboard', {
           credentials: 'include',
         });
+        if (res.status === 401) {
+          // User not logged in, redirect to login
+          window.location.href = '/api/auth/signin';
+          return;
+        }
         if (res.ok) {
           const data = await res.json();
           setStats(data.stats);
           setActiveCases(data.activeCases || []);
           setRecentActivity(data.recentActivity || []);
+        } else {
+          console.error('Dashboard API error:', res.status);
         }
       } catch (err) {
         console.error('Error fetching dashboard:', err);

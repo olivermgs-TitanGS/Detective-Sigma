@@ -32,7 +32,11 @@ yarn-error.log*
 # env files
 .env*.local
 .env
+.env.*
 .env.production
+
+# misc generated files
+nul
 
 # vercel
 .vercel

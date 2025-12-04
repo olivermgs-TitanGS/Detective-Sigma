@@ -1,0 +1,107 @@
+// Prisma schema for Case Generator Service
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Stores all generated cases
+model GeneratedCase {
+  id        String   @id @default(cuid())
+  caseId    String   @unique // case-abc123
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Case content (JSON)
+  title       String
+  briefing    String   @db.Text
+  metadata    Json // difficulty, gradeLevel, subjectFocus, etc.
+  story       Json // setting, crime, resolution
+  suspects    Json // Array of suspects
+  clues       Json // Array of clues
+  puzzles     Json // Array of puzzles
+  scenes      Json // Array of scenes
+  assets      Json // Asset specifications
+
+  // Fingerprint for uniqueness
+  fingerprint   CaseFingerprint?
+  
+  // Generation info
+  strategy      String // template, ai, hybrid
+  requestedBy   String? // user ID who requested (optional)
+  status        CaseStatus @default(DRAFT)
+  
+  // Publishing
+  publishedAt   DateTime?
+  
+  @@index([caseId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Stores fingerprints for uniqueness checking
+model CaseFingerprint {
+  id        String   @id @default(cuid())
+  caseId    String   @unique
+  case      GeneratedCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  structureHash  String
+  characterHash  String
+  puzzleHash     String
+  locationHash   String
+  combinedHash   String @unique // Main hash for fast lookups
+  
+  createdAt DateTime @default(now())
+  
+  @@index([combinedHash])
+  @@index([structureHash])
+  @@index([characterHash])
+}
+
+// Tracks generation jobs (Bull queue jobs)
+model GenerationJob {
+  id        String   @id @default(cuid())
+  jobId     String   @unique // Bull job ID
+  
+  // Request details
+  request   Json // GenerationRequest object
+  
+  // Status
+  status    JobStatus @default(PENDING)
+  progress  Int       @default(0) // 0-100
+  
+  // Result
+  caseId    String? // Generated case ID (if completed)
+  error     String? @db.Text // Error message (if failed)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  
+  // Attempts
+  attempts    Int @default(0)
+  
+  @@index([jobId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Enums
+enum CaseStatus {
+  DRAFT       // Generated but not reviewed
+  REVIEWED    // Quality checked by human
+  PUBLISHED   // Available for students
+  ARCHIVED    // Removed from active use
+}
+
+enum JobStatus {
+  PENDING     // Waiting in queue
+  PROCESSING  // Currently being generated
+  COMPLETED   // Successfully generated
+  FAILED      // Generation failed
+  CANCELLED   // User cancelled
+}
