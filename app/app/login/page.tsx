@@ -47,64 +47,32 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
-      {/* Dramatic Background with Grid */}
+      {/* Detective Background Image */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          background: `
-            radial-gradient(circle at 50% 50%, rgba(255, 180, 0, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
-            radial-gradient(circle at 80% 20%, rgba(255, 200, 0, 0.1) 0%, transparent 40%),
-            linear-gradient(180deg, #000000 0%, #0a0a0a 100%)
-          `,
+          backgroundImage: 'url(/images/detective-bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+          backgroundRepeat: 'no-repeat',
         }}
       />
 
-      {/* Grid Pattern Overlay */}
+      {/* Dark Overlay for readability */}
       <div
-        className="absolute inset-0 z-1 opacity-20"
+        className="absolute inset-0 z-1"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 200, 0, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 200, 0, 0.3) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.9) 100%)',
         }}
       />
 
-      {/* Spotlight Effect */}
+      {/* Gold accent glow at top */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] z-2"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 z-2"
         style={{
-          background: 'radial-gradient(ellipse at top, rgba(255, 200, 0, 0.2) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse at top, rgba(255, 215, 0, 0.15) 0%, transparent 70%)',
         }}
       />
-
-      {/* Decorative Corner Elements */}
-      <div className="absolute top-6 left-6 text-7xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🔍</div>
-      <div className="absolute top-6 right-6 text-6xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🎩</div>
-      <div className="absolute bottom-6 left-6 text-6xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">🕯️</div>
-      <div className="absolute bottom-6 right-6 text-6xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">📜</div>
-
-      {/* Animated Light Beams */}
-      <div className="absolute inset-0 z-3 overflow-hidden pointer-events-none">
-        <div
-          className="absolute w-1 h-[200%] bg-gradient-to-b from-transparent via-amber-400/20 to-transparent"
-          style={{
-            left: '20%',
-            animation: 'beam 8s ease-in-out infinite',
-            transform: 'rotate(15deg)',
-          }}
-        />
-        <div
-          className="absolute w-1 h-[200%] bg-gradient-to-b from-transparent via-amber-400/15 to-transparent"
-          style={{
-            right: '25%',
-            animation: 'beam 10s ease-in-out infinite reverse',
-            transform: 'rotate(-10deg)',
-          }}
-        />
-      </div>
 
       {/* Login Card */}
       <div className="relative z-30 w-full max-w-md mx-4">
@@ -308,24 +276,13 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* CSS for animations */}
       <style jsx>{`
-        @keyframes beam {
-          0%, 100% {
-            opacity: 0.3;
-            transform: translateY(-50%) rotate(15deg);
-          }
-          50% {
-            opacity: 0.6;
-            transform: translateY(-30%) rotate(15deg);
-          }
-        }
         input::placeholder {
           color: rgba(255, 200, 0, 0.4);
         }
         input:focus {
           border-color: #ffd700 !important;
-          box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
+          box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
         }
       `}</style>
     </div>
