@@ -190,12 +190,14 @@ export default function GenerateCasePage() {
     let religiousAttire = '';
 
     // Muslim - only if explicitly stated
+    // CRITICAL: Muslim women MUST wear hijab - this is mandatory and non-negotiable
     if (/\b(muslim|islamic|imam|ustaz|ustazah|hajj|haji|hajjah)\b/i.test(roleText)) {
       religion = 'Muslim';
       if (gender === 'woman' || gender === 'girl' || gender === 'elderly woman') {
-        religiousAttire = 'wearing modest hijab headscarf';
+        // MANDATORY hijab for Muslim women - emphasize heavily in prompt
+        religiousAttire = 'MUST wear hijab headscarf covering hair, modest Muslim woman wearing hijab, traditional Muslim headscarf, hair completely covered by hijab';
       } else {
-        religiousAttire = 'wearing songkok or kopiah cap'; // Optional for men
+        religiousAttire = 'wearing songkok or kopiah cap';
       }
     }
     // Sikh - only if explicitly stated
@@ -367,77 +369,110 @@ export default function GenerateCasePage() {
         const personInfo = parsePersonInfo(suspect.name, suspect.role);
         const expression = suspect.isGuilty ? 'slightly nervous expression' : 'calm confident expression';
 
-        // Build prompt parts - race and religion are SEPARATE
+        // Build prompt parts - CRITICAL ORDER: Religious attire FIRST for priority
         const promptParts = [
           // Quality tags for Pony Diffusion
           'score_9, score_8_up, score_7_up',
-          // CRITICAL: Force realism
-          'photorealistic', 'realistic', 'real life photo', 'photograph',
-          // Person details - exact match to description
-          `1${personInfo.gender}`, 'solo',
-          personInfo.ageDescriptor,
-          // RACE (from name) - separate from religion
-          `${ethnicityInfo.race} race`,
-          ethnicityInfo.ethnicity,
-          ethnicityInfo.skinTone,
-          ethnicityInfo.features,
-          // Role context
-          suspect.role,
-          expression,
         ];
 
-        // Add religious attire ONLY if explicitly mentioned in role
-        if (personInfo.religiousAttire) {
+        // CRITICAL: Religious attire FIRST (highest priority) if Muslim
+        // This ensures hijab is generated for Muslim women
+        if (personInfo.religiousAttire && personInfo.religion === 'Muslim') {
           promptParts.push(personInfo.religiousAttire);
         }
 
-        // Add photography style
+        // Force realism
+        promptParts.push(
+          'photorealistic', 'realistic', 'real life photo', 'photograph', 'real person',
+          // Person details
+          `1${personInfo.gender}`, 'solo',
+          personInfo.ageDescriptor
+        );
+
+        // RACE - CRITICAL: Must be accurate, no fantasy colors
+        // Emphasize natural realistic skin tone for this specific race
+        promptParts.push(
+          `${ethnicityInfo.race} ethnicity`,
+          ethnicityInfo.ethnicity,
+          // Double-emphasize natural realistic skin color
+          ethnicityInfo.skinTone,
+          'natural realistic human skin color',
+          'accurate ethnic skin tone',
+          ethnicityInfo.features
+        );
+
+        // Add other religious attire (non-Muslim)
+        if (personInfo.religiousAttire && personInfo.religion !== 'Muslim') {
+          promptParts.push(personInfo.religiousAttire);
+        }
+
+        // Role context
+        promptParts.push(suspect.role, expression);
+
+        // Photography style
         promptParts.push(
           'professional ID photo', 'passport photo style',
           'front facing', 'looking at camera',
           'neutral expression', 'natural pose',
           'soft natural lighting', 'plain white background',
-          // Skin realism
-          'natural human skin', 'realistic skin texture', 'natural skin pores',
+          // Skin realism - CRITICAL
+          'natural human skin only', 'realistic skin texture', 'natural skin pores',
           'normal human eyes', 'natural eye color brown or black',
+          'NO fantasy colors', 'NO unnatural skin',
           // Technical
           'high resolution', 'sharp focus', 'detailed',
-          '35mm photograph', 'natural colors'
+          '35mm photograph', 'natural colors only'
         );
 
         const portraitPrompt = promptParts.join(', ');
 
-        // ULTRA-strong negative prompt - block ALL fantasy/anime/unnatural elements
-        const negativePrompt = [
+        // ULTRA-strong negative prompt - MUST block ALL fantasy/anime/unnatural elements
+        // CRITICAL: Skin color accuracy is NON-NEGOTIABLE for Singapore context
+        const negativePromptParts = [
           // Quality
           'score_6, score_5, score_4, score_3',
           'worst quality, low quality, blurry, jpeg artifacts',
-          // BLOCK ALL FANTASY/ANIME
+          // BLOCK ALL FANTASY/ANIME - ABSOLUTELY NO EXCEPTIONS
           'anime, cartoon, comic, manga, illustration, drawing, painting, sketch, rendered, 3d',
-          'cgi, digital art, concept art, fan art, deviantart',
-          // BLOCK UNNATURAL FEATURES - CRITICAL
+          'cgi, digital art, concept art, fan art, deviantart, artstation',
+          // BLOCK UNNATURAL EYES
           'glowing eyes, glowing, luminous eyes, bright eyes, shiny eyes',
-          'unnatural eyes, fantasy eyes, magical eyes, anime eyes, big eyes',
+          'unnatural eyes, fantasy eyes, magical eyes, anime eyes, big eyes, huge eyes',
           'colored eyes, red eyes, yellow eyes, purple eyes, blue eyes, green eyes, orange eyes, pink eyes, white eyes, black sclera',
-          'cat eyes, slit pupils, unusual pupils',
-          // BLOCK UNNATURAL SKIN - CRITICAL
-          'blue skin, green skin, purple skin, red skin, grey skin, gray skin, white skin, pale skin',
-          'unnatural skin color, fantasy skin, alien skin, zombie skin, undead',
-          'glowing skin, shiny skin, plastic skin, waxy skin, doll skin',
+          'cat eyes, slit pupils, unusual pupils, vertical pupils',
+          // BLOCK UNNATURAL SKIN - ABSOLUTE PRIORITY - NO FANTASY COLORS
+          'blue skin, green skin, purple skin, red skin, pink skin, orange skin, yellow skin',
+          'grey skin, gray skin, silver skin, gold skin, metallic skin',
+          'white skin, pale white skin, snow white skin, albino',
+          'unnatural skin color, fantasy skin color, wrong skin color',
+          'alien skin, zombie skin, undead skin, corpse skin, dead skin',
+          'glowing skin, luminous skin, shiny skin, reflective skin',
+          'plastic skin, waxy skin, doll skin, mannequin skin, artificial skin',
+          'painted skin, colored skin, tinted skin, dyed skin',
           // BLOCK NON-HUMAN
-          'alien, monster, creature, demon, elf, orc, vampire, zombie, ghost',
-          'robot, android, cyborg, mechanical',
-          'furry, animal, animal ears, cat ears, fox ears, horns, wings, tail, scales, fur',
+          'alien, extraterrestrial, monster, creature, demon, devil, angel',
+          'elf, orc, dwarf, goblin, fairy, vampire, werewolf, zombie, ghost, spirit',
+          'robot, android, cyborg, mechanical, synthetic',
+          'furry, anthropomorphic, animal, animal ears, cat ears, fox ears, dog ears, bunny ears',
+          'horns, wings, tail, scales, fur, feathers, claws, fangs',
           // BLOCK DEFORMITIES
-          'deformed, disfigured, mutated, ugly, distorted',
-          'bad anatomy, bad proportions, extra limbs, missing limbs, extra fingers, fewer fingers',
-          'bad hands, bad face, asymmetrical face, crooked face',
+          'deformed, disfigured, mutated, ugly, distorted, malformed',
+          'bad anatomy, bad proportions, wrong proportions',
+          'extra limbs, missing limbs, extra arms, extra legs, extra fingers, fewer fingers, missing fingers',
+          'bad hands, bad face, asymmetrical face, crooked face, weird face',
           // BLOCK STYLE ISSUES
-          'oversaturated, overexposed, underexposed, high contrast',
-          'watermark, text, logo, signature, border, frame',
-          'multiple people, crowd, group',
-          'nsfw, nude, inappropriate'
-        ].join(', ');
+          'oversaturated, overexposed, underexposed, high contrast, low contrast',
+          'watermark, text, logo, signature, border, frame, username',
+          'multiple people, crowd, group, two people, three people',
+          'nsfw, nude, inappropriate, explicit'
+        ];
+
+        // Add religion-specific negative prompts
+        if (personInfo.religion !== 'Muslim') {
+          // If NOT Muslim, no specific additions needed
+        }
+
+        const negativePrompt = negativePromptParts.join(', ');
 
         const suspectResponse = await fetch('/api/generate-image', {
           method: 'POST',
