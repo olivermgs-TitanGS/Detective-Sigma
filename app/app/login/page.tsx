@@ -33,7 +33,17 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/student/dashboard');
+      // Fetch user session to determine role-based redirect
+      const sessionRes = await fetch('/api/auth/session');
+      const session = await sessionRes.json();
+
+      if (session?.user?.role === 'TEACHER') {
+        router.push('/teacher/dashboard');
+      } else if (session?.user?.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/student/dashboard');
+      }
       router.refresh();
     } catch (err: any) {
       if (err.errors) {

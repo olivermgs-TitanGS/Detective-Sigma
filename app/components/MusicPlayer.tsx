@@ -41,18 +41,33 @@ export default function MusicPlayer() {
   const [volume, setVolume] = useState(0.5);
   const [playlist, setPlaylist] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const hasTriedAutoplay = useRef(false);
 
   // Initialize shuffled playlist on mount
   useEffect(() => {
     setPlaylist(shuffleArray(MUSIC_TRACKS));
   }, []);
 
+  // Try to play audio
+  const tryPlay = () => {
+    if (audioRef.current && !isPlaying) {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+        setAutoplayBlocked(false);
+      }).catch(() => {
+        setAutoplayBlocked(true);
+      });
+    }
+  };
+
   // Setup audio and autoplay
   useEffect(() => {
     if (audioRef.current && playlist.length > 0) {
       audioRef.current.volume = volume;
       audioRef.current.muted = false;
+      audioRef.current.src = playlist[currentTrackIndex];
 
       const handleEnded = () => {
         setCurrentTrackIndex((prev) => (prev + 1) % playlist.length);
@@ -60,21 +75,40 @@ export default function MusicPlayer() {
 
       audioRef.current.addEventListener('ended', handleEnded);
 
-      const playAudio = () => {
-        audioRef.current?.play().then(() => {
-          setIsPlaying(true);
-        }).catch(() => {
-          // Autoplay blocked
-        });
-      };
-
-      setTimeout(playAudio, 500);
+      // Try autoplay after a short delay
+      if (!hasTriedAutoplay.current) {
+        hasTriedAutoplay.current = true;
+        setTimeout(tryPlay, 300);
+      }
 
       return () => {
         audioRef.current?.removeEventListener('ended', handleEnded);
       };
     }
   }, [playlist]);
+
+  // Listen for user interaction to start music if autoplay was blocked
+  useEffect(() => {
+    if (!autoplayBlocked) return;
+
+    const startOnInteraction = () => {
+      tryPlay();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', startOnInteraction);
+      document.removeEventListener('keydown', startOnInteraction);
+      document.removeEventListener('touchstart', startOnInteraction);
+    };
+
+    document.addEventListener('click', startOnInteraction);
+    document.addEventListener('keydown', startOnInteraction);
+    document.addEventListener('touchstart', startOnInteraction);
+
+    return () => {
+      document.removeEventListener('click', startOnInteraction);
+      document.removeEventListener('keydown', startOnInteraction);
+      document.removeEventListener('touchstart', startOnInteraction);
+    };
+  }, [autoplayBlocked]);
 
   // Update audio source when track changes
   useEffect(() => {
@@ -188,7 +222,7 @@ export default function MusicPlayer() {
               border: '2px solid #ffea00',
             }}
           >
-            {isMuted ? '🔇' : isPlaying ? '🎵' : '🔊'}
+            {isMuted ? '🔇' : isPlaying ? '🎵' : autoplayBlocked ? '▶️' : '🔊'}
           </button>
         )}
       </div>
@@ -253,10 +287,10 @@ export default function MusicPlayer() {
           >
             <div className="flex items-center gap-2">
               <span className="text-2xl">
-                {isMuted ? '🔇' : isPlaying ? '🎵' : '🔊'}
+                {isMuted ? '🔇' : isPlaying ? '🎵' : autoplayBlocked ? '▶️' : '🔊'}
               </span>
               <span className="text-xs font-bold tracking-wider" style={{ color: '#ffd700' }}>
-                {isMuted ? 'UNMUTE' : isPlaying ? 'PLAYING' : 'PLAY'}
+                {isMuted ? 'UNMUTE' : isPlaying ? 'PLAYING' : autoplayBlocked ? 'TAP TO PLAY' : 'PLAY'}
               </span>
             </div>
           </button>
