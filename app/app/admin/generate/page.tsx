@@ -16,6 +16,7 @@ interface GeneratedCase {
     gradeLevel: string;
     subjectFocus: string;
     estimatedMinutes: number;
+    puzzleComplexity?: string;
   };
   story: {
     setting: string;
@@ -38,6 +39,18 @@ interface GeneratedCase {
   }>;
 }
 
+interface GeneratedImages {
+  cover?: string;
+  suspects: Record<string, string>;
+  scenes: string[];
+}
+
+interface ImageGenProgress {
+  current: string;
+  completed: number;
+  total: number;
+}
+
 export default function GenerateCasePage() {
   const [difficulty, setDifficulty] = useState<Difficulty>('INSPECTOR');
   const [subject, setSubject] = useState<Subject>('MATH');
@@ -49,11 +62,20 @@ export default function GenerateCasePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedCaseId, setSavedCaseId] = useState<string | null>(null);
 
+  // Image generation state
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImages>({ suspects: {}, scenes: [] });
+  const [imageGenProgress, setImageGenProgress] = useState<ImageGenProgress | null>(null);
+  const [imageGenError, setImageGenError] = useState<string | null>(null);
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     setError(null);
     setGeneratedCase(null);
     setSavedCaseId(null);
+    // Reset images when generating new case
+    setGeneratedImages({ suspects: {}, scenes: [] });
+    setImageGenError(null);
 
     try {
       const response = await fetch('/api/admin/generate', {
@@ -103,6 +125,91 @@ export default function GenerateCasePage() {
       setError(err instanceof Error ? err.message : 'Failed to save case');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Generate images for the case
+  const handleGenerateImages = async () => {
+    if (!generatedCase) return;
+
+    setIsGeneratingImages(true);
+    setImageGenError(null);
+
+    const newImages: GeneratedImages = { suspects: {}, scenes: [] };
+    const totalImages = 1 + generatedCase.suspects.length; // Cover + suspects
+
+    try {
+      let completed = 0;
+
+      // Generate cover image
+      setImageGenProgress({ current: 'Case Cover', completed, total: totalImages });
+      const coverResponse = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageRequest: {
+            id: `cover-${generatedCase.caseId}`,
+            type: 'cover',
+            prompt: `score_9, score_8_up, score_7_up, manila case folder file, detective case file, title "${generatedCase.title}", classified document, confidential folder, red CLASSIFIED stamp, ${subject === 'MATH' ? 'mathematical equations subtly visible' : subject === 'SCIENCE' ? 'scientific equipment subtly visible' : 'math and science elements'}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, masterpiece, best quality, 8k`,
+            negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human',
+            width: 512,
+            height: 512,
+            settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+            metadata: { caseId: generatedCase.caseId },
+          },
+          saveToPublic: false,
+        }),
+      });
+
+      if (coverResponse.ok) {
+        const coverData = await coverResponse.json();
+        if (coverData.success && coverData.imageUrl) {
+          newImages.cover = coverData.imageUrl;
+        }
+      }
+      completed++;
+
+      // Generate suspect portraits
+      for (const suspect of generatedCase.suspects) {
+        setImageGenProgress({ current: `Suspect: ${suspect.name}`, completed, total: totalImages });
+
+        const suspectResponse = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageRequest: {
+              id: `suspect-${suspect.id}`,
+              type: 'suspect',
+              prompt: `score_9, score_8_up, score_7_up, 1person, solo, portrait, looking at viewer, ${suspect.role}, professional headshot, studio lighting, neutral grey background, photorealistic, detailed face, detailed eyes, masterpiece, best quality, 8k, DSLR photo, 85mm portrait lens, ${suspect.isGuilty ? 'slightly nervous expression' : 'calm neutral expression'}`,
+              negativePrompt: 'score_6, score_5, worst quality, low quality, bad anatomy, bad face, deformed, blurry, watermark, text',
+              width: 512,
+              height: 512,
+              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+              metadata: { suspectId: suspect.id, name: suspect.name },
+            },
+            saveToPublic: false,
+          }),
+        });
+
+        if (suspectResponse.ok) {
+          const suspectData = await suspectResponse.json();
+          if (suspectData.success && suspectData.imageUrl) {
+            newImages.suspects[suspect.id] = suspectData.imageUrl;
+          }
+        }
+        completed++;
+
+        // Update state progressively so images appear as they're generated
+        setGeneratedImages({ ...newImages });
+      }
+
+      setGeneratedImages(newImages);
+      setImageGenProgress(null);
+    } catch (err) {
+      setImageGenError(err instanceof Error ? err.message : 'Image generation failed');
+    } finally {
+      setIsGeneratingImages(false);
+      setImageGenProgress(null);
     }
   };
 
@@ -249,7 +356,47 @@ export default function GenerateCasePage() {
               VIEW SAVED CASE
             </a>
           )}
+
+          {generatedCase && (
+            <button
+              onClick={handleGenerateImages}
+              disabled={isGeneratingImages}
+              className={`px-8 py-3 font-mono font-bold tracking-wider rounded transition-all ${
+                isGeneratingImages
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                  : 'bg-purple-600 hover:bg-purple-500 text-white'
+              }`}
+            >
+              {isGeneratingImages ? 'GENERATING IMAGES...' : 'GENERATE IMAGES'}
+            </button>
+          )}
         </div>
+
+        {/* Image Generation Progress */}
+        {imageGenProgress && (
+          <div className="bg-purple-900/30 border border-purple-600 rounded p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-purple-300 font-mono">
+                Generating: {imageGenProgress.current}
+              </span>
+              <span className="text-purple-400 font-mono">
+                {imageGenProgress.completed}/{imageGenProgress.total}
+              </span>
+            </div>
+            <div className="w-full bg-slate-700 rounded-full h-2">
+              <div
+                className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(imageGenProgress.completed / imageGenProgress.total) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {imageGenError && (
+          <div className="bg-red-900/50 border border-red-600 rounded p-4 text-red-300">
+            Image Error: {imageGenError}
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-900/50 border border-red-600 rounded p-4 text-red-300">
@@ -267,8 +414,28 @@ export default function GenerateCasePage() {
 
           {/* Case Overview */}
           <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
-            <h3 className="text-xl font-bold text-white mb-4">{generatedCase.title}</h3>
-            <div className="grid grid-cols-5 gap-4 mb-4">
+            <div className="flex gap-6">
+              {/* Cover Image */}
+              <div className="flex-shrink-0">
+                {generatedImages.cover ? (
+                  <img
+                    src={generatedImages.cover}
+                    alt="Case Cover"
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-amber-600"
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-slate-800 rounded-lg border-2 border-slate-600 flex items-center justify-center">
+                    <span className="text-slate-500 text-xs font-mono text-center px-2">
+                      Click<br/>GENERATE<br/>IMAGES
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Case Info */}
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white mb-4">{generatedCase.title}</h3>
+                <div className="grid grid-cols-5 gap-4 mb-4">
               <div className="text-center p-3 bg-slate-800 rounded">
                 <div className="text-amber-400 font-mono text-sm">DIFFICULTY</div>
                 <div className="text-white font-bold">{generatedCase.metadata.difficulty}</div>
@@ -289,8 +456,10 @@ export default function GenerateCasePage() {
                 <div className="text-amber-400 font-mono text-sm">EST. TIME</div>
                 <div className="text-white font-bold">{generatedCase.metadata.estimatedMinutes} min</div>
               </div>
+                </div>
+                <div className="text-slate-300 whitespace-pre-line">{generatedCase.briefing}</div>
+              </div>
             </div>
-            <div className="text-slate-300 whitespace-pre-line">{generatedCase.briefing}</div>
           </div>
 
           {/* Suspects */}
@@ -306,12 +475,28 @@ export default function GenerateCasePage() {
                       : 'bg-slate-800 border-slate-600'
                   }`}
                 >
-                  <div className="font-bold text-white">{suspect.name}</div>
-                  <div className="text-amber-400 text-sm">{suspect.role}</div>
-                  <div className="text-slate-400 text-sm mt-2">{suspect.alibi}</div>
-                  {suspect.isGuilty && (
-                    <div className="mt-2 text-red-400 font-mono text-xs">GUILTY</div>
-                  )}
+                  {/* Suspect Portrait */}
+                  <div className="flex gap-3 mb-2">
+                    {generatedImages.suspects[suspect.id] ? (
+                      <img
+                        src={generatedImages.suspects[suspect.id]}
+                        alt={suspect.name}
+                        className="w-16 h-16 object-cover rounded-lg border border-slate-500"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-slate-700 rounded-lg border border-slate-500 flex items-center justify-center">
+                        <span className="text-slate-500 text-2xl">?</span>
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-bold text-white">{suspect.name}</div>
+                      <div className="text-amber-400 text-sm">{suspect.role}</div>
+                      {suspect.isGuilty && (
+                        <div className="text-red-400 font-mono text-xs">GUILTY</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-slate-400 text-sm">{suspect.alibi}</div>
                 </div>
               ))}
             </div>
