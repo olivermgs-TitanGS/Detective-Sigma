@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { signOut } from 'next-auth/react';
-import MusicPlayer from '@/components/MusicPlayer';
+// MusicPlayer is in root layout - removed here to prevent overlapping audio
 
 export default function StudentLayout({ children }: { children: ReactNode }) {
   const handleLogout = async () => {
@@ -32,8 +32,7 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
       <div className="scanner-line" style={{ animationDelay: '0s' }}></div>
       <div className="scanner-line" style={{ animationDelay: '1.5s', top: '50%' }}></div>
 
-      {/* Background Music Player */}
-      <MusicPlayer />
+      {/* Music Player is in root layout */}
       {/* Realistic Crime Scene Tape - Physical Look */}
       <div
         className="relative py-4 overflow-hidden transform -rotate-2 shadow-lg"
