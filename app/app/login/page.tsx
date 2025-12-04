@@ -49,94 +49,151 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen crime-scene-bg relative overflow-hidden flex items-center justify-center">
-      {/* Crime Scene Tape - Top */}
-      <div className="crime-tape top-[8%] -left-[10%] -rotate-3">
-        <span className="crime-tape-text">
-          CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
-        </span>
-      </div>
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-[#1a1510]">
+      {/* Sherlock Holmes Background */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(to bottom, rgba(26, 21, 16, 0.7), rgba(26, 21, 16, 0.9)),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3Cpattern id='victorian' patternUnits='userSpaceOnUse' width='100' height='100'%3E%3Cpath d='M50 0 L100 50 L50 100 L0 50 Z' fill='none' stroke='%23d4a574' stroke-width='0.5' opacity='0.1'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23d4a574' stroke-width='0.3' opacity='0.08'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23victorian)'/%3E%3C/svg%3E")
+          `,
+          backgroundSize: 'cover, 200px 200px',
+        }}
+      />
 
-      {/* Crime Scene Tape - Bottom */}
-      <div className="crime-tape bottom-[12%] -left-[10%] rotate-2">
-        <span className="crime-tape-text" style={{ animationDirection: 'reverse' }}>
-          POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
-        </span>
-      </div>
-
-      {/* Background decorations */}
-      <div className="chalk-body-outline" style={{ top: '10%', left: '5%', transform: 'rotate(25deg)', width: '200px', opacity: 0.1 }}></div>
-      <div className="chalk-body-outline" style={{ bottom: '15%', right: '10%', transform: 'rotate(-15deg)', width: '180px', opacity: 0.1 }}></div>
-
-      {/* Floating Dust Particles */}
-      {[...Array(15)].map((_, i) => (
+      {/* Fog/Mist Effect */}
+      <div className="absolute inset-0 z-1 opacity-30">
+        <div className="absolute w-full h-full bg-gradient-to-t from-[#1a1510] via-transparent to-[#1a1510]" />
         <div
-          key={i}
-          className="dust-particle"
+          className="absolute w-[200%] h-full animate-fog"
           style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 15}s`,
-            animationDuration: `${10 + Math.random() * 10}s`
+            background: 'linear-gradient(90deg, transparent, rgba(200, 180, 160, 0.1), transparent)',
           }}
         />
-      ))}
+      </div>
 
-      {/* Scanner Lines */}
-      <div className="scanner-line" style={{ animationDelay: '0s' }}></div>
-      <div className="scanner-line" style={{ animationDelay: '2s', top: '50%' }}></div>
+      {/* Decorative Elements - Victorian Style */}
+      <div className="absolute top-8 left-8 text-amber-700/30 text-6xl z-10">🔍</div>
+      <div className="absolute top-8 right-8 text-amber-700/30 text-5xl z-10">🎩</div>
+      <div className="absolute bottom-8 left-8 text-amber-700/30 text-5xl z-10">🕯️</div>
+      <div className="absolute bottom-8 right-8 text-amber-700/30 text-5xl z-10">📜</div>
 
-      {/* Login Form */}
+      {/* Pipe Smoke Effect */}
+      <div className="absolute top-1/4 right-1/4 z-5">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-gray-400/20 animate-smoke"
+            style={{
+              animationDelay: `${i * 0.5}s`,
+              left: `${i * 10}px`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Login Card - Victorian Study Style */}
       <div className="relative z-30 w-full max-w-md mx-4">
-        <div className="border-4 border-amber-600/50 bg-black/95 p-8 backdrop-blur-sm shadow-[0_0_50px_rgba(245,158,11,0.3)]">
+        {/* Decorative Frame */}
+        <div className="absolute -inset-4 border-2 border-amber-800/30 rounded-sm" />
+        <div className="absolute -inset-2 border border-amber-700/20 rounded-sm" />
+
+        <div
+          className="relative p-8 backdrop-blur-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(40, 32, 24, 0.98) 0%, rgba(30, 24, 18, 0.98) 100%)',
+            boxShadow: '0 0 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 215, 0, 0.1)',
+            border: '1px solid rgba(212, 165, 116, 0.3)',
+          }}
+        >
           {/* Header */}
           <div className="text-center mb-8">
-            <Link href="/" className="inline-block mb-4">
-              <h1 className="text-4xl font-black text-amber-500 tracking-[0.3em] font-mono hover:text-amber-400 transition-colors">
-                DETECTIVE SIGMA
-              </h1>
-            </Link>
-            <div className="border-2 border-amber-600/50 bg-black px-4 py-2 inline-block">
-              <p className="text-amber-400 font-mono text-sm tracking-wider">
-                🔐 SECURE ACCESS REQUIRED
-              </p>
+            <div className="mb-4 text-5xl">🔎</div>
+            <h1
+              className="text-3xl font-bold tracking-widest mb-2"
+              style={{
+                fontFamily: "'Times New Roman', serif",
+                color: '#d4a574',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              DETECTIVE SIGMA
+            </h1>
+            <p
+              className="text-sm tracking-[0.3em] uppercase"
+              style={{ color: '#8b7355' }}
+            >
+              221B Baker Street
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-700/50" />
+              <span className="text-amber-700/70 text-xs">EST. 2025</span>
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-700/50" />
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 border-2 border-red-600 bg-red-900/20 p-4">
-              <p className="text-red-400 font-mono text-sm text-center">⚠️ {error}</p>
+            <div
+              className="mb-6 p-4 text-center"
+              style={{
+                background: 'rgba(139, 69, 19, 0.2)',
+                border: '1px solid rgba(139, 69, 19, 0.4)',
+              }}
+            >
+              <p className="text-red-400 text-sm" style={{ fontFamily: "'Times New Roman', serif" }}>
+                ⚠ {error}
+              </p>
             </div>
           )}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-amber-400 font-mono text-sm tracking-wider mb-2">
-                EMAIL ADDRESS
+              <label
+                htmlFor="email"
+                className="block text-xs tracking-widest mb-2 uppercase"
+                style={{ color: '#8b7355' }}
+              >
+                Electronic Mail
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black border-2 border-amber-600/50 text-amber-50 px-4 py-3 font-mono focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-600/50 transition-all"
-                placeholder="detective@example.com"
+                className="w-full px-4 py-3 text-amber-100 placeholder-amber-900/50 focus:outline-none transition-all"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  border: '1px solid rgba(212, 165, 116, 0.3)',
+                  fontFamily: "'Times New Roman', serif",
+                }}
+                placeholder="detective@bakerstreet.com"
                 required
                 disabled={isLoading}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-amber-400 font-mono text-sm tracking-wider mb-2">
-                PASSWORD
+              <label
+                htmlFor="password"
+                className="block text-xs tracking-widest mb-2 uppercase"
+                style={{ color: '#8b7355' }}
+              >
+                Secret Cipher
               </label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black border-2 border-amber-600/50 text-amber-50 px-4 py-3 font-mono focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-600/50 transition-all"
+                className="w-full px-4 py-3 text-amber-100 placeholder-amber-900/50 focus:outline-none transition-all"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  border: '1px solid rgba(212, 165, 116, 0.3)',
+                  fontFamily: "'Times New Roman', serif",
+                }}
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
@@ -146,51 +203,94 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-amber-600 hover:bg-amber-500 text-black font-mono font-bold py-4 tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(245,158,11,0.6)]"
+              className="w-full py-4 font-bold tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110"
+              style={{
+                background: 'linear-gradient(135deg, #8b6914 0%, #6b4f0f 100%)',
+                color: '#1a1510',
+                fontFamily: "'Times New Roman', serif",
+                boxShadow: '0 4px 15px rgba(139, 105, 20, 0.3)',
+                border: '1px solid rgba(212, 165, 116, 0.5)',
+              }}
             >
-              {isLoading ? 'ACCESSING...' : 'LOGIN →'}
+              {isLoading ? 'DEDUCING...' : 'ENTER THE STUDY'}
             </button>
           </form>
 
           {/* Register Links */}
-          <div className="mt-8 pt-6 border-t border-amber-600/30">
-            <p className="text-slate-500 font-mono text-xs text-center mb-4 tracking-wider">
-              NEW DETECTIVE?
+          <div className="mt-8 pt-6" style={{ borderTop: '1px solid rgba(212, 165, 116, 0.2)' }}>
+            <p className="text-center text-xs tracking-widest mb-4 uppercase" style={{ color: '#6b5344' }}>
+              New to the Agency?
             </p>
             <div className="space-y-3">
               <Link
                 href="/register/student"
-                className="block w-full border-2 border-amber-600/50 bg-black hover:bg-amber-600/10 text-amber-400 py-3 text-center font-mono text-sm tracking-wider transition-all hover:border-amber-600"
+                className="block w-full py-3 text-center text-sm tracking-wider transition-all hover:brightness-125"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  color: '#d4a574',
+                  border: '1px solid rgba(212, 165, 116, 0.3)',
+                  fontFamily: "'Times New Roman', serif",
+                }}
               >
-                REGISTER AS STUDENT
+                Register as Student Detective
               </Link>
               <Link
                 href="/register/teacher"
-                className="block w-full border-2 border-slate-600/50 bg-black hover:bg-slate-700/10 text-slate-400 py-3 text-center font-mono text-sm tracking-wider transition-all hover:border-slate-500"
+                className="block w-full py-3 text-center text-sm tracking-wider transition-all hover:brightness-125"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  color: '#8b7355',
+                  border: '1px solid rgba(139, 115, 85, 0.3)',
+                  fontFamily: "'Times New Roman', serif",
+                }}
               >
-                REGISTER AS TEACHER
+                Register as Master Detective
               </Link>
             </div>
           </div>
 
-          {/* Back to Home */}
+          {/* Quote */}
           <div className="mt-6 text-center">
-            <Link
-              href="/"
-              className="text-slate-600 hover:text-amber-400 font-mono text-xs tracking-wider transition-colors"
+            <p
+              className="text-xs italic"
+              style={{ color: '#5a4a3a', fontFamily: "'Times New Roman', serif" }}
             >
-              ← BACK TO HOME
-            </Link>
+              "The game is afoot!"
+            </p>
           </div>
         </div>
 
-        {/* Case File Number */}
-        <div className="mt-4 text-center">
-          <p className="text-slate-700 font-mono text-xs tracking-wider">
-            CASE FILE #AUTH-2025 • CLASSIFIED ACCESS
+        {/* Bottom Decoration */}
+        <div className="mt-6 text-center">
+          <p className="text-xs tracking-widest" style={{ color: '#4a3a2a' }}>
+            CASE FILE #2025 • CONFIDENTIAL
           </p>
         </div>
       </div>
+
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes fog {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0%); }
+        }
+        .animate-fog {
+          animation: fog 30s linear infinite;
+        }
+        @keyframes smoke {
+          0% {
+            opacity: 0.3;
+            transform: translateY(0) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-100px) scale(2);
+          }
+        }
+        .animate-smoke {
+          animation: smoke 3s ease-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
