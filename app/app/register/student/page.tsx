@@ -51,79 +51,69 @@ export default function StudentRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black py-8">
-      {/* Dramatic Background */}
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
+      {/* Detective Background Image */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          background: `
-            radial-gradient(circle at 50% 50%, rgba(255, 180, 0, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
-            radial-gradient(circle at 80% 20%, rgba(255, 200, 0, 0.1) 0%, transparent 40%),
-            linear-gradient(180deg, #000000 0%, #0a0a0a 100%)
-          `,
+          backgroundImage: 'url(/images/detective-bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+          backgroundRepeat: 'no-repeat',
         }}
       />
 
-      {/* Grid Pattern */}
+      {/* Dark Overlay for readability */}
       <div
-        className="absolute inset-0 z-1 opacity-20"
+        className="absolute inset-0 z-1"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 200, 0, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 200, 0, 0.3) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.9) 100%)',
         }}
       />
 
-      {/* Decorative Icons */}
-      <div className="absolute top-6 left-6 text-6xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🎓</div>
-      <div className="absolute top-6 right-6 text-5xl z-10 drop-shadow-[0_0_20px_rgba(255,200,0,0.8)]">🔍</div>
-      <div className="absolute bottom-6 left-6 text-5xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">📚</div>
-      <div className="absolute bottom-6 right-6 text-5xl z-10 drop-shadow-[0_0_15px_rgba(255,150,0,0.6)]">🏆</div>
+      {/* Gold accent glow at top */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 z-2"
+        style={{
+          background: 'radial-gradient(ellipse at top, rgba(255, 215, 0, 0.15) 0%, transparent 70%)',
+        }}
+      />
 
       {/* Registration Card */}
-      <div className="relative z-30 w-full max-w-md mx-4">
+      <div className="relative z-30 w-full max-w-md mx-4 my-8">
         {/* Glowing Border */}
         <div
-          className="absolute -inset-1 rounded-lg opacity-75 blur-sm"
+          className="absolute -inset-1 rounded-lg opacity-60 blur-sm"
           style={{
             background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
           }}
         />
 
         <div
-          className="relative p-8 rounded-lg"
+          className="relative p-6 md:p-8 rounded-lg"
           style={{
-            background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
+            background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%)',
             border: '2px solid #ffd700',
-            boxShadow: '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(0, 0, 0, 0.8)',
+            boxShadow: '0 0 50px rgba(255, 215, 0, 0.3), inset 0 0 80px rgba(0, 0, 0, 0.9)',
           }}
         >
           {/* Header */}
           <div className="text-center mb-6">
-            <div
-              className="mb-3 text-5xl"
-              style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))' }}
-            >
-              🎓
-            </div>
             <h1
-              className="text-3xl font-black tracking-[0.15em] mb-2"
+              className="text-2xl md:text-3xl font-black tracking-[0.15em] mb-2"
               style={{
                 color: '#ffd700',
-                textShadow: '0 0 20px rgba(255, 215, 0, 0.8)',
+                textShadow: '0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4)',
                 fontFamily: "'Impact', 'Arial Black', sans-serif",
               }}
             >
-              STUDENT REGISTRATION
+              JOIN THE AGENCY
             </h1>
             <p
-              className="text-sm tracking-[0.3em] uppercase font-bold"
-              style={{ color: '#ff9500' }}
+              className="text-sm tracking-[0.2em] uppercase font-bold"
+              style={{ color: '#ff9500', textShadow: '0 0 10px rgba(255, 149, 0, 0.5)' }}
             >
-              Join the Detective Agency
+              Student Detective Registration
             </p>
           </div>
 
@@ -132,9 +122,9 @@ export default function StudentRegisterPage() {
             <div
               className="mb-4 p-3 text-center rounded"
               style={{
-                background: 'rgba(220, 38, 38, 0.2)',
-                border: '2px solid #dc2626',
-                boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)',
+                background: 'rgba(220, 38, 38, 0.3)',
+                border: '2px solid #ff4444',
+                boxShadow: '0 0 20px rgba(255, 68, 68, 0.3)',
               }}
             >
               <p className="text-red-400 font-bold text-sm">⚠ {error}</p>
@@ -145,23 +135,23 @@ export default function StudentRegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                className="block text-xs font-bold tracking-[0.15em] mb-1.5 uppercase"
                 style={{ color: '#ffd700' }}
               >
-                Detective Name
+                Detective Codename
               </label>
               <input
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded font-medium focus:outline-none transition-all text-sm"
                 style={{
                   background: 'rgba(0, 0, 0, 0.8)',
                   border: '2px solid #ff9500',
                   color: '#ffffff',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                  boxShadow: 'inset 0 0 15px rgba(0, 0, 0, 0.5)',
                 }}
-                placeholder="Enter your detective name"
+                placeholder="Enter your codename"
                 required
                 disabled={isLoading}
               />
@@ -169,23 +159,23 @@ export default function StudentRegisterPage() {
 
             <div>
               <label
-                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                className="block text-xs font-bold tracking-[0.15em] mb-1.5 uppercase"
                 style={{ color: '#ffd700' }}
               >
-                School Email
+                Secure Email
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded font-medium focus:outline-none transition-all text-sm"
                 style={{
                   background: 'rgba(0, 0, 0, 0.8)',
                   border: '2px solid #ff9500',
                   color: '#ffffff',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                  boxShadow: 'inset 0 0 15px rgba(0, 0, 0, 0.5)',
                 }}
-                placeholder="name@students.edu.sg"
+                placeholder="your.email@school.edu.sg"
                 required
                 disabled={isLoading}
               />
@@ -193,7 +183,7 @@ export default function StudentRegisterPage() {
 
             <div>
               <label
-                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                className="block text-xs font-bold tracking-[0.15em] mb-1.5 uppercase"
                 style={{ color: '#ffd700' }}
               >
                 Secret Cipher (Password)
@@ -202,14 +192,14 @@ export default function StudentRegisterPage() {
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded font-medium focus:outline-none transition-all text-sm"
                 style={{
                   background: 'rgba(0, 0, 0, 0.8)',
                   border: '2px solid #ff9500',
                   color: '#ffffff',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                  boxShadow: 'inset 0 0 15px rgba(0, 0, 0, 0.5)',
                 }}
-                placeholder="Min. 6 characters"
+                placeholder="Minimum 6 characters"
                 required
                 disabled={isLoading}
               />
@@ -217,99 +207,99 @@ export default function StudentRegisterPage() {
 
             <div>
               <label
-                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase"
+                className="block text-xs font-bold tracking-[0.15em] mb-1.5 uppercase"
                 style={{ color: '#ffd700' }}
               >
-                Grade Level
+                Detective Rank
               </label>
               <select
                 value={formData.gradeLevel}
                 onChange={(e) => setFormData({ ...formData, gradeLevel: e.target.value as 'P4' | 'P5' | 'P6' })}
-                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded font-medium focus:outline-none transition-all text-sm"
                 style={{
                   background: 'rgba(0, 0, 0, 0.8)',
                   border: '2px solid #ff9500',
                   color: '#ffffff',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
+                  boxShadow: 'inset 0 0 15px rgba(0, 0, 0, 0.5)',
                 }}
                 required
                 disabled={isLoading}
               >
-                <option value="P4">PRIMARY 4 (Rookie Detective)</option>
-                <option value="P5">PRIMARY 5 (Junior Detective)</option>
-                <option value="P6">PRIMARY 6 (Senior Detective)</option>
+                <option value="P4">PRIMARY 4 - Rookie</option>
+                <option value="P5">PRIMARY 5 - Junior</option>
+                <option value="P6">PRIMARY 6 - Senior</option>
               </select>
             </div>
 
             <div
               className="flex items-start gap-3 p-3 rounded"
               style={{
-                background: 'rgba(255, 215, 0, 0.05)',
-                border: '1px solid rgba(255, 215, 0, 0.3)',
+                background: 'rgba(255, 215, 0, 0.08)',
+                border: '1px solid rgba(255, 215, 0, 0.4)',
               }}
             >
               <input
                 type="checkbox"
                 checked={formData.parentConsent}
                 onChange={(e) => setFormData({ ...formData, parentConsent: e.target.checked })}
-                className="mt-1 w-5 h-5"
+                className="mt-0.5 w-5 h-5 rounded"
                 style={{ accentColor: '#ffd700' }}
                 required
                 disabled={isLoading}
               />
-              <label className="text-sm" style={{ color: '#cccccc' }}>
-                I confirm my parent/guardian has given consent for me to join Detective Sigma for educational purposes.
+              <label className="text-xs leading-relaxed" style={{ color: '#dddddd' }}>
+                I confirm my parent/guardian has approved my registration to Detective Sigma for educational mystery-solving.
               </label>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded font-black text-lg tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+              className="w-full py-3.5 rounded font-black text-base tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] hover:brightness-110"
               style={{
                 background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
                 color: '#000000',
-                boxShadow: '0 0 30px rgba(255, 215, 0, 0.5)',
+                boxShadow: '0 0 40px rgba(255, 215, 0, 0.5), 0 4px 20px rgba(0, 0, 0, 0.3)',
                 border: '2px solid #ffea00',
               }}
             >
-              {isLoading ? '🔄 REGISTERING...' : '🎓 CREATE ACCOUNT'}
+              {isLoading ? '🔄 PROCESSING...' : '🔍 BEGIN INVESTIGATION'}
             </button>
           </form>
 
           {/* Login Link */}
-          <div className="mt-6 pt-4 text-center" style={{ borderTop: '2px solid rgba(255, 215, 0, 0.3)' }}>
-            <p className="text-sm" style={{ color: '#999999' }}>
-              Already a detective?{' '}
+          <div className="mt-5 pt-4 text-center" style={{ borderTop: '1px solid rgba(255, 215, 0, 0.3)' }}>
+            <p className="text-sm" style={{ color: '#aaaaaa' }}>
+              Already recruited?{' '}
               <Link
                 href="/login"
-                className="font-bold hover:underline"
-                style={{ color: '#ffd700' }}
+                className="font-bold hover:underline transition-all"
+                style={{ color: '#ffd700', textShadow: '0 0 10px rgba(255, 215, 0, 0.5)' }}
               >
-                LOGIN HERE
+                ACCESS YOUR FILE
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Bottom Text */}
+        {/* Bottom Badge */}
         <div className="mt-4 text-center">
           <p
-            className="text-sm font-bold tracking-[0.2em]"
-            style={{ color: '#ff9500', textShadow: '0 0 10px rgba(255, 149, 0, 0.5)' }}
+            className="text-xs font-bold tracking-[0.2em] uppercase"
+            style={{ color: '#ff9500', textShadow: '0 0 15px rgba(255, 149, 0, 0.5)' }}
           >
-            CASE FILE #REG-2025 • CADET CLEARANCE
+            🔒 CLASSIFIED • CASE FILE #2025
           </p>
         </div>
       </div>
 
       <style jsx>{`
-        input::placeholder, select::placeholder {
+        input::placeholder {
           color: rgba(255, 200, 0, 0.4);
         }
         input:focus, select:focus {
           border-color: #ffd700 !important;
-          box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5) !important;
+          box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
         }
       `}</style>
     </div>
