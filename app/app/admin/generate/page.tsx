@@ -43,7 +43,6 @@ export default function GenerateCasePage() {
   const [subject, setSubject] = useState<Subject>('MATH');
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>('P5');
   const [puzzleComplexity, setPuzzleComplexity] = useState<PuzzleComplexity>('STANDARD');
-  const [estimatedMinutes, setEstimatedMinutes] = useState(25);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCase, setGeneratedCase] = useState<GeneratedCase | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +64,6 @@ export default function GenerateCasePage() {
           subject,
           gradeLevel,
           puzzleComplexity,
-          constraints: { estimatedMinutes },
         }),
       });
 
@@ -188,26 +186,30 @@ export default function GenerateCasePage() {
               onChange={(e) => setPuzzleComplexity(e.target.value as PuzzleComplexity)}
               className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
             >
-              <option value="BASIC">Basic (~3 min, 1-2 steps)</option>
-              <option value="STANDARD">Standard (~7 min, 2-4 steps)</option>
-              <option value="CHALLENGING">Challenging (~15 min, data tables)</option>
-              <option value="EXPERT">Expert (~25 min, complex analysis)</option>
+              <option value="BASIC">Basic (Quick, 1-2 steps)</option>
+              <option value="STANDARD">Standard (Multi-step reasoning)</option>
+              <option value="CHALLENGING">Challenging (Data analysis required)</option>
+              <option value="EXPERT">Expert (Adult difficulty)</option>
             </select>
+            <p className="text-slate-500 text-xs mt-1">
+              {puzzleComplexity === 'BASIC' && 'Simple single-step problems for younger students'}
+              {puzzleComplexity === 'STANDARD' && 'Multi-step problems requiring reasoning'}
+              {puzzleComplexity === 'CHALLENGING' && 'Complex puzzles with data tables and cross-referencing'}
+              {puzzleComplexity === 'EXPERT' && 'Layered analysis with red herrings - challenges adults!'}
+            </p>
           </div>
 
           {/* Estimated Time */}
           <div>
             <label className="block text-slate-300 font-mono text-sm mb-2">
-              TIME (minutes)
+              TIME (auto-calculated)
             </label>
-            <input
-              type="number"
-              min={20}
-              max={30}
-              value={estimatedMinutes}
-              onChange={(e) => setEstimatedMinutes(parseInt(e.target.value))}
-              className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
-            />
+            <div className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-slate-400">
+              {puzzleComplexity === 'BASIC' && '~12-15 min'}
+              {puzzleComplexity === 'STANDARD' && '~20-25 min'}
+              {puzzleComplexity === 'CHALLENGING' && '~45-60 min'}
+              {puzzleComplexity === 'EXPERT' && '~60-90 min'}
+            </div>
           </div>
         </div>
 
@@ -266,7 +268,7 @@ export default function GenerateCasePage() {
           {/* Case Overview */}
           <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
             <h3 className="text-xl font-bold text-white mb-4">{generatedCase.title}</h3>
-            <div className="grid grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-5 gap-4 mb-4">
               <div className="text-center p-3 bg-slate-800 rounded">
                 <div className="text-amber-400 font-mono text-sm">DIFFICULTY</div>
                 <div className="text-white font-bold">{generatedCase.metadata.difficulty}</div>
@@ -280,7 +282,11 @@ export default function GenerateCasePage() {
                 <div className="text-white font-bold">{generatedCase.metadata.gradeLevel}</div>
               </div>
               <div className="text-center p-3 bg-slate-800 rounded">
-                <div className="text-amber-400 font-mono text-sm">TIME</div>
+                <div className="text-amber-400 font-mono text-sm">COMPLEXITY</div>
+                <div className="text-white font-bold">{generatedCase.metadata.puzzleComplexity || puzzleComplexity}</div>
+              </div>
+              <div className="text-center p-3 bg-slate-800 rounded">
+                <div className="text-amber-400 font-mono text-sm">EST. TIME</div>
                 <div className="text-white font-bold">{generatedCase.metadata.estimatedMinutes} min</div>
               </div>
             </div>
