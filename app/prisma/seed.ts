@@ -61,33 +61,42 @@ async function main() {
   const case1 = await prisma.case.create({
     data: {
       title: 'The Missing Canteen Money',
-      description: '$50 missing from the school canteen register. Can you solve this mystery?',
-      difficulty: 'ROOKIE',
-      subjectFocus: 'MATH',
-      estimatedMinutes: 30,
-      coverImage: '💰',
-      storyIntro: `It's a typical Monday morning at Sunrise Primary School. Mrs. Tan, the canteen manager, arrives to find something shocking: $50 is missing from yesterday's register!
+      description: `$50 missing from the school canteen register. Can you solve this mystery?
+
+It's a typical Monday morning at Sunrise Primary School. Mrs. Tan, the canteen manager, arrives to find something shocking: $50 is missing from yesterday's register!
 
 The canteen had a busy day on Friday, with lunch and recess sales. The money should have been locked in the cash box, but when Mrs. Tan counted it this morning, she found $50 less than expected.
 
 Three people had access to the canteen after school hours: the cleaner (Mr. Lim), the science teacher (Miss Chen), and a student helper (Alex). Each has an alibi, but the numbers don't add up.
 
 Your mission: Investigate the canteen, collect clues, solve puzzles, and figure out what really happened to the missing money!`,
-      learningObjectives: [
-        'Apply addition and subtraction with money',
-        'Understand time calculations',
-        'Analyze data from receipts',
-        'Practice problem-solving with real-world scenarios',
-      ],
-      skills: ['Addition', 'Subtraction', 'Money', 'Time', 'Data Analysis'],
-      published: true,
+      subject: 'Mathematics',
+      difficulty: 'ROOKIE',
+      subjectFocus: 'MATH',
+      estimatedMinutes: 30,
+      coverImage: '💰',
+      learningObjectives: {
+        primary: 'Apply addition and subtraction with money',
+        secondary: [
+          'Understand time calculations',
+          'Analyze data from receipts',
+          'Practice problem-solving with real-world scenarios',
+        ],
+      },
+      skillsAssessed: {
+        problem_solving: 40,
+        computation: 30,
+        data_analysis: 30,
+      },
+      status: 'PUBLISHED',
       scenes: {
         create: [
           {
             name: 'School Canteen',
             description: 'The bustling canteen where the money went missing',
             imageUrl: '/scenes/canteen.jpg',
-            order: 1,
+            orderIndex: 1,
+            isInitialScene: true,
             clues: {
               create: [
                 {
@@ -96,8 +105,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
                   positionX: 30,
                   positionY: 40,
                   contentRevealed: 'The receipt shows Friday\'s total sales were $450. Mrs. Tan counted $400 in the cash box.',
-                  requiredPuzzleId: null,
-                  order: 1,
                 },
                 {
                   name: 'Time Log Book',
@@ -105,8 +112,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
                   positionX: 50,
                   positionY: 60,
                   contentRevealed: 'Mr. Lim signed in at 6:00 PM. Alex left at 5:45 PM. Miss Chen came at 6:30 PM.',
-                  requiredPuzzleId: null,
-                  order: 2,
                 },
               ],
             },
@@ -115,7 +120,7 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             name: 'Kitchen Storage',
             description: 'The staff kitchen where supplies are kept',
             imageUrl: '/scenes/kitchen.jpg',
-            order: 2,
+            orderIndex: 2,
             clues: {
               create: [
                 {
@@ -124,8 +129,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
                   positionX: 25,
                   positionY: 35,
                   contentRevealed: 'Only Alex was scheduled to close the canteen on Friday.',
-                  requiredPuzzleId: null,
-                  order: 1,
                 },
               ],
             },
@@ -134,7 +137,7 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             name: 'School Office',
             description: 'The administrative office',
             imageUrl: '/scenes/office.jpg',
-            order: 3,
+            orderIndex: 3,
             clues: {
               create: [
                 {
@@ -143,8 +146,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
                   positionX: 40,
                   positionY: 50,
                   contentRevealed: 'Alex\'s locker contains $50 in cash!',
-                  requiredPuzzleId: null,
-                  order: 1,
                 },
                 {
                   name: 'Confession Letter',
@@ -152,8 +153,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
                   positionX: 60,
                   positionY: 30,
                   contentRevealed: 'Alex wrote: "I needed money for my mother\'s medicine. I\'m sorry."',
-                  requiredPuzzleId: null,
-                  order: 2,
                 },
               ],
             },
@@ -169,7 +168,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             correctAnswer: '50',
             hint: 'Subtract: $450 - $400 = ?',
             points: 10,
-            order: 1,
           },
           {
             title: 'Time Problem',
@@ -178,7 +176,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             correctAnswer: '15',
             hint: 'Calculate the time difference between 5:45 PM and 6:00 PM.',
             points: 10,
-            order: 2,
           },
         ],
       },
@@ -190,7 +187,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             bio: 'Has worked at the school for 10 years. Very reliable.',
             isCulprit: false,
             imageUrl: '🧹',
-            order: 1,
           },
           {
             name: 'Miss Chen',
@@ -198,7 +194,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             bio: 'New teacher, started 6 months ago.',
             isCulprit: false,
             imageUrl: '👩‍🔬',
-            order: 2,
           },
           {
             name: 'Alex',
@@ -206,7 +201,6 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
             bio: 'P6 student, helps in canteen 3 times a week.',
             isCulprit: true,
             imageUrl: '👨‍🎓',
-            order: 3,
           },
         ],
       },
