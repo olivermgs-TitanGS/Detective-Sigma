@@ -220,7 +220,7 @@ export default function LoginPage() {
                 textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
               }}
             >
-              {isLoading ? '🔄 DEDUCING...' : '🔓 ENTER THE STUDY'}
+              {isLoading ? 'VERIFYING CREDENTIALS...' : 'ACCESS CASE FILES'}
             </button>
           </form>
 
