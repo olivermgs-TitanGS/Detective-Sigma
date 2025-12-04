@@ -19,7 +19,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen crime-scene-bg relative overflow-hidden flex items-center justify-center">
-      <MusicThemeSetter theme="menu" />
+      <MusicThemeSetter theme="registration" />
 
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-black opacity-90" />
