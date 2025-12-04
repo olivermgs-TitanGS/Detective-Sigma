@@ -57,7 +57,7 @@ function generateFromTemplate(
   return puzzles;
 }
 
-function generateMathPuzzle(index: number, gradeLevel: string, difficulty: string, story: StoryOutput): Puzzle {
+function generateMathPuzzle(index: number, _gradeLevel: string, difficulty: string, _story: StoryOutput): Puzzle {
   const difficultyMultiplier = {
     ROOKIE: 1,
     INSPECTOR: 1.5,
@@ -104,7 +104,7 @@ function generateMathPuzzle(index: number, gradeLevel: string, difficulty: strin
   };
 }
 
-function generateSciencePuzzle(index: number, gradeLevel: string, difficulty: string, story: StoryOutput): Puzzle {
+function generateSciencePuzzle(index: number, _gradeLevel: string, difficulty: string, _story: StoryOutput): Puzzle {
   const difficultyMultiplier = {
     ROOKIE: 1,
     INSPECTOR: 1.5,

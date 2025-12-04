@@ -8,6 +8,12 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const caseId = searchParams.get('caseId');
 
+    // Debug: Check all progress records in database
+    const allProgress = await prisma.progress.findMany({
+      select: { userId: true, caseId: true, status: true, score: true },
+    });
+    console.log('[Leaderboard] All progress records in DB:', JSON.stringify(allProgress, null, 2));
+
     // Build progress filter - only count SOLVED cases
     const progressFilter: any = { status: 'SOLVED' };
     if (caseId) {
@@ -62,6 +68,8 @@ export async function GET(request: Request) {
     leaderboardWithScores.forEach((entry, index) => {
       entry.rank = index + 1;
     });
+
+    console.log('[Leaderboard] Returning', leaderboardWithScores.length, 'entries');
 
     return NextResponse.json({ leaderboard: leaderboardWithScores });
   } catch (error) {

@@ -1,4 +1,4 @@
-import { GenerationRequest, GeneratedCase, CaseFingerprint } from '../types';
+import { GenerationRequest, GeneratedCase } from '../types';
 import { createGeneratorLogger } from '../utils/logger';
 import { generateStory } from './story';
 import { generateSuspects } from './suspects';

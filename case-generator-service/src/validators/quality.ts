@@ -14,7 +14,7 @@ export interface ValidationResult {
 
 export async function validateQuality(
   generatedCase: GeneratedCase,
-  request: GenerationRequest
+  _request: GenerationRequest
 ): Promise<ValidationResult> {
   logger.info({ caseId: generatedCase.caseId }, 'Validating case quality');
 

@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { GenerationRequestSchema, GenerationRequest, GenerationJob } from '../types';
+import { GenerationRequestSchema, GenerationRequest } from '../types';
 import { generateQueue } from '../queue';
 import { v4 as uuidv4 } from 'uuid';
 import { createJob } from '../db/jobs';

@@ -3,7 +3,7 @@ import { config } from './config';
 import { logger, createJobLogger } from './utils/logger';
 import { GenerationRequest, GeneratedCase } from './types';
 import { orchestrateGeneration } from './generators/orchestrator';
-import { createJob, updateJobStatus, incrementJobAttempts } from './db/jobs';
+import { updateJobStatus, incrementJobAttempts } from './db/jobs';
 import { saveGeneratedCase } from './db/cases';
 
 export const generateQueue = new Queue('case-generation', config.redis.url, {
