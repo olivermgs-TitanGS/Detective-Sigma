@@ -6,6 +6,7 @@ import {
   Clue,
   Puzzle,
   Scene,
+  PuzzleComplexity,
 } from './types';
 import {
   storyTemplates,
@@ -18,6 +19,17 @@ import {
   puzzleComplexityConfig,
 } from './templates';
 import { generateUniquePuzzles } from './puzzle-generator';
+import {
+  generatePuzzleForTopic,
+  generatePuzzlesForTopics,
+  getAvailablePuzzleTopics,
+} from './curriculum-puzzles';
+import {
+  selectTopicsForCase,
+  TopicProgress,
+  getRecommendedTopics,
+} from './learning-tracker';
+import { GradeLevel, Subject, getTopicsByGrade, getTopicsBySubject } from './syllabus';
 
 function selectRandom<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -184,22 +196,104 @@ function generateClues(suspects: Suspect[], clueCount: number = 5): Clue[] {
 }
 
 // Generate Puzzles based on complexity (designed for 20-30 min total solve time)
-function generatePuzzles(request: GenerationRequest, puzzleCount: number = 3): Puzzle[] {
-  const { subject, difficulty } = request;
-  const complexity = request.puzzleComplexity || 'STANDARD';
+// Supports two modes:
+// 1. Syllabus-based: Uses curriculum topics and learning progression
+// 2. Legacy: Uses template-based generation for backward compatibility
+function generatePuzzles(
+  request: GenerationRequest,
+  puzzleCount: number = 3,
+  studentProgress?: Record<string, TopicProgress>
+): Puzzle[] {
+  const { subject, difficulty, gradeLevel } = request;
+  const complexity = (request.puzzleComplexity || 'STANDARD') as PuzzleComplexity;
+  const useSyllabus = request.useSyllabus !== false; // Default to true
 
-  // For MATH subject: Use the new modular generator for truly unique puzzles
-  // Each generated puzzle has randomized numbers, names, and scenarios
-  if (subject === 'MATH') {
-    return generateUniquePuzzles(
-      'MATH',
-      complexity as 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT',
-      puzzleCount
-    );
+  // Map grade level to syllabus grade
+  const gradeLevelMap: Record<string, GradeLevel> = {
+    'P4': 'P4',
+    'P5': 'P5',
+    'P6': 'P6',
+    'SECONDARY': 'SECONDARY',
+    'ADULT': 'ADULT',
+  };
+  const syllabusGrade = gradeLevelMap[gradeLevel] || 'P5';
+
+  // Map subject to syllabus subject
+  const subjectMap: Record<string, Subject> = {
+    'MATH': 'MATH',
+    'SCIENCE': 'SCIENCE',
+    'INTEGRATED': 'MATH', // Default to MATH for integrated
+  };
+  const syllabusSubject = subjectMap[subject] || 'MATH';
+
+  // TRY SYLLABUS-BASED GENERATION FIRST
+  if (useSyllabus) {
+    // Get available topic IDs that have puzzle generators
+    const availableTopics = getAvailablePuzzleTopics();
+
+    // Select topics based on student progress or grade level
+    let selectedTopicIds: string[];
+
+    if (studentProgress && Object.keys(studentProgress).length > 0) {
+      // Use learning tracker to select appropriate topics
+      selectedTopicIds = selectTopicsForCase(
+        syllabusGrade,
+        syllabusSubject,
+        studentProgress,
+        puzzleCount
+      );
+    } else {
+      // No student progress - select topics for the grade level
+      const gradeTopics = getTopicsByGrade(syllabusGrade);
+      const subjectTopics = subject === 'INTEGRATED'
+        ? gradeTopics
+        : gradeTopics.filter(t => t.subject === syllabusSubject);
+
+      // Filter to topics that have generators
+      const availableForGrade = subjectTopics
+        .filter(t => availableTopics.includes(t.id))
+        .map(t => t.id);
+
+      // Shuffle and select
+      selectedTopicIds = shuffleArray(availableForGrade).slice(0, puzzleCount);
+    }
+
+    // Generate puzzles for selected topics
+    if (selectedTopicIds.length > 0) {
+      const syllabusBasedPuzzles = generatePuzzlesForTopics(selectedTopicIds, complexity);
+
+      // If we got enough puzzles, return them
+      if (syllabusBasedPuzzles.length >= puzzleCount) {
+        return syllabusBasedPuzzles.slice(0, puzzleCount);
+      }
+
+      // If we got some but not enough, supplement with legacy puzzles
+      if (syllabusBasedPuzzles.length > 0) {
+        const remaining = puzzleCount - syllabusBasedPuzzles.length;
+        const legacyPuzzles = generateLegacyPuzzles(request, remaining, complexity);
+        return [...syllabusBasedPuzzles, ...legacyPuzzles];
+      }
+    }
   }
 
-  // For SCIENCE and INTEGRATED: Use static templates (can be expanded later)
-  // Get complexity configuration
+  // FALLBACK TO LEGACY GENERATION
+  return generateLegacyPuzzles(request, puzzleCount, complexity);
+}
+
+// Legacy puzzle generation for backward compatibility
+function generateLegacyPuzzles(
+  request: GenerationRequest,
+  puzzleCount: number,
+  complexity: PuzzleComplexity
+): Puzzle[] {
+  const { subject, difficulty } = request;
+
+  // For MATH subject: Use the modular generator for unique puzzles
+  if (subject === 'MATH') {
+    return generateUniquePuzzles('MATH', complexity, puzzleCount);
+  }
+
+  // For SCIENCE and INTEGRATED: Use static templates
   const complexityConfig = puzzleComplexityConfig[complexity as keyof typeof puzzleComplexityConfig] || puzzleComplexityConfig.STANDARD;
 
   // Points per puzzle based on difficulty and complexity

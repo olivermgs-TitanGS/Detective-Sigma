@@ -15,6 +15,9 @@ export const GenerationRequestSchema = z.object({
   subject: SubjectEnum,
   gradeLevel: GradeLevelEnum,
   puzzleComplexity: PuzzleComplexityEnum.default('STANDARD'),
+  // Syllabus-based generation options
+  useSyllabus: z.boolean().default(true), // Use curriculum-aligned puzzles
+  topicIds: z.array(z.string()).optional(), // Specific topics to cover
   constraints: z.object({
     excludeThemes: z.array(z.string()).optional(),
     requiredSkills: z.array(z.string()).optional(),
@@ -39,6 +42,9 @@ export interface GeneratedCase {
     subjectFocus: string;
     estimatedMinutes: number;
     puzzleComplexity?: string;
+    // Syllabus tracking
+    syllabusTopicsCovered?: string[]; // Topic IDs covered in this case
+    learningObjectives?: string[];    // Learning objective IDs addressed
   };
   story: {
     setting: string;
@@ -83,6 +89,9 @@ export interface Puzzle {
   estimatedMinutes: number;
   requiresMultipleSteps: boolean;
   dataTablesProvided?: string[];
+  // Syllabus alignment
+  topicId?: string;                    // Syllabus topic ID
+  learningObjectivesCovered?: string[]; // Learning objectives addressed
 }
 
 export interface Scene {
