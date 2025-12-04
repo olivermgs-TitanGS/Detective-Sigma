@@ -486,8 +486,8 @@ let serviceInstance: ImageGenerationService | null = null;
 export function getImageGenerationService(): ImageGenerationService {
   if (!serviceInstance) {
     serviceInstance = new ImageGenerationService({
-      backend: (process.env.IMAGE_GEN_BACKEND as ImageGenerationBackend) || 'automatic1111',
-      baseUrl: process.env.IMAGE_GEN_URL || 'http://localhost:7860',
+      backend: (process.env.IMAGE_GEN_BACKEND as ImageGenerationBackend) || 'comfyui',
+      baseUrl: process.env.IMAGE_GEN_URL || 'http://localhost:8188',
       apiKey: process.env.IMAGE_GEN_API_KEY,
       timeout: parseInt(process.env.IMAGE_GEN_TIMEOUT || '120000'),
     });
