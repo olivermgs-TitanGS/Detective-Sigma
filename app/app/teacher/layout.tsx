@@ -1,86 +1,187 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 
 export default function TeacherLayout({ children }: { children: ReactNode }) {
+  const [currentTime, setCurrentTime] = useState('');
+  const [glitchText, setGlitchText] = useState(false);
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('en-US', { hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Random glitch effect
+  useEffect(() => {
+    const glitchInterval = setInterval(() => {
+      setGlitchText(true);
+      setTimeout(() => setGlitchText(false), 100);
+    }, 5000);
+    return () => clearInterval(glitchInterval);
+  }, []);
+
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
   };
 
   return (
-    <div className="min-h-screen crime-scene-bg relative overflow-hidden">
-      {/* Navigation Bar - Dark Crime Scene Theme */}
-      <nav className="bg-black/90 backdrop-blur-sm border-b-2 border-amber-600/50 sticky top-0 z-40">
+    <div className="min-h-screen bg-black relative overflow-hidden font-mono">
+      {/* Matrix Rain Background */}
+      <div className="fixed inset-0 opacity-10 pointer-events-none overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute text-green-500 text-xs animate-matrix-rain"
+            style={{
+              left: `${i * 5}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${10 + Math.random() * 10}s`,
+            }}
+          >
+            {[...Array(30)].map((_, j) => (
+              <div key={j} className="opacity-50">
+                {String.fromCharCode(0x30A0 + Math.random() * 96)}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Scanlines Effect */}
+      <div
+        className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
+        style={{
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 0, 0.1) 2px, rgba(0, 255, 0, 0.1) 4px)',
+        }}
+      />
+
+      {/* CRT Screen Glow */}
+      <div className="fixed inset-0 pointer-events-none z-40 opacity-30"
+        style={{
+          boxShadow: 'inset 0 0 150px rgba(0, 255, 0, 0.1)',
+        }}
+      />
+
+      {/* Terminal Header Bar */}
+      <nav className="bg-black border-b border-green-500/50 sticky top-0 z-40">
+        {/* Terminal Title Bar */}
+        <div className="bg-green-900/30 border-b border-green-500/30 px-4 py-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+          </div>
+          <span className="text-green-500/70 text-xs">root@detective-sigma:~/teacher</span>
+          <span className="text-green-500/70 text-xs">{currentTime}</span>
+        </div>
+
+        {/* Main Navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-14">
             <div className="flex items-center gap-8">
-              <Link href="/teacher/dashboard" className="text-2xl font-bold text-amber-400 font-mono tracking-widest hover:text-amber-300 transition-colors">
-                👨‍🏫 TEACHER PORTAL
+              <Link
+                href="/teacher/dashboard"
+                className={`text-xl font-bold text-green-400 tracking-wider hover:text-green-300 transition-colors flex items-center gap-2 ${glitchText ? 'animate-pulse' : ''}`}
+              >
+                <span className="text-green-500">&gt;_</span>
+                <span className="text-green-400">TEACHER_TERMINAL</span>
+                <span className="animate-pulse">█</span>
               </Link>
-              <div className="hidden md:flex gap-6">
+              <div className="hidden md:flex gap-1">
                 <Link
                   href="/teacher/dashboard"
-                  className="text-amber-400 hover:text-amber-300 transition-colors font-mono tracking-wider border-b-2 border-transparent hover:border-amber-600"
+                  className="text-green-400 hover:text-green-300 hover:bg-green-500/10 px-3 py-1 transition-colors text-sm border border-transparent hover:border-green-500/30"
                 >
-                  DASHBOARD
+                  [DASHBOARD]
                 </Link>
                 <Link
                   href="/teacher/classes"
-                  className="text-amber-400 hover:text-amber-300 transition-colors font-mono tracking-wider border-b-2 border-transparent hover:border-amber-600"
+                  className="text-green-400 hover:text-green-300 hover:bg-green-500/10 px-3 py-1 transition-colors text-sm border border-transparent hover:border-green-500/30"
                 >
-                  MY CLASSES
+                  [CLASSES]
                 </Link>
                 <Link
                   href="/teacher/reports"
-                  className="text-amber-400 hover:text-amber-300 transition-colors font-mono tracking-wider border-b-2 border-transparent hover:border-amber-600"
+                  className="text-green-400 hover:text-green-300 hover:bg-green-500/10 px-3 py-1 transition-colors text-sm border border-transparent hover:border-green-500/30"
                 >
-                  REPORTS
+                  [REPORTS]
                 </Link>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-slate-400 font-mono text-sm tracking-wider">INSTRUCTOR ACCESS</span>
+              <span className="text-green-600 text-xs hidden sm:block">
+                ACCESS_LEVEL: <span className="text-green-400">ADMIN</span>
+              </span>
               <button
                 onClick={handleLogout}
-                className="border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-4 py-2 transition-all font-mono font-bold tracking-wider"
+                className="border border-red-500/50 bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 px-4 py-1 transition-all text-sm"
               >
-                LOGOUT
+                [EXIT]
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Crime Scene Tape Strips */}
-      <div className="relative w-full h-16 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-2 left-0 w-full h-12 flex items-center justify-center transform -rotate-2"
-          style={{
-            background: 'repeating-linear-gradient(45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
-            boxShadow: '0 6px 12px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.5)'
-          }}
-        >
-          <div className="whitespace-nowrap animate-marquee">
-            <span
-              className="inline-block font-black tracking-[1em] text-lg px-8"
-              style={{
-                color: '#000000',
-                fontFamily: 'Impact, Arial Black, sans-serif',
-                textShadow: '1px 1px 0px rgba(255,215,0,0.3), -1px -1px 0px rgba(0,0,0,0.3)'
-              }}
-            >
-              TEACHER ZONE DO NOT DISTURB • TEACHER ZONE DO NOT DISTURB • TEACHER ZONE DO NOT DISTURB • TEACHER ZONE DO NOT DISTURB •
-            </span>
+      {/* System Status Bar */}
+      <div className="bg-green-900/10 border-b border-green-500/20 px-4 py-2 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-green-600">
+          <div className="flex items-center gap-6">
+            <span>◉ SYSTEM: <span className="text-green-400">ONLINE</span></span>
+            <span>◉ DATABASE: <span className="text-green-400">CONNECTED</span></span>
+            <span className="hidden sm:inline">◉ ENCRYPTION: <span className="text-green-400">AES-256</span></span>
+          </div>
+          <div className="animate-pulse text-green-500">
+            █ SECURE CONNECTION ESTABLISHED █
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {children}
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
+        {/* Terminal Window Frame */}
+        <div className="border border-green-500/30 bg-black/80 min-h-[calc(100vh-200px)]">
+          {/* Terminal Content Header */}
+          <div className="border-b border-green-500/20 px-4 py-2 flex items-center gap-2 text-green-600 text-xs">
+            <span>$</span>
+            <span className="text-green-400">./run_dashboard.sh</span>
+            <span className="animate-pulse">|</span>
+          </div>
+
+          {/* Content */}
+          <div className="p-4 text-green-100">
+            {children}
+          </div>
+        </div>
+
+        {/* Terminal Footer */}
+        <div className="mt-4 text-center text-green-700 text-xs">
+          <span>DETECTIVE SIGMA EDUCATIONAL SYSTEM v2.0.25 | </span>
+          <span>SESSION ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
+        </div>
       </main>
+
+      {/* Custom Styles */}
+      <style jsx>{`
+        @keyframes matrix-rain {
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(100vh);
+          }
+        }
+        .animate-matrix-rain {
+          animation: matrix-rain linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
