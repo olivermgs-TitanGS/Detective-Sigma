@@ -50,6 +50,20 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen crime-scene-bg relative overflow-hidden flex items-center justify-center">
+      {/* Crime Scene Tape - Top */}
+      <div className="crime-tape top-[8%] -left-[10%] -rotate-3">
+        <span className="crime-tape-text">
+          CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS • CRIME SCENE DO NOT CROSS •
+        </span>
+      </div>
+
+      {/* Crime Scene Tape - Bottom */}
+      <div className="crime-tape bottom-[12%] -left-[10%] rotate-2">
+        <span className="crime-tape-text" style={{ animationDirection: 'reverse' }}>
+          POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS • POLICE LINE DO NOT CROSS •
+        </span>
+      </div>
+
       {/* Background decorations */}
       <div className="chalk-body-outline" style={{ top: '10%', left: '5%', transform: 'rotate(25deg)', width: '200px', opacity: 0.1 }}></div>
       <div className="chalk-body-outline" style={{ bottom: '15%', right: '10%', transform: 'rotate(-15deg)', width: '180px', opacity: 0.1 }}></div>
