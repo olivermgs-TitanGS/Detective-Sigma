@@ -1,7 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import { signOut } from 'next-auth/react';
 
 export default function TeacherLayout({ children }: { children: ReactNode }) {
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
+
   return (
     <div className="min-h-screen crime-scene-bg relative overflow-hidden">
       {/* Navigation Bar - Dark Crime Scene Theme */}
@@ -35,7 +42,10 @@ export default function TeacherLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-slate-400 font-mono text-sm tracking-wider">INSTRUCTOR ACCESS</span>
-              <button className="border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-4 py-2 transition-all font-mono font-bold tracking-wider">
+              <button
+                onClick={handleLogout}
+                className="border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-4 py-2 transition-all font-mono font-bold tracking-wider"
+              >
                 LOGOUT
               </button>
             </div>
