@@ -22,10 +22,11 @@ model User {
   id String @id @default(uuid())
   email String @unique
   username String @unique
-  hashedPassword String
+  hashedPassword String?
   role UserRole @default(STUDENT)
 
-  // Email verification
+  // OAuth fields
+  image String?
   emailVerified DateTime?
 
   createdAt DateTime @default(now())

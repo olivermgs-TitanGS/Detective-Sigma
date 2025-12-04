@@ -134,14 +134,3 @@ export async function sendPasswordResetEmail(email: string, username: string, to
   });
 }
 
-export async function sendParentConsentEmail(
-  parentEmail: string,
-  studentUsername: string,
-  token: string
-) {
-  return sendEmail({
-    to: parentEmail,
-    subject: `Parent Consent Required for ${studentUsername} - ${APP_NAME}`,
-    html: getParentConsentEmailHtml(studentUsername, parentEmail, token),
-  });
-}
