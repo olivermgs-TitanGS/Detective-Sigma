@@ -17,13 +17,19 @@ export default function LeaderboardPage() {
   useEffect(() => {
     async function fetchLeaderboard() {
       try {
+        console.log('[Leaderboard Page] Fetching...');
         const res = await fetch('/api/leaderboard?limit=50');
+        console.log('[Leaderboard Page] Response status:', res.status);
+
         if (res.ok) {
           const data = await res.json();
+          console.log('[Leaderboard Page] Data received:', data);
           setLeaderboard(data.leaderboard || []);
+        } else {
+          console.error('[Leaderboard Page] API error:', res.status, await res.text());
         }
       } catch (err) {
-        console.error('Error fetching leaderboard:', err);
+        console.error('[Leaderboard Page] Fetch error:', err);
       } finally {
         setLoading(false);
       }
