@@ -24,12 +24,18 @@ interface ActiveCase {
   };
 }
 
-interface RecentActivity {
+interface ProgressData {
   id: string;
+  caseId: string;
   status: string;
   score: number;
-  updatedAt: string;
+  cluesCollected: string[];
+  puzzlesSolved: string[];
+  timeSpent: number;
+  startedAt: string;
+  completedAt: string | null;
   case: {
+    id: string;
     title: string;
     difficulty: string;
     coverImage: string;
@@ -44,27 +50,39 @@ export default function StudentDashboard() {
     rank: 0,
   });
   const [activeCases, setActiveCases] = useState<ActiveCase[]>([]);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [allProgress, setAllProgress] = useState<ProgressData[]>([]);
+  const [totalCases, setTotalCases] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchDashboard() {
       try {
-        const res = await fetch('/api/dashboard', {
-          credentials: 'include',
-        });
-        if (res.status === 401) {
-          // User not logged in, redirect to login
+        // Fetch dashboard, progress, and total cases in parallel
+        const [dashboardRes, progressRes, casesRes] = await Promise.all([
+          fetch('/api/dashboard', { credentials: 'include' }),
+          fetch('/api/progress', { credentials: 'include' }),
+          fetch('/api/cases?published=true', { credentials: 'include' }),
+        ]);
+
+        if (dashboardRes.status === 401) {
           window.location.href = '/api/auth/signin';
           return;
         }
-        if (res.ok) {
-          const data = await res.json();
+
+        if (dashboardRes.ok) {
+          const data = await dashboardRes.json();
           setStats(data.stats);
           setActiveCases(data.activeCases || []);
-          setRecentActivity(data.recentActivity || []);
-        } else {
-          console.error('Dashboard API error:', res.status);
+        }
+
+        if (progressRes.ok) {
+          const data = await progressRes.json();
+          setAllProgress(data.progress || []);
+        }
+
+        if (casesRes.ok) {
+          const data = await casesRes.json();
+          setTotalCases(data.cases?.length || 0);
         }
       } catch (err) {
         console.error('Error fetching dashboard:', err);
@@ -76,13 +94,23 @@ export default function StudentDashboard() {
     fetchDashboard();
   }, []);
 
+  const solveRate = totalCases > 0 && stats
+    ? Math.round((stats.casesSolved / totalCases) * 100)
+    : 0;
+
+  const formatTime = (minutes: number) => {
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-SG', {
       day: 'numeric',
       month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: 'numeric',
     });
   };
 
@@ -93,17 +121,6 @@ export default function StudentDashboard() {
       case 'DETECTIVE': return 'text-orange-400 border-orange-400';
       case 'CHIEF': return 'text-red-400 border-red-400';
       default: return 'text-purple-400 border-purple-400';
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'SOLVED':
-        return <span className="text-green-400 font-mono text-xs">SOLVED</span>;
-      case 'IN_PROGRESS':
-        return <span className="text-yellow-400 font-mono text-xs">IN PROGRESS</span>;
-      default:
-        return <span className="text-slate-400 font-mono text-xs">NEW</span>;
     }
   };
 
@@ -120,44 +137,63 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-8">
-        {/* Welcome Section - Crime Scene Style */}
+      {/* Welcome Section - Crime Scene Style */}
       <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
         <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
-          WELCOME BACK, DETECTIVE
+          DETECTIVE DOSSIER
         </h1>
         <p className="text-slate-400 font-mono tracking-wide">
-          &gt; Ready to solve mysteries and close cases?
+          &gt; Your investigative record and case statistics
         </p>
       </div>
 
       {/* Stats Grid - Evidence Tags */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
           <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.casesSolved}</div>
-          <div className="text-slate-400 font-mono text-sm tracking-wider">CASES SOLVED</div>
+          <div className="text-amber-400 font-mono text-sm tracking-wider">CASES CLOSED</div>
+          <div className="text-slate-500 text-xs font-mono mt-1">
+            &gt; Out of {totalCases}
+          </div>
         </div>
         <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
           <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalScore}</div>
-          <div className="text-slate-400 font-mono text-sm tracking-wider">TOTAL SCORE</div>
+          <div className="text-amber-400 font-mono text-sm tracking-wider">TOTAL SCORE</div>
+          <div className="text-slate-500 text-xs font-mono mt-1">
+            &gt; Points earned
+          </div>
         </div>
         <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
           <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalClues}</div>
-          <div className="text-slate-400 font-mono text-sm tracking-wider">CLUES COLLECTED</div>
+          <div className="text-amber-400 font-mono text-sm tracking-wider">CLUES FOUND</div>
+          <div className="text-slate-500 text-xs font-mono mt-1">
+            &gt; Evidence collected
+          </div>
         </div>
         <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
+          <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{solveRate}%</div>
+          <div className="text-amber-400 font-mono text-sm tracking-wider">SOLVE RATE</div>
+          <div className="text-slate-500 text-xs font-mono mt-1">
+            &gt; Cases completed
+          </div>
+        </div>
+        <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors col-span-2 md:col-span-1">
           <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">
             {stats.rank > 0 ? `#${stats.rank}` : '-'}
           </div>
-          <div className="text-slate-400 font-mono text-sm tracking-wider">CURRENT RANK</div>
+          <div className="text-amber-400 font-mono text-sm tracking-wider">RANK</div>
+          <div className="text-slate-500 text-xs font-mono mt-1">
+            &gt; Leaderboard position
+          </div>
         </div>
       </div>
 
       {/* Active Cases - Investigation Board */}
-      <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
-        <h2 className="text-2xl font-bold text-amber-50 font-mono tracking-widest mb-6">
-          ACTIVE INVESTIGATIONS
-        </h2>
-        {activeCases.length > 0 ? (
+      {activeCases.length > 0 && (
+        <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
+          <h2 className="text-2xl font-bold text-amber-50 font-mono tracking-widest mb-6">
+            ACTIVE INVESTIGATIONS
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {activeCases.map((activeCase) => (
               <Link
@@ -183,63 +219,96 @@ export default function StudentDashboard() {
               </Link>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-12 text-slate-400">
-            <div className="text-6xl mb-4">📋</div>
-            <p className="text-lg font-mono">NO ACTIVE CASES</p>
-            <p className="text-sm mt-2 font-mono tracking-wide">
-              &gt; Visit the Case Library to start your first investigation
-            </p>
-            <Link
-              href="/student/cases"
-              className="inline-block mt-6 border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-8 py-3 transition-all font-mono font-bold tracking-wider"
-            >
-              BROWSE CASES
-            </Link>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Recent Activity - Case Log */}
+      {/* Investigation History - Full Case Log */}
       <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
         <h2 className="text-2xl font-bold text-amber-50 font-mono tracking-widest mb-6">
-          CASE LOG - RECENT ACTIVITY
+          INVESTIGATION HISTORY
         </h2>
-        {recentActivity.length > 0 ? (
-          <div className="space-y-3">
-            {recentActivity.map((activity) => (
+
+        {allProgress.length > 0 ? (
+          <div className="space-y-4">
+            {allProgress.map((item) => (
               <div
-                key={activity.id}
-                className="border border-amber-600/20 bg-black/40 p-4 flex items-center justify-between"
+                key={item.id}
+                className={`border-2 p-4 transition-all ${
+                  item.status === 'SOLVED'
+                    ? 'border-green-600/50 bg-green-900/20'
+                    : 'border-amber-600/30 bg-amber-900/10'
+                }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className="text-2xl">{activity.case.coverImage || '📁'}</span>
-                  <div>
-                    <h3 className="text-amber-50 font-mono font-bold">{activity.case.title}</h3>
-                    <div className="flex items-center gap-3 mt-1">
-                      {getStatusBadge(activity.status)}
-                      <span className="text-slate-500 font-mono text-xs">
-                        {formatDate(activity.updatedAt)}
+                  {/* Case Icon */}
+                  <div className="text-4xl">
+                    {item.case.coverImage || '📁'}
+                  </div>
+
+                  {/* Case Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-lg font-bold text-amber-50 font-mono">
+                        {item.case.title}
+                      </h3>
+                      <span className={`text-xs px-2 py-1 font-mono font-bold rounded ${
+                        item.status === 'SOLVED'
+                          ? 'bg-green-900 border border-green-600 text-green-300'
+                          : 'bg-blue-900 border border-blue-600 text-blue-300'
+                      }`}>
+                        {item.status === 'SOLVED' ? 'CLOSED' : 'IN PROGRESS'}
+                      </span>
+                      <span className={`text-xs font-mono border px-2 py-0.5 ${getDifficultyColor(item.case.difficulty)}`}>
+                        {item.case.difficulty}
                       </span>
                     </div>
+                    <div className="flex items-center gap-4 text-sm text-slate-400 font-mono">
+                      <span>Started: {formatDate(item.startedAt)}</span>
+                      {item.completedAt && (
+                        <span>Completed: {formatDate(item.completedAt)}</span>
+                      )}
+                      <span>Time: {formatTime(item.timeSpent || 0)}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-amber-400 font-mono font-bold">{activity.score} pts</div>
-                  <span className={`text-xs font-mono ${getDifficultyColor(activity.case.difficulty)}`}>
-                    {activity.case.difficulty}
-                  </span>
+
+                  {/* Stats */}
+                  <div className="text-right hidden sm:block">
+                    <div className="text-2xl font-bold text-amber-400 font-mono">
+                      {item.score} pts
+                    </div>
+                    <div className="text-sm text-slate-400 font-mono">
+                      {item.cluesCollected?.length || 0} clues · {item.puzzlesSolved?.length || 0} puzzles
+                    </div>
+                  </div>
+
+                  {/* Action */}
+                  <Link
+                    href={`/student/cases/${item.caseId}/play`}
+                    className={`px-4 py-2 font-mono font-bold text-sm transition-all rounded ${
+                      item.status === 'SOLVED'
+                        ? 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                        : 'bg-amber-600 hover:bg-amber-500 text-black'
+                    }`}
+                  >
+                    {item.status === 'SOLVED' ? 'REVIEW' : 'CONTINUE'}
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-12 text-slate-400">
-            <div className="text-6xl mb-4">📊</div>
-            <p className="text-lg font-mono">NO ACTIVITY LOGGED</p>
+            <div className="text-6xl mb-4">📋</div>
+            <p className="text-lg font-mono">NO INVESTIGATIONS LOGGED</p>
             <p className="text-sm mt-2 font-mono tracking-wide">
-              &gt; Start solving cases to track your progress here
+              &gt; Your case files will appear here once you begin investigating
             </p>
+            <Link
+              href="/student/cases"
+              className="inline-block mt-6 border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-8 py-3 transition-all font-mono font-bold tracking-wider"
+            >
+              OPEN CASE FILES →
+            </Link>
           </div>
         )}
       </div>

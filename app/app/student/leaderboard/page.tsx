@@ -74,15 +74,15 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Top 3 Podium - Award Ceremony */}
+      {/* Visual order: [2nd, 1st, 3rd] so 1st place is in the middle */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[1, 0, 2].map((podiumIndex) => {
-          const entry = top3[podiumIndex];
-          const position = podiumIndex + 1;
-          const displayPosition = podiumIndex === 0 ? 2 : podiumIndex === 1 ? 1 : 3;
+        {[1, 0, 2].map((rank) => {
+          const entry = top3[rank]; // rank 0 = 1st place, rank 1 = 2nd place, rank 2 = 3rd place
+          const displayPosition = rank + 1; // Convert to 1-indexed for display
 
           return (
             <div
-              key={position}
+              key={rank}
               className={`border-2 bg-black/60 backdrop-blur-sm p-8 text-center transition-all hover:scale-105 ${
                 displayPosition === 1
                   ? 'border-amber-500 md:order-1 shadow-[0_0_30px_rgba(245,158,11,0.3)]'

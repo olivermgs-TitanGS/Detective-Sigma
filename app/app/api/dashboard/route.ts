@@ -34,28 +34,35 @@ export async function GET(request: Request) {
       },
     });
 
-    // Calculate stats
-    const casesSolved = progress.filter(p => p.status === 'SOLVED').length;
-    const totalScore = progress.reduce((sum, p) => sum + (p.score || 0), 0);
+    // Calculate stats (only count SOLVED cases for score)
+    const solvedProgress = progress.filter(p => p.status === 'SOLVED');
+    const casesSolved = solvedProgress.length;
+    const totalScore = solvedProgress.reduce((sum, p) => sum + (p.score || 0), 0);
     const totalClues = progress.reduce((sum, p) => {
       const clues = p.cluesCollected as string[] | null;
       return sum + (clues?.length || 0);
     }, 0);
 
-    // Get user's rank
+    // Get user's rank (only count SOLVED cases, same as leaderboard)
     const allUsers = await prisma.user.findMany({
       include: {
-        progress: true,
+        progress: {
+          where: { status: 'SOLVED' },
+        },
       },
     });
 
-    const userScores = allUsers.map(user => ({
-      userId: user.id,
-      totalScore: user.progress.reduce((sum, p) => sum + (p.score || 0), 0),
-    }));
+    const userScores = allUsers
+      .map(user => ({
+        userId: user.id,
+        totalScore: user.progress.reduce((sum, p) => sum + (p.score || 0), 0),
+      }))
+      .filter(u => u.totalScore > 0) // Only users with solved cases
+      .sort((a, b) => b.totalScore - a.totalScore);
 
-    userScores.sort((a, b) => b.totalScore - a.totalScore);
-    const userRank = userScores.findIndex(u => u.userId === userId) + 1;
+    // Find user's rank (0 if not on leaderboard yet)
+    const userRankIndex = userScores.findIndex(u => u.userId === userId);
+    const userRank = userRankIndex >= 0 ? userRankIndex + 1 : 0;
 
     // Get active cases (IN_PROGRESS)
     const activeCases = progress.filter(p => p.status === 'IN_PROGRESS');

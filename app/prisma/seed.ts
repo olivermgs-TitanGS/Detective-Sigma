@@ -65,10 +65,18 @@ async function main() {
 
   console.log('✅ Created demo users');
 
-  // Create demo cases
-  const case1 = await prisma.case.create({
-    data: {
-      title: 'The Missing Canteen Money',
+  // Check if demo case already exists (prevent duplicates)
+  const existingCase = await prisma.case.findFirst({
+    where: { title: 'The Missing Canteen Money' },
+  });
+
+  if (existingCase) {
+    console.log('✅ Case already exists: The Missing Canteen Money (skipping creation)');
+  } else {
+    // Create demo case only if it doesn't exist
+    const case1 = await prisma.case.create({
+      data: {
+        title: 'The Missing Canteen Money',
       description: `$50 missing from the school canteen register. Can you solve this mystery?
 
 It's a typical Monday morning at Sunrise Primary School. Mrs. Tan, the canteen manager, arrives to find something shocking: $50 is missing from yesterday's register!
@@ -213,9 +221,10 @@ Your mission: Investigate the canteen, collect clues, solve puzzles, and figure 
         ],
       },
     },
-  });
+    });
 
-  console.log('✅ Created case: The Missing Canteen Money');
+    console.log('✅ Created case: The Missing Canteen Money');
+  }
 
   console.log('🎉 Seeding completed!');
   console.log('\n📧 Demo Accounts:');

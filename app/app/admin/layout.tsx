@@ -37,6 +37,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 >
                   BULK IMPORT
                 </Link>
+                <Link
+                  href="/admin/generate"
+                  className="text-amber-400 hover:text-amber-300 transition-colors font-mono tracking-wider border-b-2 border-transparent hover:border-amber-600"
+                >
+                  GENERATE
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-4">

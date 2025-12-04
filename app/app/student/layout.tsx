@@ -99,12 +99,6 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
                   CASE LIBRARY
                 </Link>
                 <Link
-                  href="/student/progress"
-                  className="text-slate-400 hover:text-amber-400 transition-colors font-mono tracking-wider text-sm"
-                >
-                  MY PROGRESS
-                </Link>
-                <Link
                   href="/student/leaderboard"
                   className="text-slate-400 hover:text-amber-400 transition-colors font-mono tracking-wider text-sm"
                 >
