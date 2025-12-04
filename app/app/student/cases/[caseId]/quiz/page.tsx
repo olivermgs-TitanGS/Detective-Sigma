@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 const quizData = {
   caseId: '1',
@@ -65,6 +66,7 @@ export default function QuizPage({ params }: { params: { caseId: string } }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
+      <MusicThemeSetter theme="quiz" />
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20  p-8 text-center">

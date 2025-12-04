@@ -6,6 +6,7 @@ import EvidenceBoard from '@/components/game/EvidenceBoard';
 import ClueModal from '@/components/game/ClueModal';
 import PuzzleModal from '@/components/game/PuzzleModal';
 import SuspectDialog from '@/components/game/SuspectDialog';
+import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 // Demo game data - will be fetched from database
 const gameData = {
@@ -220,6 +221,7 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
 
   return (
     <div className="min-h-screen bg-black relative">
+      <MusicThemeSetter theme="investigation" />
       {/* Top Bar */}
       <div className="bg-slate-800/90 backdrop-blur-sm border-b border-purple-500/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3">

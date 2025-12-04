@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { studentRegisterSchema } from '@/lib/validations/auth';
+import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 export default function StudentRegisterPage() {
   const router = useRouter();
@@ -69,6 +70,7 @@ export default function StudentRegisterPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
+      <MusicThemeSetter theme="registration" />
       {/* Detective Background Image */}
       <div
         className="absolute inset-0 z-0"

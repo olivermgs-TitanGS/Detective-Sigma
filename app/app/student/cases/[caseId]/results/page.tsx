@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 // Demo results data - will be calculated from quiz submission
 const resultsData = {
@@ -35,6 +38,7 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
+      <MusicThemeSetter theme="credits" />
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Success Banner */}
         <div className="bg-gradient-to-br from-green-600 to-green-800  p-12 text-center border-2 border-green-500/50">
