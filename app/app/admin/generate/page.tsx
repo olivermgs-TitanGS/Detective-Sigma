@@ -146,45 +146,80 @@ export default function GenerateCasePage() {
     }
   };
 
+  // Parse suspect description for age and gender
+  const parsePersonInfo = (name: string, role: string): { gender: string; age: string; ageDescriptor: string } => {
+    const text = `${name} ${role}`.toLowerCase();
+
+    // Detect gender from name or role
+    const femaleNames = /^(siti|nur|fatimah|aminah|mary|sarah|elizabeth|priya|lakshmi|devi|mei|ling|hui|xin|yan)/i;
+    const femaleRoles = /\b(mother|wife|sister|daughter|aunt|grandmother|mrs|ms|miss|woman|lady|girl|waitress|actress|hostess|saleswoman|businesswoman|female)\b/i;
+    const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male)\b/i;
+
+    let gender = 'person';
+    if (femaleNames.test(name) || femaleRoles.test(role)) {
+      gender = 'woman';
+    } else if (maleRoles.test(role)) {
+      gender = 'man';
+    }
+
+    // Detect age from role
+    const childRoles = /\b(child|kid|boy|girl|student|pupil|teen|teenager|youth|young)\b/i;
+    const elderRoles = /\b(elderly|old|senior|grandfather|grandmother|grandpa|grandma|retired)\b/i;
+
+    let age = 'adult';
+    let ageDescriptor = '30-40 years old';
+    if (childRoles.test(role)) {
+      age = 'young';
+      ageDescriptor = '10-16 years old';
+      gender = gender === 'woman' ? 'girl' : gender === 'man' ? 'boy' : 'young person';
+    } else if (elderRoles.test(role)) {
+      age = 'elderly';
+      ageDescriptor = '60-70 years old';
+      gender = gender === 'woman' ? 'elderly woman' : gender === 'man' ? 'elderly man' : 'elderly person';
+    }
+
+    return { gender, age, ageDescriptor };
+  };
+
   // Infer ethnicity from name for Singapore context - detailed for realistic portraits
   const inferEthnicity = (name: string): { ethnicity: string; skinTone: string; features: string } => {
     // Chinese names
-    if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap)/i.test(name)) {
+    if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap|Mei|Ling|Hui|Xin|Yan)/i.test(name)) {
       return {
         ethnicity: 'Chinese Singaporean',
-        skinTone: 'light tan East Asian skin tone',
-        features: 'East Asian facial features, monolid or double eyelid eyes, straight black hair'
+        skinTone: 'natural light tan East Asian skin, realistic human skin color',
+        features: 'East Asian facial features, natural brown or dark brown eyes, straight black hair'
       };
     }
     // Malay names
     if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim|Mohamed|Ismail|Hassan|Ali|Fatimah|Aminah|Razak|Rahman|Yusof|Hamid|Zainal)/i.test(name)) {
       return {
         ethnicity: 'Malay Singaporean',
-        skinTone: 'warm brown Southeast Asian skin tone',
-        features: 'Southeast Asian Malay facial features, dark brown eyes, black hair'
+        skinTone: 'natural warm brown Southeast Asian skin, realistic human skin color',
+        features: 'Southeast Asian Malay facial features, natural dark brown eyes, black hair'
       };
     }
     // Indian names
     if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal)/i.test(name)) {
       return {
         ethnicity: 'Indian Singaporean',
-        skinTone: 'brown South Asian skin tone',
-        features: 'South Asian Indian facial features, dark brown eyes, black hair'
+        skinTone: 'natural brown South Asian skin, realistic human skin color',
+        features: 'South Asian Indian facial features, natural dark brown eyes, black hair'
       };
     }
     // Eurasian or Western names
     if (/^(James|John|Mary|Michael|David|Sarah|Peter|Paul|George|Elizabeth|William|Richard)/i.test(name)) {
       return {
         ethnicity: 'Eurasian Singaporean',
-        skinTone: 'olive mixed heritage skin tone',
-        features: 'mixed Eurasian facial features'
+        skinTone: 'natural olive mixed heritage skin, realistic human skin color',
+        features: 'mixed Eurasian facial features, natural eye color'
       };
     }
     // Default to generic Singaporean
     return {
       ethnicity: 'Singaporean',
-      skinTone: 'natural Asian skin tone',
-      features: 'Asian facial features'
+      skinTone: 'natural Asian skin, realistic human skin color',
+      features: 'Asian facial features, natural dark eyes'
     };
   };
 
@@ -259,49 +294,67 @@ export default function GenerateCasePage() {
       for (const suspect of (caseData.suspects || [])) {
         setImageGenProgress({ current: `Suspect: ${suspect.name}`, completed, total: totalImages });
         const ethnicityInfo = inferEthnicity(suspect.name);
-        const expression = suspect.isGuilty ? 'slightly nervous expression, natural eyes looking slightly away' : 'calm confident expression, natural eye contact';
+        const personInfo = parsePersonInfo(suspect.name, suspect.role);
+        const expression = suspect.isGuilty ? 'slightly nervous expression' : 'calm confident expression';
 
-        // Build a realistic portrait prompt
+        // Build an ULTRA-realistic portrait prompt with exact age/gender
         const portraitPrompt = [
+          // Quality tags for Pony Diffusion
           'score_9, score_8_up, score_7_up',
-          'solo, 1person',
-          'photorealistic portrait photo',
-          'real human person',
+          // CRITICAL: Force realism
+          'photorealistic', 'realistic', 'real life photo', 'photograph',
+          // Person details - exact match to description
+          `1${personInfo.gender}`, 'solo',
+          personInfo.ageDescriptor,
+          ethnicityInfo.ethnicity,
           ethnicityInfo.skinTone,
           ethnicityInfo.features,
-          `${ethnicityInfo.ethnicity} adult`,
+          // Role context
           suspect.role,
           expression,
-          'professional corporate headshot',
-          'soft studio lighting',
-          'plain neutral grey background',
-          'natural skin texture',
-          'natural eye color',
-          'no makeup or minimal makeup',
-          'realistic photograph',
-          'DSLR photo',
-          'Canon 85mm f1.4 portrait lens',
-          'sharp focus on face',
-          'professional photography'
+          // Photography style
+          'professional ID photo', 'passport photo style',
+          'front facing', 'looking at camera',
+          'neutral expression', 'natural pose',
+          'soft natural lighting', 'plain white background',
+          // Skin realism
+          'natural human skin', 'realistic skin texture', 'natural skin pores',
+          'normal human eyes', 'natural eye color brown or black',
+          // Technical
+          'high resolution', 'sharp focus', 'detailed',
+          '35mm photograph', 'natural colors'
         ].join(', ');
 
-        // Strong negative prompt to avoid anime/fantasy/alien features
+        // ULTRA-strong negative prompt - block ALL fantasy/anime/unnatural elements
         const negativePrompt = [
-          'score_6, score_5, score_4',
-          'worst quality, low quality, blurry',
-          'anime, cartoon, illustration, drawing, painting, sketch',
-          'glowing eyes, bright eyes, unnatural eyes, fantasy eyes, colored eyes, red eyes, yellow eyes',
-          'alien, monster, creature, inhuman, non-human',
-          'fantasy, sci-fi, supernatural',
-          'deformed, disfigured, mutated, ugly',
-          'bad anatomy, bad proportions, extra limbs',
-          'plastic skin, artificial, CGI, 3D render',
-          'oversaturated, overexposed',
-          'watermark, text, logo, signature',
-          'multiple people, crowd',
-          'animal ears, horns, wings',
-          'makeup, heavy makeup, lipstick',
-          'accessories, jewelry, hat'
+          // Quality
+          'score_6, score_5, score_4, score_3',
+          'worst quality, low quality, blurry, jpeg artifacts',
+          // BLOCK ALL FANTASY/ANIME
+          'anime, cartoon, comic, manga, illustration, drawing, painting, sketch, rendered, 3d',
+          'cgi, digital art, concept art, fan art, deviantart',
+          // BLOCK UNNATURAL FEATURES - CRITICAL
+          'glowing eyes, glowing, luminous eyes, bright eyes, shiny eyes',
+          'unnatural eyes, fantasy eyes, magical eyes, anime eyes, big eyes',
+          'colored eyes, red eyes, yellow eyes, purple eyes, blue eyes, green eyes, orange eyes, pink eyes, white eyes, black sclera',
+          'cat eyes, slit pupils, unusual pupils',
+          // BLOCK UNNATURAL SKIN - CRITICAL
+          'blue skin, green skin, purple skin, red skin, grey skin, gray skin, white skin, pale skin',
+          'unnatural skin color, fantasy skin, alien skin, zombie skin, undead',
+          'glowing skin, shiny skin, plastic skin, waxy skin, doll skin',
+          // BLOCK NON-HUMAN
+          'alien, monster, creature, demon, elf, orc, vampire, zombie, ghost',
+          'robot, android, cyborg, mechanical',
+          'furry, animal, animal ears, cat ears, fox ears, horns, wings, tail, scales, fur',
+          // BLOCK DEFORMITIES
+          'deformed, disfigured, mutated, ugly, distorted',
+          'bad anatomy, bad proportions, extra limbs, missing limbs, extra fingers, fewer fingers',
+          'bad hands, bad face, asymmetrical face, crooked face',
+          // BLOCK STYLE ISSUES
+          'oversaturated, overexposed, underexposed, high contrast',
+          'watermark, text, logo, signature, border, frame',
+          'multiple people, crowd, group',
+          'nsfw, nude, inappropriate'
         ].join(', ');
 
         const suspectResponse = await fetch('/api/generate-image', {
@@ -314,8 +367,9 @@ export default function GenerateCasePage() {
               prompt: portraitPrompt,
               negativePrompt: negativePrompt,
               width: 512, height: 512,
-              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 25, cfgScale: 7.5 },
-              metadata: { suspectId: suspect.id, name: suspect.name },
+              // Use lower CFG for more natural results
+              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 30, cfgScale: 6 },
+              metadata: { suspectId: suspect.id, name: suspect.name, gender: personInfo.gender, age: personInfo.age },
             },
             saveToPublic: false,
           }),
