@@ -17,6 +17,7 @@ import {
   expertPuzzles,
   puzzleComplexityConfig,
 } from './templates';
+import { generateUniquePuzzles } from './puzzle-generator';
 
 function selectRandom<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -187,6 +188,17 @@ function generatePuzzles(request: GenerationRequest, puzzleCount: number = 3): P
   const { subject, difficulty } = request;
   const complexity = request.puzzleComplexity || 'STANDARD';
 
+  // For MATH subject: Use the new modular generator for truly unique puzzles
+  // Each generated puzzle has randomized numbers, names, and scenarios
+  if (subject === 'MATH') {
+    return generateUniquePuzzles(
+      'MATH',
+      complexity as 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT',
+      puzzleCount
+    );
+  }
+
+  // For SCIENCE and INTEGRATED: Use static templates (can be expanded later)
   // Get complexity configuration
   const complexityConfig = puzzleComplexityConfig[complexity as keyof typeof puzzleComplexityConfig] || puzzleComplexityConfig.STANDARD;
 
@@ -217,13 +229,10 @@ function generatePuzzles(request: GenerationRequest, puzzleCount: number = 3): P
   }>;
 
   if (complexity === 'EXPERT') {
-    // Use expert puzzles for EXPERT complexity
     templates = expertPuzzles[subject as keyof typeof expertPuzzles] || expertPuzzles.INTEGRATED;
   } else if (complexity === 'CHALLENGING') {
-    // Use challenging puzzles for CHALLENGING complexity
     templates = challengingPuzzles[subject as keyof typeof challengingPuzzles] || challengingPuzzles.INTEGRATED;
   } else {
-    // Use standard puzzles for BASIC and STANDARD
     templates = puzzleTemplates[subject as keyof typeof puzzleTemplates] || puzzleTemplates.INTEGRATED;
   }
 
