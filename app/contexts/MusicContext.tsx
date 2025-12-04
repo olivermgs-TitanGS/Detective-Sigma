@@ -75,12 +75,17 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playlistRef = useRef<string[]>([]);
+  const themeRef = useRef<MusicTheme>('menu');
   const hasStartedRef = useRef(false);
 
-  // Keep playlistRef in sync
+  // Keep refs in sync
   useEffect(() => {
     playlistRef.current = playlist;
   }, [playlist]);
+
+  useEffect(() => {
+    themeRef.current = currentTheme;
+  }, [currentTheme]);
 
   // Initialize audio element and set up global interaction listener
   useEffect(() => {
@@ -106,21 +111,35 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       if (hasStartedRef.current) return;
 
       const audio = audioRef.current;
-      if (audio && audio.src && !audio.paused) return;
+      if (!audio) return;
+      if (audio.src && !audio.paused) return;
 
-      if (audio && playlistRef.current.length > 0) {
-        const track = playlistRef.current[0];
-        if (track && audio.src !== track) {
-          audio.src = track;
-          audio.load();
+      // Get tracks - use playlistRef if available, otherwise get from PLAYLISTS directly
+      let tracks = playlistRef.current;
+      if (tracks.length === 0) {
+        tracks = PLAYLISTS[themeRef.current] || [];
+      }
+
+      if (tracks.length > 0) {
+        const track = tracks[0];
+        if (track) {
+          // Set loop based on theme
+          audio.loop = LOOP_THEMES.includes(themeRef.current);
+
+          if (!audio.src.endsWith(track)) {
+            audio.src = track;
+            audio.load();
+          }
+
+          audio.play()
+            .then(() => {
+              hasStartedRef.current = true;
+              setIsPlaying(true);
+            })
+            .catch((err) => {
+              console.log('Audio play failed:', err);
+            });
         }
-
-        audio.play()
-          .then(() => {
-            hasStartedRef.current = true;
-            setIsPlaying(true);
-          })
-          .catch(() => {});
       }
     };
 
@@ -198,6 +217,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   const setTheme = useCallback((theme: MusicTheme) => {
     if (theme !== currentTheme) {
+      themeRef.current = theme; // Update ref immediately
       setCurrentTheme(theme);
     }
   }, [currentTheme]);
