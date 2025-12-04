@@ -58,12 +58,12 @@ export async function generatePasskeyRegistrationOptions(userId: string, userEma
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
     rpID: RP_ID,
-    userID: new TextEncoder().encode(userId),
+    userID: userId,
     userName: userEmail,
     userDisplayName: userName,
     attestationType: 'none',
     excludeCredentials: existingAuthenticators.map((auth) => ({
-      id: auth.credentialId,
+      id: Buffer.from(auth.credentialId, 'base64url'),
       transports: auth.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
     })),
     authenticatorSelection: {
@@ -147,7 +147,7 @@ export async function verifyPasskeyRegistration(
  * Generate authentication options for passkey login
  */
 export async function generatePasskeyAuthenticationOptions(userEmail?: string) {
-  let allowCredentials: { id: string; transports?: AuthenticatorTransportFuture[] }[] | undefined;
+  let allowCredentials: { id: Uint8Array; transports?: AuthenticatorTransportFuture[] }[] | undefined;
 
   // If email provided, only allow that user's credentials
   if (userEmail) {
@@ -165,7 +165,7 @@ export async function generatePasskeyAuthenticationOptions(userEmail?: string) {
 
     if (user && user.authenticators.length > 0) {
       allowCredentials = user.authenticators.map((auth) => ({
-        id: auth.credentialId,
+        id: Buffer.from(auth.credentialId, 'base64url'),
         transports: auth.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
       }));
     }
@@ -213,9 +213,9 @@ export async function verifyPasskeyAuthentication(
       expectedChallenge,
       expectedOrigin: ORIGIN,
       expectedRPID: RP_ID,
-      credential: {
-        id: authenticator.credentialId,
-        publicKey: authenticator.credentialPublicKey,
+      authenticator: {
+        credentialID: Buffer.from(authenticator.credentialId, 'base64url'),
+        credentialPublicKey: authenticator.credentialPublicKey,
         counter: Number(authenticator.counter),
         transports: authenticator.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
       },

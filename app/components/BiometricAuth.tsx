@@ -42,7 +42,7 @@ export function BiometricAuth({
         const options = await optionsRes.json();
 
         // Start registration ceremony
-        const credential = await startRegistration({ optionsJSON: options });
+        const credential = await startRegistration(options);
 
         // Verify registration
         const verifyRes = await fetch('/api/auth/webauthn/register/verify', {

@@ -35,7 +35,10 @@ providers.push(
       password: { label: 'Password', type: 'password' },
     },
     async authorize(credentials) {
+      console.log('[Auth] Login attempt for:', credentials?.email);
+
       if (!credentials?.email || !credentials?.password) {
+        console.log('[Auth] Missing credentials');
         throw new Error('Invalid credentials');
       }
 
@@ -49,7 +52,10 @@ providers.push(
         },
       });
 
+      console.log('[Auth] User found:', user ? `${user.email} (${user.role})` : 'NOT FOUND');
+
       if (!user || !user.hashedPassword) {
+        console.log('[Auth] User not found or no password');
         throw new Error('Invalid credentials');
       }
 
@@ -57,6 +63,8 @@ providers.push(
         credentials.password as string,
         user.hashedPassword
       );
+
+      console.log('[Auth] Password match:', isCorrectPassword);
 
       if (!isCorrectPassword) {
         throw new Error('Invalid credentials');

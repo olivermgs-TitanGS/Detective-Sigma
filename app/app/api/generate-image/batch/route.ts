@@ -6,13 +6,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import {
   getImageGenerationService,
   saveImageToPublic,
 } from '@/lib/services/image-generation-service';
-import { ImageGenerationRequest, CaseImageRequests } from '@/lib/case-generator/image-generator';
+import { CaseImageRequests } from '@/lib/case-generator/image-generator';
 
 interface BatchRequestBody {
   caseId: string;
@@ -22,8 +21,8 @@ interface BatchRequestBody {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
+    // Check authentication (NextAuth v5)
+    const session = await auth();
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
