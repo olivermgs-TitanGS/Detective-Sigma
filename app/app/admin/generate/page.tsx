@@ -141,8 +141,9 @@ export default function GenerateCasePage() {
     try {
       let completed = 0;
 
-      // Generate cover image
+      // Generate cover image - use case story setting for context
       setImageGenProgress({ current: 'Case Cover', completed, total: totalImages });
+      const storyKeywords = generatedCase.story.setting.split(' ').slice(0, 10).join(' ');
       const coverResponse = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -150,7 +151,7 @@ export default function GenerateCasePage() {
           imageRequest: {
             id: `cover-${generatedCase.caseId}`,
             type: 'cover',
-            prompt: `score_9, score_8_up, score_7_up, manila case folder file, detective case file, title "${generatedCase.title}", classified document, confidential folder, red CLASSIFIED stamp, ${subject === 'MATH' ? 'mathematical equations subtly visible' : subject === 'SCIENCE' ? 'scientific equipment subtly visible' : 'math and science elements'}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, masterpiece, best quality, 8k`,
+            prompt: `score_9, score_8_up, score_7_up, manila case folder file, detective case file, classified document, confidential folder, red CLASSIFIED stamp, ${storyKeywords}, ${subject === 'MATH' ? 'mathematical equations subtly visible' : subject === 'SCIENCE' ? 'scientific equipment subtly visible' : 'math and science elements'}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, masterpiece, best quality, 8k`,
             negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human',
             width: 512,
             height: 512,
@@ -169,9 +170,20 @@ export default function GenerateCasePage() {
       }
       completed++;
 
-      // Generate suspect portraits
+      // Generate suspect portraits - use name and role for context
       for (const suspect of generatedCase.suspects) {
         setImageGenProgress({ current: `Suspect: ${suspect.name}`, completed, total: totalImages });
+
+        // Infer ethnicity from name for Singapore context
+        const inferEthnicity = (name: string) => {
+          if (/^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen)/i.test(name)) return 'East Asian Singaporean Chinese';
+          if (/^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim)/i.test(name)) return 'Southeast Asian Malay';
+          if (/^(Raj|Kumar|Sharma|Singh|Devi|Muthu)/i.test(name)) return 'South Asian Indian';
+          return 'Singaporean';
+        };
+
+        const ethnicity = inferEthnicity(suspect.name);
+        const expression = suspect.isGuilty ? 'slightly nervous expression, avoiding eye contact' : 'calm confident expression';
 
         const suspectResponse = await fetch('/api/generate-image', {
           method: 'POST',
@@ -180,12 +192,12 @@ export default function GenerateCasePage() {
             imageRequest: {
               id: `suspect-${suspect.id}`,
               type: 'suspect',
-              prompt: `score_9, score_8_up, score_7_up, 1person, solo, portrait, looking at viewer, ${suspect.role}, professional headshot, studio lighting, neutral grey background, photorealistic, detailed face, detailed eyes, masterpiece, best quality, 8k, DSLR photo, 85mm portrait lens, ${suspect.isGuilty ? 'slightly nervous expression' : 'calm neutral expression'}`,
-              negativePrompt: 'score_6, score_5, worst quality, low quality, bad anatomy, bad face, deformed, blurry, watermark, text',
+              prompt: `score_9, score_8_up, score_7_up, 1person, solo, portrait, looking at viewer, ${ethnicity} ${suspect.role}, ${expression}, professional headshot, studio lighting, neutral grey background, photorealistic, detailed face, detailed eyes, Singapore setting, masterpiece, best quality, 8k, DSLR photo, 85mm portrait lens`,
+              negativePrompt: 'score_6, score_5, worst quality, low quality, bad anatomy, bad face, deformed, blurry, watermark, text, multiple people',
               width: 512,
               height: 512,
               settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
-              metadata: { suspectId: suspect.id, name: suspect.name },
+              metadata: { suspectId: suspect.id, name: suspect.name, role: suspect.role },
             },
             saveToPublic: false,
           }),
