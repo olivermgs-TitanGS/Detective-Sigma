@@ -31,13 +31,9 @@ import {
 } from './learning-tracker';
 import { GradeLevel, Subject, getTopicsByGrade, getTopicsBySubject } from './syllabus';
 import {
-  generateAllCaseImageRequests,
-  createSceneImageRequest,
-  createSuspectImageRequest,
-  createCoverImageRequest,
+  generateContextualCaseImages,
   CaseImageRequests,
-  ImageGenerationRequest,
-  SuspectPromptParams,
+  CaseContext,
 } from './image-generator';
 import {
   generateCaseClues,
@@ -422,6 +418,42 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
   const puzzles = generatePuzzles(request, puzzleCount);
   const scenes = generateScenes(story, clues);
 
+  // Build case context for 100% relevant image generation
+  const caseContext: CaseContext = {
+    title: story.title,
+    subject: request.subject,
+    difficulty: request.difficulty,
+    gradeLevel: request.gradeLevel,
+    story: {
+      setting: story.setting,
+      crime: story.crime,
+      resolution: story.resolution,
+      theme: story.theme,
+      location: story.location,
+      locationType: story.locationType,
+    },
+    timeOfDay: selectRandom(['day', 'morning', 'evening', 'night'] as const),
+    atmosphere: selectRandom(['mysterious', 'tense', 'calm', 'urgent'] as const),
+  };
+
+  // Generate contextual image requests (100% case-specific)
+  const imageRequests = generateContextualCaseImages(
+    caseContext,
+    suspects,
+    clues.map(c => ({
+      title: c.title,
+      description: c.description,
+      type: c.type,
+      relevance: c.relevance,
+      discoveryLocation: scenes[0]?.name,
+      examinationDetails: [],
+    })),
+    scenes.map(s => ({
+      name: s.name,
+      description: s.description,
+    }))
+  );
+
   return {
     caseId,
     title: story.title,
@@ -443,6 +475,53 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
     clues,
     puzzles,
     scenes,
+    // Include image requests for Pony Diffusion V6 generation
+    imageRequests: {
+      cover: {
+        id: imageRequests.cover.id,
+        type: 'cover',
+        prompt: imageRequests.cover.prompt,
+        negativePrompt: imageRequests.cover.negativePrompt,
+        width: imageRequests.cover.width,
+        height: imageRequests.cover.height,
+        settings: imageRequests.cover.settings,
+        metadata: imageRequests.cover.metadata,
+        status: 'pending',
+      },
+      scenes: imageRequests.scenes.map(s => ({
+        id: s.id,
+        type: 'scene' as const,
+        prompt: s.prompt,
+        negativePrompt: s.negativePrompt,
+        width: s.width,
+        height: s.height,
+        settings: s.settings,
+        metadata: s.metadata,
+        status: 'pending' as const,
+      })),
+      suspects: imageRequests.suspects.map(s => ({
+        id: s.id,
+        type: 'suspect' as const,
+        prompt: s.prompt,
+        negativePrompt: s.negativePrompt,
+        width: s.width,
+        height: s.height,
+        settings: s.settings,
+        metadata: s.metadata,
+        status: 'pending' as const,
+      })),
+      evidence: imageRequests.evidence.map(e => ({
+        id: e.id,
+        type: 'evidence' as const,
+        prompt: e.prompt,
+        negativePrompt: e.negativePrompt,
+        width: e.width,
+        height: e.height,
+        settings: e.settings,
+        metadata: e.metadata,
+        status: 'pending' as const,
+      })),
+    },
   };
 }
 

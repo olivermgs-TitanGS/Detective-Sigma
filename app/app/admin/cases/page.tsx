@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { togglePublishCase } from './actions';
+import { DeleteCaseButton } from './DeleteCaseButton';
 
 const difficultyColors: Record<string, string> = {
   ROOKIE: 'bg-green-600',
@@ -180,6 +181,7 @@ export default async function CasesListPage() {
                           {caseItem.status === 'DRAFT' ? 'Publish' : 'Unpublish'}
                         </button>
                       </form>
+                      <DeleteCaseButton caseId={caseItem.id} caseTitle={caseItem.title} />
                     </div>
                   </td>
                 </tr>

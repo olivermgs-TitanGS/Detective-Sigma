@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { generateCase } from '@/lib/case-generator/generator';
+import { generateIntelligentCase } from '@/lib/case-generator/intelligent-generator';
 import { GenerationRequestSchema } from '@/lib/case-generator/types';
+import { getSyllabusTracker, getRecommendedTopics } from '@/lib/case-generator/syllabus-tracker';
 
 export async function POST(request: Request) {
   try {
@@ -15,10 +17,38 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate case
-    const generatedCase = await generateCase(validationResult.data);
+    const requestData = validationResult.data;
 
-    return NextResponse.json({ case: generatedCase });
+    // Use intelligent generator for better variety and syllabus coverage
+    const useIntelligent = body.useIntelligent !== false; // Default to intelligent generator
+
+    let generatedCase;
+    if (useIntelligent) {
+      generatedCase = await generateIntelligentCase(requestData);
+
+      // Track syllabus coverage (topics used in this case)
+      // The intelligent generator embeds topic info in the briefing
+      // In a production system, we'd track this in the database
+    } else {
+      generatedCase = await generateCase(requestData);
+    }
+
+    // Get recommended topics for next generation (for UI display)
+    const recommendedTopics = getRecommendedTopics(
+      requestData.gradeLevel,
+      requestData.subject,
+      3
+    );
+
+    return NextResponse.json({
+      case: generatedCase,
+      recommendedTopics: recommendedTopics.map(t => ({
+        id: t.id,
+        name: t.name,
+        strand: t.strand,
+        gradeLevel: t.gradeLevel,
+      })),
+    });
   } catch (error) {
     console.error('Error generating case:', error);
     return NextResponse.json(

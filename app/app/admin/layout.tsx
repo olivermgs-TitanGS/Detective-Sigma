@@ -43,6 +43,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 >
                   GENERATE
                 </Link>
+                <Link
+                  href="/admin/syllabus"
+                  className="text-green-400 hover:text-green-300 transition-colors font-mono tracking-wider border-b-2 border-transparent hover:border-green-600"
+                >
+                  SYLLABUS
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-4">

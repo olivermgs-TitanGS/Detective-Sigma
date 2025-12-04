@@ -16,9 +16,27 @@ import { createEvidenceImageRequest, EvidencePromptParams } from './image-genera
 // TYPES
 // ============================================
 
-export interface EnhancedClue extends Clue {
-  // Visual representation
-  imageRequest?: ReturnType<typeof createEvidenceImageRequest>;
+export interface EnhancedClue extends Omit<Clue, 'imageRequest'> {
+  // Visual representation (optional - matches types.ts ImageRequest)
+  imageRequest?: {
+    id: string;
+    type: 'scene' | 'suspect' | 'evidence' | 'clue' | 'puzzle' | 'cover';
+    prompt: string;
+    negativePrompt: string;
+    width: number;
+    height: number;
+    settings: {
+      model: string;
+      sampler: string;
+      steps: number;
+      cfgScale: number;
+      seed?: number;
+    };
+    metadata: Record<string, unknown>;
+    generatedUrl?: string;
+    generatedBase64?: string;
+    status: 'pending' | 'generating' | 'completed' | 'failed';
+  };
   // Syllabus connection
   relatedTopicId?: string;
   puzzleHint?: string;  // Hint that connects to a puzzle
@@ -323,6 +341,8 @@ export function createEnhancedClue(
   relevance: 'critical' | 'supporting' | 'red-herring',
   linkedSuspectId?: string
 ): EnhancedClue {
+  const generatedRequest = createEvidenceImageRequest(evidence.imageParams);
+
   return {
     id: `clue-${nanoid(6)}`,
     title: evidence.name,
@@ -331,7 +351,10 @@ export function createEnhancedClue(
     relevance,
     linkedTo: linkedSuspectId ? [linkedSuspectId] : [],
     // Enhanced fields
-    imageRequest: createEvidenceImageRequest(evidence.imageParams),
+    imageRequest: {
+      ...generatedRequest,
+      status: 'pending' as const,
+    },
     relatedTopicId: evidence.relatedTopics[0],
     puzzleHint: evidence.examinationTexts[evidence.examinationTexts.length - 1],
     discoveryLocation: location,
@@ -447,9 +470,10 @@ function generateGenericEvidence(
       ],
       relatedTopics: [],
       imageParams: {
-        type: 'testimony',
-        item: 'witness',
+        type: 'document',  // Witness statements are documented as written statements
+        item: 'note',
         condition: 'pristine',
+        context: 'written witness statement document, signed testimony',
       },
     },
     {
