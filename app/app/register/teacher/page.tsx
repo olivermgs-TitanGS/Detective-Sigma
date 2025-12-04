@@ -43,10 +43,15 @@ export default function TeacherRegisterPage() {
       // Redirect to login on success
       router.push('/login?registered=true');
     } catch (err: any) {
+      console.error('Registration error:', err);
       if (err.errors) {
+        // Zod validation error
         setError(err.errors[0].message);
+      } else if (err.message) {
+        // Network or other error with message
+        setError(`Error: ${err.message}`);
       } else {
-        setError('An error occurred during registration');
+        setError('An unexpected error occurred. Please try again.');
       }
       setIsLoading(false);
     }
