@@ -13,8 +13,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Save to database
-    const caseId = await saveGeneratedCase(body.case, prisma);
+    // Pass images along with case data for database persistence
+    const images = body.images || {};
+
+    // Save to database with images
+    const caseId = await saveGeneratedCase(body.case, prisma, images);
 
     return NextResponse.json({ caseId, message: 'Case saved successfully' });
   } catch (error) {

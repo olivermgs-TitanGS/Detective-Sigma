@@ -744,10 +744,19 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
   return generateNarrativeDrivenCase(request);
 }
 
+// Image data passed from UI after generation
+interface GeneratedImages {
+  cover?: string;
+  suspects: Record<string, string>;  // suspectId -> imageUrl
+  scenes: Record<string, string>;    // sceneId -> imageUrl
+  clues: Record<string, string>;     // clueId -> imageUrl
+}
+
 // Save generated case to database
 export async function saveGeneratedCase(
   generatedCase: GeneratedCase,
-  prisma: any
+  prisma: any,
+  images: GeneratedImages = { suspects: {}, scenes: {}, clues: {} }
 ): Promise<string> {
   // Map difficulty to Prisma enum
   const difficultyMap: Record<string, string> = {
@@ -764,7 +773,7 @@ export async function saveGeneratedCase(
     INTEGRATED: 'INTEGRATED',
   };
 
-  // Create the case in database
+  // Create the case in database (with cover image if available)
   const newCase = await prisma.case.create({
     data: {
       title: generatedCase.title,
@@ -775,6 +784,7 @@ export async function saveGeneratedCase(
       difficulty: difficultyMap[generatedCase.metadata.difficulty] || 'INSPECTOR',
       estimatedMinutes: generatedCase.metadata.estimatedMinutes,
       masterClueFragment: generatedCase.story.resolution,
+      coverImage: images.cover || null,
       status: 'DRAFT',
       learningObjectives: {
         primary: `Solve the mystery using ${generatedCase.metadata.subjectFocus.toLowerCase()} skills`,
@@ -788,28 +798,33 @@ export async function saveGeneratedCase(
     },
   });
 
-  // Create scenes
+  // Create scenes (with images matched by original ID)
   for (let i = 0; i < generatedCase.scenes.length; i++) {
     const scene = generatedCase.scenes[i];
+    // Look up image by original scene ID
+    const sceneImageUrl = images.scenes[scene.id] || '/images/scenes/default.png';
     await prisma.scene.create({
       data: {
         caseId: newCase.id,
         name: scene.name,
         description: scene.description,
-        imageUrl: '/images/scenes/default.png',
+        imageUrl: sceneImageUrl,
         isInitialScene: i === 0,
         orderIndex: i,
       },
     });
   }
 
-  // Create suspects
+  // Create suspects (with images matched by original ID)
   for (const suspect of generatedCase.suspects) {
+    // Look up image by original suspect ID
+    const suspectImageUrl = images.suspects[suspect.id] || null;
     await prisma.suspect.create({
       data: {
         caseId: newCase.id,
         name: suspect.name,
         role: suspect.role,
+        imageUrl: suspectImageUrl,
         bio: `${suspect.personality.join(', ')} personality. ${suspect.alibi}`,
         isCulprit: suspect.isGuilty,
         dialogueTree: {

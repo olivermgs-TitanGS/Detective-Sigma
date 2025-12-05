@@ -140,10 +140,20 @@ export default function GenerateCasePage() {
     setError(null);
 
     try {
+      // Include generated images in the save payload
+      // The save API will match images to records by name/index
       const response = await fetch('/api/admin/generate/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ case: generatedCase }),
+        body: JSON.stringify({
+          case: generatedCase,
+          images: {
+            cover: generatedImages.cover,
+            suspects: generatedImages.suspects,
+            scenes: generatedImages.scenes,
+            clues: generatedImages.clues,
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -823,6 +833,9 @@ export default function GenerateCasePage() {
         setGeneratedImages({ ...newImages });
       }
 
+      // Images are now saved when the case is saved via handleSave
+      // The images are passed to saveGeneratedCase which creates records with imageUrls
+      console.log('[INFO] Image generation complete. Images will be saved when case is saved to database.');
       setImageGenProgress(null);
     } catch (err) {
       setImageGenError(err instanceof Error ? err.message : 'Image generation failed');

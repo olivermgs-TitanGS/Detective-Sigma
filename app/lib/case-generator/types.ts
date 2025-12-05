@@ -74,6 +74,11 @@ export interface GeneratedCase {
     setting: string;
     crime: string;
     resolution: string;
+    // Extended story fields (used by intelligent-generator)
+    backstory?: string;
+    incident?: string;
+    investigationHints?: string[];
+    twist?: string;
     // Narrative engine enhancements
     timeline?: TimelineEvent[];
     crimeWindow?: { start: string; end: string };
