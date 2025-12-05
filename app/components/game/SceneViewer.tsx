@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSoundEffects } from '@/contexts/SoundEffectsContext';
+import { PoliceTape, EvidenceMarker } from './CrimeSceneOverlays';
 
 interface Clue {
   id: string;
@@ -19,6 +21,8 @@ interface Scene {
   description: string;
   imageUrl: string;
   clues: Clue[];
+  // New: scene type for appropriate overlays
+  sceneType?: 'crime' | 'investigation' | 'neutral';
 }
 
 interface SceneViewerProps {
@@ -29,6 +33,7 @@ interface SceneViewerProps {
   totalScenes: number;
   onNextScene: () => void;
   onPreviousScene: () => void;
+  caseNumber?: string;
 }
 
 export default function SceneViewer({
@@ -38,9 +43,12 @@ export default function SceneViewer({
   currentSceneIndex,
   totalScenes,
   onNextScene,
-  onPreviousScene
+  onPreviousScene,
+  caseNumber = 'DS-2024-001'
 }: SceneViewerProps) {
   const { playSound } = useSoundEffects();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleClueClick = (clue: Clue) => {
     playSound('click');
@@ -49,13 +57,25 @@ export default function SceneViewer({
 
   const handleNextScene = () => {
     playSound('whoosh');
+    setImageLoaded(false);
     onNextScene();
   };
 
   const handlePreviousScene = () => {
     playSound('whoosh');
+    setImageLoaded(false);
     onPreviousScene();
   };
+
+  // Determine if this scene should show crime scene tape
+  const isCrimeScene = scene.sceneType === 'crime' ||
+    scene.name.toLowerCase().includes('crime') ||
+    scene.description.toLowerCase().includes('crime') ||
+    scene.description.toLowerCase().includes('murder') ||
+    scene.description.toLowerCase().includes('blood');
+
+  // Check if scene has a valid image URL
+  const hasImage = scene.imageUrl && scene.imageUrl.length > 0 && !imageError;
 
   return (
     <motion.div
@@ -70,7 +90,18 @@ export default function SceneViewer({
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 className="text-2xl font-bold text-amber-50 font-mono tracking-wider mb-1">{scene.name}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-amber-50 font-mono tracking-wider mb-1">{scene.name}</h2>
+          {isCrimeScene && (
+            <motion.span
+              className="text-xs font-mono text-red-400 border border-red-600 px-2 py-1 bg-red-900/30"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              ⚠ ACTIVE CRIME SCENE
+            </motion.span>
+          )}
+        </div>
         <p className="text-slate-400 font-mono tracking-wide">&gt; {scene.description}</p>
       </motion.div>
 
@@ -81,27 +112,98 @@ export default function SceneViewer({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
       >
-        {/* Placeholder Scene Image */}
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black via-slate-950 to-black">
-          <div className="text-center">
-            <motion.div
-              className="text-8xl mb-4 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-            >
-              🏫
-            </motion.div>
-            <p className="text-amber-400 text-lg font-mono tracking-wider font-bold">{scene.name}</p>
-            <p className="text-slate-500 text-sm mt-2 font-mono tracking-wide">» Click glowing markers to collect evidence «</p>
+        {/* AI-Generated Scene Image */}
+        {hasImage ? (
+          <>
+            <img
+              src={scene.imageUrl}
+              alt={scene.name}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
+            {/* Loading state */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black via-slate-950 to-black">
+                <motion.div
+                  className="text-amber-400 font-mono"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  LOADING SCENE...
+                </motion.div>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Placeholder when no image */
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black via-slate-950 to-black">
+            <div className="text-center">
+              <motion.div
+                className="text-8xl mb-4 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                animate={{ y: [0, -5, 0] }}
+                transition={{ repeat: Infinity, duration: 3 }}
+              >
+                {isCrimeScene ? '🚨' : '🏫'}
+              </motion.div>
+              <p className="text-amber-400 text-lg font-mono tracking-wider font-bold">{scene.name}</p>
+              <p className="text-slate-500 text-sm mt-2 font-mono tracking-wide">» Click glowing markers to collect evidence «</p>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Clue Hotspots - Evidence Markers */}
+        {/* Police Tape Overlays - Only on crime scenes with loaded images */}
+        {isCrimeScene && (hasImage && imageLoaded) && (
+          <>
+            <PoliceTape
+              text="CRIME SCENE DO NOT CROSS"
+              position="top"
+              color="yellow"
+            />
+            <PoliceTape
+              text="POLICE LINE DO NOT CROSS"
+              position="bottom"
+              color="yellow"
+            />
+          </>
+        )}
+
+        {/* Case Number Overlay */}
+        {(hasImage && imageLoaded) && (
+          <motion.div
+            className="absolute top-2 left-2 bg-black/80 border border-amber-600 px-2 py-1 z-20"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <span className="text-xs font-mono text-amber-400">CASE: {caseNumber}</span>
+          </motion.div>
+        )}
+
+        {/* Evidence Markers - Using new component when image is loaded */}
         <AnimatePresence>
           {scene.clues.map((clue, index) => {
             const isCollected = collectedClues.includes(clue.id);
             const isLocked = clue.requiredPuzzleId !== null && !collectedClues.includes(clue.id);
 
+            // Use new EvidenceMarker component when image is loaded
+            if (hasImage && imageLoaded) {
+              return (
+                <EvidenceMarker
+                  key={clue.id}
+                  number={index + 1}
+                  x={clue.positionX}
+                  y={clue.positionY}
+                  size="md"
+                  onClick={() => handleClueClick(clue)}
+                  discovered={isCollected}
+                />
+              );
+            }
+
+            // Fallback to original hotspot style for placeholder
             return (
               <motion.button
                 key={clue.id}

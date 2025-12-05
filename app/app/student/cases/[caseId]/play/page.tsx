@@ -17,6 +17,8 @@ interface Clue {
   contentRevealed?: string;
   requiredPuzzleId?: string | null;
   isCollected?: boolean;
+  type?: 'physical' | 'document' | 'digital' | 'testimony';
+  imageUrl?: string;
 }
 
 interface Scene {
@@ -115,6 +117,8 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
               positionY: Number(clue.positionY) || 50,
               contentRevealed: clue.contentRevealed,
               requiredPuzzleId: clue.requiredPuzzleId,
+              type: clue.type,
+              imageUrl: clue.imageUrl,
             })),
           })),
           puzzles: caseData.case.puzzles.map((puzzle: any) => ({
@@ -398,6 +402,7 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
               totalScenes={totalScenes}
               onNextScene={handleNextScene}
               onPreviousScene={handlePreviousScene}
+              caseNumber={`DS-${gameData.id.slice(-6).toUpperCase()}`}
             />
 
             {/* Instructions */}
@@ -445,6 +450,8 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
         <ClueModal
           clue={selectedClue}
           onClose={() => setSelectedClue(null)}
+          caseNumber={`DS-${gameData.id.slice(-6).toUpperCase()}`}
+          evidenceNumber={allClues.findIndex(c => c.id === selectedClue.id) + 1}
         />
       )}
 

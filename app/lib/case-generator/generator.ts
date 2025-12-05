@@ -23,6 +23,69 @@ import {
 } from './data/characters';
 import { generateUniquePuzzles } from './puzzle-generator';
 
+// NEW NARRATIVE ENGINE IMPORTS
+import {
+  generateNarrativeCase as generateNarrativeCaseCore,
+  NarrativeCase,
+  STORY_SCENARIOS,
+  selectScenario,
+} from './narrative-engine';
+import {
+  generateCharacterWeb,
+  SuspectCharacter,
+} from './character-web';
+import {
+  generateEvidenceChain,
+  EvidenceChain,
+  getAllEvidence,
+} from './evidence-chain';
+import {
+  generateStoryPuzzleSet,
+  StoryPuzzle,
+  StoryPuzzleSet,
+  formatStoryPuzzlePresentation,
+} from './story-puzzles';
+
+// ============================================
+// HELPER FUNCTIONS FOR IMAGE GENERATION
+// ============================================
+
+/**
+ * Infer ethnicity from character name for accurate portrait generation
+ */
+function inferEthnicityFromCharacter(name: string): 'Chinese' | 'Malay' | 'Indian' | 'Eurasian' {
+  const chinesePatterns = /^(Li|Chen|Wong|Tan|Lim|Lee|Ng|Goh|Ong|Koh|Chua|Zhang|Wang|Liu|Yang|Huang|Mei|Wei|Jun|Hui|Xin|Ai|Siew|Bee|Fen|Ping|Xiu|Hock|Boon|Chee|Seng|Huat)/i;
+  const malayPatterns = /^(Ahmad|Muhammad|Farid|Ismail|Rashid|Kamal|Hafiz|Siti|Aminah|Fatimah|Zainab|Noraini|Aishah|bin|binti)/i;
+  const indianPatterns = /^(Rajesh|Suresh|Vikram|Arjun|Ravi|Deepak|Priya|Lakshmi|Anita|Kavitha|Meera|Sunitha|Kumar|Menon|Pillai|Nair|Sharma|Devi|Rani)/i;
+  const eurasianPatterns = /^(David|Michael|James|John|Peter|Sarah|Emma|Rachel|Jessica|Amanda|Pereira|Santos|Oliveiro|Rodrigues|Monteiro)/i;
+
+  if (chinesePatterns.test(name)) return 'Chinese';
+  if (malayPatterns.test(name)) return 'Malay';
+  if (indianPatterns.test(name)) return 'Indian';
+  if (eurasianPatterns.test(name)) return 'Eurasian';
+  return 'Chinese'; // Default for Singapore context
+}
+
+/**
+ * Infer gender from character name for accurate portrait generation
+ */
+function inferGenderFromCharacter(name: string): 'male' | 'female' {
+  // Female name patterns
+  const femalePatterns = /^(Zhang Mei|Wong Fang|Tan Hui|Lee Mei|Lim Ai|Ng Siew|Ong Bee|Koh Mei|Teo Li|Chen Xiu|Siti|Aminah|Fatimah|Zainab|Noraini|Aishah|Priya|Lakshmi|Anita|Kavitha|Meera|Sunitha|Sarah|Emma|Rachel|Jessica|Amanda|Mei|Fang|Hui|Xin|Ai|Siew|Bee|Fen|Ping|Xiu|Ying|Ling|Hua|Lan|Hoon)/i;
+
+  // Male name patterns
+  const malePatterns = /^(Li Wei|Chen Jun|Wong Ming|Tan Ah|Lee Hock|Lim Boon|Ng Chee|Ong Wei|Koh Seng|Teo Huat|Ahmad|Farid|Ismail|Rashid|Kamal|Hafiz|Rajesh|Suresh|Vikram|Arjun|Ravi|Deepak|David|Michael|James|John|Peter|Wei|Jun|Ming|Hock|Boon|Chee|Seng|Huat|Kow|bin)/i;
+
+  if (femalePatterns.test(name)) return 'female';
+  if (malePatterns.test(name)) return 'male';
+
+  // Check for common gendered words
+  if (name.includes('binti')) return 'female';
+  if (name.includes('bin')) return 'male';
+
+  return 'male'; // Default
+}
+
 // Story-specific role mappings for narrative coherence
 // Each story template ID maps to roles that make sense in that context
 const STORY_SPECIFIC_ROLES: Record<string, string[]> = {
@@ -422,6 +485,342 @@ function generateLegacyPuzzles(
   return puzzles;
 }
 
+// ============================================
+// NEW NARRATIVE-DRIVEN CASE GENERATION
+// ============================================
+
+/**
+ * Convert NarrativeCase + characters to GeneratedCase format
+ * This bridges the new narrative engine with the existing case structure
+ */
+function narrativeToGeneratedCase(
+  narrativeCase: NarrativeCase,
+  characters: SuspectCharacter[],
+  evidenceChain: EvidenceChain,
+  puzzleSet: StoryPuzzleSet,
+  request: GenerationRequest
+): GeneratedCase {
+  const caseId = narrativeCase.id;
+
+  // Convert SuspectCharacter to Suspect
+  const suspects: Suspect[] = characters.map(char => ({
+    id: char.id,
+    name: char.name,
+    role: char.role,
+    alibi: char.alibi.claimed,
+    personality: char.background.personality,
+    isGuilty: char.isGuilty,
+    motive: char.isGuilty ? narrativeCase.culprit.motive.description : undefined,
+    // Enhanced fields from character web
+    dialogueTree: char.dialogue.map(d => ({
+      id: d.id,
+      question: d.question,
+      answer: d.answer,
+      emotion: d.emotion,
+      revealsInfo: d.revealsInfo,
+    })),
+    relationships: char.relationships.map(r => ({
+      targetId: r.targetId,
+      targetName: r.targetName,
+      type: r.type,
+      description: r.description,
+    })),
+  }));
+
+  // Convert evidence chain to clues
+  const allEvidence = getAllEvidence(evidenceChain);
+  const clues: Clue[] = allEvidence.map(evidence => ({
+    id: evidence.id,
+    title: evidence.name,
+    description: evidence.description,
+    type: evidence.type === 'physical' ? 'physical' :
+          evidence.type === 'documentary' ? 'document' :
+          evidence.type === 'testimonial' ? 'testimony' : 'physical',
+    relevance: evidence.importance === 'critical' ? 'critical' :
+               evidence.importance === 'misleading' ? 'red-herring' : 'supporting',
+    linkedTo: evidence.linkedCharacterId ? [evidence.linkedCharacterId] : [],
+    // Enhanced fields
+    visualCue: evidence.visualCue,
+    analysisResult: evidence.analysisResult,
+    discoveryMethod: evidence.discoveryMethod,
+  }));
+
+  // Convert story puzzles to puzzles with narrative context
+  const puzzles: Puzzle[] = puzzleSet.puzzles.map(puzzle => ({
+    id: puzzle.id,
+    title: puzzle.title,
+    type: puzzle.type,
+    question: puzzle.question,
+    answer: puzzle.answer,
+    hint: puzzle.hint,
+    points: puzzle.points,
+    difficulty: puzzle.difficulty,
+    complexity: puzzle.complexity,
+    estimatedMinutes: puzzle.estimatedMinutes,
+    requiresMultipleSteps: puzzle.requiresMultipleSteps,
+    // Enhanced narrative fields
+    narrativeContext: puzzle.narrativeContext,
+    investigationPhase: puzzle.investigationPhase,
+    revelation: puzzle.revelation,
+    relatedCharacterName: puzzle.relatedCharacterName,
+  }));
+
+  // Generate scenes from narrative setting
+  const scenes: Scene[] = [
+    {
+      id: `scene-${nanoid(6)}`,
+      name: narrativeCase.setting.location,
+      description: narrativeCase.setting.description,
+      interactiveElements: ['Crime Scene', 'Evidence Board', 'Witness Area'],
+      cluesAvailable: evidenceChain.initialEvidence.map(e => e.id),
+    },
+    {
+      id: `scene-${nanoid(6)}`,
+      name: 'Investigation Room',
+      description: 'A dedicated space for analyzing evidence and interviewing suspects.',
+      interactiveElements: ['Evidence Table', 'Suspect Profiles', 'Timeline Board'],
+      cluesAvailable: evidenceChain.discoveredEvidence.map(e => e.id),
+    },
+  ];
+
+  // Calculate estimated time
+  const estimatedMinutes = puzzleSet.estimatedTotalMinutes + 10; // +10 for reading/exploration
+
+  return {
+    caseId,
+    title: narrativeCase.title,
+    briefing: `${narrativeCase.narrativeHook}\n\n${narrativeCase.setting.dayContext} at ${narrativeCase.setting.location}. ${narrativeCase.crime.method}.\n\nYour task: Interview suspects, gather evidence, solve puzzles, and identify the culprit.`,
+    metadata: {
+      difficulty: narrativeCase.difficulty,
+      gradeLevel: request.gradeLevel,
+      subjectFocus: request.subject,
+      estimatedMinutes,
+      puzzleComplexity: request.puzzleComplexity || 'STANDARD',
+    },
+    story: {
+      setting: narrativeCase.setting.description,
+      crime: `${narrativeCase.crime.type.replace('_', ' ')}: ${narrativeCase.crime.method}`,
+      resolution: narrativeCase.resolution,
+      // Enhanced narrative fields
+      timeline: narrativeCase.timeline,
+      crimeWindow: narrativeCase.crime.crimeWindow,
+      culpritProfile: {
+        motive: narrativeCase.culprit.motive,
+        method: narrativeCase.culprit.method,
+        mistakes: narrativeCase.culprit.mistakes,
+      },
+    },
+    suspects,
+    clues,
+    puzzles,
+    scenes,
+    // Evidence chain for game logic
+    evidenceChain: {
+      mainPath: evidenceChain.mainPath,
+      criticalCount: evidenceChain.criticalEvidenceCount,
+    },
+    // Puzzle phases for progressive revelation
+    puzzlePhases: {
+      initial: puzzleSet.puzzlesByPhase.initial.map(p => p.id),
+      investigation: puzzleSet.puzzlesByPhase.investigation.map(p => p.id),
+      conclusion: puzzleSet.puzzlesByPhase.conclusion.map(p => p.id),
+    },
+    imageRequests: undefined as any, // Will be generated separately if needed
+  };
+}
+
+/**
+ * Generate a fully narrative-driven case
+ * Uses the new narrative engine for cohesive storytelling
+ */
+export async function generateNarrativeDrivenCase(
+  request: GenerationRequest
+): Promise<GeneratedCase> {
+  const { subject, difficulty, gradeLevel } = request;
+  const puzzleComplexity = (request.puzzleComplexity || 'STANDARD') as PuzzleComplexity;
+
+  // Determine puzzle count based on difficulty
+  const puzzleCounts: Record<string, number> = {
+    ROOKIE: 4,
+    INSPECTOR: 6,
+    DETECTIVE: 8,
+    CHIEF: 10,
+  };
+  const puzzleCount = request.constraints?.minPuzzles || puzzleCounts[difficulty] || 6;
+
+  // 1. Generate core narrative case
+  const narrativeCase = generateNarrativeCaseCore(subject, difficulty);
+
+  // 2. Find the matching scenario to get suspect roles
+  const scenario = STORY_SCENARIOS.find(s => s.id === narrativeCase.title.toLowerCase().replace(/ /g, '-'))
+    || selectScenario(subject, difficulty);
+
+  // 3. Generate character web with relationships
+  const characters = generateCharacterWeb(narrativeCase, scenario.suspectRoles);
+
+  // 4. Generate evidence chain
+  const evidenceChain = generateEvidenceChain(narrativeCase, characters);
+
+  // 5. Generate story-integrated puzzles
+  const puzzleSet = generateStoryPuzzleSet(
+    narrativeCase,
+    characters,
+    evidenceChain,
+    subject,
+    puzzleCount
+  );
+
+  // 6. Convert to GeneratedCase format
+  const generatedCase = narrativeToGeneratedCase(
+    narrativeCase,
+    characters,
+    evidenceChain,
+    puzzleSet,
+    request
+  );
+
+  // 7. Generate image requests with FULL narrative context
+  // Use the rich data from narrative engine for precise, story-accurate images
+  const caseContext = {
+    title: generatedCase.title,
+    subject: request.subject,
+    difficulty: request.difficulty,
+    gradeLevel: request.gradeLevel,
+    story: {
+      setting: generatedCase.story.setting,
+      crime: generatedCase.story.crime,
+      resolution: generatedCase.story.resolution,
+      theme: narrativeCase.setting.dayContext,
+      location: narrativeCase.setting.location,
+      locationType: narrativeCase.setting.locationType,
+    },
+    timeOfDay: narrativeCase.setting.timeOfDay,
+    atmosphere: 'mysterious' as const,
+  };
+
+  // Build RICH clue data with visual cues from evidence chain
+  const allEvidenceItems = getAllEvidence(evidenceChain);
+  const richClueData = allEvidenceItems.map(evidence => ({
+    title: evidence.name,
+    // Use visualCue + analysisResult for detailed image prompts
+    description: `${evidence.visualCue}. ${evidence.analysisResult}`,
+    type: evidence.type === 'physical' ? 'physical' as const :
+          evidence.type === 'documentary' ? 'document' as const :
+          evidence.type === 'testimonial' ? 'testimony' as const : 'digital' as const,
+    relevance: evidence.importance === 'critical' ? 'critical' as const :
+               evidence.importance === 'misleading' ? 'red-herring' as const : 'supporting' as const,
+    discoveryLocation: evidence.location,
+    // Pass specific visual details for image generation
+    examinationDetails: [
+      evidence.discoveryMethod,
+      evidence.pointsToGuilty ? 'Evidence pointing to culprit' : 'General evidence',
+    ].filter(Boolean),
+  }));
+
+  // Build RICH suspect data with demeanor from dialogue emotions
+  const richSuspectData = characters.map(char => {
+    // Get the primary emotion from their dialogue (alibi response is most telling)
+    const alibiDialogue = char.dialogue.find(d => d.id === 'alibi');
+    const demeanorEmotion = alibiDialogue?.emotion || 'calm';
+
+    // Map dialogue emotion to expression for image
+    const emotionToExpression: Record<string, 'neutral' | 'nervous' | 'confident' | 'worried' | 'suspicious'> = {
+      calm: 'neutral',
+      nervous: 'nervous',
+      defensive: 'suspicious',
+      helpful: 'confident',
+      evasive: 'worried',
+      angry: 'suspicious',
+    };
+
+    return {
+      name: char.name,
+      role: char.role,
+      alibi: char.alibi.claimed,
+      personality: char.background.personality,
+      isGuilty: char.isGuilty,
+      motive: char.isGuilty ? narrativeCase.culprit.motive.description : undefined,
+      // Use character web data for accurate ethnicity
+      ethnicity: inferEthnicityFromCharacter(char.name),
+      gender: inferGenderFromCharacter(char.name),
+      ageGroup: char.background.yearsAtLocation > 5 ? 'middle' as const : 'young' as const,
+      // Pass the demeanor for accurate expression in portrait
+      expression: emotionToExpression[demeanorEmotion] || 'neutral',
+    };
+  });
+
+  // Build scene data with crime context
+  const richSceneData = [
+    {
+      name: narrativeCase.setting.location,
+      description: `${narrativeCase.setting.description}. ${narrativeCase.setting.dayContext}. Crime scene where ${narrativeCase.crime.type.replace('_', ' ')} occurred.`,
+      isCrimeScene: true,
+      crimeType: narrativeCase.crime.type,
+    },
+    {
+      name: 'Investigation Room',
+      description: 'A dedicated space for analyzing evidence and interviewing suspects. Evidence board with photos and notes, suspect profiles displayed.',
+      isCrimeScene: false,
+    },
+  ];
+
+  const imageRequests = generateContextualCaseImages(
+    caseContext,
+    richSuspectData,
+    richClueData,
+    richSceneData
+  );
+
+  generatedCase.imageRequests = {
+    cover: {
+      id: imageRequests.cover.id,
+      type: 'cover',
+      prompt: imageRequests.cover.prompt,
+      negativePrompt: imageRequests.cover.negativePrompt,
+      width: imageRequests.cover.width,
+      height: imageRequests.cover.height,
+      settings: imageRequests.cover.settings,
+      metadata: imageRequests.cover.metadata,
+      status: 'pending',
+    },
+    scenes: imageRequests.scenes.map(s => ({
+      id: s.id,
+      type: 'scene' as const,
+      prompt: s.prompt,
+      negativePrompt: s.negativePrompt,
+      width: s.width,
+      height: s.height,
+      settings: s.settings,
+      metadata: s.metadata,
+      status: 'pending' as const,
+    })),
+    suspects: imageRequests.suspects.map(s => ({
+      id: s.id,
+      type: 'suspect' as const,
+      prompt: s.prompt,
+      negativePrompt: s.negativePrompt,
+      width: s.width,
+      height: s.height,
+      settings: s.settings,
+      metadata: s.metadata,
+      status: 'pending' as const,
+    })),
+    evidence: imageRequests.evidence.map(e => ({
+      id: e.id,
+      type: 'evidence' as const,
+      prompt: e.prompt,
+      negativePrompt: e.negativePrompt,
+      width: e.width,
+      height: e.height,
+      settings: e.settings,
+      metadata: e.metadata,
+      status: 'pending' as const,
+    })),
+  };
+
+  return generatedCase;
+}
+
 // Generate Scenes
 function generateScenes(story: ReturnType<typeof generateStory>, clues: Clue[]): Scene[] {
   const scenes: Scene[] = [];
@@ -449,6 +848,13 @@ function generateScenes(story: ReturnType<typeof generateStory>, clues: Clue[]):
 
 // Main Generator Function
 export async function generateCase(request: GenerationRequest): Promise<GeneratedCase> {
+  // Use narrative-driven generation if requested (new default)
+  // Set useNarrativeEngine: false to use legacy generation
+  if (request.useNarrativeEngine !== false) {
+    return generateNarrativeDrivenCase(request);
+  }
+
+  // === LEGACY GENERATION (kept for backward compatibility) ===
   const caseId = `case-${nanoid(10)}`;
   const puzzleComplexity = request.puzzleComplexity || 'STANDARD';
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSoundEffects } from '@/contexts/SoundEffectsContext';
+import { EvidenceTag, ForensicRuler } from './CrimeSceneOverlays';
 
 interface ClueModalProps {
   clue: {
@@ -10,12 +11,23 @@ interface ClueModalProps {
     name: string;
     description: string;
     contentRevealed?: string;
+    imageUrl?: string;
+    type?: 'physical' | 'document' | 'digital' | 'testimony';
   };
   onClose: () => void;
+  caseNumber?: string;
+  evidenceNumber?: number;
 }
 
-export default function ClueModal({ clue, onClose }: ClueModalProps) {
+export default function ClueModal({
+  clue,
+  onClose,
+  caseNumber = 'DS-2024-001',
+  evidenceNumber = 1
+}: ClueModalProps) {
   const [showRevealed, setShowRevealed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const { playSound } = useSoundEffects();
 
   useEffect(() => {
@@ -31,6 +43,20 @@ export default function ClueModal({ clue, onClose }: ClueModalProps) {
     playSound('click');
     onClose();
   };
+
+  // Get icon based on clue type
+  const getClueIcon = () => {
+    switch (clue.type) {
+      case 'physical': return '🔬';
+      case 'document': return '📄';
+      case 'digital': return '💻';
+      case 'testimony': return '🗣️';
+      default: return '📄';
+    }
+  };
+
+  // Check if clue has a valid image
+  const hasImage = clue.imageUrl && clue.imageUrl.length > 0 && !imageError;
 
   return (
     <AnimatePresence>
@@ -86,31 +112,112 @@ export default function ClueModal({ clue, onClose }: ClueModalProps) {
 
           {/* Content */}
           <div className="p-6 space-y-6">
-            {/* Clue Image Placeholder */}
+            {/* Clue Image - AI Generated or Placeholder */}
             <motion.div
-              className="relative w-full aspect-video bg-black overflow-hidden border-2 border-amber-600/30 flex items-center justify-center"
+              className="relative w-full aspect-video bg-black overflow-hidden border-2 border-amber-600/30"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="text-center">
-                <motion.div
-                  className="text-8xl mb-4 filter drop-shadow-[0_0_30px_rgba(245,158,11,0.5)]"
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 200, delay: 0.3 }}
-                >
-                  📄
-                </motion.div>
-                <motion.p
-                  className="text-amber-400 font-mono tracking-wider"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  {clue.name}
-                </motion.p>
-              </div>
+              {hasImage ? (
+                <>
+                  {/* AI-Generated Evidence Image */}
+                  <img
+                    src={clue.imageUrl}
+                    alt={clue.name}
+                    className={`w-full h-full object-contain bg-gray-900 transition-opacity duration-500 ${
+                      imageLoaded ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    onLoad={() => setImageLoaded(true)}
+                    onError={() => setImageError(true)}
+                  />
+
+                  {/* Loading state */}
+                  {!imageLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <motion.div
+                        className="text-amber-400 font-mono"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      >
+                        LOADING EVIDENCE...
+                      </motion.div>
+                    </div>
+                  )}
+
+                  {/* Evidence Tag Overlay - Top Right */}
+                  {imageLoaded && (
+                    <motion.div
+                      className="absolute top-2 right-2 z-10"
+                      initial={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 3 }}
+                      transition={{ delay: 0.5, type: 'spring' }}
+                    >
+                      <EvidenceTag
+                        caseNumber={caseNumber}
+                        itemNumber={`E-${String(evidenceNumber).padStart(3, '0')}`}
+                        description={clue.type ? clue.type.toUpperCase() : 'PHYSICAL'}
+                      />
+                    </motion.div>
+                  )}
+
+                  {/* Forensic Ruler Overlay - Bottom */}
+                  {imageLoaded && clue.type === 'physical' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <ForensicRuler length={10} position="horizontal" x={5} y={90} />
+                    </motion.div>
+                  )}
+
+                  {/* Photo metadata overlay */}
+                  {imageLoaded && (
+                    <motion.div
+                      className="absolute bottom-2 left-2 bg-black/80 px-2 py-1 text-xs font-mono text-amber-400"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.7 }}
+                    >
+                      {new Date().toLocaleDateString()} | {caseNumber} | ITEM #{evidenceNumber}
+                    </motion.div>
+                  )}
+                </>
+              ) : (
+                /* Placeholder when no image */
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <motion.div
+                      className="text-8xl mb-4 filter drop-shadow-[0_0_30px_rgba(245,158,11,0.5)]"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', stiffness: 200, delay: 0.3 }}
+                    >
+                      {getClueIcon()}
+                    </motion.div>
+                    <motion.p
+                      className="text-amber-400 font-mono tracking-wider"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      {clue.name}
+                    </motion.p>
+                    {/* Evidence label for placeholder */}
+                    <motion.div
+                      className="mt-4 inline-block"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <div className="bg-white/10 border border-amber-600 px-3 py-1 text-xs font-mono text-amber-400">
+                        EVIDENCE #{String(evidenceNumber).padStart(3, '0')} | {caseNumber}
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              )}
             </motion.div>
 
             {/* Description */}
@@ -155,6 +262,34 @@ export default function ClueModal({ clue, onClose }: ClueModalProps) {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Evidence Chain of Custody */}
+            <motion.div
+              className="bg-slate-900/50 p-4 border border-slate-700"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <h4 className="text-slate-400 font-mono text-xs mb-2 tracking-wider">CHAIN OF CUSTODY</h4>
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                <div>
+                  <span className="text-slate-500">Collected:</span>
+                  <span className="text-slate-300 ml-2">{new Date().toLocaleString()}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Type:</span>
+                  <span className="text-slate-300 ml-2">{clue.type?.toUpperCase() || 'PHYSICAL'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Case #:</span>
+                  <span className="text-slate-300 ml-2">{caseNumber}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Item #:</span>
+                  <span className="text-slate-300 ml-2">E-{String(evidenceNumber).padStart(3, '0')}</span>
+                </div>
+              </div>
+            </motion.div>
 
             {/* Action Note */}
             <motion.div

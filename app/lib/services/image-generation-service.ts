@@ -110,16 +110,42 @@ async function generateWithAutomatic1111(
 // COMFYUI API
 // ============================================
 
+// Get model name from environment or use default
+const getModelCheckpoint = (): string => {
+  return process.env.COMFYUI_MODEL_CHECKPOINT || 'realisticVisionV60B1_v51HyperVAE.safetensors';
+};
+
+// Check if using SDXL/Flux model (larger models need different handling)
+const isLargeModel = (): boolean => {
+  const checkpoint = getModelCheckpoint().toLowerCase();
+  return checkpoint.includes('xl') || checkpoint.includes('flux') || checkpoint.includes('sdxl');
+};
+
 function buildComfyUIWorkflow(request: ImageGenerationRequest): object {
   const seed = request.settings.seed || Math.floor(Math.random() * 2147483647);
+  const modelCheckpoint = getModelCheckpoint();
+  const largeModel = isLargeModel();
 
-  // Complete ComfyUI workflow for SDXL/Pony Diffusion
+  // RTX 3090 Ti (24GB VRAM) can handle higher resolutions
+  // SD 1.5: up to 1024x1024, SDXL/Flux: native 1024x1024
+  const maxDimension = largeModel ? 1024 : 1024; // Increased for 24GB VRAM
+  let width = request.width;
+  let height = request.height;
+
+  // Scale down while maintaining aspect ratio if needed
+  if (width > maxDimension || height > maxDimension) {
+    const scale = maxDimension / Math.max(width, height);
+    width = Math.round((width * scale) / 8) * 8; // Must be divisible by 8
+    height = Math.round((height * scale) / 8) * 8;
+  }
+
+  // Complete ComfyUI workflow for Realistic Vision V6.0 (SD 1.5)
   return {
     prompt: {
       "4": {
         "class_type": "CheckpointLoaderSimple",
         "inputs": {
-          "ckpt_name": "ponyDiffusionV6XL_v6StartWithThisOne.safetensors"
+          "ckpt_name": modelCheckpoint
         }
       },
       "6": {
@@ -139,8 +165,8 @@ function buildComfyUIWorkflow(request: ImageGenerationRequest): object {
       "5": {
         "class_type": "EmptyLatentImage",
         "inputs": {
-          "width": request.width,
-          "height": request.height,
+          "width": width,
+          "height": height,
           "batch_size": 1
         }
       },
@@ -150,8 +176,8 @@ function buildComfyUIWorkflow(request: ImageGenerationRequest): object {
           "seed": seed,
           "steps": request.settings.steps,
           "cfg": request.settings.cfgScale,
-          "sampler_name": "euler",
-          "scheduler": "normal",
+          "sampler_name": "dpmpp_2m",
+          "scheduler": "karras",
           "denoise": 1,
           "model": ["4", 0],
           "positive": ["6", 0],

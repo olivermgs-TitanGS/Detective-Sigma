@@ -18,6 +18,8 @@ export const GenerationRequestSchema = z.object({
   // Syllabus-based generation options
   useSyllabus: z.boolean().default(true), // Use curriculum-aligned puzzles
   topicIds: z.array(z.string()).optional(), // Specific topics to cover
+  // Narrative engine options
+  useNarrativeEngine: z.boolean().default(true), // Use narrative-driven generation (new default)
   constraints: z.object({
     excludeThemes: z.array(z.string()).optional(),
     requiredSkills: z.array(z.string()).optional(),
@@ -72,11 +74,30 @@ export interface GeneratedCase {
     setting: string;
     crime: string;
     resolution: string;
+    // Narrative engine enhancements
+    timeline?: TimelineEvent[];
+    crimeWindow?: { start: string; end: string };
+    culpritProfile?: {
+      motive: { type: string; description: string; backstory: string };
+      method: string;
+      mistakes: string[];
+    };
   };
   suspects: Suspect[];
   clues: Clue[];
   puzzles: Puzzle[];
   scenes: Scene[];
+  // Evidence chain for game logic (narrative engine)
+  evidenceChain?: {
+    mainPath: string[];
+    criticalCount: number;
+  };
+  // Puzzle phases for progressive revelation (narrative engine)
+  puzzlePhases?: {
+    initial: string[];
+    investigation: string[];
+    conclusion: string[];
+  };
   // Image generation requests (for Pony Diffusion V6)
   imageRequests?: {
     cover: ImageRequest;
@@ -84,6 +105,18 @@ export interface GeneratedCase {
     suspects: ImageRequest[];
     evidence: ImageRequest[];
   };
+}
+
+// Timeline event from narrative engine
+export interface TimelineEvent {
+  id: string;
+  time: string;
+  timeMinutes: number;
+  description: string;
+  location: string;
+  involvedCharacters: string[];
+  isKeyEvent: boolean;
+  discoverable: boolean;
 }
 
 export interface Suspect {
@@ -99,6 +132,30 @@ export interface Suspect {
   ethnicity?: 'Chinese' | 'Malay' | 'Indian' | 'Eurasian';
   gender?: 'male' | 'female';
   ageGroup?: 'young' | 'middle' | 'senior';
+  // Narrative engine enhancements - rich dialogue trees
+  dialogueTree?: DialogueNode[];
+  // Character relationships for interconnected storytelling
+  relationships?: CharacterRelationship[];
+}
+
+// Dialogue node for rich conversation trees
+export interface DialogueNode {
+  id: string;
+  question: string;
+  answer: string;
+  emotion?: 'calm' | 'nervous' | 'defensive' | 'helpful' | 'evasive' | 'angry';
+  revealsInfo?: string;
+  contradictsId?: string;
+  unlocksNodeId?: string;
+  requiresEvidence?: string;
+}
+
+// Character relationship for interconnected suspects
+export interface CharacterRelationship {
+  targetId: string;
+  targetName: string;
+  type: 'friendly' | 'neutral' | 'tense' | 'hostile' | 'professional' | 'family';
+  description: string;
 }
 
 export interface Clue {
@@ -114,6 +171,10 @@ export interface Clue {
   examinationDetails?: string[];
   relatedTopicId?: string;
   puzzleHint?: string;
+  // Narrative engine enhancements
+  visualCue?: string;        // What player sees/notices initially
+  analysisResult?: string;   // What detailed analysis reveals
+  discoveryMethod?: string;  // How this clue can be found
 }
 
 export interface Puzzle {
@@ -132,6 +193,19 @@ export interface Puzzle {
   // Syllabus alignment
   topicId?: string;                    // Syllabus topic ID
   learningObjectivesCovered?: string[]; // Learning objectives addressed
+  // Narrative engine enhancements
+  narrativeContext?: string;           // Story introduction for the puzzle
+  investigationPhase?: 'initial' | 'investigation' | 'conclusion';
+  revelation?: PuzzleRevelation;       // What solving reveals
+  relatedCharacterName?: string;       // Character connected to this puzzle
+}
+
+// Revelation unlocked by solving a puzzle
+export interface PuzzleRevelation {
+  type: 'evidence' | 'alibi_check' | 'timeline' | 'motive' | 'confession_clue';
+  description: string;
+  storyText: string;
+  importance: 'minor' | 'moderate' | 'major';
 }
 
 export interface Scene {

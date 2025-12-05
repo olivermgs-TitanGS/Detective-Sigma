@@ -514,10 +514,22 @@ export default function GenerateCasePage() {
         const personInfo = parsePersonInfo(suspect.name, suspect.role);
         const expression = suspect.isGuilty ? 'slightly nervous expression' : 'calm confident expression';
 
-        // Build prompt parts - CRITICAL ORDER: Religious attire FIRST for priority
+        // Build prompt parts - CRITICAL ORDER FOR SFW SAFETY
         const promptParts = [
-          // Quality tags for Pony Diffusion
+          // ============================================================
+          // PONY DIFFUSION SFW SAFETY TAGS - MUST BE FIRST
+          // rating_safe is CRITICAL for SFW content in Pony Diffusion
+          // ============================================================
+          'rating_safe', 'safe_for_work', 'sfw',
           'score_9, score_8_up, score_7_up',
+          // ============================================================
+          // ANTI-SEXUALIZATION - NON-SEXUAL PROFESSIONAL APPEARANCE
+          // ============================================================
+          'non-sexual', 'non-sexualized', 'professional portrait',
+          'corporate ID photo', 'passport photo', 'government ID photo',
+          'neutral non-attractive appearance', 'ordinary person', 'average looking person',
+          'NOT sexy', 'NOT attractive', 'NOT beautiful', 'NOT pretty', 'NOT hot',
+          'plain appearance', 'ordinary appearance', 'normal person',
         ];
 
         // CRITICAL: Religious attire FIRST (highest priority) if Muslim
@@ -526,10 +538,11 @@ export default function GenerateCasePage() {
           promptParts.push(personInfo.religiousAttire);
         }
 
-        // Force realism with RESPECTFUL, DIGNIFIED portrayal
+        // Force realism with RESPECTFUL, DIGNIFIED, NON-SEXUAL portrayal
         promptParts.push(
           'photorealistic', 'realistic', 'real life photo', 'photograph', 'real person',
           'dignified', 'respectful portrayal', 'professional appearance',
+          'non-glamorous', 'documentary style', 'news photo style',
           // Person details - GENDER and AGE are CRITICAL
           `1${personInfo.gender}`, 'solo',
           // AGE - VERY IMPORTANT for accurate portrayal

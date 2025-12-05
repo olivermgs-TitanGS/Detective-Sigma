@@ -49,58 +49,59 @@ export interface GeneratedImage {
 // ============================================
 
 // ============================================
-// PONY DIFFUSION MODEL SETTINGS
+// PHOTOREALISTIC MODEL SETTINGS
 // ============================================
 
-// Pony Diffusion quality tags (prepended to all prompts)
-const ponyQualityTags = {
-  highest: 'score_9, score_8_up, score_7_up, score_6_up, source_realistic',
-  high: 'score_8_up, score_7_up, score_6_up, source_realistic',
-  good: 'score_7_up, score_6_up, source_realistic',
+// Photorealistic quality tags (prepended to all prompts)
+const photoQualityTags = {
+  highest: 'RAW photo, 8k uhd, DSLR, high quality, Fujifilm XT3, masterpiece, best quality',
+  high: 'RAW photo, DSLR, high quality, professional photography, detailed',
+  good: 'photo, high quality, detailed, sharp focus',
 };
 
-// Pony Diffusion negative quality tags
-const ponyNegativeQuality = 'score_6, score_5, score_4, source_pony, source_furry, source_cartoon';
+// Photorealistic negative quality tags
+// NOTE: SD 1.5 models cannot generate readable text - avoid text in prompts
+const photoNegativeQuality = 'cartoon, painting, illustration, drawing, art, anime, cgi, 3d render, doll, plastic, fake, unrealistic, text, words, letters, writing, signs, labels, captions';
 
 const defaultSettings: ImageSettings = {
-  model: 'ponyDiffusionV6XL',  // Pony Diffusion V6 XL
-  sampler: 'Euler a',
-  steps: 25,
-  cfgScale: 7.0,
-  style: 'realistic',
+  model: 'realisticVisionV60B1_v51VAE',  // Realistic Vision V6.0 B1
+  sampler: 'DPM++ 2M Karras',
+  steps: 30,
+  cfgScale: 5.5,  // Lower CFG for more natural results
+  style: 'photorealistic',
 };
 
 const sceneSettings: ImageSettings = {
   ...defaultSettings,
-  model: 'ponyDiffusionV6XL',
+  model: 'realisticVisionV60B1_v51VAE',
   sampler: 'DPM++ 2M Karras',
-  steps: 30,
-  cfgScale: 6.5,
+  steps: 35,
+  cfgScale: 5.0,
 };
 
 const portraitSettings: ImageSettings = {
   ...defaultSettings,
-  model: 'ponyDiffusionV6XL',
-  sampler: 'Euler a',
-  steps: 28,
-  cfgScale: 7.0,
+  model: 'realisticVisionV60B1_v51VAE',
+  sampler: 'DPM++ SDE Karras',
+  steps: 30,
+  cfgScale: 5.5,
 };
 
 const evidenceSettings: ImageSettings = {
   ...defaultSettings,
-  model: 'ponyDiffusionV6XL',
-  sampler: 'DPM++ SDE Karras',
-  steps: 25,
-  cfgScale: 7.0,
+  model: 'realisticVisionV60B1_v51VAE',
+  sampler: 'DPM++ 2M Karras',
+  steps: 28,
+  cfgScale: 6.0,
 };
 
 // ============================================
 // NEGATIVE PROMPTS (Quality Control)
 // ============================================
 
-// Pony Diffusion V6 optimized negative prompts
+// Photorealistic optimized negative prompts
 const baseNegativePrompt = `
-${ponyNegativeQuality},
+${photoNegativeQuality},
 (worst quality:2), (low quality:2), (normal quality:1.5),
 bad anatomy, bad proportions, bad hands, extra fingers, fewer fingers, missing fingers,
 text, watermark, signature, username, artist name, logo, copyright,
@@ -111,7 +112,7 @@ cropped, frame, border, jpeg artifacts, compression artifacts
 `.trim().replace(/\n/g, ' ');
 
 const portraitNegativePrompt = `
-${ponyNegativeQuality},
+${photoNegativeQuality},
 (worst quality:2), (low quality:2), bad anatomy, bad proportions,
 bad face, ugly face, deformed face, asymmetrical face, asymmetrical eyes,
 extra limbs, missing limbs, floating limbs, disconnected limbs,
@@ -123,11 +124,10 @@ blurry, out of focus, grainy, noisy
 `.trim().replace(/\n/g, ' ');
 
 const sceneNegativePrompt = `
-${ponyNegativeQuality},
+${photoNegativeQuality},
 (worst quality:2), (low quality:2), bad anatomy,
 text, watermark, signature, logo, copyright,
 blurry, out of focus, motion blur,
-people, person, human figure, crowd, pedestrian,
 cluttered, messy, disorganized,
 dark, underexposed, overexposed,
 jpeg artifacts, compression artifacts
@@ -398,7 +398,7 @@ function generateSuspectPortraitPrompt(params: SuspectPromptParams): string {
 
   // Pony Diffusion V6 formatted portrait prompt
   return `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 1person, solo, portrait, looking at viewer,
 ${ageDescriptions[params.ageGroup]},
 ${ethnicFeatures[params.ethnicity]},
@@ -469,7 +469,7 @@ function generateEvidencePrompt(params: EvidencePromptParams): string {
 
   // Pony Diffusion V6 formatted evidence prompt
   return `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 no humans, still life, object focus,
 ${itemPrompt},
 ${conditionModifiers[params.condition]},
@@ -505,7 +505,7 @@ export function createSceneImageRequest(
 
   // Pony Diffusion V6 formatted prompt with quality tags
   const prompt = `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 ${template.basePrompt},
 ${selectedDetails},
 ${template.lighting || singaporeContext.lighting[timeOfDay]},
@@ -590,7 +590,7 @@ export function createCoverImageRequest(
 
   // Pony Diffusion V6 formatted cover prompt
   const prompt = `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 no humans, still life, object focus,
 manila case folder file, detective case file,
 classified document, confidential folder,
@@ -774,23 +774,54 @@ export interface CaseContext {
 
 /**
  * Generate a scene image prompt that is 100% specific to the case context
+ * Scenes are realistic and only show disorder if explicitly required
  */
 export function generateContextualScenePrompt(
   caseContext: CaseContext,
   sceneDescription: string,
-  sceneName: string
+  sceneName: string,
+  options?: {
+    isCrimeScene?: boolean;      // Only true for primary crime scene with physical evidence
+    showDisorder?: boolean;       // Explicit disorder (struggle, break-in, etc.)
+    disorderType?: 'minor' | 'major' | 'struggle';  // Type of disorder if any
+  }
 ): ImageGenerationRequest {
-  // Build a prompt that incorporates exact case details
+  // Determine scene condition based on options
+  const isCrimeScene = options?.isCrimeScene ?? false;
+  const showDisorder = options?.showDisorder ?? false;
+
+  // Build disorder description only if explicitly needed
+  let conditionPrompt = 'clean, well-maintained, organized space';
+  if (showDisorder && isCrimeScene) {
+    const disorderDescriptions = {
+      minor: 'slight disarray, some items out of place, subtle signs of disturbance',
+      major: 'visible disorder, scattered items, clear signs of incident',
+      struggle: 'signs of struggle, overturned furniture, items knocked over',
+    };
+    conditionPrompt = disorderDescriptions[options?.disorderType || 'minor'];
+  } else if (isCrimeScene) {
+    // Crime scene but no disorder - just subtle investigation atmosphere
+    conditionPrompt = 'still and quiet atmosphere, preserved state, untouched since incident';
+  }
+
+  // Build atmosphere without forcing "crime scene" aesthetics
+  const atmosphereDescriptions = {
+    mysterious: 'quiet contemplative mood, subtle intrigue',
+    tense: 'still atmosphere with underlying tension',
+    calm: 'peaceful serene environment',
+    urgent: 'dynamic energetic atmosphere',
+  };
+
+  // Build a prompt that shows a realistic Singapore location
   const prompt = `
-${ponyQualityTags.highest},
-photorealistic scene photography,
+${photoQualityTags.highest},
+photorealistic interior/exterior photography,
 ${sceneDescription},
 location: ${sceneName}, ${caseContext.story.setting},
 Singapore setting, ${singaporeContext.details},
 ${singaporeContext.lighting[caseContext.timeOfDay]},
-${caseContext.atmosphere} atmosphere,
-investigation scene, mystery setting,
-evidence of: ${caseContext.story.crime},
+${atmosphereDescriptions[caseContext.atmosphere]},
+${conditionPrompt},
 masterpiece, best quality, absurdres, 8k,
 professional photography, DSLR photo, RAW photo,
 architectural photography, perfect composition, HDR,
@@ -812,6 +843,9 @@ highly detailed environment, realistic textures, realistic lighting
       location: caseContext.story.location,
       timeOfDay: caseContext.timeOfDay,
       atmosphere: caseContext.atmosphere,
+      isCrimeScene,
+      showDisorder,
+      disorderType: options?.disorderType,
     },
   };
 }
@@ -876,7 +910,7 @@ export function generateContextualSuspectPrompt(
   const roleClothing = getRoleClothing(suspect.role, caseContext.story.locationType);
 
   const prompt = `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 1person, solo, portrait, looking at viewer,
 ${ageDescriptions[ageGroup]},
 ${ethnicFeatures[ethnicity]},
@@ -944,7 +978,7 @@ export function generateContextualEvidencePrompt(
 
   // Create highly specific prompt based on exact clue details
   const prompt = `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 no humans, still life, object focus,
 ${clue.title}: ${clue.description},
 ${evidenceStyle[clue.type]},
@@ -996,7 +1030,7 @@ export function generateContextualCoverPrompt(
 
   // Incorporate case-specific elements
   const prompt = `
-${ponyQualityTags.highest},
+${photoQualityTags.highest},
 no humans, still life, object focus,
 manila case folder file, detective case file,
 title: "${caseContext.title}",
@@ -1137,4 +1171,693 @@ function getRoleClothing(role: string, locationType: string): string {
   };
 
   return locationClothing[locationType] || 'wearing smart casual Singapore attire';
+}
+
+// ============================================
+// STORY-ACCURATE IMAGE GENERATION
+// ============================================
+// These functions generate image prompts that are 100% accurate to the storyline.
+// Every detail must match the case data exactly - no assumptions or additions.
+
+import { NarrativeCase, CrimeDetails, CaseSetting } from './narrative-engine';
+
+/**
+ * Story-accurate scene types based on what actually happened in the story
+ */
+interface StorySceneConfig {
+  /** The exact scene data from the case */
+  sceneName: string;
+  sceneDescription: string;
+  /** What actually happened here according to the story */
+  storyContext: {
+    /** Is this where the crime occurred? */
+    isCrimeLocation: boolean;
+    /** What crime happened here (if any)? */
+    crimeType?: CrimeDetails['type'];
+    /** Was there physical disturbance? (theft rarely has mess, sabotage might) */
+    physicalDisturbance?: 'none' | 'minimal' | 'moderate' | 'significant';
+    /** Specific items that MUST be visible (from story) */
+    requiredItems?: string[];
+    /** Specific items that should NOT appear (would contradict story) */
+    excludedItems?: string[];
+    /** Time of day from story */
+    timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
+    /** Weather/lighting from story */
+    ambiance?: string;
+  };
+}
+
+/**
+ * Generate a scene image that is 100% accurate to the story
+ * NO assumptions - only what's explicitly stated in the case
+ */
+export function generateStoryAccurateScenePrompt(
+  narrativeCase: NarrativeCase,
+  sceneConfig: StorySceneConfig
+): ImageGenerationRequest {
+  const { setting, crime } = narrativeCase;
+  const { sceneName, sceneDescription, storyContext } = sceneConfig;
+
+  // Build the scene condition based on EXACTLY what happened
+  let sceneCondition = 'clean, well-maintained, organized, normal appearance';
+
+  if (storyContext.isCrimeLocation && storyContext.crimeType) {
+    // Determine visual impact based on crime type
+    const crimeVisuals: Record<CrimeDetails['type'], string> = {
+      theft: 'items may be missing from their usual places, otherwise undisturbed',
+      vandalism: 'visible damage, defaced property, signs of destruction',
+      fraud: 'normal appearance, no visible disturbance',
+      sabotage: 'subtle signs of tampering, specific item appears damaged or altered',
+      missing_item: 'empty space where item should be, otherwise normal',
+      cheating: 'normal appearance, no physical evidence visible',
+    };
+    sceneCondition = crimeVisuals[storyContext.crimeType];
+
+    // Override if story specifies physical disturbance
+    if (storyContext.physicalDisturbance) {
+      const disturbanceVisuals = {
+        none: 'clean, undisturbed, normal organized state',
+        minimal: 'very slight disarray, almost imperceptible changes',
+        moderate: 'some items displaced, noticeable but not dramatic disorder',
+        significant: 'clear signs of incident, scattered items, visible disorder',
+      };
+      sceneCondition = disturbanceVisuals[storyContext.physicalDisturbance];
+    }
+  }
+
+  // Build required items list if specified
+  const requiredItemsPrompt = storyContext.requiredItems?.length
+    ? `clearly visible: ${storyContext.requiredItems.join(', ')},`
+    : '';
+
+  // Build excluded items (add to negative prompt)
+  const excludedItemsNegative = storyContext.excludedItems?.length
+    ? storyContext.excludedItems.join(', ') + ','
+    : '';
+
+  // Time-specific lighting
+  const timeOfDayLighting = {
+    morning: 'soft warm morning sunlight, golden hour, gentle shadows',
+    afternoon: 'bright daylight, clear visibility, natural lighting',
+    evening: 'warm orange sunset light, long shadows, golden atmosphere',
+    night: 'artificial indoor lighting, darker outside windows, evening ambiance',
+  };
+
+  const prompt = `
+${photoQualityTags.highest},
+photorealistic interior photography of ${sceneName},
+${setting.description},
+${sceneDescription},
+${requiredItemsPrompt}
+${sceneCondition},
+${timeOfDayLighting[storyContext.timeOfDay]},
+${storyContext.ambiance || 'realistic everyday atmosphere'},
+Singapore setting, Southeast Asian environment,
+professional architectural photography, DSLR photo, RAW photo,
+highly detailed, realistic textures, realistic lighting,
+8k resolution, perfect composition
+`.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
+
+  const negativePrompt = `
+${photoNegativeQuality},
+${excludedItemsNegative}
+${storyContext.physicalDisturbance === 'none' ? 'messy, cluttered, disorganized, scattered, overturned,' : ''}
+(worst quality:2), (low quality:2),
+blurry, out of focus, dark, underexposed,
+people, humans, characters, figures,
+jpeg artifacts, compression artifacts
+`.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
+
+  return {
+    id: `story-scene-${nanoid(8)}`,
+    type: 'scene',
+    prompt,
+    negativePrompt,
+    width: 1024,
+    height: 768,
+    settings: sceneSettings,
+    metadata: {
+      storyAccurate: true,
+      sceneName,
+      isCrimeLocation: storyContext.isCrimeLocation,
+      crimeType: storyContext.crimeType,
+      physicalDisturbance: storyContext.physicalDisturbance,
+      requiredItems: storyContext.requiredItems,
+      timeOfDay: storyContext.timeOfDay,
+    },
+  };
+}
+
+/**
+ * Story-accurate suspect configuration
+ */
+interface StorySuspectConfig {
+  /** From case data */
+  name: string;
+  role: string;
+  alibi: string;
+  personality: string[];
+  isGuilty: boolean;
+  motive?: string;
+  /** Visual specifics from story (if described) */
+  appearance?: {
+    ethnicity?: 'Chinese' | 'Malay' | 'Indian' | 'Eurasian';
+    gender?: 'male' | 'female';
+    ageGroup?: 'young' | 'middle' | 'senior';
+    /** Specific clothing mentioned in story */
+    specificClothing?: string;
+    /** Physical features mentioned in story */
+    distinguishingFeatures?: string[];
+  };
+  /** Behavioral state during interview */
+  demeanor: 'calm' | 'nervous' | 'defensive' | 'cooperative' | 'evasive';
+}
+
+/**
+ * Generate a suspect portrait that matches EXACTLY what the story describes
+ */
+export function generateStoryAccurateSuspectPrompt(
+  narrativeCase: NarrativeCase,
+  suspectConfig: StorySuspectConfig
+): ImageGenerationRequest {
+  const { setting } = narrativeCase;
+  const { name, role, appearance, demeanor, isGuilty, personality } = suspectConfig;
+
+  // Determine ethnicity from name if not specified
+  const ethnicity = appearance?.ethnicity || inferEthnicityFromName(name);
+  const gender = appearance?.gender || 'male';
+  const ageGroup = appearance?.ageGroup || 'middle';
+
+  // Ethnic feature descriptions
+  const ethnicFeatures: Record<string, string> = {
+    Chinese: `${gender === 'male' ? 'Chinese Singaporean man' : 'Chinese Singaporean woman'}, East Asian features, black hair`,
+    Malay: `${gender === 'male' ? 'Malay Singaporean man' : 'Malay Singaporean woman'}, Southeast Asian features, dark hair`,
+    Indian: `${gender === 'male' ? 'Indian Singaporean man' : 'Indian Singaporean woman'}, South Asian features, dark hair`,
+    Eurasian: `${gender === 'male' ? 'Eurasian Singaporean man' : 'Eurasian Singaporean woman'}, mixed heritage features`,
+  };
+
+  // Age descriptions
+  const ageDescriptions: Record<string, string> = {
+    young: 'young adult, 20s to early 30s',
+    middle: 'middle-aged, 35 to 50 years old',
+    senior: 'older adult, 55 to 65 years old',
+  };
+
+  // Demeanor to expression mapping (what camera would capture)
+  const demeanorExpressions: Record<string, string> = {
+    calm: 'calm neutral expression, composed demeanor, relaxed posture',
+    nervous: 'slightly anxious expression, tense posture, avoiding direct eye contact',
+    defensive: 'guarded expression, arms crossed or protective posture, wary eyes',
+    cooperative: 'open friendly expression, engaged posture, making eye contact',
+    evasive: 'shifty expression, looking away, uncomfortable body language',
+  };
+
+  // Guilty people may show subtle tells (but not obvious)
+  const guiltyTells = isGuilty
+    ? 'subtle tension in jaw, slight perspiration, micro-expressions of stress'
+    : '';
+
+  // Use specific clothing if provided, otherwise infer from role
+  const clothing = appearance?.specificClothing ||
+    getRoleClothing(role, setting.locationType);
+
+  // Distinguishing features if any
+  const distinguishingFeatures = appearance?.distinguishingFeatures?.length
+    ? appearance.distinguishingFeatures.join(', ') + ','
+    : '';
+
+  const prompt = `
+${photoQualityTags.highest},
+professional portrait photograph,
+1person, solo, portrait, looking at viewer,
+${ethnicFeatures[ethnicity]},
+${ageDescriptions[ageGroup]},
+${clothing},
+${distinguishingFeatures}
+${demeanorExpressions[demeanor]},
+${guiltyTells}
+${role} at ${setting.location},
+photorealistic, realistic skin texture, detailed face, detailed eyes,
+professional headshot photography, soft studio lighting,
+sharp focus, shallow depth of field,
+neutral background, interview setting
+`.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
+
+  return {
+    id: `story-suspect-${nanoid(8)}`,
+    type: 'suspect',
+    prompt,
+    negativePrompt: portraitNegativePrompt,
+    width: 512,
+    height: 768,
+    settings: portraitSettings,
+    metadata: {
+      storyAccurate: true,
+      suspectName: name,
+      role,
+      isGuilty,
+      demeanor,
+      ethnicity,
+      gender,
+      ageGroup,
+    },
+  };
+}
+
+/**
+ * Story-accurate evidence configuration
+ */
+interface StoryEvidenceConfig {
+  /** From case data */
+  clueTitle: string;
+  clueDescription: string;
+  clueType: 'physical' | 'document' | 'testimony' | 'digital';
+  relevance: 'critical' | 'supporting' | 'red-herring';
+  /** Where it was found */
+  discoveryLocation: string;
+  /** EXACT physical description from story */
+  physicalDescription: {
+    /** What is this item exactly? */
+    itemType: string;
+    /** Size/dimensions if relevant */
+    size?: string;
+    /** Color(s) */
+    color?: string;
+    /** Material */
+    material?: string;
+    /** Condition (pristine, worn, damaged, etc.) */
+    condition: string;
+    /** Any markings, text, or identifying features */
+    identifyingFeatures?: string[];
+    /** What's unusual about it (if anything) */
+    anomalies?: string[];
+  };
+}
+
+/**
+ * Generate an evidence image that shows EXACTLY what the story describes
+ */
+export function generateStoryAccurateEvidencePrompt(
+  narrativeCase: NarrativeCase,
+  evidenceConfig: StoryEvidenceConfig
+): ImageGenerationRequest {
+  const { clueTitle, clueType, physicalDescription, discoveryLocation, relevance } = evidenceConfig;
+  const pd = physicalDescription;
+
+  // Build exact physical description
+  const physicalDetails = [
+    pd.itemType,
+    pd.size ? `${pd.size} in size` : '',
+    pd.color ? `${pd.color} colored` : '',
+    pd.material ? `made of ${pd.material}` : '',
+    pd.condition ? `in ${pd.condition} condition` : '',
+    pd.identifyingFeatures?.length ? pd.identifyingFeatures.join(', ') : '',
+    pd.anomalies?.length ? `notable: ${pd.anomalies.join(', ')}` : '',
+  ].filter(Boolean).join(', ');
+
+  // Evidence photography style based on type
+  const photographyStyle: Record<string, string> = {
+    physical: 'forensic evidence photography, clinical lighting, evidence scale ruler visible',
+    document: 'document photography, flat lay, even lighting, readable details',
+    digital: 'screen capture, device photography, clear display visible',
+    testimony: 'interview setting photograph', // Rarely used for testimony
+  };
+
+  // Critical evidence should be clearly visible and well-lit
+  const relevanceStyle = relevance === 'critical'
+    ? 'clearly lit, center focus, high detail, important evidence'
+    : relevance === 'red-herring'
+      ? 'natural lighting, appears significant but misleading'
+      : 'standard evidence documentation';
+
+  const prompt = `
+${photoQualityTags.highest},
+${photographyStyle[clueType]},
+no humans, still life, object focus,
+photograph of ${clueTitle}: ${physicalDetails},
+found at ${discoveryLocation},
+${relevanceStyle},
+photorealistic, realistic textures, sharp focus,
+professional documentation photography,
+evidence marker number visible nearby,
+clean background, examination table or discovery location context
+`.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
+
+  return {
+    id: `story-evidence-${nanoid(8)}`,
+    type: 'evidence',
+    prompt,
+    negativePrompt: baseNegativePrompt,
+    width: 768,
+    height: 768,
+    settings: evidenceSettings,
+    metadata: {
+      storyAccurate: true,
+      clueTitle,
+      clueType,
+      relevance,
+      discoveryLocation,
+      physicalDescription: pd,
+    },
+  };
+}
+
+/**
+ * Generate ALL images for a case with 100% story accuracy
+ * Call this when generating a case to ensure visual consistency
+ */
+export function generateAllStoryAccurateImages(
+  narrativeCase: NarrativeCase,
+  scenes: StorySceneConfig[],
+  suspects: StorySuspectConfig[],
+  evidence: StoryEvidenceConfig[]
+): {
+  scenes: ImageGenerationRequest[];
+  suspects: ImageGenerationRequest[];
+  evidence: ImageGenerationRequest[];
+} {
+  return {
+    scenes: scenes.map(scene => generateStoryAccurateScenePrompt(narrativeCase, scene)),
+    suspects: suspects.map(suspect => generateStoryAccurateSuspectPrompt(narrativeCase, suspect)),
+    evidence: evidence
+      .filter(e => e.clueType !== 'testimony') // No images for testimony
+      .map(e => generateStoryAccurateEvidencePrompt(narrativeCase, e)),
+  };
+}
+
+// Export types for use in generator
+export type { StorySceneConfig, StorySuspectConfig, StoryEvidenceConfig };
+
+// ============================================
+// REALITY VALIDATION SYSTEM
+// ============================================
+// Ensures all generated images are grounded in reality
+// No fantasy, impossible scenarios, or illogical combinations
+
+/**
+ * Reality check rules for image prompts
+ */
+interface RealityViolation {
+  type: 'impossible' | 'improbable' | 'fantasy' | 'anachronism' | 'logical';
+  description: string;
+  severity: 'error' | 'warning';
+}
+
+/**
+ * Validates that a scene configuration is realistic
+ */
+export function validateSceneReality(config: StorySceneConfig): RealityViolation[] {
+  const violations: RealityViolation[] = [];
+
+  // Check for impossible combinations
+  const impossibleScenarios = [
+    { pattern: /underwater.*fire/i, reason: 'Fire cannot exist underwater' },
+    { pattern: /freezing.*tropical/i, reason: 'Tropical climates are not freezing' },
+    { pattern: /midnight.*bright sunlight/i, reason: 'No sunlight at midnight' },
+    { pattern: /ancient.*smartphone/i, reason: 'Anachronistic technology' },
+  ];
+
+  const fullDescription = `${config.sceneName} ${config.sceneDescription}`;
+  for (const scenario of impossibleScenarios) {
+    if (scenario.pattern.test(fullDescription)) {
+      violations.push({
+        type: 'impossible',
+        description: scenario.reason,
+        severity: 'error',
+      });
+    }
+  }
+
+  // Singapore-specific reality checks
+  if (config.sceneDescription.toLowerCase().includes('snow') &&
+      !config.sceneDescription.toLowerCase().includes('fake') &&
+      !config.sceneDescription.toLowerCase().includes('artificial')) {
+    violations.push({
+      type: 'impossible',
+      description: 'Singapore does not have natural snow',
+      severity: 'error',
+    });
+  }
+
+  // Time of day logic
+  if (config.storyContext.timeOfDay === 'night' &&
+      config.storyContext.ambiance?.toLowerCase().includes('bright sunshine')) {
+    violations.push({
+      type: 'logical',
+      description: 'Cannot have bright sunshine at night',
+      severity: 'error',
+    });
+  }
+
+  return violations;
+}
+
+/**
+ * Validates that a suspect configuration is realistic
+ */
+export function validateSuspectReality(config: StorySuspectConfig): RealityViolation[] {
+  const violations: RealityViolation[] = [];
+
+  // Age-role logic checks
+  const roleAgeConstraints: Record<string, { minAge: string; maxAge: string }> = {
+    'student': { minAge: 'young', maxAge: 'young' },
+    'principal': { minAge: 'middle', maxAge: 'senior' },
+    'retiree': { minAge: 'senior', maxAge: 'senior' },
+    'intern': { minAge: 'young', maxAge: 'young' },
+  };
+
+  const roleKey = Object.keys(roleAgeConstraints).find(key =>
+    config.role.toLowerCase().includes(key)
+  );
+
+  if (roleKey && config.appearance?.ageGroup) {
+    const constraint = roleAgeConstraints[roleKey];
+    const ageOrder = ['young', 'middle', 'senior'];
+    const actualAge = ageOrder.indexOf(config.appearance.ageGroup);
+    const minAge = ageOrder.indexOf(constraint.minAge);
+    const maxAge = ageOrder.indexOf(constraint.maxAge);
+
+    if (actualAge < minAge || actualAge > maxAge) {
+      violations.push({
+        type: 'improbable',
+        description: `A ${config.appearance.ageGroup} person is unlikely to be a ${config.role}`,
+        severity: 'warning',
+      });
+    }
+  }
+
+  // Physical impossibilities
+  if (config.appearance?.distinguishingFeatures) {
+    const features = config.appearance.distinguishingFeatures.join(' ').toLowerCase();
+
+    if (features.includes('wings') || features.includes('horns') ||
+        features.includes('glowing eyes') || features.includes('purple skin')) {
+      violations.push({
+        type: 'fantasy',
+        description: 'Fantasy/supernatural physical features are not realistic',
+        severity: 'error',
+      });
+    }
+  }
+
+  return violations;
+}
+
+/**
+ * Validates that evidence configuration is realistic
+ */
+export function validateEvidenceReality(config: StoryEvidenceConfig): RealityViolation[] {
+  const violations: RealityViolation[] = [];
+  const pd = config.physicalDescription;
+
+  // Material-property checks
+  const materialProperties: Record<string, { cantBe: string[] }> = {
+    paper: { cantBe: ['unburnable', 'waterproof'] },
+    glass: { cantBe: ['flexible', 'soft'] },
+    wood: { cantBe: ['transparent', 'magnetic'] },
+    metal: { cantBe: ['soft like cotton', 'edible'] },
+  };
+
+  if (pd.material) {
+    const materialKey = Object.keys(materialProperties).find(key =>
+      pd.material?.toLowerCase().includes(key)
+    );
+
+    if (materialKey) {
+      const cantBe = materialProperties[materialKey].cantBe;
+      const fullDesc = `${pd.condition} ${pd.identifyingFeatures?.join(' ') || ''}`.toLowerCase();
+
+      for (const property of cantBe) {
+        if (fullDesc.includes(property)) {
+          violations.push({
+            type: 'impossible',
+            description: `${materialKey} cannot be ${property}`,
+            severity: 'error',
+          });
+        }
+      }
+    }
+  }
+
+  // Size logic
+  if (pd.size) {
+    const sizeDesc = pd.size.toLowerCase();
+    const itemType = pd.itemType.toLowerCase();
+
+    // Check for illogical sizes
+    if ((itemType.includes('building') || itemType.includes('car')) &&
+        (sizeDesc.includes('tiny') || sizeDesc.includes('pocket-sized'))) {
+      violations.push({
+        type: 'impossible',
+        description: `A ${itemType} cannot be ${sizeDesc}`,
+        severity: 'error',
+      });
+    }
+
+    if ((itemType.includes('bacteria') || itemType.includes('atom')) &&
+        (sizeDesc.includes('large') || sizeDesc.includes('huge'))) {
+      violations.push({
+        type: 'impossible',
+        description: `${itemType} cannot be ${sizeDesc}`,
+        severity: 'error',
+      });
+    }
+  }
+
+  return violations;
+}
+
+/**
+ * Validate an entire image request prompt for realistic content
+ */
+export function validatePromptReality(prompt: string): RealityViolation[] {
+  const violations: RealityViolation[] = [];
+  const lowerPrompt = prompt.toLowerCase();
+
+  // Fantasy/supernatural elements that should never appear
+  const fantasyElements = [
+    { pattern: /dragon|unicorn|fairy|elf|dwarf|ogre|troll|goblin/i, type: 'fantasy' as const },
+    { pattern: /magic|spell|wizard|witch|sorcerer|enchanted/i, type: 'fantasy' as const },
+    { pattern: /flying human|levitating|teleporting/i, type: 'fantasy' as const },
+    { pattern: /ghost|vampire|zombie|werewolf|demon|angel/i, type: 'fantasy' as const },
+    { pattern: /glowing eyes|supernatural|mystical powers/i, type: 'fantasy' as const },
+  ];
+
+  for (const element of fantasyElements) {
+    if (element.pattern.test(prompt)) {
+      violations.push({
+        type: element.type,
+        description: `Fantasy element detected: ${prompt.match(element.pattern)?.[0]}`,
+        severity: 'error',
+      });
+    }
+  }
+
+  // Physically impossible scenarios
+  const impossibleScenarios = [
+    { pattern: /human.*with.*six arms/i, reason: 'Humans have two arms' },
+    { pattern: /walking.*on.*water/i, reason: 'Humans cannot walk on water' },
+    { pattern: /breathing.*underwater.*without.*equipment/i, reason: 'Humans cannot breathe underwater' },
+    { pattern: /lifting.*a.*car.*with.*bare.*hands/i, reason: 'Superhuman strength is unrealistic' },
+    { pattern: /running.*at.*100.*mph/i, reason: 'Humans cannot run at 100 mph' },
+  ];
+
+  for (const scenario of impossibleScenarios) {
+    if (scenario.pattern.test(prompt)) {
+      violations.push({
+        type: 'impossible',
+        description: scenario.reason,
+        severity: 'error',
+      });
+    }
+  }
+
+  // Singapore-specific reality
+  if (lowerPrompt.includes('singapore')) {
+    if (lowerPrompt.includes('snow') && !lowerPrompt.includes('fake') && !lowerPrompt.includes('artificial')) {
+      violations.push({
+        type: 'impossible',
+        description: 'Natural snow does not occur in Singapore',
+        severity: 'error',
+      });
+    }
+    if (lowerPrompt.includes('mountain') && !lowerPrompt.includes('bukit')) {
+      violations.push({
+        type: 'improbable',
+        description: 'Singapore does not have mountains',
+        severity: 'warning',
+      });
+    }
+  }
+
+  return violations;
+}
+
+/**
+ * Sanitize a prompt by removing unrealistic elements
+ * Returns the cleaned prompt and list of removed elements
+ */
+export function sanitizePromptForReality(prompt: string): {
+  sanitizedPrompt: string;
+  removedElements: string[];
+} {
+  const removedElements: string[] = [];
+  let sanitizedPrompt = prompt;
+
+  // Elements to remove
+  const elementsToRemove = [
+    /\b(magical|enchanted|mystical|supernatural)\b/gi,
+    /\b(glowing|luminescent)\s+(eyes|hands|body)/gi,
+    /\b(flying|hovering|levitating)\s+(human|person|man|woman)/gi,
+    /\b(dragon|unicorn|fairy|elf|wizard|witch)\b/gi,
+  ];
+
+  for (const pattern of elementsToRemove) {
+    const matches = sanitizedPrompt.match(pattern);
+    if (matches) {
+      removedElements.push(...matches);
+      sanitizedPrompt = sanitizedPrompt.replace(pattern, '');
+    }
+  }
+
+  // Clean up extra spaces and commas
+  sanitizedPrompt = sanitizedPrompt
+    .replace(/,\s*,/g, ',')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return { sanitizedPrompt, removedElements };
+}
+
+/**
+ * Full reality check for a story-accurate image request
+ * Call this before generating any image
+ */
+export function performRealityCheck(
+  request: ImageGenerationRequest
+): {
+  isValid: boolean;
+  violations: RealityViolation[];
+  sanitizedPrompt?: string;
+} {
+  const promptViolations = validatePromptReality(request.prompt);
+
+  // If there are errors, try to sanitize
+  if (promptViolations.some(v => v.severity === 'error')) {
+    const { sanitizedPrompt, removedElements } = sanitizePromptForReality(request.prompt);
+
+    // Re-check the sanitized prompt
+    const recheckViolations = validatePromptReality(sanitizedPrompt);
+
+    return {
+      isValid: !recheckViolations.some(v => v.severity === 'error'),
+      violations: [...promptViolations, ...recheckViolations],
+      sanitizedPrompt: sanitizedPrompt !== request.prompt ? sanitizedPrompt : undefined,
+    };
+  }
+
+  return {
+    isValid: !promptViolations.some(v => v.severity === 'error'),
+    violations: promptViolations,
+  };
 }
