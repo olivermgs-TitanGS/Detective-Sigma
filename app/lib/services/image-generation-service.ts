@@ -5,7 +5,33 @@
  * to generate images from prompts created by the case generator.
  */
 
-import { ImageGenerationRequest, toAutomatic1111Format, toComfyUIWorkflow } from '../case-generator/image-generator';
+import {
+  ImageGenerationRequest,
+  toAutomatic1111Format,
+  toComfyUIWorkflow,
+  applyContentRatingFilter,
+  performRealityCheck,
+  ContentRating,
+} from '../case-generator/image-generator';
+
+// Global content rating - can be set via API or environment
+let currentContentRating: ContentRating = (process.env.CONTENT_RATING as ContentRating) || 'GENERAL';
+
+/**
+ * Set the content rating for image generation
+ * This affects what content is allowed/blocked
+ */
+export function setContentRating(rating: ContentRating): void {
+  console.log(`[CONTENT RATING] Changed from ${currentContentRating} to ${rating}`);
+  currentContentRating = rating;
+}
+
+/**
+ * Get the current content rating
+ */
+export function getContentRating(): ContentRating {
+  return currentContentRating;
+}
 
 // ============================================
 // TYPES
@@ -420,14 +446,82 @@ export class ImageGenerationService {
 
   /**
    * Generate a single image from a request
+   * Content filtering based on Singapore IMDA rating system
+   *
+   * @param request - Image generation request
+   * @param ratingOverride - Optional rating override (uses global rating if not specified)
    */
-  async generateImage(request: ImageGenerationRequest): Promise<GeneratedImageResult> {
+  async generateImage(
+    request: ImageGenerationRequest,
+    ratingOverride?: ContentRating
+  ): Promise<GeneratedImageResult> {
+    const rating = ratingOverride || currentContentRating;
+
+    // ========================================
+    // SINGAPORE IMDA CONTENT RATING FILTER
+    // ========================================
+    // Content allowed/blocked based on admin-configured rating
+    // GENERAL (default) -> PG13 -> ADV16 -> M18
+    const ratingResult = applyContentRatingFilter(request, rating);
+
+    if (!ratingResult.isAllowed) {
+      console.error(`[CONTENT RATING: ${rating}] BLOCKED:`, ratingResult.violations);
+      return {
+        success: false,
+        requestId: request.id,
+        error: `Content Rating (${rating}) BLOCKED: ${ratingResult.warning}`,
+        generationTime: 0,
+      };
+    }
+
+    // Use the filtered request (with rating-appropriate negative prompt)
+    const safeRequest = ratingResult.filteredRequest || request;
+
+    // Log warnings
+    if (ratingResult.warning) {
+      console.warn(`[CONTENT RATING: ${rating}] Warning:`, ratingResult.warning);
+    }
+
+    // ========================================
+    // REALITY CHECK (No Fantasy Content)
+    // ========================================
+    const realityResult = performRealityCheck(safeRequest);
+
+    if (!realityResult.isValid) {
+      const errors = realityResult.violations
+        .filter(v => v.severity === 'error')
+        .map(v => v.description)
+        .join(', ');
+
+      console.error('[REALITY CHECK] BLOCKED image generation:', realityResult.violations);
+      return {
+        success: false,
+        requestId: request.id,
+        error: `Reality Check BLOCKED: ${errors}`,
+        generationTime: 0,
+      };
+    }
+
+    // Use sanitized prompt if available
+    const finalRequest = realityResult.sanitizedPrompt
+      ? { ...safeRequest, prompt: realityResult.sanitizedPrompt }
+      : safeRequest;
+
+    // Log reality warnings (but allow generation)
+    const warnings = realityResult.violations.filter(v => v.severity === 'warning');
+    if (warnings.length > 0) {
+      console.warn('[REALITY CHECK] Warnings:', warnings.map(w => w.description).join(', '));
+    }
+
+    // ========================================
+    // GENERATE IMAGE
+    // ========================================
     if (this.config.backend === 'comfyui') {
-      return generateWithComfyUI(request, this.config);
+      return generateWithComfyUI(finalRequest, this.config);
     } else if (this.config.backend === 'huggingface') {
-      return generateWithHuggingFace(request, this.config);
+      return generateWithHuggingFace(finalRequest, this.config);
     } else {
-      return generateWithAutomatic1111(request, this.config);
+      return generateWithAutomatic1111(finalRequest, this.config);
     }
   }
 

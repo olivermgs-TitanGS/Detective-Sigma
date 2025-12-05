@@ -229,7 +229,57 @@ The system includes `validatePromptReality()` and `sanitizePromptForReality()` t
 - Singapore-appropriate content
 - Age-role consistency
 
-### 7. Readable Text System (`CrimeSceneOverlays.tsx`)
+### 7. Singapore IMDA Content Rating System (`singapore-imda-rating.ts`)
+
+**Purpose:** Ensures content compliance with Singapore's Infocomm Media Development Authority (IMDA) video game classification guidelines.
+
+**Rating Levels:**
+
+| Rating | Label | Age | Restricted | Description |
+|--------|-------|-----|------------|-------------|
+| GENERAL | G | 0+ | No | Suitable for all ages |
+| PG13 | PG13 | 13+ | No | Parental guidance for children below 13 |
+| ADV16 | ADV16 | 16+ | No | Advisory for persons 16 and above |
+| M18 | M18 | 18+ | Yes | Restricted to persons 18 and above |
+
+**Content Filtering:**
+
+The system uses two tiers of content filtering:
+1. **Always Blocked** (regardless of rating):
+   - Sexual content (nude, explicit, pornographic, etc.)
+   - Extreme violence (dismemberment, torture, child abuse)
+   - Banned content (terrorism, genocide, self-harm instructions)
+
+2. **Rating-Specific Blocking:**
+
+| Content Type | GENERAL | PG13 | ADV16 | M18 |
+|--------------|---------|------|-------|-----|
+| Blood/Violence | ❌ | ✅ | ✅ | ✅ |
+| Murder Mystery | ❌ | ✅ | ✅ | ✅ |
+| Weapons as Evidence | ❌ | ✅ | ✅ | ✅ |
+| Horror/Scary | ❌ | ❌ | ✅ | ✅ |
+| Drug References | ❌ | ❌ | ✅ | ✅ |
+| Gore | ❌ | ❌ | ❌ | ✅ |
+| Coarse Language | ❌ | ❌ | ❌ | ✅ |
+
+**Key Functions:**
+- `getBlockedTerms(rating)` - Get all blocked terms for a rating
+- `isContentAllowed(content, rating)` - Check if content is allowed
+- `getNegativePromptForRating(rating)` - Get negative prompt additions
+- `applyContentRatingFilter(request, rating)` - Apply filter to image requests
+
+**API Endpoints:**
+- `GET /api/admin/content-rating` - Get current rating and available ratings
+- `POST /api/admin/content-rating` - Set content rating (body: `{ rating: "PG13" }`)
+
+**Admin UI:**
+The `ContentRatingSlider` component provides a visual slider to control content rating, with:
+- Age requirement badges
+- Allowed/blocked content indicators
+- Confirmation modal for restricted ratings (M18)
+- Singapore IMDA compliance notice
+
+### 8. Readable Text System (`CrimeSceneOverlays.tsx`)
 
 **Purpose:** Since AI cannot generate readable text, React components overlay text on images.
 
@@ -380,6 +430,9 @@ app/lib/case-generator/
 ├── curriculum-puzzles.ts  # Syllabus-aligned puzzles
 ├── learning-tracker.ts    # Student progress
 │
+├── content-rating/        # SINGAPORE IMDA CONTENT RATING (v3.1)
+│   └── singapore-imda-rating.ts  # Rating system, blocked terms, compliance
+│
 └── scalable/              # SCALABLE MODULE SYSTEM (v3.0)
     ├── index.ts              # Integration & scalability stats
     ├── location-templates.ts # 45+ Singapore locations
@@ -394,6 +447,13 @@ app/components/game/
 ├── SceneViewer.tsx        # Scene display
 ├── ClueModal.tsx          # Clue examination
 └── PuzzleModal.tsx        # Puzzle solving
+
+app/components/admin/
+└── ContentRatingSlider.tsx # IMDA content rating slider
+
+app/api/admin/
+└── content-rating/
+    └── route.ts           # GET/POST content rating API
 
 app/lib/services/
 └── image-generation-service.ts # Image generation API
@@ -554,4 +614,5 @@ This ensures storyline uniqueness and allows tracking of generated content.
 ---
 
 *Last Updated: December 2025*
-*Version: 3.0 - Scalable Storyline System (7.56 trillion unique storylines)*
+*Version: 3.1 - Singapore IMDA Content Rating System*
+*Previous: 3.0 - Scalable Storyline System (7.56 trillion unique storylines)*

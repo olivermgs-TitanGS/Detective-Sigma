@@ -1549,6 +1549,173 @@ export function generateAllStoryAccurateImages(
 export type { StorySceneConfig, StorySuspectConfig, StoryEvidenceConfig };
 
 // ============================================
+// SINGAPORE IMDA CONTENT RATING SYSTEM
+// ============================================
+// Content filtering is now based on the admin-configured rating level
+// Compliant with Singapore IMDA Video Game Classification Guidelines
+//
+// Rating Levels:
+// - GENERAL: Suitable for all ages (default for P4-P6 students)
+// - PG13: Parental guidance for below 13
+// - ADV16: Advisory for 16+ (IMDA video game rating)
+// - M18: Mature 18+ (IMDA restricted rating)
+
+import {
+  ContentRating,
+  getBlockedTerms,
+  getNegativePromptForRating,
+  isContentAllowed,
+  ALWAYS_BLOCKED_TERMS,
+  RATING_CONFIGS,
+} from '../content-rating/singapore-imda-rating';
+
+// Re-export for convenience
+export type { ContentRating } from '../content-rating/singapore-imda-rating';
+
+/**
+ * Content violation detected by rating filter
+ */
+export interface ContentViolation {
+  term: string;
+  category: string;
+  rating: ContentRating;
+  message: string;
+}
+
+/**
+ * Result of applying content rating filter
+ */
+export interface RatingFilterResult {
+  isAllowed: boolean;
+  filteredRequest?: ImageGenerationRequest;
+  violations: ContentViolation[];
+  rating: ContentRating;
+  warning?: string;
+}
+
+/**
+ * Apply content rating filter to an image generation request
+ * Content allowed/blocked is determined by the rating parameter
+ *
+ * @param request - The image generation request
+ * @param rating - The content rating level (from admin slider)
+ */
+export function applyContentRatingFilter(
+  request: ImageGenerationRequest,
+  rating: ContentRating = 'GENERAL'
+): RatingFilterResult {
+  const violations: ContentViolation[] = [];
+  const lowerPrompt = request.prompt.toLowerCase();
+
+  // Step 1: Check ALWAYS blocked terms (regardless of rating)
+  for (const [category, terms] of Object.entries(ALWAYS_BLOCKED_TERMS)) {
+    for (const term of terms) {
+      const escapedTerm = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');
+      if (regex.test(lowerPrompt)) {
+        violations.push({
+          term,
+          category,
+          rating,
+          message: `"${term}" is always blocked (${category})`,
+        });
+      }
+    }
+  }
+
+  // If always-blocked content found, reject immediately
+  if (violations.length > 0) {
+    console.error(`[CONTENT RATING] BLOCKED at ${rating}:`, violations);
+    return {
+      isAllowed: false,
+      violations,
+      rating,
+      warning: `Content blocked: ${violations.map(v => v.term).join(', ')}`,
+    };
+  }
+
+  // Step 2: Check rating-specific blocked terms
+  const blockedTerms = getBlockedTerms(rating);
+  for (const term of blockedTerms) {
+    // Skip always-blocked terms (already checked)
+    const alwaysBlockedFlat = Object.values(ALWAYS_BLOCKED_TERMS).flat();
+    if (alwaysBlockedFlat.includes(term)) continue;
+
+    const escapedTerm = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');
+    if (regex.test(lowerPrompt)) {
+      violations.push({
+        term,
+        category: 'rating_restricted',
+        rating,
+        message: `"${term}" not allowed at ${rating} rating`,
+      });
+    }
+  }
+
+  if (violations.length > 0) {
+    console.warn(`[CONTENT RATING] Restricted at ${rating}:`, violations);
+    return {
+      isAllowed: false,
+      violations,
+      rating,
+      warning: `Content restricted at ${rating}: ${violations.map(v => v.term).join(', ')}`,
+    };
+  }
+
+  // Step 3: Add rating-appropriate negative prompt
+  const negativeAdditions = getNegativePromptForRating(rating);
+  const enhancedNegativePrompt = `${negativeAdditions}, ${request.negativePrompt}`;
+
+  return {
+    isAllowed: true,
+    filteredRequest: {
+      ...request,
+      negativePrompt: enhancedNegativePrompt,
+    },
+    violations: [],
+    rating,
+  };
+}
+
+/**
+ * Legacy function for backwards compatibility
+ * Now uses GENERAL rating by default
+ * @deprecated Use applyContentRatingFilter with explicit rating instead
+ */
+export function applySFWFilter(request: ImageGenerationRequest): {
+  isAllowed: boolean;
+  filteredRequest?: ImageGenerationRequest;
+  violations: ContentViolation[];
+  warning?: string;
+} {
+  const result = applyContentRatingFilter(request, 'GENERAL');
+  return {
+    isAllowed: result.isAllowed,
+    filteredRequest: result.filteredRequest,
+    violations: result.violations,
+    warning: result.warning,
+  };
+}
+
+/**
+ * Check if content is appropriate for a given rating
+ */
+export function checkContentRating(
+  content: string,
+  rating: ContentRating
+): { allowed: boolean; violations: string[] } {
+  return isContentAllowed(content, rating);
+}
+
+/**
+ * Get the rating configuration
+ */
+export function getRatingConfig(rating: ContentRating) {
+  return RATING_CONFIGS[rating];
+}
+
+// ============================================
 // REALITY VALIDATION SYSTEM
 // ============================================
 // Ensures all generated images are grounded in reality
