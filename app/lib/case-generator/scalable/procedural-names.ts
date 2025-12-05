@@ -5,12 +5,18 @@
  * Combines first name + surname components for massive variety.
  */
 
+export type AgeCategory = 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+
 export interface ProceduralCharacter {
   id: string;
   name: string;
   ethnicity: 'Chinese' | 'Malay' | 'Indian' | 'Eurasian';
   gender: 'male' | 'female';
   ageGroup: 'young' | 'middle' | 'senior';
+  // Enhanced age system
+  ageCategory?: AgeCategory;
+  specificAge?: number;
+  displayAge?: string;
   role: string;
   personality: string[];
   isGuilty: boolean;
@@ -126,6 +132,135 @@ export const PERSONALITY_TRAITS = {
 };
 
 // ============================================
+// AGE-OCCUPATION COMPATIBILITY SYSTEM
+// ============================================
+
+const AGE_RANGES: Record<AgeCategory, { min: number; max: number }> = {
+  child: { min: 7, max: 12 },
+  teen: { min: 13, max: 17 },
+  young_adult: { min: 18, max: 29 },
+  adult: { min: 30, max: 45 },
+  middle_aged: { min: 46, max: 60 },
+  senior: { min: 61, max: 80 },
+};
+
+interface RoleAgeConstraint {
+  validAges: AgeCategory[];
+  preferredAges: AgeCategory[];
+}
+
+/**
+ * Get valid age categories for a role
+ */
+function getRoleAgeConstraints(role: string): RoleAgeConstraint {
+  const roleLower = role.toLowerCase();
+
+  // Student roles - children and teens only
+  if (/primary student|schoolchild/i.test(role)) {
+    return { validAges: ['child'], preferredAges: ['child'] };
+  }
+  if (/secondary student|student helper|team captain/i.test(role)) {
+    return { validAges: ['teen', 'young_adult'], preferredAges: ['teen'] };
+  }
+  if (/student/i.test(role)) {
+    return { validAges: ['teen', 'young_adult'], preferredAges: ['teen'] };
+  }
+
+  // Child-specific detection
+  if (/child|kid|boy|girl/i.test(role) && !/childcare|children's/i.test(role)) {
+    return { validAges: ['child', 'teen'], preferredAges: ['child'] };
+  }
+
+  // Intern/Trainee - young adults
+  if (/intern|trainee|apprentice/i.test(role)) {
+    return { validAges: ['young_adult'], preferredAges: ['young_adult'] };
+  }
+
+  // Junior/Assistant roles
+  if (/junior|assistant|cashier|waiter/i.test(role)) {
+    return { validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] };
+  }
+
+  // Cleaner/Security - adults to senior
+  if (/cleaner|security guard|driver/i.test(role)) {
+    return { validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] };
+  }
+
+  // Professional roles
+  if (/teacher|librarian|coach|nurse|technician/i.test(role)) {
+    return { validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] };
+  }
+
+  // Vendor/Owner roles
+  if (/vendor|owner|hawker|stall/i.test(role)) {
+    return { validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] };
+  }
+
+  // Management roles
+  if (/manager|supervisor/i.test(role)) {
+    return { validAges: ['adult', 'middle_aged'], preferredAges: ['adult', 'middle_aged'] };
+  }
+
+  // Senior/Executive roles
+  if (/senior|head|director|chief|ceo|chairman|principal|professor/i.test(role)) {
+    return { validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged', 'senior'] };
+  }
+
+  // Retiree roles
+  if (/retiree|retired|elderly|pensioner/i.test(role)) {
+    return { validAges: ['senior'], preferredAges: ['senior'] };
+  }
+
+  // Default: working adults
+  return { validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] };
+}
+
+/**
+ * Get a contextually appropriate age for a role
+ */
+export function getAgeForRole(role: string): {
+  ageCategory: AgeCategory;
+  ageGroup: 'young' | 'middle' | 'senior';
+  specificAge: number;
+  displayAge: string;
+} {
+  const constraints = getRoleAgeConstraints(role);
+
+  // 70% preferred, 30% any valid
+  const agePool = Math.random() < 0.7 ? constraints.preferredAges : constraints.validAges;
+  const ageCategory = agePool[Math.floor(Math.random() * agePool.length)];
+  const range = AGE_RANGES[ageCategory];
+
+  const specificAge = range.min + Math.floor(Math.random() * (range.max - range.min + 1));
+
+  // Map to legacy ageGroup
+  let ageGroup: 'young' | 'middle' | 'senior';
+  if (ageCategory === 'child' || ageCategory === 'teen' || ageCategory === 'young_adult') {
+    ageGroup = 'young';
+  } else if (ageCategory === 'adult' || ageCategory === 'middle_aged') {
+    ageGroup = 'middle';
+  } else {
+    ageGroup = 'senior';
+  }
+
+  // Generate display string
+  let displayAge: string;
+  if (ageCategory === 'child') {
+    displayAge = `${specificAge} year old child`;
+  } else if (ageCategory === 'teen') {
+    displayAge = `${specificAge} year old teenager`;
+  } else if (specificAge < 30) {
+    displayAge = `young adult in their ${Math.floor(specificAge / 10) * 10}s`;
+  } else if (specificAge < 60) {
+    displayAge = `${Math.floor(specificAge / 10) * 10}s`;
+  } else {
+    displayAge = `elderly, ${Math.floor(specificAge / 10) * 10}s`;
+  }
+
+  return { ageCategory, ageGroup, specificAge, displayAge };
+}
+
+// ============================================
 // NAME GENERATION FUNCTIONS
 // ============================================
 
@@ -201,7 +336,7 @@ export function generatePersonality(isGuilty: boolean = false): string[] {
 }
 
 /**
- * Generate a complete procedural character
+ * Generate a complete procedural character with contextually appropriate age
  */
 export function generateProceduralCharacter(
   role: string,
@@ -209,11 +344,13 @@ export function generateProceduralCharacter(
 ): ProceduralCharacter {
   const ethnicities: ProceduralCharacter['ethnicity'][] = ['Chinese', 'Malay', 'Indian', 'Eurasian'];
   const genders: ProceduralCharacter['gender'][] = ['male', 'female'];
-  const ageGroups: ProceduralCharacter['ageGroup'][] = ['young', 'middle', 'senior'];
 
   const ethnicity = ethnicities[Math.floor(Math.random() * ethnicities.length)];
   const gender = genders[Math.floor(Math.random() * genders.length)];
-  const ageGroup = ageGroups[Math.floor(Math.random() * ageGroups.length)];
+
+  // Use age-occupation compatibility system for contextually appropriate ages
+  const ageInfo = getAgeForRole(role);
+
   const name = generateProceduralName(ethnicity, gender);
   const personality = generatePersonality(isGuilty);
 
@@ -222,7 +359,10 @@ export function generateProceduralCharacter(
     name,
     ethnicity,
     gender,
-    ageGroup,
+    ageGroup: ageInfo.ageGroup,
+    ageCategory: ageInfo.ageCategory,
+    specificAge: ageInfo.specificAge,
+    displayAge: ageInfo.displayAge,
     role,
     personality,
     isGuilty,

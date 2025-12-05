@@ -132,6 +132,10 @@ export interface Suspect {
   ethnicity?: 'Chinese' | 'Malay' | 'Indian' | 'Eurasian';
   gender?: 'male' | 'female';
   ageGroup?: 'young' | 'middle' | 'senior';
+  // Enhanced age system with full contextual awareness
+  ageCategory?: 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+  specificAge?: number;      // Exact age (e.g., 34)
+  displayAge?: string;       // Human-readable (e.g., "30s", "14 year old teenager")
   // Narrative engine enhancements - rich dialogue trees
   dialogueTree?: DialogueNode[];
   // Character relationships for interconnected storytelling
