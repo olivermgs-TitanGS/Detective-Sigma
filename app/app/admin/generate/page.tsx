@@ -761,11 +761,11 @@ export default function GenerateCasePage() {
         </div>
 
         {/* Generate Button */}
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2 md:gap-4">
           <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className={`px-8 py-3 font-mono font-bold tracking-wider rounded transition-all ${
+            className={`px-4 md:px-8 py-2 md:py-3 font-mono font-bold tracking-wider rounded transition-all text-sm md:text-base ${
               isGenerating
                 ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                 : 'bg-amber-600 hover:bg-amber-500 text-black'
@@ -778,22 +778,22 @@ export default function GenerateCasePage() {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className={`px-8 py-3 font-mono font-bold tracking-wider rounded transition-all ${
+              className={`px-4 md:px-8 py-2 md:py-3 font-mono font-bold tracking-wider rounded transition-all text-sm md:text-base ${
                 isSaving
                   ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                   : 'bg-green-600 hover:bg-green-500 text-white'
               }`}
             >
-              {isSaving ? 'SAVING...' : 'SAVE TO DATABASE'}
+              {isSaving ? 'SAVING...' : 'SAVE'}
             </button>
           )}
 
           {savedCaseId && (
             <a
               href={`/admin/cases/${savedCaseId}`}
-              className="px-8 py-3 font-mono font-bold tracking-wider rounded bg-blue-600 hover:bg-blue-500 text-white transition-all"
+              className="px-4 md:px-8 py-2 md:py-3 font-mono font-bold tracking-wider rounded bg-blue-600 hover:bg-blue-500 text-white transition-all text-sm md:text-base"
             >
-              VIEW SAVED CASE
+              VIEW SAVED
             </a>
           )}
 
@@ -801,13 +801,13 @@ export default function GenerateCasePage() {
             <button
               onClick={handleGenerateImages}
               disabled={isGeneratingImages}
-              className={`px-8 py-3 font-mono font-bold tracking-wider rounded transition-all ${
+              className={`px-4 md:px-8 py-2 md:py-3 font-mono font-bold tracking-wider rounded transition-all text-sm md:text-base ${
                 isGeneratingImages
                   ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                   : 'bg-purple-600 hover:bg-purple-500 text-white'
               }`}
             >
-              {isGeneratingImages ? 'GENERATING IMAGES...' : 'GENERATE IMAGES'}
+              {isGeneratingImages ? 'IMAGES...' : 'GEN IMAGES'}
             </button>
           )}
         </div>
@@ -853,18 +853,18 @@ export default function GenerateCasePage() {
           </h2>
 
           {/* Case Overview */}
-          <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
-            <div className="flex gap-6">
+          <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-4 md:p-6">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
               {/* Cover Image */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 flex justify-center md:justify-start">
                 {generatedImages.cover ? (
                   <img
                     src={generatedImages.cover}
                     alt="Case Cover"
-                    className="w-32 h-32 object-cover rounded-lg border-2 border-amber-600"
+                    className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-lg border-2 border-amber-600"
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-slate-800 rounded-lg border-2 border-slate-600 flex items-center justify-center">
+                  <div className="w-24 h-24 md:w-32 md:h-32 bg-slate-800 rounded-lg border-2 border-slate-600 flex items-center justify-center">
                     <span className="text-slate-500 text-xs font-mono text-center px-2">
                       Click<br/>GENERATE<br/>IMAGES
                     </span>
@@ -873,8 +873,8 @@ export default function GenerateCasePage() {
               </div>
 
               {/* Case Info */}
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-4">{generatedCase.title}</h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold text-white mb-4 break-words">{generatedCase.title}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 mb-4">
               <div className="text-center p-3 bg-slate-800 rounded">
                 <div className="text-amber-400 font-mono text-sm">DIFFICULTY</div>
@@ -897,7 +897,7 @@ export default function GenerateCasePage() {
                 <div className="text-white font-bold">{generatedCase.metadata.estimatedMinutes} min</div>
               </div>
                 </div>
-                <div className="text-slate-300 whitespace-pre-line">{generatedCase.briefing}</div>
+                <div className="text-slate-300 whitespace-pre-line break-words text-sm md:text-base">{generatedCase.briefing}</div>
               </div>
             </div>
           </div>
