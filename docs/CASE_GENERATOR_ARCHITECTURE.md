@@ -66,17 +66,28 @@ The Case Generator is a narrative-first system that creates cohesive, educationa
 
 **Entry Point:** `generateCase(request: GenerationRequest)`
 
-The main orchestrator that coordinates all subsystems. By default, uses the narrative engine (`useNarrativeEngine !== false`).
+A thin orchestrator that delegates to the narrative engine for cohesive case generation. The generator ensures all case components (story, characters, evidence, puzzles) work together logically.
 
 **Key Functions:**
-- `generateCase()` - Main entry point
-- `generateNarrativeDrivenCase()` - Narrative-first generation
+- `generateCase()` - Main entry point (calls `generateNarrativeDrivenCase`)
+- `generateNarrativeDrivenCase()` - Full narrative-first generation pipeline
 - `narrativeToGeneratedCase()` - Converts narrative data to case format
-- `saveGeneratedCase()` - Persists to database
+- `saveGeneratedCase()` - Persists to database with image URLs
 
 **Helper Functions:**
 - `inferEthnicityFromCharacter(name)` - Determines ethnicity from name patterns
 - `inferGenderFromCharacter(name)` - Determines gender from name patterns
+- `getCompatibleAgeForRole(role)` - Returns realistic age for occupation
+- `isValidRoleAgeCombination(role, age)` - Validates role-age compatibility
+
+**Age-Occupation Compatibility System:**
+The generator includes a comprehensive system ensuring realistic character ages:
+- Students: 7-17 years (child/teen)
+- Interns/Trainees: 18-29 years (young adult)
+- Junior Staff: 18-45 years
+- Professionals: 25-60 years
+- Managers: 30-65 years
+- Senior Executives: 45-80 years
 
 ### 2. Narrative Engine (`narrative-engine.ts` + `scalable/`)
 
@@ -315,8 +326,7 @@ interface GenerationRequest {
   subject: 'MATH' | 'SCIENCE' | 'INTEGRATED';
   gradeLevel: 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6';
   puzzleComplexity: 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT';
-  useSyllabus: boolean;        // Use MOE 2025 curriculum
-  useNarrativeEngine: boolean; // Default: true
+  useSyllabus?: boolean;       // Use MOE 2025 curriculum (default: true)
   topicIds?: string[];         // Specific topics to cover
   constraints?: {
     excludeThemes?: string[];
@@ -326,6 +336,8 @@ interface GenerationRequest {
   };
 }
 ```
+
+> **Note:** The `useNarrativeEngine` flag has been removed. The narrative engine is now the only generator, ensuring all cases are coherent with matching settings, suspects, and evidence.
 
 ## Generated Case Output
 
@@ -426,18 +438,19 @@ interface GeneratedCase {
 
 ```
 app/lib/case-generator/
-├── generator.ts           # Main orchestrator
+├── generator.ts           # Main orchestrator (thin wrapper around narrative engine)
 ├── narrative-engine.ts    # Story/scenario generation
 ├── character-web.ts       # Character relationships
 ├── evidence-chain.ts      # Evidence logic
 ├── story-puzzles.ts       # Narrative puzzles
 ├── puzzle-generator.ts    # Unique puzzle math
-├── image-generator.ts     # AI image prompts
+├── image-generator.ts     # AI image prompts + content rating
 ├── types.ts               # TypeScript interfaces
-├── templates.ts           # Static templates (legacy)
 ├── syllabus.ts            # MOE 2025 curriculum
+├── syllabus-tracker.ts    # Syllabus coverage tracking
 ├── curriculum-puzzles.ts  # Syllabus-aligned puzzles
 ├── learning-tracker.ts    # Student progress
+├── evidence-generator.ts  # Enhanced clue generation
 │
 └── scalable/              # SCALABLE MODULE SYSTEM (v3.0)
     ├── index.ts              # Integration & scalability stats
@@ -470,12 +483,13 @@ app/lib/services/
 
 ## Best Practices
 
-1. **Always use narrative engine** - Set `useNarrativeEngine: true` (default) for cohesive stories
+1. **Use `generateCase()` directly** - The narrative engine is now the only generator, ensuring coherent stories
 2. **Match puzzle complexity to difficulty** - Use the automatic phase-based complexity mapping
 3. **Pass full context to images** - Include visualCue, emotion, crimeType for accurate prompts
 4. **Use overlay system for text** - Never expect AI to generate readable text
 5. **Validate reality** - Use `validatePromptReality()` before generating images
 6. **Set appropriate content rating** - Use admin slider to configure rating (GENERAL for P4-P6 students, PG13+ for detective content)
+7. **Verify case coherence** - All suspects should match the setting (e.g., canteen staff for canteen crimes)
 
 ## API Usage Example
 
@@ -488,7 +502,6 @@ const request = {
   gradeLevel: 'P5',
   puzzleComplexity: 'STANDARD',
   useSyllabus: true,
-  useNarrativeEngine: true,
   constraints: {
     estimatedMinutes: 30,
     minPuzzles: 6,
@@ -497,11 +510,11 @@ const request = {
 
 const generatedCase = await generateCase(request);
 // generatedCase now contains full case data with:
-// - Cohesive narrative
-// - Interconnected characters with dialogues
-// - Evidence chain
-// - Story-integrated puzzles
-// - Image generation prompts
+// - Cohesive narrative (setting, crime, suspects all match)
+// - Interconnected characters with dialogues and relationships
+// - Evidence chain with phased discovery
+// - Story-integrated puzzles with revelations
+// - Image generation prompts (with content rating compliance)
 ```
 
 ---
@@ -624,5 +637,9 @@ This ensures storyline uniqueness and allows tracking of generated content.
 ---
 
 *Last Updated: December 2025*
-*Version: 3.1 - Singapore IMDA Content Rating System*
-*Previous: 3.0 - Scalable Storyline System (7.56 trillion unique storylines)*
+*Version: 3.2 - Legacy System Removal & Narrative Engine Only*
+
+**Changelog:**
+- v3.2: Removed legacy `intelligent-generator.ts`, `templates.ts`, and `data/` folder. The narrative engine is now the only generator.
+- v3.1: Singapore IMDA Content Rating System
+- v3.0: Scalable Storyline System (7.56 trillion unique storylines)
