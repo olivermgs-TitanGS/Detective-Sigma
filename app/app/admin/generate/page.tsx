@@ -703,96 +703,20 @@ export default function GenerateCasePage() {
 
         const portraitPrompt = promptParts.join(', ');
 
-        // ULTRA-strong negative prompt - MUST block ALL fantasy/anime/unnatural elements
-        // CRITICAL: Skin color accuracy is NON-NEGOTIABLE for Singapore context
-        // CRITICAL: ZERO TOLERANCE FOR NUDITY - THIS IS A CHILDREN'S EDUCATIONAL APP
-        const negativePromptParts = [
-          // =========================================================
-          // ABSOLUTE PRIORITY #1: BLOCK ALL NSFW/REVEALING - CHILDREN'S APP
-          // 100% PG-13 SAFE - ZERO TOLERANCE FOR ANY REVEALING CONTENT
-          // =========================================================
-          'NSFW', 'nude', 'naked', 'nudity', 'bare skin', 'exposed skin',
-          'topless', 'shirtless', 'no clothes', 'no shirt', 'no pants',
-          'underwear', 'lingerie', 'bikini', 'swimsuit', 'bra', 'panties',
-          'cleavage', 'breasts', 'chest exposed', 'midriff', 'belly button',
-          'revealing clothes', 'skimpy outfit', 'tight clothes', 'low cut',
-          'suggestive', 'seductive', 'sexy', 'erotic', 'adult content',
-          'inappropriate', 'explicit', 'mature content', 'adult only',
-          'bedroom', 'bed scene', 'intimate', 'sensual',
-          'skin showing', 'bare shoulders', 'bare legs', 'bare arms',
-          'see through', 'transparent clothing', 'wet clothes',
-          // =========================================================
-          // BLOCK SEXY/PROVOCATIVE - MANDATORY FOR CHILDREN'S APP
-          // =========================================================
-          'sexy woman', 'sexy lady', 'sexy girl', 'attractive woman',
-          'beautiful woman', 'pretty girl', 'hot girl', 'hot woman',
-          'model', 'fashion model', 'glamour', 'glamorous',
-          'flirty', 'flirtatious', 'alluring', 'tempting', 'provocative',
-          'voluptuous', 'curvy', 'busty', 'large breasts', 'big breasts',
-          'short skirt', 'miniskirt', 'short dress', 'tight dress',
-          'sleeveless', 'strapless', 'backless', 'halter top',
-          'crop top', 'tank top', 'spaghetti straps', 'off shoulder',
-          'v-neck', 'deep neckline', 'plunging neckline',
-          'form fitting', 'body hugging', 'figure hugging',
-          'leggings', 'yoga pants', 'skinny jeans', 'bodysuit',
-          'stockings', 'fishnets', 'garter', 'thigh high',
-          'high heels', 'stilettos', 'platform heels',
-          'makeup', 'heavy makeup', 'lipstick', 'mascara', 'eyeshadow',
-          'pouty lips', 'bedroom eyes', 'seductive look', 'seductive pose',
-          'pin up', 'pinup', 'bombshell', 'femme fatale',
-          'revealing', 'exposed', 'showing skin', 'body exposure',
-          // =========================================================
+        // Simplified negative prompt - essential terms only to avoid prompt size issues
+        const negativePrompt = [
           // Quality
-          'score_6, score_5, score_4, score_3',
-          'worst quality, low quality, blurry, jpeg artifacts',
-          // BLOCK ALL FANTASY/ANIME - ABSOLUTELY NO EXCEPTIONS
-          'anime, cartoon, comic, manga, illustration, drawing, painting, sketch, rendered, 3d',
-          'cgi, digital art, concept art, fan art, deviantart, artstation',
-          // BLOCK UNNATURAL EYES
-          'glowing eyes, glowing, luminous eyes, bright eyes, shiny eyes',
-          'unnatural eyes, fantasy eyes, magical eyes, anime eyes, big eyes, huge eyes',
-          'colored eyes, red eyes, yellow eyes, purple eyes, blue eyes, green eyes, orange eyes, pink eyes, white eyes, black sclera',
-          'cat eyes, slit pupils, unusual pupils, vertical pupils',
-          // BLOCK UNNATURAL SKIN - ABSOLUTE PRIORITY - NO FANTASY COLORS
-          'blue skin, green skin, purple skin, red skin, pink skin, orange skin, yellow skin',
-          'grey skin, gray skin, silver skin, gold skin, metallic skin',
-          'unnatural skin color, fantasy skin color, wrong skin color',
-          'alien skin, zombie skin, undead skin, corpse skin, dead skin',
-          'glowing skin, luminous skin, shiny skin, reflective skin',
-          'plastic skin, waxy skin, doll skin, mannequin skin, artificial skin',
-          'painted skin, colored skin, tinted skin, dyed skin',
-          // BLOCK WRONG SKIN TONE FOR INDIANS - must be brown not fair
-          'fair Indian skin, light Indian skin, pale Indian skin, white Indian',
-          // BLOCK NON-HUMAN
-          'alien, extraterrestrial, monster, creature, demon, devil, angel',
-          'elf, orc, dwarf, goblin, fairy, vampire, werewolf, zombie, ghost, spirit',
-          'robot, android, cyborg, mechanical, synthetic',
-          'furry, anthropomorphic, animal, animal ears, cat ears, fox ears, dog ears, bunny ears',
-          'horns, wings, tail, scales, fur, feathers, claws, fangs',
-          // BLOCK DEFORMITIES
-          'deformed, disfigured, mutated, ugly, distorted, malformed',
-          'bad anatomy, bad proportions, wrong proportions',
-          'extra limbs, missing limbs, extra arms, extra legs, extra fingers, fewer fingers, missing fingers',
-          'bad hands, bad face, asymmetrical face, crooked face, weird face',
-          // BLOCK STYLE ISSUES
-          'oversaturated, overexposed, underexposed, high contrast, low contrast',
-          'watermark, text, logo, signature, border, frame, username',
-          'multiple people, crowd, group, two people, three people',
-          // BLOCK DISRESPECTFUL/OFFENSIVE CONTENT - ZERO TOLERANCE
-          'caricature, stereotypical, mocking, offensive, disrespectful',
-          'ugly portrayal, unflattering, degrading, humiliating',
-          'racist, discriminatory, insensitive, inappropriate attire',
-          'wrong religious attire, incorrect cultural dress, misrepresented religion',
-          'bare head muslim woman, uncovered hair hijabi, missing hijab',
-          'wrong turban, incorrect religious symbols, cultural appropriation'
-        ];
-
-        // Add religion-specific negative prompts
-        if (personInfo.religion !== 'Muslim') {
-          // If NOT Muslim, no specific additions needed
-        }
-
-        const negativePrompt = negativePromptParts.join(', ');
+          'score_6, score_5, worst quality, low quality, blurry, jpeg artifacts',
+          // Safety
+          'nsfw, nude, naked, revealing, suggestive, inappropriate',
+          // Style
+          'anime, cartoon, manga, illustration, 3d, cgi, digital art',
+          // Realism
+          'unnatural skin, fantasy colors, glowing eyes, deformed, bad anatomy',
+          'extra limbs, missing fingers, bad hands, ugly, distorted',
+          // Composition
+          'watermark, text, logo, multiple people, crowd',
+        ].join(', ');
 
         // DEBUG: Log prompt details before sending
         console.log(`[DEBUG] Suspect ${suspect.name} prompt details:`, {
