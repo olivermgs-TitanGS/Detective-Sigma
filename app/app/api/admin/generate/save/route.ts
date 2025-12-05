@@ -13,13 +13,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Pass images along with case data for database persistence
-    const images = body.images || {};
+    // Save case to database WITHOUT images (to avoid Vercel 4.5MB payload limit)
+    // Images are uploaded separately via /api/admin/generate/save/images
+    const result = await saveGeneratedCase(body.case, prisma);
 
-    // Save to database with images
-    const caseId = await saveGeneratedCase(body.case, prisma, images);
-
-    return NextResponse.json({ caseId, message: 'Case saved successfully' });
+    return NextResponse.json({
+      caseId: result.caseId,
+      idMappings: result.idMappings,
+      message: 'Case saved successfully. Upload images separately using the ID mappings.',
+    });
   } catch (error) {
     console.error('Error saving case:', error);
     return NextResponse.json(

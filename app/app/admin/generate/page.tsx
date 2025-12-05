@@ -79,24 +79,63 @@ export default function GenerateCasePage() {
     setError(null);
 
     try {
+      // Step 1: Save case WITHOUT images (avoids Vercel 4.5MB payload limit)
       const response = await fetch('/api/admin/generate/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          case: generatedCase,
-          images: {
-            cover: generatedImages.cover,
-            suspects: generatedImages.suspects,
-            scenes: generatedImages.scenes,
-            clues: generatedImages.clues,
-          },
-        }),
+        body: JSON.stringify({ case: generatedCase }),
       });
 
       if (!response.ok) throw new Error('Failed to save case');
 
       const data = await response.json();
-      setSavedCaseId(data.caseId);
+      const { caseId, idMappings } = data;
+      setSavedCaseId(caseId);
+
+      // Step 2: Upload images individually (chunked to avoid payload limits)
+      const uploadImage = async (
+        entityType: 'case' | 'suspect' | 'scene' | 'clue',
+        entityId: string,
+        imageData: string
+      ) => {
+        const imgResponse = await fetch('/api/admin/generate/save/images', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ caseId, entityType, entityId, imageData }),
+        });
+        if (!imgResponse.ok) {
+          console.warn(`Failed to upload ${entityType} image for ${entityId}`);
+        }
+      };
+
+      // Upload cover image
+      if (generatedImages.cover) {
+        await uploadImage('case', caseId, generatedImages.cover);
+      }
+
+      // Upload suspect images
+      for (const [generatedId, imageData] of Object.entries(generatedImages.suspects || {})) {
+        const dbId = idMappings.suspects[generatedId];
+        if (dbId && imageData) {
+          await uploadImage('suspect', dbId, imageData);
+        }
+      }
+
+      // Upload scene images
+      for (const [generatedId, imageData] of Object.entries(generatedImages.scenes || {})) {
+        const dbId = idMappings.scenes[generatedId];
+        if (dbId && imageData) {
+          await uploadImage('scene', dbId, imageData);
+        }
+      }
+
+      // Upload clue images
+      for (const [generatedId, imageData] of Object.entries(generatedImages.clues || {})) {
+        const dbId = idMappings.clues[generatedId];
+        if (dbId && imageData) {
+          await uploadImage('clue', dbId, imageData);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save case');
     } finally {

@@ -752,12 +752,23 @@ interface GeneratedImages {
   clues: Record<string, string>;     // clueId -> imageUrl
 }
 
-// Save generated case to database
+// Result of saving a case - includes ID mappings for image uploads
+export interface SaveCaseResult {
+  caseId: string;
+  idMappings: {
+    suspects: Record<string, string>;  // generatedId -> databaseId
+    scenes: Record<string, string>;    // generatedId -> databaseId
+    clues: Record<string, string>;     // generatedId -> databaseId
+  };
+}
+
+// Save generated case to database (WITHOUT images - use separate upload)
+// Returns ID mappings so images can be uploaded separately
 export async function saveGeneratedCase(
   generatedCase: GeneratedCase,
   prisma: any,
   images: GeneratedImages = { suspects: {}, scenes: {}, clues: {} }
-): Promise<string> {
+): Promise<SaveCaseResult> {
   // Map difficulty to Prisma enum
   const difficultyMap: Record<string, string> = {
     ROOKIE: 'ROOKIE',
@@ -773,7 +784,14 @@ export async function saveGeneratedCase(
     INTEGRATED: 'INTEGRATED',
   };
 
-  // Create the case in database (with cover image if available)
+  // ID mappings to return (generated ID -> database ID)
+  const idMappings = {
+    suspects: {} as Record<string, string>,
+    scenes: {} as Record<string, string>,
+    clues: {} as Record<string, string>,
+  };
+
+  // Create the case in database (cover image can be included if small/URL)
   const newCase = await prisma.case.create({
     data: {
       title: generatedCase.title,
@@ -784,7 +802,7 @@ export async function saveGeneratedCase(
       difficulty: difficultyMap[generatedCase.metadata.difficulty] || 'INSPECTOR',
       estimatedMinutes: generatedCase.metadata.estimatedMinutes,
       masterClueFragment: generatedCase.story.resolution,
-      coverImage: images.cover || null,
+      coverImage: null, // Images uploaded separately to avoid payload size issues
       status: 'DRAFT',
       learningObjectives: {
         primary: `Solve the mystery using ${generatedCase.metadata.subjectFocus.toLowerCase()} skills`,
@@ -798,39 +816,33 @@ export async function saveGeneratedCase(
     },
   });
 
-  // Create scenes (with images matched by original ID)
+  // Create scenes (without images initially)
   for (let i = 0; i < generatedCase.scenes.length; i++) {
     const scene = generatedCase.scenes[i];
-    // Look up image by original scene ID
-    const sceneImageUrl = images.scenes[scene.id] || '/images/scenes/default.png';
-    await prisma.scene.create({
+    const dbScene = await prisma.scene.create({
       data: {
         caseId: newCase.id,
         name: scene.name,
         description: scene.description,
-        imageUrl: sceneImageUrl,
+        imageUrl: '/images/scenes/default.png', // Placeholder, updated via separate upload
         isInitialScene: i === 0,
         orderIndex: i,
       },
     });
+    // Map generated ID to database ID
+    idMappings.scenes[scene.id] = dbScene.id;
   }
 
-  // Create suspects (with images matched by original ID)
-  console.log('[DB SAVE] Suspect image lookup:', {
-    availableImageKeys: Object.keys(images.suspects || {}),
-    suspectIds: generatedCase.suspects.map(s => s.id),
-  });
+  // Create suspects (without images initially)
   for (const suspect of generatedCase.suspects) {
-    // Look up image by original suspect ID
-    const suspectImageUrl = images.suspects?.[suspect.id] || null;
-    console.log(`[DB SAVE] Suspect ${suspect.name} (${suspect.id}): imageUrl = ${suspectImageUrl ? 'YES (' + suspectImageUrl.length + ' chars)' : 'NULL'}`);
-    await prisma.suspect.create({
+    const personalityArray = Array.isArray(suspect.personality) ? suspect.personality : [];
+    const dbSuspect = await prisma.suspect.create({
       data: {
         caseId: newCase.id,
         name: suspect.name,
         role: suspect.role,
-        imageUrl: suspectImageUrl,
-        bio: `${suspect.personality.join(', ')} personality. ${suspect.alibi}`,
+        imageUrl: null, // Placeholder, updated via separate upload
+        bio: `${personalityArray.join(', ')} personality. ${suspect.alibi}`,
         isCulprit: suspect.isGuilty,
         dialogueTree: {
           nodes: [
@@ -840,6 +852,27 @@ export async function saveGeneratedCase(
         },
       },
     });
+    // Map generated ID to database ID
+    idMappings.suspects[suspect.id] = dbSuspect.id;
+  }
+
+  // Create clues (without images initially)
+  for (const clue of generatedCase.clues) {
+    const dbClue = await prisma.clue.create({
+      data: {
+        caseId: newCase.id,
+        name: clue.title,
+        description: clue.description,
+        type: clue.type === 'physical' ? 'PHYSICAL' :
+              clue.type === 'document' ? 'DOCUMENT' :
+              clue.type === 'testimony' ? 'TESTIMONY' : 'DIGITAL',
+        imageUrl: null, // Placeholder, updated via separate upload
+        importance: clue.relevance === 'critical' ? 'CRITICAL' :
+                   clue.relevance === 'red-herring' ? 'RED_HERRING' : 'SUPPORTING',
+      },
+    });
+    // Map generated ID to database ID
+    idMappings.clues[clue.id] = dbClue.id;
   }
 
   // Create puzzles
@@ -859,5 +892,8 @@ export async function saveGeneratedCase(
     });
   }
 
-  return newCase.id;
+  return {
+    caseId: newCase.id,
+    idMappings,
+  };
 }
