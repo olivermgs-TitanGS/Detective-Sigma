@@ -180,19 +180,32 @@ export default function GenerateCasePage() {
     const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male|pakcik|abang|encik|sir)\b/i;
 
     let gender = 'person';
-    // Check names FIRST (more reliable), then roles
-    if (femaleNames.test(name.split(' ')[0])) {
-      gender = 'woman';
-    } else if (maleNames.test(name.split(' ')[0])) {
-      gender = 'man';
-    } else if (femaleRoles.test(roleText)) {
-      gender = 'woman';
-    } else if (maleRoles.test(roleText)) {
-      gender = 'man';
-    } else {
-      // Default based on common patterns - if name ends with 'a' often female
-      // Otherwise default to man (most common in Singapore workforce)
-      gender = 'man';
+    // Check ALL parts of name (surname can be first OR last in Singapore)
+    const nameParts = name.split(/[\s-]+/); // Split by space or hyphen
+    let foundGender = false;
+
+    for (const part of nameParts) {
+      if (femaleNames.test(part)) {
+        gender = 'woman';
+        foundGender = true;
+        break;
+      } else if (maleNames.test(part)) {
+        gender = 'man';
+        foundGender = true;
+        break;
+      }
+    }
+
+    // If name didn't match, check roles
+    if (!foundGender) {
+      if (femaleRoles.test(roleText)) {
+        gender = 'woman';
+      } else if (maleRoles.test(roleText)) {
+        gender = 'man';
+      } else {
+        // Default to man (most common in Singapore workforce)
+        gender = 'man';
+      }
     }
 
     // Detect age from role - MORE DETAILED age categories
@@ -280,58 +293,81 @@ export default function GenerateCasePage() {
   // IMPORTANT: Race is determined by NAME only, never by religion
   // This respects Singapore's multi-racial, multi-religious society
   const inferEthnicity = (name: string): { ethnicity: string; skinTone: string; features: string; race: string } => {
-    // CHINESE names - Singapore's largest ethnic group (~74%)
-    // Includes Hokkien, Teochew, Cantonese, Hakka, Hainanese surnames
-    const chineseNames = /^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap|Wee|Phua|Quek|Chia|Gan|Poh|Soh|Toh|Lau|Leong|Yong|Kwok|Loh|Mok|Lai|Heng|Kang|Khoo|Seet|Chong|Ting|Choo|Chiang|Mei|Ling|Hui|Xin|Yan|Xiao|Jia|Ying|Wei|Min|Fang|Qing|Yu|Zhi|Jun|Jing|Xuan)/i;
+    // Split name into parts - surname can be FIRST or LAST in Singapore
+    const nameParts = name.split(/[\s-]+/);
+
+    // CHINESE surnames - Singapore's largest ethnic group (~74%)
+    // Check each part for Chinese surnames (Hokkien, Teochew, Cantonese, Hakka, Hainanese)
+    const chineseSurnames = /^(Tan|Lim|Lee|Ng|Wong|Chan|Goh|Ong|Koh|Chua|Chen|Teo|Yeo|Sim|Foo|Ho|Ang|Seah|Tay|Chew|Low|Yap|Wee|Phua|Quek|Chia|Gan|Poh|Soh|Toh|Lau|Leong|Yong|Kwok|Loh|Mok|Lai|Heng|Kang|Khoo|Seet|Chong|Ting|Choo|Chiang|Shen|Liu|Wang|Zhang|Huang|Zhao|Wu|Zhou|Sun|Ma|Zhu|Hu|Guo|He|Lin|Xu|Deng|Feng|Han|Xie|Tang|Cao|Su|Jiang|Lu|Zheng|Pan|Du|Ye|Cheng|Yuan|Dong|Liang|Zhong|Ren|Peng|Zeng|Song|Xia|Fan|Shi|Tian|Kong|Bai|Jin|Mao|Qiu|Xiang|Yan|Dai|Fu|Gu|Guan|Hong|Hou|Hua|Jian|Ke|Lei|Long|Luo|Meng|Ning|Ou|Shan|Shao|Shu|Wan|Wen|Xue|Yang|Yin|Yue|Zhan|Zhuo|Zu)$/i;
+    // Chinese given names
+    const chineseGivenNames = /^(Mei|Ling|Hui|Xin|Yan|Xiao|Jia|Ying|Wei|Min|Fang|Qing|Yu|Zhi|Jun|Jing|Xuan|Ming|Hao|Chen|Lei|Feng|Long|Tao|Bo|Kai|Liang|Yi|Zheng|Wen|Bin|Song)$/i;
 
     // MALAY names - Singapore's second largest ethnic group (~13%)
-    // Note: Not all Malays are Muslim, and not all Muslims are Malay
-    const malayNames = /^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim|Mohamed|Ismail|Hassan|Ali|Fatimah|Aminah|Razak|Rahman|Yusof|Hamid|Zainal|Zainab|Aishah|Khadijah|Hajar|Noraini|Rosnah|Rohani|Aziz|Azman|Azhar|Hafiz|Hakim|Kamal|Rashid|Rahim|Salleh|Osman|Omar|Idris|Jalil|Jamal|Farid|Fauzi|Rizal|Roslan|Rosman|Sharif|Sulaiman|Zulkifli|Noor|Nordin|Noordin|Nasir|Naim|Hidayah|Huda|Izzah|Fatin|Balqis|Safiah|Maryam)/i;
+    const malayNames = /^(Ahmad|Muhammad|Siti|Nur|Abdul|Ibrahim|Mohamed|Ismail|Hassan|Ali|Fatimah|Aminah|Razak|Rahman|Yusof|Hamid|Zainal|Zainab|Aishah|Khadijah|Hajar|Noraini|Rosnah|Rohani|Aziz|Azman|Azhar|Hafiz|Hakim|Kamal|Rashid|Rahim|Salleh|Osman|Omar|Idris|Jalil|Jamal|Farid|Fauzi|Rizal|Roslan|Rosman|Sharif|Sulaiman|Zulkifli|Noor|Nordin|Noordin|Nasir|Naim|Hidayah|Huda|Izzah|Fatin|Balqis|Safiah|Maryam|Amin|Amir|Arif|Azmi|Bakar|Dahlan|Daud|Firdaus|Hanif|Haris|Irfan|Iskandar|Kasim|Latif|Malik|Mazlan|Mustafa|Rafiq|Rais|Saiful|Samad|Shamsudin|Syafiq|Tajudin|Usman|Wahid|Yasin|Yazid|Zaidi|Zakaria|Zaki|Zulfikar|Nurul|Ayu|Dewi|Putri|Ratna|Wati|Yanti)$/i;
 
     // INDIAN names - Singapore's third largest ethnic group (~9%)
-    // Includes Tamil, Malayalam, Telugu, Punjabi, Gujarati names
-    // Note: Indian Singaporeans can be Hindu, Muslim, Sikh, Christian, or others
-    const indianNames = /^(Raj|Kumar|Sharma|Singh|Kaur|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal|Rajan|Chandran|Sundaram|Bala|Subra|Thana|Velu|Arumugam|Selvam|Murugan|Ganesh|Prabhu|Anand|Vijay|Arun|Siva|Shankar|Mohan|Guru|Sunder|Kavitha|Sumathi|Devi|Meena|Geetha|Radha|Padma|Malathi|Vani|Jaya|Nalini|Sarala|Kamala|Indira|Deepa|Asha|Ravi|Balakrishnan|Raghavan|Srinivasan|Natarajan)/i;
+    const indianNames = /^(Raj|Kumar|Sharma|Singh|Kaur|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal|Rajan|Chandran|Sundaram|Bala|Subra|Thana|Velu|Arumugam|Selvam|Murugan|Ganesh|Prabhu|Anand|Vijay|Arun|Siva|Shankar|Mohan|Guru|Sunder|Kavitha|Sumathi|Meena|Geetha|Radha|Padma|Malathi|Vani|Jaya|Nalini|Sarala|Kamala|Indira|Deepa|Asha|Ravi|Balakrishnan|Raghavan|Srinivasan|Natarajan|Hari|Iyer|Iyengar|Reddy|Rao|Naidu|Chetty|Chettiar|Nathan|Narayanan|Ramachandran|Ramasamy|Thangaraj|Velayutham|Jayakumar|Manikam|Perumal|Rajendran|Saravanan|Senthil|Sivakumar|Subramaniam|Thirunavukkarasu|Vaithilingam|Veerasamy|Veerapan|Vengadasalam|Maniam|Suppiah|Karuppiah|Krishnamurthy|Letchumanan|Muniandy|Nagarajan|Palaniappan|Ponnusamy|Rajagopal|Rajasekaran|Sakthivel|Selvaraj|Sivalingam|Somasundaram|Thangavelu|Thiagamani|Thiruchelvam|Vadivelu|Valliappan|Vasanthan)$/i;
 
-    // EURASIAN and OTHER names - (~3%)
-    // Includes Portuguese-Eurasian, Dutch-Eurasian, British, and other mixed heritage
-    const eurasianNames = /^(James|John|Mary|Michael|David|Sarah|Peter|Paul|George|Elizabeth|William|Richard|Thomas|Robert|Joseph|Charles|Edward|Henry|Arthur|Albert|Frederick|Francis|Philip|Raymond|Benjamin|Martin|De Souza|Pereira|Rodrigues|Fernandez|Gomes|Braga|Shepherdson|Westerhout|Scully|Clarke|Oliveiro|Tessensohn|Woodford|Aroozoo|Doss|Sta Maria|D'Silva)/i;
+    // EURASIAN surnames - (~3%) - Portuguese, Dutch-Eurasian, British heritage
+    const eurasianSurnames = /^(De Souza|Pereira|Rodrigues|Fernandez|Gomes|Braga|Shepherdson|Westerhout|Scully|Clarke|Oliveiro|Tessensohn|Woodford|Aroozoo|Doss|D'Silva|Sta Maria|Monteiro|Sequeira|D'Cruz|Rozario|D'Almeida|Conceicao|Lazaroo|Hendricks|Barker|Kraal|Scheerder|De Witt|Grosse|Meyer|Jansen|Werf|Cornelius|Anthony|Xavier|Sebastian|Vincent|Anderson|Campbell|Davidson|Edwards|Fleming|Gordon|Harris|Jackson|Kennedy|Lambert|Morrison|Nelson|Oliver|Palmer|Reynolds|Sanders|Thompson|Wallace|Warner|Wilson)$/i;
 
-    if (chineseNames.test(name)) {
-      return {
-        race: 'Chinese',
-        ethnicity: 'Chinese Singaporean',
-        skinTone: 'beautiful natural East Asian skin tone ranging from fair to light tan, realistic healthy human skin, dignified appearance',
-        features: 'elegant East Asian Chinese facial features, natural dark brown or brown eyes, straight black hair, respectful portrayal'
-      };
+    // Check each part of the name for ethnicity markers
+    // Priority: Distinctive surnames first (more reliable than given names)
+    for (const part of nameParts) {
+      if (chineseSurnames.test(part)) {
+        return {
+          race: 'Chinese',
+          ethnicity: 'Chinese Singaporean',
+          skinTone: 'beautiful natural East Asian skin tone ranging from fair to light tan, realistic healthy human skin, dignified appearance',
+          features: 'elegant East Asian Chinese facial features, natural dark brown or brown eyes, straight black hair, respectful portrayal'
+        };
+      }
     }
 
-    if (malayNames.test(name)) {
-      return {
-        race: 'Malay',
-        ethnicity: 'Malay Singaporean',
-        skinTone: 'beautiful natural Southeast Asian Malay skin tone, warm brown complexion, realistic healthy human skin, dignified appearance',
-        features: 'elegant Southeast Asian Malay facial features, natural dark brown eyes, black hair, respectful portrayal'
-      };
+    for (const part of nameParts) {
+      if (malayNames.test(part)) {
+        return {
+          race: 'Malay',
+          ethnicity: 'Malay Singaporean',
+          skinTone: 'beautiful natural Southeast Asian Malay skin tone, warm brown complexion, realistic healthy human skin, dignified appearance',
+          features: 'elegant Southeast Asian Malay facial features, natural dark brown eyes, black hair, respectful portrayal'
+        };
+      }
     }
 
-    if (indianNames.test(name)) {
-      return {
-        race: 'Indian',
-        ethnicity: 'Indian Singaporean',
-        // CRITICAL: Indian skin must be BROWN - NOT fair/light
-        skinTone: 'dark brown Indian skin, rich brown complexion, deep brown skin tone, South Asian brown skin color, NOT fair skin NOT light skin NOT pale skin, realistic healthy brown human skin, dignified appearance',
-        features: 'elegant South Asian Indian facial features, natural dark brown or black eyes, black hair, respectful portrayal'
-      };
+    for (const part of nameParts) {
+      if (indianNames.test(part)) {
+        return {
+          race: 'Indian',
+          ethnicity: 'Indian Singaporean',
+          // CRITICAL: Indian skin must be BROWN - NOT fair/light
+          skinTone: 'dark brown Indian skin, rich brown complexion, deep brown skin tone, South Asian brown skin color, NOT fair skin NOT light skin NOT pale skin, realistic healthy brown human skin, dignified appearance',
+          features: 'elegant South Asian Indian facial features, natural dark brown or black eyes, black hair, respectful portrayal'
+        };
+      }
     }
 
-    if (eurasianNames.test(name)) {
-      return {
-        race: 'Eurasian',
-        ethnicity: 'Eurasian Singaporean',
-        skinTone: 'beautiful natural mixed heritage skin tone, olive to light brown complexion, realistic healthy human skin, dignified appearance',
-        features: 'elegant mixed Eurasian facial features, natural eye color varies, respectful portrayal'
-      };
+    for (const part of nameParts) {
+      if (eurasianSurnames.test(part)) {
+        return {
+          race: 'Eurasian',
+          ethnicity: 'Eurasian Singaporean',
+          skinTone: 'beautiful natural mixed heritage skin tone, olive to light brown complexion, realistic healthy human skin, dignified appearance',
+          features: 'elegant mixed Eurasian facial features, natural eye color varies, respectful portrayal'
+        };
+      }
+    }
+
+    // Check Chinese given names last (less distinctive)
+    for (const part of nameParts) {
+      if (chineseGivenNames.test(part)) {
+        return {
+          race: 'Chinese',
+          ethnicity: 'Chinese Singaporean',
+          skinTone: 'beautiful natural East Asian skin tone ranging from fair to light tan, realistic healthy human skin, dignified appearance',
+          features: 'elegant East Asian Chinese facial features, natural dark brown or brown eyes, straight black hair, respectful portrayal'
+        };
+      }
     }
 
     // Default - don't assume race, use neutral description with respect
@@ -468,30 +504,81 @@ export default function GenerateCasePage() {
         const roleKeywords = suspect.role.toLowerCase();
         let occupationClothing = 'professional business attire';
 
-        if (/teacher|educator|professor/i.test(roleKeywords)) {
-          occupationClothing = 'teacher wearing professional work attire, formal shirt';
-        } else if (/doctor|nurse|medical/i.test(roleKeywords)) {
-          occupationClothing = 'medical professional wearing white coat, doctor attire';
-        } else if (/engineer|technician/i.test(roleKeywords)) {
-          occupationClothing = 'engineer wearing smart casual work clothes';
+        // Singapore-relevant occupations with accurate attire
+        if (/teacher|educator|professor|lecturer|tutor/i.test(roleKeywords)) {
+          occupationClothing = 'teacher wearing professional work attire, formal shirt, neat appearance';
+        } else if (/doctor|physician|surgeon/i.test(roleKeywords)) {
+          occupationClothing = 'doctor wearing white coat, stethoscope around neck, professional medical attire';
+        } else if (/nurse|healthcare|medical staff/i.test(roleKeywords)) {
+          occupationClothing = 'nurse wearing medical scrubs, professional healthcare uniform';
+        } else if (/engineer|technician|it|programmer|developer/i.test(roleKeywords)) {
+          occupationClothing = 'engineer wearing smart casual office attire, polo shirt';
         } else if (/chef|cook|kitchen/i.test(roleKeywords)) {
-          occupationClothing = 'chef wearing white chef uniform, chef hat';
-        } else if (/police|officer|security/i.test(roleKeywords)) {
-          occupationClothing = 'security officer wearing uniform';
-        } else if (/student|pupil/i.test(roleKeywords)) {
-          occupationClothing = 'student wearing school uniform, neat appearance';
-        } else if (/business|manager|executive|ceo/i.test(roleKeywords)) {
-          occupationClothing = 'business professional wearing formal suit and tie';
-        } else if (/worker|labor|construction/i.test(roleKeywords)) {
-          occupationClothing = 'worker wearing work clothes, safety vest';
-        } else if (/shopkeeper|vendor|seller/i.test(roleKeywords)) {
-          occupationClothing = 'shopkeeper wearing casual work clothes, apron';
-        } else if (/cleaner|janitor/i.test(roleKeywords)) {
-          occupationClothing = 'cleaner wearing work uniform';
-        } else if (/driver|taxi|delivery/i.test(roleKeywords)) {
-          occupationClothing = 'driver wearing casual work shirt';
-        } else if (/waiter|waitress|server/i.test(roleKeywords)) {
-          occupationClothing = 'waiter wearing restaurant uniform, bow tie';
+          occupationClothing = 'chef wearing white double-breasted chef jacket, chef hat, professional kitchen attire';
+        } else if (/police|cop|detective|inspector/i.test(roleKeywords)) {
+          occupationClothing = 'police officer wearing Singapore Police Force uniform, professional law enforcement attire';
+        } else if (/security|guard/i.test(roleKeywords)) {
+          occupationClothing = 'security guard wearing security uniform, professional security attire';
+        } else if (/student|pupil|school/i.test(roleKeywords)) {
+          occupationClothing = 'student wearing neat school uniform, white shirt, tie';
+        } else if (/ceo|director|chairman|president/i.test(roleKeywords)) {
+          occupationClothing = 'executive wearing expensive formal suit and tie, luxury business attire';
+        } else if (/manager|supervisor|executive|business/i.test(roleKeywords)) {
+          occupationClothing = 'business professional wearing formal suit and tie, professional office attire';
+        } else if (/lawyer|attorney|advocate/i.test(roleKeywords)) {
+          occupationClothing = 'lawyer wearing formal black suit, professional legal attire';
+        } else if (/accountant|banker|finance/i.test(roleKeywords)) {
+          occupationClothing = 'finance professional wearing formal business suit, office attire';
+        } else if (/scientist|researcher|lab/i.test(roleKeywords)) {
+          occupationClothing = 'scientist wearing white lab coat, safety glasses, professional research attire';
+        } else if (/pilot|captain|aviator/i.test(roleKeywords)) {
+          occupationClothing = 'pilot wearing airline uniform with captain stripes, professional pilot attire';
+        } else if (/flight attendant|cabin crew|steward/i.test(roleKeywords)) {
+          occupationClothing = 'cabin crew wearing airline uniform, professional flight attendant attire';
+        } else if (/construction|builder|contractor/i.test(roleKeywords)) {
+          occupationClothing = 'construction worker wearing safety vest, hard hat, work boots';
+        } else if (/worker|labor|factory/i.test(roleKeywords)) {
+          occupationClothing = 'worker wearing work clothes, safety vest, practical work attire';
+        } else if (/shopkeeper|vendor|seller|merchant|retail/i.test(roleKeywords)) {
+          occupationClothing = 'shopkeeper wearing casual work clothes, store apron';
+        } else if (/cleaner|janitor|maintenance/i.test(roleKeywords)) {
+          occupationClothing = 'cleaner wearing work uniform, practical cleaning attire';
+        } else if (/taxi|grab|driver|delivery/i.test(roleKeywords)) {
+          occupationClothing = 'driver wearing casual work shirt, comfortable driving attire';
+        } else if (/waiter|waitress|server|f&b/i.test(roleKeywords)) {
+          occupationClothing = 'waiter wearing restaurant uniform, bow tie, server apron';
+        } else if (/barista|coffee|cafe/i.test(roleKeywords)) {
+          occupationClothing = 'barista wearing cafe apron, casual work attire';
+        } else if (/hawker|food stall|kopitiam/i.test(roleKeywords)) {
+          occupationClothing = 'hawker wearing casual clothes, cooking apron, practical food vendor attire';
+        } else if (/artist|designer|creative/i.test(roleKeywords)) {
+          occupationClothing = 'creative professional wearing trendy casual clothes, artistic attire';
+        } else if (/journalist|reporter|media/i.test(roleKeywords)) {
+          occupationClothing = 'journalist wearing smart casual office wear, press attire';
+        } else if (/athlete|sportsman|coach/i.test(roleKeywords)) {
+          occupationClothing = 'athlete wearing sports attire, athletic wear, tracksuit';
+        } else if (/farmer|gardener|agriculture/i.test(roleKeywords)) {
+          occupationClothing = 'farmer wearing practical outdoor clothes, sun hat, gardening attire';
+        } else if (/fisherman|sailor/i.test(roleKeywords)) {
+          occupationClothing = 'fisherman wearing practical waterproof clothes, fishing attire';
+        } else if (/military|army|soldier|saf/i.test(roleKeywords)) {
+          occupationClothing = 'soldier wearing Singapore Armed Forces uniform, military attire';
+        } else if (/firefighter|scdf/i.test(roleKeywords)) {
+          occupationClothing = 'firefighter wearing fire service uniform, SCDF attire';
+        } else if (/paramedic|ambulance|emergency/i.test(roleKeywords)) {
+          occupationClothing = 'paramedic wearing emergency medical uniform, ambulance crew attire';
+        } else if (/librarian|archivist/i.test(roleKeywords)) {
+          occupationClothing = 'librarian wearing smart casual professional attire, glasses';
+        } else if (/receptionist|admin|secretary/i.test(roleKeywords)) {
+          occupationClothing = 'office staff wearing smart casual office attire, professional appearance';
+        } else if (/electrician|plumber|mechanic/i.test(roleKeywords)) {
+          occupationClothing = 'tradesman wearing work clothes, tool belt, practical work attire';
+        } else if (/postman|mailman|singpost/i.test(roleKeywords)) {
+          occupationClothing = 'postman wearing postal uniform, SingPost delivery attire';
+        } else if (/housewife|homemaker|stay-at-home/i.test(roleKeywords)) {
+          occupationClothing = 'wearing comfortable casual home clothes, neat appearance';
+        } else if (/retiree|retired|pensioner/i.test(roleKeywords)) {
+          occupationClothing = 'wearing comfortable casual clothes, relaxed neat attire';
         }
 
         promptParts.push(suspect.role, expression, occupationClothing);
