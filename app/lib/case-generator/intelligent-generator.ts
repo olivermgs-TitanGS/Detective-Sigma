@@ -391,26 +391,72 @@ function generateMathPuzzle(
 
 function generateNumbersPuzzle(id: string, diff: number, ctx: PuzzleContext): Puzzle {
   const types = [
-    // Addition/Subtraction
+    // Addition/Subtraction - REALISTIC: case files/documents (large numbers make sense)
     () => {
       const n1 = random(100 * diff, 500 * diff);
       const n2 = random(50 * diff, 300 * diff);
       const n3 = random(20 * diff, 100 * diff);
       const char = pickRandom(ctx.characters);
+      // Use context where large numbers are realistic
+      const contexts = [
+        `${char} reviewed case documents over 3 days: ${n1} pages on Day 1, ${n2} pages on Day 2, and ${n3} pages on Day 3. What is the total number of pages reviewed?`,
+        `The database search returned results over 3 queries: ${n1} records, ${n2} records, and ${n3} records. How many records in total?`,
+        `CCTV footage analysis: ${n1} frames on Camera 1, ${n2} frames on Camera 2, and ${n3} frames on Camera 3. Total frames analyzed?`,
+        `Transaction records examined: ${n1} from Bank A, ${n2} from Bank B, and ${n3} from Bank C. Total transactions?`,
+      ];
       return {
-        q: `${char} collected evidence items over 3 days: ${n1} on Day 1, ${n2} on Day 2, and ${n3} on Day 3. What is the total?`,
+        q: pickRandom(contexts),
         a: String(n1 + n2 + n3),
         h: 'Add all three numbers together',
       };
     },
-    // Multiplication
+    // Addition - REALISTIC: actual evidence items (small numbers)
     () => {
-      const boxes = random(3 * diff, 8 * diff);
-      const items = random(10, 30 + diff * 10);
+      const n1 = random(5 + diff, 12 + diff * 3);
+      const n2 = random(3 + diff, 10 + diff * 2);
+      const n3 = random(2, 8 + diff);
+      const char = pickRandom(ctx.characters);
       return {
-        q: `The evidence room has ${boxes} boxes with ${items} items each. How many items total?`,
+        q: `${char} collected physical evidence over 3 days: ${n1} items on Day 1, ${n2} items on Day 2, and ${n3} items on Day 3. What is the total?`,
+        a: String(n1 + n2 + n3),
+        h: 'Add all three numbers together',
+      };
+    },
+    // Multiplication - REALISTIC: context-appropriate scenarios
+    () => {
+      // Different contexts need different realistic ranges
+      const scenario = random(1, 4);
+      let q, boxes, items;
+      
+      if (scenario === 1) {
+        // Evidence storage (small numbers - realistic for physical evidence)
+        boxes = random(2 + diff, 4 + diff);
+        items = random(3, 6 + diff * 2);
+        q = `The evidence locker has ${boxes} sealed containers with ${items} tagged items each. How many items total?`;
+      } else if (scenario === 2) {
+        // Case files (larger numbers make sense for paperwork)
+        const folders = random(4 * diff, 8 * diff);
+        const pages = random(12, 25 + diff * 5);
+        boxes = folders; items = pages;
+        q = `The case archive has ${folders} folders with ${pages} pages each. How many pages total?`;
+      } else if (scenario === 3) {
+        // Database records (large numbers are realistic)
+        const tables = random(3, 6 + diff);
+        const records = random(50 * diff, 120 * diff);
+        boxes = tables; items = records;
+        q = `The forensic database has ${tables} tables with ${records} entries each. How many entries total?`;
+      } else {
+        // Witness interviews (moderate numbers)
+        const officers = random(3, 5 + diff);
+        const interviews = random(4, 8 + diff * 2);
+        boxes = officers; items = interviews;
+        q = `${officers} officers each conducted ${interviews} witness interviews. How many interviews total?`;
+      }
+      
+      return {
+        q,
         a: String(boxes * items),
-        h: 'Multiply boxes by items per box',
+        h: 'Multiply the two numbers together',
       };
     },
     // Division
@@ -434,13 +480,13 @@ function generateNumbersPuzzle(id: string, diff: number, ctx: PuzzleContext): Pu
         h: 'First subtract, then add',
       };
     },
-    // Fractions
+    // Fractions - REALISTIC: fingerprint count (crime scenes typically have 20-80 prints)
     () => {
       const num = pickRandom([1, 2, 3]);
       const den = pickRandom([2, 3, 4, 5]);
-      const total = den * random(10 * diff, 30 * diff);
+      const total = den * random(4 + diff * 2, 12 + diff * 4); // Realistic: 8-80 fingerprints
       return {
-        q: `${num}/${den} of the ${total} fingerprints found belonged to staff. How many fingerprints were from staff?`,
+        q: `${num}/${den} of the ${total} fingerprints found at the scene belonged to staff. How many fingerprints were from staff?`,
         a: String((total * num) / den),
         h: `Multiply ${total} by ${num}/${den}`,
       };

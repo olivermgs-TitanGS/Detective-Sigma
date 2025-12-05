@@ -209,6 +209,9 @@ export default function GenerateCasePage() {
     }
 
     // Detect age from role - MORE DETAILED age categories
+    // FIRST: Check for explicit numeric ages like "7 years old", "10 year old"
+    const explicitAgeMatch = roleText.match(/(\d+)\s*(?:years?\s*old|yr\s*old|yo\b)/i);
+
     const childRoles = /\b(child|kid|boy|girl|student|pupil|primary school|elementary)\b/i;
     const teenRoles = /\b(teen|teenager|secondary school|high school|youth|young adult|polytechnic|ite|jc|junior college)\b/i;
     const youngAdultRoles = /\b(university|undergraduate|graduate|intern|trainee|fresh graduate|nsf|national service)\b/i;
@@ -219,7 +222,34 @@ export default function GenerateCasePage() {
     let ageDescriptor = '35-45 years old adult';
     let agePrompt = 'middle-aged adult';
 
-    if (childRoles.test(roleText)) {
+    // If explicit age is given, use that first (highest priority)
+    if (explicitAgeMatch) {
+      const numericAge = parseInt(explicitAgeMatch[1], 10);
+      if (numericAge <= 12) {
+        age = 'child';
+        ageDescriptor = `${numericAge} years old child`;
+        agePrompt = `${numericAge} year old child, young child, childlike face, small stature, innocent appearance`;
+        gender = gender === 'woman' ? 'girl' : gender === 'man' ? 'boy' : 'young child';
+      } else if (numericAge <= 19) {
+        age = 'teenager';
+        ageDescriptor = `${numericAge} years old teenager`;
+        agePrompt = `${numericAge} year old teenager, teenage appearance, adolescent, youthful face`;
+        gender = gender === 'woman' ? 'teenage girl' : gender === 'man' ? 'teenage boy' : 'teenager';
+      } else if (numericAge <= 30) {
+        age = 'young adult';
+        ageDescriptor = `${numericAge} years old young adult`;
+        agePrompt = `${numericAge} year old young adult, fresh face, energetic appearance`;
+      } else if (numericAge <= 55) {
+        age = 'middle-aged';
+        ageDescriptor = `${numericAge} years old`;
+        agePrompt = `${numericAge} year old adult, mature appearance`;
+      } else {
+        age = 'elderly';
+        ageDescriptor = `${numericAge} years old elderly`;
+        agePrompt = `${numericAge} year old elderly person, gray hair, wrinkles, wise appearance, aged face`;
+        gender = gender === 'woman' ? 'elderly woman' : gender === 'man' ? 'elderly man' : 'elderly person';
+      }
+    } else if (childRoles.test(roleText)) {
       age = 'child';
       ageDescriptor = '8-12 years old child';
       agePrompt = 'young child, childlike face, small stature, innocent appearance';
@@ -309,7 +339,8 @@ export default function GenerateCasePage() {
     const indianNames = /^(Raj|Kumar|Sharma|Singh|Kaur|Devi|Muthu|Suresh|Ramesh|Lakshmi|Priya|Venkat|Krishnan|Nair|Pillai|Menon|Gopal|Rajan|Chandran|Sundaram|Bala|Subra|Thana|Velu|Arumugam|Selvam|Murugan|Ganesh|Prabhu|Anand|Vijay|Arun|Siva|Shankar|Mohan|Guru|Sunder|Kavitha|Sumathi|Meena|Geetha|Radha|Padma|Malathi|Vani|Jaya|Nalini|Sarala|Kamala|Indira|Deepa|Asha|Ravi|Balakrishnan|Raghavan|Srinivasan|Natarajan|Hari|Iyer|Iyengar|Reddy|Rao|Naidu|Chetty|Chettiar|Nathan|Narayanan|Ramachandran|Ramasamy|Thangaraj|Velayutham|Jayakumar|Manikam|Perumal|Rajendran|Saravanan|Senthil|Sivakumar|Subramaniam|Thirunavukkarasu|Vaithilingam|Veerasamy|Veerapan|Vengadasalam|Maniam|Suppiah|Karuppiah|Krishnamurthy|Letchumanan|Muniandy|Nagarajan|Palaniappan|Ponnusamy|Rajagopal|Rajasekaran|Sakthivel|Selvaraj|Sivalingam|Somasundaram|Thangavelu|Thiagamani|Thiruchelvam|Vadivelu|Valliappan|Vasanthan)$/i;
 
     // EURASIAN surnames - (~3%) - Portuguese, Dutch-Eurasian, British heritage
-    const eurasianSurnames = /^(De Souza|Pereira|Rodrigues|Fernandez|Gomes|Braga|Shepherdson|Westerhout|Scully|Clarke|Oliveiro|Tessensohn|Woodford|Aroozoo|Doss|D'Silva|Sta Maria|Monteiro|Sequeira|D'Cruz|Rozario|D'Almeida|Conceicao|Lazaroo|Hendricks|Barker|Kraal|Scheerder|De Witt|Grosse|Meyer|Jansen|Werf|Cornelius|Anthony|Xavier|Sebastian|Vincent|Anderson|Campbell|Davidson|Edwards|Fleming|Gordon|Harris|Jackson|Kennedy|Lambert|Morrison|Nelson|Oliver|Palmer|Reynolds|Sanders|Thompson|Wallace|Warner|Wilson)$/i;
+    // Also includes common Western/Caucasian surnames for expats and international characters
+    const eurasianSurnames = /^(De Souza|Pereira|Rodrigues|Fernandez|Gomes|Braga|Shepherdson|Westerhout|Scully|Clarke|Oliveiro|Tessensohn|Woodford|Aroozoo|Doss|D'Silva|Sta Maria|Monteiro|Sequeira|D'Cruz|Rozario|D'Almeida|Conceicao|Lazaroo|Hendricks|Barker|Kraal|Scheerder|De Witt|Grosse|Meyer|Jansen|Werf|Cornelius|Anthony|Xavier|Sebastian|Vincent|Anderson|Campbell|Davidson|Edwards|Fleming|Gordon|Harris|Jackson|Kennedy|Lambert|Morrison|Nelson|Oliver|Palmer|Reynolds|Sanders|Thompson|Wallace|Warner|Wilson|Peterson|Johnson|Smith|Williams|Brown|Jones|Davis|Miller|Taylor|Thomas|Moore|White|Martin|Garcia|Martinez|Robinson|Clark|Rodriguez|Lewis|Walker|Hall|Allen|Young|King|Wright|Lopez|Hill|Scott|Green|Adams|Baker|Collins|Stewart|Cook|Murphy|Bell|Bailey|Cooper|Howard|Ward|Cox|Richardson|James|Watson|Brooks|Kelly|Price|Bennett|Wood|Barnes|Ross|Henderson|Gray|Grey|Hughes|Cole|Jenkins|Perry|Powell|Long|Patterson|Butler|Simmons|Foster|Gonzales|Bryant|Alexander|Russell|Griffin|Hayes|Diaz|Myers|Ford|Hamilton|Graham|Sullivan|Woods|West|Jordan|Hunt|Owens|Stone|Knight|Webb|Simpson|Stevens|Tucker|Porter|Crawford|Boyd|Mason|Morales|Little|Fowler|Fisher|Freeman|Ferguson|Nichols|Stephens|Weaver|Ryan|Shaw|Harvey|Dixon|Cunningham|Bradley|Lane|Andrews|Harper|Fox|Riley|Armstrong|Carpenter|Warren|Lawson|Perkins|Hawkins|Ellis|McDonald|O'Brien|O'Connor|O'Neill|McCarthy|Murray|Burns|Mcdonald|Roberts|Turner|Phillips|Evans|Parker|Morris|Rogers|Reed|Mitchell|Carter|Campbell|Morgan|Bailey|Stewart|Gonzalez|Sanchez|Rivera|Perez|Torres|Flores|Ramirez|Ortiz|Gomez|Cruz|Mendez|Gutierrez)$/i;
 
     // Check each part of the name for ethnicity markers
     // Priority: Distinctive surnames first (more reliable than given names)
