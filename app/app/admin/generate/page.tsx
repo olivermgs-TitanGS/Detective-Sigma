@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 type Difficulty = 'ROOKIE' | 'INSPECTOR' | 'DETECTIVE' | 'CHIEF';
 type Subject = 'MATH' | 'SCIENCE' | 'INTEGRATED';
-type GradeLevel = 'P4' | 'P5' | 'P6' | 'SECONDARY' | 'ADULT';
+type GradeLevel = 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6';
 type PuzzleComplexity = 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT';
 
 interface GeneratedCase {
@@ -715,11 +715,12 @@ export default function GenerateCasePage() {
               onChange={(e) => setGradeLevel(e.target.value as GradeLevel)}
               className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
             >
+              <option value="P1">Primary 1</option>
+              <option value="P2">Primary 2</option>
+              <option value="P3">Primary 3</option>
               <option value="P4">Primary 4</option>
               <option value="P5">Primary 5</option>
               <option value="P6">Primary 6</option>
-              <option value="SECONDARY">Secondary</option>
-              <option value="ADULT">Adult</option>
             </select>
           </div>
 
@@ -733,16 +734,16 @@ export default function GenerateCasePage() {
               onChange={(e) => setPuzzleComplexity(e.target.value as PuzzleComplexity)}
               className="w-full bg-slate-800 border-2 border-slate-600 rounded px-4 py-2 text-white focus:border-amber-500 focus:outline-none"
             >
-              <option value="BASIC">Basic (Quick, 1-2 steps)</option>
-              <option value="STANDARD">Standard (Multi-step reasoning)</option>
-              <option value="CHALLENGING">Challenging (Data analysis required)</option>
-              <option value="EXPERT">Expert (Adult difficulty)</option>
+              <option value="BASIC">Basic (P1-P2 level)</option>
+              <option value="STANDARD">Standard (P3-P4 level)</option>
+              <option value="CHALLENGING">Challenging (P5-P6 level)</option>
+              <option value="EXPERT">Advanced (Gifted/Olympiad)</option>
             </select>
             <p className="text-slate-500 text-xs mt-1">
               {puzzleComplexity === 'BASIC' && 'Simple single-step problems for younger students'}
               {puzzleComplexity === 'STANDARD' && 'Multi-step problems requiring reasoning'}
               {puzzleComplexity === 'CHALLENGING' && 'Complex puzzles with data tables and cross-referencing'}
-              {puzzleComplexity === 'EXPERT' && 'Layered analysis with red herrings - challenges adults!'}
+              {puzzleComplexity === 'EXPERT' && 'Advanced puzzles for gifted students - Math Olympiad style'}
             </p>
           </div>
 
