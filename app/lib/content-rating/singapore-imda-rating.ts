@@ -349,9 +349,9 @@ export const RATING_BLOCKED_TERMS: Record<ContentRating, {
       'weapon', 'gun', 'knife', 'sword',
     ],
     themes: [
-      'horror', 'scary', 'terrifying', 'nightmare', 'haunted',
-      'ghost', 'demon', 'monster', 'zombie', 'vampire',
-      'dark', 'sinister', 'evil', 'satanic', 'occult',
+      // Only block truly inappropriate themes for primary school kids
+      // Detective mystery games can have mild suspense
+      'satanic', 'occult', 'demonic', 'cult',
     ],
     language: [
       'damn', 'hell', 'crap', 'bastard',

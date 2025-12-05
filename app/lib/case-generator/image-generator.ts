@@ -1620,11 +1620,44 @@ export function applyContentRatingFilter(
   const violations: ContentViolation[] = [];
   const lowerPrompt = request.prompt.toLowerCase();
 
+  // Helper: Check if term appears in NEGATIVE context (should be ignored)
+  // These patterns mean the prompt is PREVENTING that content, not requesting it
+  const isNegatedTerm = (term: string, prompt: string): boolean => {
+    const lowerTerm = term.toLowerCase();
+    const lowerPrompt = prompt.toLowerCase();
+    const escapedTerm = lowerTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Patterns that negate the term (meaning "don't include this")
+    const negationPatterns = [
+      `not ${escapedTerm}`,           // "NOT sexy"
+      `no ${escapedTerm}`,            // "no sexy"
+      `non-${escapedTerm}`,           // "non-sexual"
+      `non ${escapedTerm}`,           // "non sexual"
+      `without ${escapedTerm}`,       // "without sexy"
+      `avoid ${escapedTerm}`,         // "avoid sexy"
+      `never ${escapedTerm}`,         // "never sexy"
+      `${escapedTerm}-free`,          // "sexual-free"
+    ];
+
+    for (const pattern of negationPatterns) {
+      if (lowerPrompt.includes(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   // Step 1: Check ALWAYS blocked terms (regardless of rating)
   for (const [category, terms] of Object.entries(ALWAYS_BLOCKED_TERMS)) {
     for (const term of terms) {
       const escapedTerm = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');
+
+      // Skip if term is negated (e.g., "NOT sexy", "non-sexual")
+      if (isNegatedTerm(term, lowerPrompt)) {
+        continue;
+      }
+
       if (regex.test(lowerPrompt)) {
         violations.push({
           term,
@@ -1653,6 +1686,11 @@ export function applyContentRatingFilter(
     // Skip always-blocked terms (already checked)
     const alwaysBlockedFlat = Object.values(ALWAYS_BLOCKED_TERMS).flat();
     if (alwaysBlockedFlat.includes(term)) continue;
+
+    // Skip if term is negated (e.g., "NOT sexy", "non-sexual")
+    if (isNegatedTerm(term, lowerPrompt)) {
+      continue;
+    }
 
     const escapedTerm = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');

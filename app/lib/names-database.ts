@@ -289,7 +289,14 @@ function buildLookupMaps() {
     nameLookup.set(name.toLowerCase(), { gender: 'female', ethnicity: 'malay' });
   }
 
-  // Indian names
+  // Indian names - add INDIVIDUAL given names first (for single-word lookup)
+  for (const given of INDIAN_MALE_GIVEN) {
+    nameLookup.set(given.toLowerCase(), { gender: 'male', ethnicity: 'indian' });
+  }
+  for (const given of INDIAN_FEMALE_GIVEN) {
+    nameLookup.set(given.toLowerCase(), { gender: 'female', ethnicity: 'indian' });
+  }
+  // Then add full names
   for (const surname of INDIAN_SURNAMES) {
     for (const given of INDIAN_MALE_GIVEN) {
       const fullName = `${given} ${surname}`;
@@ -301,7 +308,14 @@ function buildLookupMaps() {
     }
   }
 
-  // Eurasian names
+  // Eurasian names - add INDIVIDUAL given names first
+  for (const given of EURASIAN_MALE_GIVEN) {
+    nameLookup.set(given.toLowerCase(), { gender: 'male', ethnicity: 'eurasian' });
+  }
+  for (const given of EURASIAN_FEMALE_GIVEN) {
+    nameLookup.set(given.toLowerCase(), { gender: 'female', ethnicity: 'eurasian' });
+  }
+  // Then add full names
   for (const surname of EURASIAN_SURNAMES) {
     for (const given of EURASIAN_MALE_GIVEN) {
       const fullName = `${given} ${surname}`;
@@ -421,6 +435,15 @@ export function lookupName(fullName: string): { gender: Gender; ethnicity: Ethni
 
   // Try to find by parts (for Malay names with patronymics)
   const parts = fullName.toLowerCase().split(/[\s-]+/);
+
+  // First try consecutive pairs (for multi-word names like "Ah Kow", "Mei Ling")
+  for (let i = 0; i < parts.length - 1; i++) {
+    const pair = `${parts[i]} ${parts[i + 1]}`;
+    const pairMatch = nameLookup.get(pair);
+    if (pairMatch) return pairMatch;
+  }
+
+  // Then try single parts
   for (const part of parts) {
     const partMatch = nameLookup.get(part);
     if (partMatch) return partMatch;

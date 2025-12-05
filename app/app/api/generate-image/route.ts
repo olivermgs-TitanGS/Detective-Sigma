@@ -74,6 +74,17 @@ export async function POST(request: NextRequest) {
       height: imageRequest.height,
     });
 
+    // DEBUG: For suspect images, log the gender from metadata and prompt preview
+    if (imageRequest.type === 'suspect' && imageRequest.metadata) {
+      console.log(`[API] SUSPECT GENDER DEBUG for ${imageRequest.id}:`, {
+        metadataGender: imageRequest.metadata.gender,
+        metadataName: imageRequest.metadata.name,
+        metadataAge: imageRequest.metadata.age,
+        // Log a larger portion of the prompt to see the gender token
+        promptPreview: imageRequest.prompt?.substring(0, 400),
+      });
+    }
+
     const service = getImageGenerationService();
 
     // Check if service is available
