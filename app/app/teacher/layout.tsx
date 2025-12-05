@@ -7,6 +7,7 @@ import { signOut } from 'next-auth/react';
 export default function TeacherLayout({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState('');
   const [glitchText, setGlitchText] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -33,8 +34,8 @@ export default function TeacherLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden font-mono">
-      {/* Matrix Rain Background */}
-      <div className="fixed inset-0 opacity-10 pointer-events-none overflow-hidden">
+      {/* Matrix Rain Background (hidden on mobile for performance) */}
+      <div className="hidden md:block fixed inset-0 opacity-10 pointer-events-none overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -85,14 +86,32 @@ export default function TeacherLayout({ children }: { children: ReactNode }) {
         {/* Main Navigation */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 md:gap-8">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-green-400 hover:text-green-300 p-2"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+
               <Link
                 href="/teacher/dashboard"
-                className={`text-xl font-bold text-green-400 tracking-wider hover:text-green-300 transition-colors flex items-center gap-2 ${glitchText ? 'animate-pulse' : ''}`}
+                className={`text-base md:text-xl font-bold text-green-400 tracking-wider hover:text-green-300 transition-colors flex items-center gap-1 md:gap-2 ${glitchText ? 'animate-pulse' : ''}`}
               >
                 <span className="text-green-500">&gt;_</span>
-                <span className="text-green-400">TEACHER_TERMINAL</span>
-                <span className="animate-pulse">█</span>
+                <span className="text-green-400 hidden sm:inline">TEACHER_</span>
+                <span className="text-green-400">TERMINAL</span>
+                <span className="animate-pulse hidden sm:inline">█</span>
               </Link>
               <div className="hidden md:flex gap-1">
                 <Link
@@ -115,19 +134,48 @@ export default function TeacherLayout({ children }: { children: ReactNode }) {
                 </Link>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <span className="text-green-600 text-xs hidden sm:block">
-                ACCESS_LEVEL: <span className="text-green-400">ADMIN</span>
+                ACCESS: <span className="text-green-400">ADMIN</span>
               </span>
               <button
                 onClick={handleLogout}
-                className="border border-red-500/50 bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 px-4 py-1 transition-all text-sm"
+                className="border border-red-500/50 bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 px-2 md:px-4 py-1 transition-all text-xs md:text-sm"
               >
                 [EXIT]
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-black/95 border-t border-green-500/30">
+            <div className="px-4 py-3 space-y-1">
+              <Link
+                href="/teacher/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors text-sm py-2 px-3 border border-transparent hover:border-green-500/30"
+              >
+                [DASHBOARD]
+              </Link>
+              <Link
+                href="/teacher/classes"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors text-sm py-2 px-3 border border-transparent hover:border-green-500/30"
+              >
+                [CLASSES]
+              </Link>
+              <Link
+                href="/teacher/reports"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors text-sm py-2 px-3 border border-transparent hover:border-green-500/30"
+              >
+                [REPORTS]
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* System Status Bar */}

@@ -100,7 +100,8 @@ export default async function CasesListPage() {
             </Link>
           </div>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-black/70 border-b border-red-500/20">
               <tr className="text-left text-red-200 text-sm">
                 <th className="p-4 font-semibold">Title</th>
@@ -188,6 +189,7 @@ export default async function CasesListPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

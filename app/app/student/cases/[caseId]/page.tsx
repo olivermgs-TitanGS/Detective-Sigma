@@ -94,7 +94,7 @@ export default async function CaseDetail({ params }: { params: Promise<{ caseId:
       </div>
 
       {/* Case Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-black/60 border-2 border-amber-600/30 p-4 text-center">
           <div className="text-3xl mb-2">🏛️</div>
           <div className="text-2xl font-bold text-white">{caseData.scenes.length}</div>

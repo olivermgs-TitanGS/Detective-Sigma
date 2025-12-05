@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { signOut } from 'next-auth/react';
 // MusicPlayer is in root layout - removed here to prevent overlapping audio
 
 export default function StudentLayout({ children }: { children: ReactNode }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
   };
@@ -33,9 +35,9 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
       <div className="scanner-line" style={{ animationDelay: '1.5s', top: '50%' }}></div>
 
       {/* Music Player is in root layout */}
-      {/* Realistic Crime Scene Tape - Physical Look */}
+      {/* Realistic Crime Scene Tape - Physical Look (hidden on mobile for space) */}
       <div
-        className="relative py-4 overflow-hidden transform -rotate-2 shadow-lg"
+        className="hidden md:block relative py-4 overflow-hidden transform -rotate-2 shadow-lg"
         style={{
           background: 'repeating-linear-gradient(45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
           boxShadow: '0 4px 6px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.3)'
@@ -56,7 +58,7 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
       </div>
 
       <div
-        className="relative py-4 overflow-hidden transform rotate-1 shadow-lg"
+        className="hidden md:block relative py-4 overflow-hidden transform rotate-1 shadow-lg"
         style={{
           background: 'repeating-linear-gradient(-45deg, #FFD700 0px, #FFD700 60px, #000000 60px, #000000 120px)',
           boxShadow: '0 4px 6px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.3)',
@@ -81,9 +83,26 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
       <nav className="bg-black border-b-2 border-amber-600/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-8">
-              <Link href="/student/dashboard" className="text-2xl font-bold font-mono tracking-widest text-amber-500 hover:text-amber-400 transition-colors">
-                🔍 DETECTIVE SIGMA
+            <div className="flex items-center gap-4 md:gap-8">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden text-amber-500 hover:text-amber-400 p-2"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+
+              <Link href="/student/dashboard" className="text-lg md:text-2xl font-bold font-mono tracking-widest text-amber-500 hover:text-amber-400 transition-colors">
+                🔍 <span className="hidden sm:inline">DETECTIVE </span>SIGMA
               </Link>
               <div className="hidden md:flex gap-6">
                 <Link
@@ -106,17 +125,46 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
                 </Link>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-slate-500 font-mono text-sm tracking-wider">DETECTIVE</span>
+            <div className="flex items-center gap-2 md:gap-4">
+              <span className="hidden sm:block text-slate-500 font-mono text-sm tracking-wider">DETECTIVE</span>
               <button
                 onClick={handleLogout}
-                className="border-2 border-red-800 bg-black hover:bg-red-900 text-red-400 px-4 py-2 font-mono tracking-wider text-sm transition-colors"
+                className="border-2 border-red-800 bg-black hover:bg-red-900 text-red-400 px-2 md:px-4 py-1 md:py-2 font-mono tracking-wider text-xs md:text-sm transition-colors"
               >
                 LOGOUT
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-black border-t border-amber-600/30">
+            <div className="px-4 py-3 space-y-2">
+              <Link
+                href="/student/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-slate-400 hover:text-amber-400 transition-colors font-mono tracking-wider text-sm py-2 border-b border-slate-800"
+              >
+                📊 DASHBOARD
+              </Link>
+              <Link
+                href="/student/cases"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-slate-400 hover:text-amber-400 transition-colors font-mono tracking-wider text-sm py-2 border-b border-slate-800"
+              >
+                📁 CASE LIBRARY
+              </Link>
+              <Link
+                href="/student/leaderboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-slate-400 hover:text-amber-400 transition-colors font-mono tracking-wider text-sm py-2"
+              >
+                🏆 LEADERBOARD
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Main Content */}

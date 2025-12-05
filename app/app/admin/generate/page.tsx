@@ -875,7 +875,7 @@ export default function GenerateCasePage() {
               {/* Case Info */}
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-white mb-4">{generatedCase.title}</h3>
-                <div className="grid grid-cols-5 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-4 mb-4">
               <div className="text-center p-3 bg-slate-800 rounded">
                 <div className="text-amber-400 font-mono text-sm">DIFFICULTY</div>
                 <div className="text-white font-bold">{generatedCase.metadata.difficulty}</div>

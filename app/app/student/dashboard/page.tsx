@@ -148,7 +148,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* Stats Grid - Evidence Tags */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
         <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
           <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.casesSolved}</div>
           <div className="text-amber-400 font-mono text-sm tracking-wider">CASES CLOSED</div>
