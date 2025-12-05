@@ -8,12 +8,47 @@ interface Suspect {
   role: string;
   bio: string;
   isCulprit: boolean;
-  imageUrl: string;
+  imageUrl?: string;
 }
 
 interface SuspectDialogProps {
   suspects: Suspect[];
   onClose: () => void;
+}
+
+// Check if imageUrl is a valid image URL (not emoji)
+function isImageUrl(url?: string): boolean {
+  if (!url) return false;
+  return url.startsWith('http') || url.startsWith('/') || url.startsWith('data:');
+}
+
+// Render suspect image or fallback
+function SuspectAvatar({ imageUrl, name, size = 'md' }: { imageUrl?: string; name: string; size?: 'md' | 'lg' }) {
+  const sizeClasses = size === 'lg' ? 'w-24 h-24' : 'w-16 h-16';
+
+  if (isImageUrl(imageUrl)) {
+    return (
+      <img
+        src={imageUrl}
+        alt={name}
+        className={`${sizeClasses} object-cover rounded-lg border-2 border-amber-600/50`}
+        onError={(e) => {
+          // Fallback to placeholder on error
+          (e.target as HTMLImageElement).style.display = 'none';
+          (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+        }}
+      />
+    );
+  }
+
+  // Fallback: emoji or placeholder
+  return (
+    <div className={`${sizeClasses} bg-slate-800 border-2 border-amber-600/30 rounded-lg flex items-center justify-center`}>
+      <span className={size === 'lg' ? 'text-4xl' : 'text-2xl'}>
+        {imageUrl || '👤'}
+      </span>
+    </div>
+  );
 }
 
 export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps) {
@@ -52,8 +87,10 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
                   onClick={() => setSelectedSuspect(suspect)}
                   className="bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-6 transition-all group text-center"
                 >
-                  {/* Suspect Icon */}
-                  <div className="text-6xl mb-4 filter drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">{suspect.imageUrl}</div>
+                  {/* Suspect Portrait */}
+                  <div className="mb-4 flex justify-center">
+                    <SuspectAvatar imageUrl={suspect.imageUrl} name={suspect.name} size="md" />
+                  </div>
 
                   {/* Name and Role */}
                   <h3 className="text-amber-50 font-mono font-bold text-lg mb-1 group-hover:text-amber-400 transition-colors tracking-wide">
@@ -83,7 +120,9 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
               <div className="bg-black/50 p-8 border-2 border-amber-600/30">
                 <div className="flex items-start gap-6">
                   {/* Avatar */}
-                  <div className="text-8xl flex-shrink-0 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]">{selectedSuspect.imageUrl}</div>
+                  <div className="flex-shrink-0">
+                    <SuspectAvatar imageUrl={selectedSuspect.imageUrl} name={selectedSuspect.name} size="lg" />
+                  </div>
 
                   {/* Info */}
                   <div className="flex-1">
