@@ -20,11 +20,12 @@ The Case Generator is a narrative-first system that creates cohesive, educationa
           ▼               ▼               ▼
 ┌─────────────────┐ ┌───────────────┐ ┌───────────────────┐
 │narrative-engine │ │character-web  │ │ evidence-chain    │
+│  + scalable/    │ │               │ │  + scalable/      │
 │                 │ │               │ │                   │
-│ • 5 Scenarios   │ │ • Characters  │ │ • Initial Clues   │
-│ • Crime Details │ │ • Dialogues   │ │ • Discovered      │
-│ • Timeline      │ │ • Relations   │ │ • Conclusive      │
-│ • Motive/Method │ │ • Alibis      │ │ • Red Herrings    │
+│ • 45+ Locations │ │ • 12K+ Names  │ │ • 200+ Templates  │
+│ • 56+ Crimes    │ │ • Dialogues   │ │ • Phased Discovery│
+│ • 50+ Motives   │ │ • Relations   │ │ • Red Herrings    │
+│ • Timeline      │ │ • Alibis      │ │ • Forensic Logic  │
 └────────┬────────┘ └───────┬───────┘ └─────────┬─────────┘
          │                  │                   │
          └──────────────────┼───────────────────┘
@@ -32,10 +33,10 @@ The Case Generator is a narrative-first system that creates cohesive, educationa
                             ▼
                   ┌───────────────────┐
                   │  story-puzzles    │
+                  │   + scalable/     │
                   │                   │
-                  │ • Initial Phase   │
-                  │ • Investigation   │
-                  │ • Conclusion      │
+                  │ • 100+ Contexts   │
+                  │ • 3 Phases        │
                   │ • Revelations     │
                   └─────────┬─────────┘
                             │
@@ -68,25 +69,32 @@ The main orchestrator that coordinates all subsystems. By default, uses the narr
 - `inferEthnicityFromCharacter(name)` - Determines ethnicity from name patterns
 - `inferGenderFromCharacter(name)` - Determines gender from name patterns
 
-### 2. Narrative Engine (`narrative-engine.ts`)
+### 2. Narrative Engine (`narrative-engine.ts` + `scalable/`)
 
 **Purpose:** Generates the core story, crime details, and timeline.
 
-**5 Story Scenarios:**
+**45+ Location Templates** (via `scalable/location-templates.ts`):
 
-| ID | Setting | Crime Types |
-|----|---------|-------------|
-| canteen-mystery | School Canteen | theft, fraud |
-| library-case | School Library | vandalism, theft |
-| science-lab | Science Laboratory | sabotage |
-| sports-event | Sports Field/Gym | cheating, sabotage |
-| market-mystery | Neighborhood Market | theft, fraud |
+| Category | Examples | Crime Types |
+|----------|----------|-------------|
+| School (10+) | Classroom, Canteen, Library, Science Lab, Computer Lab | theft, fraud, cheating, vandalism |
+| Commercial (15+) | Hawker Centre, Wet Market, Shopping Mall, Convenience Store | theft, fraud, sabotage |
+| Residential (10+) | HDB Void Deck, Corridor, Playground, Community Garden | vandalism, theft |
+| Public (10+) | MRT Station, Bus Interchange, Library, Community Centre | theft, fraud, vandalism |
+
+**56+ Crime Types** (via `scalable/crime-types.ts`):
+- Theft (15): Cash, equipment, phone, document, food, vehicle theft
+- Fraud (12): Accounting, identity, exam, refund, insurance fraud
+- Vandalism (10): Graffiti, property damage, vehicle vandalism
+- Sabotage (8): Food tampering, equipment sabotage, project sabotage
+- Cheating (6): Plagiarism, score manipulation, sports cheating
+- Missing (5): Missing items, pets, keys
 
 **Each Scenario Includes:**
-- Setting with location, description, time of day
-- Crime details with type, method, crime window
-- Culprit profile with motive (type, description, backstory), method, mistakes
-- 3-4 suspect roles with alibis
+- Setting with location, description, time of day, atmosphere
+- Crime details with type, method, crime window, scene impact
+- Culprit profile with motive (50+ templates), method, mistakes
+- 3-4 suspect roles with procedurally generated names and alibis
 - Timeline events (key events and discoverable events)
 
 **Key Types:**
@@ -103,15 +111,17 @@ interface NarrativeCase {
 }
 ```
 
-### 3. Character Web (`character-web.ts`)
+### 3. Character Web (`character-web.ts` + `scalable/procedural-names.ts`)
 
 **Purpose:** Generates interconnected characters with relationships, dialogue, and alibis.
 
-**Singapore Name Pools:**
-- Chinese names (e.g., Tan Ah Kow, Lim Mei Ling)
-- Malay names (e.g., Ahmad bin Ismail, Siti Aminah)
-- Indian names (e.g., Rajesh Kumar, Priya Devi)
-- Eurasian names (e.g., David Pereira, Sarah Santos)
+**Procedural Name Generation (12,000+ unique names):**
+- **Chinese:** 50+ first names × 30+ surnames (e.g., Tan Wei Ming, Lim Mei Ling)
+- **Malay:** 50+ first names × 30+ surnames (e.g., Ahmad bin Ismail, Siti Aminah)
+- **Indian:** 50+ first names × 30+ surnames (e.g., Rajesh Kumar, Priya Devi)
+- **Eurasian:** 50+ first names × 30+ surnames (e.g., David Pereira, Sarah Santos)
+
+**Character Variations:** Names × 3 ages × 48 personality combos = **1.7+ million unique characters**
 
 **Dialogue Trees (8+ nodes per character):**
 - `greeting` - Initial contact
@@ -129,9 +139,11 @@ interface NarrativeCase {
 **Relationships:**
 - `friendly`, `neutral`, `tense`, `hostile`, `professional`, `family`
 
-### 4. Evidence Chain (`evidence-chain.ts`)
+### 4. Evidence Chain (`evidence-chain.ts` + `scalable/evidence-templates.ts`)
 
 **Purpose:** Creates logical evidence progressions organized by discovery phase.
+
+**200+ Evidence Templates** across 4 categories (see Scalability section below).
 
 **Evidence Phases:**
 
@@ -159,9 +171,11 @@ interface NarrativeCase {
 - `discoveryMethod` - How to find this clue
 - `pointsToGuilty` - Whether it implicates the culprit
 
-### 5. Story Puzzles (`story-puzzles.ts`)
+### 5. Story Puzzles (`story-puzzles.ts` + `scalable/puzzle-contexts.ts`)
 
 **Purpose:** Integrates puzzles into the narrative with story revelations.
+
+**100+ Puzzle Contexts** with varied introductions, framings, and revelations.
 
 **Puzzle Phases:**
 
@@ -364,7 +378,16 @@ app/lib/case-generator/
 ├── templates.ts           # Static templates (legacy)
 ├── syllabus.ts            # MOE 2025 curriculum
 ├── curriculum-puzzles.ts  # Syllabus-aligned puzzles
-└── learning-tracker.ts    # Student progress
+├── learning-tracker.ts    # Student progress
+│
+└── scalable/              # SCALABLE MODULE SYSTEM (v3.0)
+    ├── index.ts              # Integration & scalability stats
+    ├── location-templates.ts # 45+ Singapore locations
+    ├── crime-types.ts        # 56+ crime types
+    ├── evidence-templates.ts # 200+ evidence templates
+    ├── puzzle-contexts.ts    # 100+ puzzle contexts
+    ├── procedural-names.ts   # 12,000+ procedural names
+    └── motive-system.ts      # 50+ motive templates
 
 app/components/game/
 ├── CrimeSceneOverlays.tsx # Readable text overlays
@@ -530,5 +553,5 @@ This ensures storyline uniqueness and allows tracking of generated content.
 
 ---
 
-*Last Updated: December 2024*
-*Version: 3.0 - Scalable Storyline System*
+*Last Updated: December 2025*
+*Version: 3.0 - Scalable Storyline System (7.56 trillion unique storylines)*
