@@ -97,6 +97,14 @@ const CHINESE_MALE_GIVEN = [
   'Hong Wei', 'Qiang Wei', 'Long Fei', 'Feng Ming'
 ];
 
+// Single-syllable Chinese male names (common in Singapore)
+const CHINESE_MALE_SINGLE = [
+  'Wei', 'Jun', 'Hao', 'Ming', 'Kai', 'Jie', 'Chen', 'Yang', 'Feng', 'Long',
+  'Bo', 'Yu', 'Qiang', 'Hong', 'Seng', 'Keng', 'Boon', 'Kok', 'Wee', 'Huat',
+  'Teck', 'Kow', 'Beng', 'Leong', 'Kiat', 'Soon', 'Hock', 'Liang', 'Cheng',
+  'Peng', 'Dong', 'Sheng', 'Jian', 'Guo', 'Xing', 'Fei', 'Rui', 'Tian', 'Xin'
+];
+
 const CHINESE_FEMALE_GIVEN = [
   'Mei Ling', 'Xin Yi', 'Hui Wen', 'Jia Hui', 'Yu Xuan', 'Zi Xuan', 'Xin Yue',
   'Jia Ying', 'Yi Ting', 'Xin Ying', 'Hui Min', 'Jia Min', 'Mei Xin', 'Yu Ting',
@@ -264,6 +272,11 @@ const EURASIAN_FEMALE_GIVEN = [
 const nameLookup = new Map<string, { gender: Gender; ethnicity: Ethnicity }>();
 
 function buildLookupMaps() {
+  // Chinese single-syllable male names (PRIORITY - add first)
+  for (const name of CHINESE_MALE_SINGLE) {
+    nameLookup.set(name.toLowerCase(), { gender: 'male', ethnicity: 'chinese' });
+  }
+
   // Chinese names
   for (const surname of CHINESE_SURNAMES) {
     for (const given of CHINESE_MALE_GIVEN) {
