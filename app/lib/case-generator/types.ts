@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const DifficultyEnum = z.enum(['ROOKIE', 'INSPECTOR', 'DETECTIVE', 'CHIEF']);
 export const SubjectEnum = z.enum(['MATH', 'SCIENCE', 'INTEGRATED']);
-export const GradeLevelEnum = z.enum(['P4', 'P5', 'P6', 'SECONDARY', 'ADULT']);
+export const GradeLevelEnum = z.enum(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
 // Puzzle complexity determines how challenging each puzzle is
 // BASIC: Simple single-step problems (2-3 min each)
 // STANDARD: Multi-step problems requiring some reasoning (5-7 min each)
@@ -22,7 +22,7 @@ export const GenerationRequestSchema = z.object({
     excludeThemes: z.array(z.string()).optional(),
     requiredSkills: z.array(z.string()).optional(),
     estimatedMinutes: z.number().min(15).max(90).optional(),
-    minPuzzles: z.number().min(2).max(8).optional(),
+    minPuzzles: z.number().min(2).max(25).optional(),
   }).optional(),
 });
 

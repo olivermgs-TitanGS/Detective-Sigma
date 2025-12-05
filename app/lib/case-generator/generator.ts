@@ -397,18 +397,26 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
   // Get complexity config for time estimation
   const complexityConfig = puzzleComplexityConfig[puzzleComplexity as keyof typeof puzzleComplexityConfig] || puzzleComplexityConfig.STANDARD;
 
-  // Determine counts based on puzzle complexity
-  // More complex puzzles = fewer puzzles needed to fill time, but more depth
-  const complexityCounts: Record<string, { suspects: number; puzzles: number; clues: number }> = {
-    BASIC: { suspects: 3, puzzles: 4, clues: 4 },      // Many easy puzzles
-    STANDARD: { suspects: 3, puzzles: 3, clues: 4 },   // Balanced
-    CHALLENGING: { suspects: 4, puzzles: 3, clues: 5 }, // Fewer but harder puzzles
-    EXPERT: { suspects: 4, puzzles: 2, clues: 6 },     // Few very hard puzzles, more clues to analyze
+  // Determine puzzle counts based on difficulty level
+  // Higher difficulty = more puzzles to solve
+  const difficultyPuzzleCounts: Record<string, number> = {
+    ROOKIE: 6,       // Entry level - fewer puzzles
+    INSPECTOR: 10,   // Intermediate - moderate puzzles
+    DETECTIVE: 15,   // Advanced - many puzzles
+    CHIEF: 20,       // Expert - maximum puzzles
+  };
+
+  // Determine other counts based on puzzle complexity
+  const complexityCounts: Record<string, { suspects: number; clues: number }> = {
+    BASIC: { suspects: 3, clues: 4 },
+    STANDARD: { suspects: 3, clues: 5 },
+    CHALLENGING: { suspects: 4, clues: 6 },
+    EXPERT: { suspects: 4, clues: 7 },
   };
 
   const counts = complexityCounts[puzzleComplexity] || complexityCounts.STANDARD;
   const suspectCount = counts.suspects;
-  const puzzleCount = request.constraints?.minPuzzles || counts.puzzles;
+  const puzzleCount = request.constraints?.minPuzzles || difficultyPuzzleCounts[request.difficulty] || 10;
   const clueCount = counts.clues;
 
   // Generate all components

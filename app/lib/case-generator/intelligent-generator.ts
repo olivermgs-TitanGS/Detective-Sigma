@@ -908,8 +908,16 @@ export async function generateIntelligentCase(request: GenerationRequest): Promi
   const subjectTopics = subject === 'INTEGRATED'
     ? gradeTopics
     : gradeTopics.filter(t => t.subject === subject);
-  const selectedTopics = pickMultiple(subjectTopics, 3);
-  const puzzleCount = puzzleComplexity === 'BASIC' ? 4 : puzzleComplexity === 'STANDARD' ? 3 : 2;
+
+  // Determine puzzle count based on difficulty level
+  const difficultyPuzzleCounts: Record<string, number> = {
+    ROOKIE: 6,       // Entry level - fewer puzzles
+    INSPECTOR: 10,   // Intermediate - moderate puzzles
+    DETECTIVE: 15,   // Advanced - many puzzles
+    CHIEF: 20,       // Expert - maximum puzzles
+  };
+  const puzzleCount = difficultyPuzzleCounts[difficulty] || 10;
+  const selectedTopics = pickMultiple(subjectTopics, puzzleCount);
 
   const puzzleContext: PuzzleContext = {
     setting: seed.location.name,
@@ -1096,7 +1104,7 @@ Can you piece together the clues, interview the suspects, and solve the puzzles 
       difficulty,
       gradeLevel,
       subjectFocus: subject,
-      estimatedMinutes: puzzleCount * (puzzleComplexity === 'BASIC' ? 5 : puzzleComplexity === 'STANDARD' ? 8 : 12),
+      estimatedMinutes: puzzleCount * (puzzleComplexity === 'BASIC' ? 3 : puzzleComplexity === 'STANDARD' ? 5 : 8),
       puzzleComplexity,
     },
     story: {
