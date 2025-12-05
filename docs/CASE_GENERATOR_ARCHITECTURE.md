@@ -48,6 +48,15 @@ The Case Generator is a narrative-first system that creates cohesive, educationa
                   │ • Portraits       │
                   │ • Evidence Photos │
                   │ • Reality Check   │
+                  └─────────┬─────────┘
+                            │
+                            ▼
+                  ┌───────────────────┐
+                  │ content-rating    │
+                  │                   │
+                  │ • IMDA Compliance │
+                  │ • Rating Filter   │
+                  │ • Admin Control   │
                   └───────────────────┘
 ```
 
@@ -214,7 +223,7 @@ CHIEF:      initial=CHALLENGING,investigation=CHALLENGING, conclusion=EXPERT
 | Evidence | 1024x1024 / 768x768 | Clue photographs |
 
 **Models Used:**
-- `realisticVisionV60B1_v51VAE` - Realistic Vision V6.0 B1
+- `realisticVisionV60B1_v51HyperVAE.safetensors` - Realistic Vision V6.0 B1 (photorealistic)
 
 **Singapore Context:**
 - Tropical architecture (HDB, void decks, covered walkways)
@@ -430,9 +439,6 @@ app/lib/case-generator/
 ├── curriculum-puzzles.ts  # Syllabus-aligned puzzles
 ├── learning-tracker.ts    # Student progress
 │
-├── content-rating/        # SINGAPORE IMDA CONTENT RATING (v3.1)
-│   └── singapore-imda-rating.ts  # Rating system, blocked terms, compliance
-│
 └── scalable/              # SCALABLE MODULE SYSTEM (v3.0)
     ├── index.ts              # Integration & scalability stats
     ├── location-templates.ts # 45+ Singapore locations
@@ -455,8 +461,11 @@ app/api/admin/
 └── content-rating/
     └── route.ts           # GET/POST content rating API
 
+app/lib/content-rating/        # SINGAPORE IMDA CONTENT RATING (v3.1)
+└── singapore-imda-rating.ts   # Rating system, blocked terms, compliance
+
 app/lib/services/
-└── image-generation-service.ts # Image generation API
+└── image-generation-service.ts # Image generation API (with content rating integration)
 ```
 
 ## Best Practices
@@ -466,6 +475,7 @@ app/lib/services/
 3. **Pass full context to images** - Include visualCue, emotion, crimeType for accurate prompts
 4. **Use overlay system for text** - Never expect AI to generate readable text
 5. **Validate reality** - Use `validatePromptReality()` before generating images
+6. **Set appropriate content rating** - Use admin slider to configure rating (GENERAL for P4-P6 students, PG13+ for detective content)
 
 ## API Usage Example
 
