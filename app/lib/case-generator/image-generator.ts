@@ -873,23 +873,34 @@ export function generateContextualSuspectPrompt(
   const ageGroup = suspect.ageGroup || 'middle';
 
   // Build expression based on guilt status and personality
-  let expression: 'neutral' | 'nervous' | 'confident' | 'worried' | 'suspicious' = 'neutral';
+  // Normalize personality to lowercase for case-insensitive matching
+  // Safety check: ensure personality is an array before mapping
+  const personalityArray = Array.isArray(suspect.personality) ? suspect.personality : [];
+  const lowerPersonality = personalityArray.map(p => p.toLowerCase());
+  let expression: 'neutral' | 'nervous' | 'confident' | 'worried' | 'guarded' = 'neutral';
   if (suspect.isGuilty) {
-    expression = suspect.personality.includes('Nervous') ? 'nervous' : 'suspicious';
-  } else if (suspect.personality.includes('Confident')) {
+    expression = lowerPersonality.includes('nervous') ? 'nervous' : 'guarded';
+  } else if (lowerPersonality.includes('confident')) {
     expression = 'confident';
-  } else if (suspect.personality.includes('Worried')) {
+  } else if (lowerPersonality.includes('worried') || lowerPersonality.includes('anxious')) {
     expression = 'worried';
   }
 
   // Generate personality-based clothing and appearance
-  const personalityTraits = suspect.personality.join(', ').toLowerCase();
+  const personalityTraits = personalityArray.join(', ').toLowerCase();
 
-  const ageDescriptions = {
+  // Use displayAge if available for more accurate age descriptions
+  // Falls back to generic descriptions based on ageGroup
+  const ageDescriptions: Record<string, string> = {
     young: gender === 'male' ? 'young man in his 20s' : 'young woman in her 20s',
     middle: gender === 'male' ? 'middle-aged man in his 40s' : 'middle-aged woman in her 40s',
     senior: gender === 'male' ? 'elderly man in his 60s' : 'elderly woman in her 60s',
   };
+
+  // Use specific age description if available from enhanced age system
+  const ageDescription = (suspect as { displayAge?: string }).displayAge
+    ? `${gender === 'male' ? 'man' : 'woman'}, ${(suspect as { displayAge?: string }).displayAge}`
+    : ageDescriptions[ageGroup];
 
   const ethnicFeatures = {
     Chinese: 'East Asian features, Singaporean Chinese',
@@ -898,12 +909,13 @@ export function generateContextualSuspectPrompt(
     Eurasian: 'mixed Eurasian features, Singaporean Eurasian',
   };
 
+  // Expression descriptions - using safe terms that won't trigger content filters
   const expressions = {
-    neutral: 'neutral calm expression, direct gaze at camera',
-    nervous: 'slightly nervous expression, avoiding direct eye contact, tense jaw, subtle sweat',
+    neutral: 'neutral calm expression, direct gaze at camera, composed demeanor',
+    nervous: 'slightly uneasy expression, avoiding direct eye contact, tense jaw',
     confident: 'confident relaxed expression, slight knowing smile, steady gaze',
-    worried: 'worried concerned expression, furrowed brow, troubled eyes',
-    suspicious: 'guarded suspicious expression, narrowed eyes, tight lips, defensive posture',
+    worried: 'concerned thoughtful expression, furrowed brow, attentive eyes',
+    guarded: 'reserved cautious expression, focused narrowed eyes, tight lips, alert posture',
   };
 
   // Role-specific clothing that matches the case setting
@@ -912,7 +924,7 @@ export function generateContextualSuspectPrompt(
   const prompt = `
 ${photoQualityTags.highest},
 1person, solo, portrait, looking at viewer,
-${ageDescriptions[ageGroup]},
+${ageDescription},
 ${ethnicFeatures[ethnicity]},
 ${expressions[expression]},
 ${roleClothing},
