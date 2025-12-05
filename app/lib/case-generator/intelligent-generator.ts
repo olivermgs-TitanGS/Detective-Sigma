@@ -164,11 +164,32 @@ interface GeneratedCharacter {
   name: string;
   role: string;
   age: number;
+  ageGroup: 'young' | 'middle' | 'senior';
+  gender: 'male' | 'female';
+  ethnicity: 'Chinese' | 'Malay' | 'Indian' | 'Eurasian';
   personality: [string, string];
   alibi: string;
   isGuilty: boolean;
   motive?: string;
   relationship?: string;
+}
+
+// Convert numeric age to age group for image generation
+function ageToAgeGroup(age: number): 'young' | 'middle' | 'senior' {
+  if (age < 35) return 'young';
+  if (age < 55) return 'middle';
+  return 'senior';
+}
+
+// Capitalize ethnicity for type consistency
+function capitalizeEthnicity(eth: string): 'Chinese' | 'Malay' | 'Indian' | 'Eurasian' {
+  const map: Record<string, 'Chinese' | 'Malay' | 'Indian' | 'Eurasian'> = {
+    chinese: 'Chinese',
+    malay: 'Malay',
+    indian: 'Indian',
+    eurasian: 'Eurasian',
+  };
+  return map[eth.toLowerCase()] || 'Eurasian';
 }
 
 function generateCharacters(
@@ -189,12 +210,16 @@ function generateCharacters(
 
     const [minAge, maxAge] = occupation.ageRange;
     const age = random(minAge, maxAge);
+    const ageGroup = ageToAgeGroup(age);
 
     characters.push({
       id: `suspect-${nanoid(6)}`,
       name: getFullName(charName),
       role: occupation.title,
       age,
+      ageGroup,
+      gender,
+      ethnicity: capitalizeEthnicity(ethnicity),
       personality: getRandomPersonality(),
       alibi: isGuilty
         ? pickRandom([
@@ -1015,6 +1040,10 @@ export async function generateIntelligentCase(request: GenerationRequest): Promi
     personality: c.personality,
     isGuilty: c.isGuilty,
     motive: c.motive,
+    // Demographics for accurate image generation
+    gender: c.gender,
+    ethnicity: c.ethnicity,
+    ageGroup: c.ageGroup,
   }));
 
   // 10. Build detailed story using story templates

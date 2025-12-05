@@ -71,10 +71,10 @@ function inferEthnicityFromCharacter(name: string): 'Chinese' | 'Malay' | 'India
  */
 function inferGenderFromCharacter(name: string): 'male' | 'female' {
   // Female name patterns
-  const femalePatterns = /^(Zhang Mei|Wong Fang|Tan Hui|Lee Mei|Lim Ai|Ng Siew|Ong Bee|Koh Mei|Teo Li|Chen Xiu|Siti|Aminah|Fatimah|Zainab|Noraini|Aishah|Priya|Lakshmi|Anita|Kavitha|Meera|Sunitha|Sarah|Emma|Rachel|Jessica|Amanda|Mei|Fang|Hui|Xin|Ai|Siew|Bee|Fen|Ping|Xiu|Ying|Ling|Hua|Lan|Hoon)/i;
+  const femalePatterns = /^(Zhang Mei|Wong Fang|Tan Hui|Lee Mei|Lim Ai|Ng Siew|Ong Bee|Koh Mei|Teo Li|Chen Xiu|Siti|Aminah|Fatimah|Zainab|Noraini|Aishah|Priya|Lakshmi|Anita|Kavitha|Meera|Sunitha|Sarah|Emma|Rachel|Jessica|Amanda|Mei|Fang|Hui|Xin|Ai|Siew|Bee|Fen|Ping|Xiu|Ying|Ling|Hua|Lan|Hoon|Frances|Dorothy|Eleanor|Gloria|Helen|Irene|Julia|Katherine|Margaret|Nancy|Olivia|Patricia|Rose|Susan|Victoria|Caroline)/i;
 
   // Male name patterns
-  const malePatterns = /^(Li Wei|Chen Jun|Wong Ming|Tan Ah|Lee Hock|Lim Boon|Ng Chee|Ong Wei|Koh Seng|Teo Huat|Ahmad|Farid|Ismail|Rashid|Kamal|Hafiz|Rajesh|Suresh|Vikram|Arjun|Ravi|Deepak|David|Michael|James|John|Peter|Wei|Jun|Ming|Hock|Boon|Chee|Seng|Huat|Kow|bin)/i;
+  const malePatterns = /^(Li Wei|Chen Jun|Wong Ming|Tan Ah|Lee Hock|Lim Boon|Ng Chee|Ong Wei|Koh Seng|Teo Huat|Ahmad|Farid|Ismail|Rashid|Kamal|Hafiz|Rajesh|Suresh|Vikram|Arjun|Ravi|Deepak|David|Michael|James|John|Peter|Wei|Jun|Ming|Hock|Boon|Chee|Seng|Huat|Kow|bin|Francis|Gabriel|Sebastian|Dominic|Vincent|Patrick|Gerard|Bernard|Lawrence|Raymond|Kenneth|Robert|William|Charles|Edward|George|Henry|Thomas)/i;
 
   if (femalePatterns.test(name)) return 'female';
   if (malePatterns.test(name)) return 'male';
@@ -84,6 +84,65 @@ function inferGenderFromCharacter(name: string): 'male' | 'female' {
   if (name.includes('bin')) return 'male';
 
   return 'male'; // Default
+}
+
+/**
+ * Infer ethnicity from character name
+ */
+function inferEthnicityFromName(name: string): 'Chinese' | 'Malay' | 'Indian' | 'Eurasian' {
+  // Chinese surname patterns
+  const chinesePatterns = /^(Tan|Lee|Lim|Ng|Ong|Wong|Koh|Teo|Chen|Zhang|Li|Wang|Liu|Yang|Huang|Wu|Zhou|Xu|Sun|Ma|Goh|Chua|Chan|Ho|Low|Yeo|Tay|Sim|Foo|Yap|Chong|Choo|Seow|Quek|Chia|Poh|Kok|Soh|Lau|Leong|Ang|Wee)/i;
+
+  // Malay name patterns
+  const malayPatterns = /^(Ahmad|Muhammad|Mohd|Abdul|Ismail|Ali|Hassan|Hussein|Omar|Yusof|Rashid|Kamal|Hafiz|Siti|Aminah|Fatimah|Zainab|Noraini|Aishah|Nurul|Nur|Wan|Nik|Tengku|Raja|Aziz|Ibrahim|bin|binti)/i;
+
+  // Indian name patterns
+  const indianPatterns = /^(Rajesh|Suresh|Vikram|Arjun|Ravi|Deepak|Ganesh|Krishna|Muthu|Kumar|Priya|Lakshmi|Anita|Kavitha|Meera|Sunitha|Devi|Nair|Pillai|Menon|Iyer|Rao|Sharma|Singh|Patel|Reddy|Naidu|Gopal|Venkat|Srinivas)/i;
+
+  // Eurasian/Western name patterns
+  const eurasianPatterns = /^(David|Michael|James|John|Peter|Sarah|Emma|Rachel|Jessica|Amanda|Daniel|Matthew|Andrew|Christopher|William|Robert|Thomas|Charles|Francis|Frances|Gabriel|Sebastian|Patrick|George|Henry|Edward|Caroline|Dorothy|Eleanor|Gloria|Helen|Margaret|Patricia|Victoria|Henderson|Hendricks|Smith|Brown|Williams|Johnson|Davis|Wilson|Moore|Taylor|Anderson)/i;
+
+  if (chinesePatterns.test(name)) return 'Chinese';
+  if (malayPatterns.test(name)) return 'Malay';
+  if (indianPatterns.test(name)) return 'Indian';
+  if (eurasianPatterns.test(name)) return 'Eurasian';
+
+  // Check for Malay patterns anywhere in name
+  if (/bin|binti/i.test(name)) return 'Malay';
+
+  return 'Eurasian'; // Default for Western names
+}
+
+/**
+ * Get random age group with weighted distribution
+ * Roles can influence age (e.g., CEO more likely to be senior)
+ */
+function getAgeGroupForRole(role: string): 'young' | 'middle' | 'senior' {
+  const seniorRoles = ['CEO', 'Director', 'Principal', 'Senior Manager', 'Head', 'Chairman', 'Professor', 'Doctor'];
+  const youngRoles = ['Intern', 'Junior', 'Assistant', 'Trainee', 'Student', 'Apprentice'];
+
+  // Check if role suggests a specific age
+  const roleLower = role.toLowerCase();
+  if (seniorRoles.some(r => roleLower.includes(r.toLowerCase()))) {
+    // Senior roles: 60% senior, 35% middle, 5% young
+    const rand = Math.random();
+    if (rand < 0.60) return 'senior';
+    if (rand < 0.95) return 'middle';
+    return 'young';
+  }
+  if (youngRoles.some(r => roleLower.includes(r.toLowerCase()))) {
+    // Junior roles: 70% young, 25% middle, 5% senior
+    const rand = Math.random();
+    if (rand < 0.70) return 'young';
+    if (rand < 0.95) return 'middle';
+    return 'senior';
+  }
+
+  // Default distribution: 30% young, 45% middle, 25% senior
+  const rand = Math.random();
+  if (rand < 0.30) return 'young';
+  if (rand < 0.75) return 'middle';
+  return 'senior';
 }
 
 // Story-specific role mappings for narrative coherence
@@ -247,6 +306,11 @@ function generateSuspects(
       ? 'Claims to have been working alone in a back room'
       : selectRandom(suspectTemplates.alibis);
 
+    // Infer demographics from name and role
+    const gender = inferGenderFromCharacter(name);
+    const ethnicity = inferEthnicityFromName(name);
+    const ageGroup = getAgeGroupForRole(role);
+
     suspects.push({
       id: `suspect-${nanoid(6)}`,
       name,
@@ -255,6 +319,10 @@ function generateSuspects(
       personality,
       isGuilty,
       motive: isGuilty ? 'Had access and opportunity' : undefined,
+      // Demographics for image generation
+      gender,
+      ethnicity,
+      ageGroup,
     });
   }
 
