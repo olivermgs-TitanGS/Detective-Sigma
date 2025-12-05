@@ -18,7 +18,35 @@ import {
   expertPuzzles,
   puzzleComplexityConfig,
 } from './templates';
+import {
+  getOccupationsForLocation,
+} from './data/characters';
 import { generateUniquePuzzles } from './puzzle-generator';
+
+// Story-specific role mappings for narrative coherence
+// Each story template ID maps to roles that make sense in that context
+const STORY_SPECIFIC_ROLES: Record<string, string[]> = {
+  'canteen-mystery': [
+    'Canteen Manager', 'Canteen Vendor', 'Canteen Staff', 'Student Helper',
+    'Cleaner', 'Security Guard', 'Teacher on Duty', 'Delivery Person'
+  ],
+  'library-case': [
+    'Librarian', 'Library Assistant', 'Student Helper', 'Teacher',
+    'IT Technician', 'Cleaner', 'Security Guard', 'Regular Patron'
+  ],
+  'science-lab': [
+    'Science Teacher', 'Lab Assistant', 'Lab Technician', 'Student Researcher',
+    'Department Head', 'Cleaner', 'Safety Officer', 'Visiting Scientist'
+  ],
+  'sports-event': [
+    'Sports Coach', 'PE Teacher', 'Team Captain', 'Equipment Manager',
+    'Referee', 'Security Guard', 'Sports Secretary', 'Parent Volunteer'
+  ],
+  'market-mystery': [
+    'Stall Owner', 'Market Vendor', 'Shop Assistant', 'Delivery Person',
+    'Cleaner', 'Security Guard', 'Market Manager', 'Regular Customer'
+  ],
+};
 import {
   generatePuzzleForTopic,
   generatePuzzlesForTopics,
@@ -95,13 +123,18 @@ Estimated Time: ${request.constraints?.estimatedMinutes || 25} minutes
     theme,
     location: location.name,
     locationType: location.type,
+    templateId: template.id,
   };
 }
 
-// Generate Suspects
-function generateSuspects(request: GenerationRequest, suspectCount: number = 3): Suspect[] {
+// Generate Suspects with context-appropriate roles
+function generateSuspects(
+  request: GenerationRequest, 
+  suspectCount: number = 3,
+  storyContext?: { templateId: string; locationType: string }
+): Suspect[] {
   const suspects: Suspect[] = [];
-  const usedNames: string[] = [];
+  const usedRoles: string[] = [];
 
   // Get all names and shuffle
   const allNames = [
@@ -112,15 +145,40 @@ function generateSuspects(request: GenerationRequest, suspectCount: number = 3):
   ];
   const shuffledNames = shuffleArray(allNames);
 
+  // Get context-appropriate roles based on story template
+  let availableRoles: string[];
+  if (storyContext?.templateId && STORY_SPECIFIC_ROLES[storyContext.templateId]) {
+    // Use story-specific roles for narrative coherence
+    availableRoles = [...STORY_SPECIFIC_ROLES[storyContext.templateId]];
+  } else if (storyContext?.locationType) {
+    // Fall back to location-based roles
+    const occupations = getOccupationsForLocation(storyContext.locationType);
+    availableRoles = occupations.map(o => o.title);
+  } else {
+    // Last resort: use generic roles
+    availableRoles = [...suspectTemplates.roles];
+  }
+
+  // Shuffle available roles
+  const shuffledRoles = shuffleArray(availableRoles);
+
   // Randomly select which suspect is guilty
   const guiltyIndex = Math.floor(Math.random() * suspectCount);
 
   for (let i = 0; i < suspectCount; i++) {
     const name = shuffledNames[i] || `Suspect ${i + 1}`;
-    usedNames.push(name);
+    
+    // Get a unique role (don't repeat roles if possible)
+    let role: string;
+    if (i < shuffledRoles.length) {
+      role = shuffledRoles[i];
+    } else {
+      // If we need more suspects than available roles, pick randomly
+      role = selectRandom(availableRoles);
+    }
+    usedRoles.push(role);
 
     const isGuilty = i === guiltyIndex;
-    const role = selectRandom(suspectTemplates.roles);
     const personality = selectRandom(suspectTemplates.personalities);
     const alibi = isGuilty
       ? 'Claims to have been working alone in a back room'
@@ -421,7 +479,11 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
 
   // Generate all components
   const story = generateStory(request);
-  const suspects = generateSuspects(request, suspectCount);
+  // Pass story context to generate contextually-appropriate suspects
+  const suspects = generateSuspects(request, suspectCount, {
+    templateId: story.templateId,
+    locationType: story.locationType,
+  });
   const clues = generateClues(suspects, clueCount);
   const puzzles = generatePuzzles(request, puzzleCount);
   const scenes = generateScenes(story, clues);
