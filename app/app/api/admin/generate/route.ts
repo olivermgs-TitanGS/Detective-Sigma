@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { generateCase } from '@/lib/case-generator/generator';
-import { generateIntelligentCase } from '@/lib/case-generator/intelligent-generator';
 import { GenerationRequestSchema } from '@/lib/case-generator/types';
-import { getSyllabusTracker, getRecommendedTopics } from '@/lib/case-generator/syllabus-tracker';
+import { getRecommendedTopics } from '@/lib/case-generator/syllabus-tracker';
+import { GradeLevel as SyllabusGradeLevel } from '@/lib/case-generator/syllabus';
 
 export async function POST(request: Request) {
   try {
@@ -12,30 +12,27 @@ export async function POST(request: Request) {
     const validationResult = GenerationRequestSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request', details: validationResult.error.errors },
+        { error: 'Invalid request', details: validationResult.error.issues },
         { status: 400 }
       );
     }
 
     const requestData = validationResult.data;
 
-    // Use intelligent generator for better variety and syllabus coverage
-    const useIntelligent = body.useIntelligent !== false; // Default to intelligent generator
+    // Use narrative-driven generator (scalable system)
+    // This ensures coherent cases with matching briefing, story, suspects, and location
+    const generatedCase = await generateCase(requestData);
 
-    let generatedCase;
-    if (useIntelligent) {
-      generatedCase = await generateIntelligentCase(requestData);
-
-      // Track syllabus coverage (topics used in this case)
-      // The intelligent generator embeds topic info in the briefing
-      // In a production system, we'd track this in the database
-    } else {
-      generatedCase = await generateCase(requestData);
-    }
+    // Map grade level for syllabus (P1-P3 -> P4, P4-P6 stay same)
+    const syllabusGradeMap: Record<string, SyllabusGradeLevel> = {
+      P1: 'P4', P2: 'P4', P3: 'P4',
+      P4: 'P4', P5: 'P5', P6: 'P6',
+    };
+    const syllabusGradeLevel = syllabusGradeMap[requestData.gradeLevel] || 'P4';
 
     // Get recommended topics for next generation (for UI display)
     const recommendedTopics = getRecommendedTopics(
-      requestData.gradeLevel,
+      syllabusGradeLevel,
       requestData.subject,
       3
     );

@@ -144,6 +144,7 @@ const singaporeContext = {
   lighting: {
     day: 'bright tropical sunlight, harsh shadows, clear blue sky',
     morning: 'soft golden morning light, misty atmosphere, dew on surfaces',
+    afternoon: 'bright midday tropical sun, strong overhead lighting, minimal shadows',
     evening: 'warm orange sunset light, long shadows, golden hour',
     night: 'warm artificial lights, neon signs, street lamps, humid night air',
   },
@@ -768,7 +769,7 @@ export interface CaseContext {
     location: string;     // Location name
     locationType: string; // Type of location (school, neighborhood, etc.)
   };
-  timeOfDay: 'day' | 'morning' | 'evening' | 'night';
+  timeOfDay: 'day' | 'morning' | 'afternoon' | 'evening' | 'night';
   atmosphere: 'mysterious' | 'tense' | 'calm' | 'urgent';
 }
 
