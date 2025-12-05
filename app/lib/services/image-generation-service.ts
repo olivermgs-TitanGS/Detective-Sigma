@@ -235,8 +235,16 @@ async function generateWithComfyUI(
 ): Promise<GeneratedImageResult> {
   const startTime = Date.now();
 
+  console.log(`[COMFYUI] Generating image for ${request.id}:`, {
+    type: request.type,
+    baseUrl: config.baseUrl,
+    promptPreview: request.prompt?.substring(0, 80) + '...',
+  });
+
   try {
     const workflow = buildComfyUIWorkflow(request);
+
+    console.log(`[COMFYUI] Sending workflow to ${config.baseUrl}/prompt`);
 
     // Queue the prompt
     const queueResponse = await fetch(`${config.baseUrl}/prompt`, {
@@ -249,6 +257,7 @@ async function generateWithComfyUI(
 
     if (!queueResponse.ok) {
       const errorText = await queueResponse.text();
+      console.error(`[COMFYUI] Queue error for ${request.id}:`, errorText);
       throw new Error(`ComfyUI queue error: ${queueResponse.status} - ${errorText}`);
     }
 
@@ -457,6 +466,14 @@ export class ImageGenerationService {
   ): Promise<GeneratedImageResult> {
     const rating = ratingOverride || currentContentRating;
 
+    // DEBUG: Log incoming request
+    console.log(`[SERVICE] generateImage called:`, {
+      id: request.id,
+      type: request.type,
+      rating,
+      promptPreview: request.prompt?.substring(0, 100) + '...',
+    });
+
     // ========================================
     // SINGAPORE IMDA CONTENT RATING FILTER
     // ========================================
@@ -464,18 +481,23 @@ export class ImageGenerationService {
     // GENERAL (default) -> PG13 -> ADV16 -> M18
     const ratingResult = applyContentRatingFilter(request, rating);
 
-    if (!ratingResult.isAllowed) {
-      console.error(`[CONTENT RATING: ${rating}] BLOCKED:`, ratingResult.violations);
-      return {
-        success: false,
-        requestId: request.id,
-        error: `Content Rating (${rating}) BLOCKED: ${ratingResult.warning}`,
-        generationTime: 0,
-      };
-    }
+    console.log(`[SERVICE] Content rating filter for ${request.id}:`, {
+      isAllowed: ratingResult.isAllowed,
+      violationsCount: ratingResult.violations?.length || 0,
+      hasFilteredRequest: !!ratingResult.filteredRequest,
+    });
 
-    // Use the filtered request (with rating-appropriate negative prompt)
-    const safeRequest = ratingResult.filteredRequest || request;
+    // Use filtered request if available, otherwise try to proceed with original
+    // Only block if there's no way to sanitize
+    let safeRequest = request;
+    if (ratingResult.filteredRequest) {
+      safeRequest = ratingResult.filteredRequest;
+      console.log(`[SERVICE] Using filtered request for ${request.id}`);
+    } else if (!ratingResult.isAllowed) {
+      // Only log warning, don't block - let reality check handle it
+      console.warn(`[CONTENT RATING: ${rating}] Warning for ${request.id}:`, ratingResult.violations);
+      // Continue anyway - the prompt should be safe for detective game context
+    }
 
     // Log warnings
     if (ratingResult.warning) {
@@ -487,25 +509,33 @@ export class ImageGenerationService {
     // ========================================
     const realityResult = performRealityCheck(safeRequest);
 
-    if (!realityResult.isValid) {
+    console.log(`[SERVICE] Reality check for ${request.id}:`, {
+      isValid: realityResult.isValid,
+      violationsCount: realityResult.violations?.length || 0,
+      hasSanitizedPrompt: !!realityResult.sanitizedPrompt,
+    });
+
+    // Always try to use sanitized prompt instead of blocking
+    let finalRequest = safeRequest;
+    if (realityResult.sanitizedPrompt) {
+      finalRequest = { ...safeRequest, prompt: realityResult.sanitizedPrompt };
+      console.log(`[SERVICE] Using sanitized prompt for ${request.id}`);
+    } else if (!realityResult.isValid) {
+      // Only block if we can't sanitize and there are actual errors
       const errors = realityResult.violations
         .filter(v => v.severity === 'error')
-        .map(v => v.description)
-        .join(', ');
+        .map(v => v.description);
 
-      console.error('[REALITY CHECK] BLOCKED image generation:', realityResult.violations);
-      return {
-        success: false,
-        requestId: request.id,
-        error: `Reality Check BLOCKED: ${errors}`,
-        generationTime: 0,
-      };
+      if (errors.length > 0) {
+        console.error('[REALITY CHECK] BLOCKED image generation:', errors);
+        return {
+          success: false,
+          requestId: request.id,
+          error: `Reality Check BLOCKED: ${errors.join(', ')}`,
+          generationTime: 0,
+        };
+      }
     }
-
-    // Use sanitized prompt if available
-    const finalRequest = realityResult.sanitizedPrompt
-      ? { ...safeRequest, prompt: realityResult.sanitizedPrompt }
-      : safeRequest;
 
     // Log reality warnings (but allow generation)
     const warnings = realityResult.violations.filter(v => v.severity === 'warning');

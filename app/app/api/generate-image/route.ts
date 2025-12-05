@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
 
     // Validate request
     if (!body.imageRequest) {
+      console.error('[API] Missing imageRequest in body');
       return NextResponse.json(
         { error: 'Missing imageRequest in body' },
         { status: 400 }
@@ -62,6 +63,16 @@ export async function POST(request: NextRequest) {
 
     const imageRequest = body.imageRequest as ImageGenerationRequest;
     const saveToPublic = body.saveToPublic ?? false;
+
+    // DEBUG: Log request details
+    console.log(`[API] Image request received:`, {
+      id: imageRequest.id,
+      type: imageRequest.type,
+      promptLength: imageRequest.prompt?.length || 0,
+      negativePromptLength: imageRequest.negativePrompt?.length || 0,
+      width: imageRequest.width,
+      height: imageRequest.height,
+    });
 
     const service = getImageGenerationService();
 
@@ -84,9 +95,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate the image
+    console.log(`[API] Generating image for ${imageRequest.type}: ${imageRequest.id}`);
     const result = await service.generateImage(imageRequest);
+    console.log(`[API] Generation result for ${imageRequest.id}:`, {
+      success: result.success,
+      error: result.error,
+      hasImage: !!result.imageBase64,
+      generationTime: result.generationTime,
+    });
 
     if (!result.success) {
+      console.error(`[API] Image generation FAILED for ${imageRequest.id}:`, result.error);
       return NextResponse.json(
         {
           error: 'Image generation failed',
