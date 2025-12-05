@@ -1,9 +1,16 @@
 'use client';
 
 import { useMusic } from '@/contexts/MusicContext';
+import { usePathname } from 'next/navigation';
 
 export default function MusicPlayer() {
   const { isMuted, isPlaying, toggleMute, volume, setVolume, skipTrack, currentTrack } = useMusic();
+  const pathname = usePathname();
+
+  // Don't render music player on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVolume(parseFloat(e.target.value));

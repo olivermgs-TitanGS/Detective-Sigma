@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 
 // Define music themes for different page contexts
 export type MusicTheme = 'menu' | 'cases' | 'investigation' | 'quiz' | 'results' | 'credits' | 'registration' | 'silent';
@@ -74,11 +75,23 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolumeState] = useState(0.5);
+  const pathname = usePathname();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playlistRef = useRef<string[]>([]);
   const themeRef = useRef<MusicTheme>('menu');
   const hasStartedRef = useRef(false);
+
+  // Check if on admin pages - disable music completely
+  const isAdminPage = pathname?.startsWith('/admin');
+
+  // Stop music on admin pages
+  useEffect(() => {
+    if (isAdminPage && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  }, [isAdminPage]);
 
   // Keep refs in sync
   useEffect(() => {
@@ -110,6 +123,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
     // Global listener to start music on ANY interaction
     const startMusic = () => {
+      // Don't start music on admin pages
+      if (window.location.pathname.startsWith('/admin')) return;
       if (hasStartedRef.current) return;
 
       const audio = audioRef.current;
@@ -183,7 +198,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   // Play track when playlist or index changes
   useEffect(() => {
-    if (!audioRef.current || playlist.length === 0 || isMuted) return;
+    if (!audioRef.current || playlist.length === 0 || isMuted || isAdminPage) return;
 
     const audio = audioRef.current;
     const track = playlist[currentTrackIndex];
@@ -208,7 +223,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         // Will start on interaction
         setIsPlaying(false);
       });
-  }, [playlist, currentTrackIndex, isMuted, currentTheme]);
+  }, [playlist, currentTrackIndex, isMuted, currentTheme, isAdminPage]);
 
   // Update volume
   useEffect(() => {
