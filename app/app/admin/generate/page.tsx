@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { lookupName, getEthnicityInfo, type Ethnicity } from '@/lib/names-database';
 
 type Difficulty = 'ROOKIE' | 'INSPECTOR' | 'DETECTIVE' | 'CHIEF';
 type Subject = 'MATH' | 'SCIENCE' | 'INTEGRATED';
@@ -180,23 +181,34 @@ export default function GenerateCasePage() {
     const maleRoles = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male|pakcik|abang|encik|sir)\b/i;
 
     let gender = 'person';
-    // Check ALL parts of name (surname can be first OR last in Singapore)
-    const nameParts = name.split(/[\s-]+/); // Split by space or hyphen
     let foundGender = false;
 
-    for (const part of nameParts) {
-      if (femaleNames.test(part)) {
-        gender = 'woman';
-        foundGender = true;
-        break;
-      } else if (maleNames.test(part)) {
-        gender = 'man';
-        foundGender = true;
-        break;
+    // PRIORITY 1: Try database lookup (guaranteed accurate for names from our database)
+    const dbLookup = lookupName(name);
+    if (dbLookup) {
+      gender = dbLookup.gender === 'female' ? 'woman' : 'man';
+      foundGender = true;
+    }
+
+    // PRIORITY 2: Fallback to regex patterns (for legacy names not in database)
+    if (!foundGender) {
+      // Check ALL parts of name (surname can be first OR last in Singapore)
+      const nameParts = name.split(/[\s-]+/); // Split by space or hyphen
+
+      for (const part of nameParts) {
+        if (femaleNames.test(part)) {
+          gender = 'woman';
+          foundGender = true;
+          break;
+        } else if (maleNames.test(part)) {
+          gender = 'man';
+          foundGender = true;
+          break;
+        }
       }
     }
 
-    // If name didn't match, check roles
+    // PRIORITY 3: Check roles if name detection failed
     if (!foundGender) {
       if (femaleRoles.test(roleText)) {
         gender = 'woman';
@@ -323,6 +335,19 @@ export default function GenerateCasePage() {
   // IMPORTANT: Race is determined by NAME only, never by religion
   // This respects Singapore's multi-racial, multi-religious society
   const inferEthnicity = (name: string): { ethnicity: string; skinTone: string; features: string; race: string } => {
+    // PRIORITY 1: Try database lookup (guaranteed accurate for names from our database)
+    const dbLookup = lookupName(name);
+    if (dbLookup) {
+      const info = getEthnicityInfo(dbLookup.ethnicity);
+      return {
+        race: info.race,
+        ethnicity: info.ethnicity,
+        skinTone: info.skinTone,
+        features: info.features
+      };
+    }
+
+    // PRIORITY 2: Fallback to regex patterns (for legacy names not in database)
     // Split name into parts - surname can be FIRST or LAST in Singapore
     const nameParts = name.split(/[\s-]+/);
 
