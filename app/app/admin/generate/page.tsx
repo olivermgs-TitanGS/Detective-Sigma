@@ -528,7 +528,10 @@ export default function GenerateCasePage() {
       }
 
       // 3. Generate suspect portraits
+      console.log(`[DEBUG] Starting suspect portrait generation. Total suspects: ${caseData.suspects?.length || 0}`);
+      console.log(`[DEBUG] Suspect IDs:`, caseData.suspects?.map(s => s.id) || []);
       for (const suspect of (caseData.suspects || [])) {
+        console.log(`[DEBUG] Processing suspect: ${suspect.name} (ID: ${suspect.id})`);
         setImageGenProgress({ current: `Suspect: ${suspect.name}`, completed, total: totalImages });
         const ethnicityInfo = inferEthnicity(suspect.name);
         const personInfo = parsePersonInfo(suspect.name, suspect.role);
@@ -791,34 +794,55 @@ export default function GenerateCasePage() {
 
         const negativePrompt = negativePromptParts.join(', ');
 
-        const suspectResponse = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            imageRequest: {
-              id: `suspect-${suspect.id}`,
-              type: 'suspect',
-              prompt: portraitPrompt,
-              negativePrompt: negativePrompt,
-              width: 512, height: 512,
-              // Use lower CFG for more natural results
-              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 30, cfgScale: 6 },
-              metadata: { suspectId: suspect.id, name: suspect.name, gender: personInfo.gender, age: personInfo.age },
-            },
-            saveToPublic: false,
-          }),
+        // DEBUG: Log prompt details before sending
+        console.log(`[DEBUG] Suspect ${suspect.name} prompt details:`, {
+          promptLength: portraitPrompt.length,
+          negativePromptLength: negativePrompt.length,
+          promptPreview: portraitPrompt.substring(0, 200) + '...',
         });
-        const suspectData = await suspectResponse.json();
-        console.log(`[DEBUG] Suspect ${suspect.name} (ID: ${suspect.id}):`, {
-          status: suspectResponse.status,
-          success: suspectData.success,
-          hasUrl: !!suspectData.imageUrl,
-          error: suspectData.error,
-          urlLength: suspectData.imageUrl?.length
-        });
-        if (suspectResponse.ok && suspectData.success && suspectData.imageUrl) {
-          newImages.suspects[suspect.id] = suspectData.imageUrl;
-          console.log(`[DEBUG] Stored image for suspect ${suspect.id}, key exists:`, !!newImages.suspects[suspect.id]);
+
+        try {
+          const suspectResponse = await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              imageRequest: {
+                id: `suspect-${suspect.id}`,
+                type: 'suspect',
+                prompt: portraitPrompt,
+                negativePrompt: negativePrompt,
+                width: 512, height: 512,
+                // Use lower CFG for more natural results
+                settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 30, cfgScale: 6 },
+                metadata: { suspectId: suspect.id, name: suspect.name, gender: personInfo.gender, age: personInfo.age },
+              },
+              saveToPublic: false,
+            }),
+          });
+
+          if (!suspectResponse.ok) {
+            console.error(`[DEBUG] Suspect ${suspect.name} API error: HTTP ${suspectResponse.status}`);
+            const errorText = await suspectResponse.text();
+            console.error(`[DEBUG] Error response:`, errorText);
+          } else {
+            const suspectData = await suspectResponse.json();
+            console.log(`[DEBUG] Suspect ${suspect.name} (ID: ${suspect.id}):`, {
+              status: suspectResponse.status,
+              success: suspectData.success,
+              hasUrl: !!suspectData.imageUrl,
+              error: suspectData.error,
+              details: suspectData.details,
+              urlLength: suspectData.imageUrl?.length
+            });
+            if (suspectData.success && suspectData.imageUrl) {
+              newImages.suspects[suspect.id] = suspectData.imageUrl;
+              console.log(`[DEBUG] Stored image for suspect ${suspect.id}, key exists:`, !!newImages.suspects[suspect.id]);
+            } else {
+              console.error(`[DEBUG] Suspect ${suspect.name} generation failed:`, suspectData.error || suspectData.details);
+            }
+          }
+        } catch (fetchError) {
+          console.error(`[DEBUG] Suspect ${suspect.name} fetch exception:`, fetchError);
         }
         completed++;
         setGeneratedImages({ ...newImages });
