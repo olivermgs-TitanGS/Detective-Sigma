@@ -40,10 +40,20 @@ export interface BatchGenerationResult {
 // DEFAULT CONFIGURATION
 // ============================================
 
+// Use COMFYUI_REMOTE_URL (Cloudflare Tunnel) if available, otherwise fall back to IMAGE_GEN_URL
+// This allows Vercel to connect to your local ComfyUI via Cloudflare Tunnel (FREE)
+const getComfyUIBaseUrl = (): string => {
+  // Priority: Remote tunnel URL > Local URL > Default
+  if (process.env.COMFYUI_REMOTE_URL) {
+    return process.env.COMFYUI_REMOTE_URL;
+  }
+  return process.env.IMAGE_GEN_URL || 'http://localhost:8188';
+};
+
 const defaultConfig: ImageGenerationConfig = {
   backend: 'comfyui',
-  baseUrl: process.env.IMAGE_GEN_URL || 'http://localhost:8188',
-  timeout: 120000, // 2 minutes per image
+  baseUrl: getComfyUIBaseUrl(),
+  timeout: 180000, // 3 minutes for remote connections
 };
 
 // ============================================
@@ -487,9 +497,9 @@ export function getImageGenerationService(): ImageGenerationService {
   if (!serviceInstance) {
     serviceInstance = new ImageGenerationService({
       backend: (process.env.IMAGE_GEN_BACKEND as ImageGenerationBackend) || 'comfyui',
-      baseUrl: process.env.IMAGE_GEN_URL || 'http://localhost:8188',
+      baseUrl: getComfyUIBaseUrl(),
       apiKey: process.env.IMAGE_GEN_API_KEY,
-      timeout: parseInt(process.env.IMAGE_GEN_TIMEOUT || '120000'),
+      timeout: parseInt(process.env.IMAGE_GEN_TIMEOUT || '180000'),
     });
   }
   return serviceInstance;

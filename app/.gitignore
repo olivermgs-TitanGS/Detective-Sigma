@@ -38,6 +38,9 @@ yarn-error.log*
 # misc generated files
 nul
 
+# Cloudflare tunnel binary (download separately)
+cloudflared.exe
+
 # vercel
 .vercel
 
