@@ -639,13 +639,20 @@ export default function GenerateCasePage() {
 
         promptParts.push(suspect.role, expression, occupationClothing);
 
-        // Photography style - CRITICAL: FULLY CLOTHED for children's app
+        // Photography style - CRITICAL: 100% PG-13 SAFE for children's app
         promptParts.push(
-          // MANDATORY: Fully clothed - CHILDREN'S APP
-          'FULLY CLOTHED', 'wearing complete outfit', 'modest clothing', 'appropriate attire',
-          'professional ID photo', 'passport photo style',
+          // ============================================================
+          // MANDATORY: CONSERVATIVE MODEST ATTIRE - CHILDREN'S APP
+          // ============================================================
+          'FULLY CLOTHED', 'wearing complete conservative outfit',
+          'MODEST clothing', 'CONSERVATIVE attire', 'appropriate family-friendly attire',
+          'professional formal attire', 'covered shoulders', 'covered arms',
+          'long sleeves preferred', 'high neckline', 'no skin showing',
+          'buttoned up shirt', 'formal professional look',
+          // ============================================================
+          'professional ID photo', 'passport photo style', 'corporate headshot',
           'front facing', 'looking at camera',
-          'neutral expression', 'natural pose',
+          'neutral professional expression', 'natural dignified pose',
           'soft natural lighting', 'plain white background',
           // Skin realism - CRITICAL
           'natural human skin only', 'realistic skin texture', 'natural skin pores',
@@ -653,7 +660,9 @@ export default function GenerateCasePage() {
           'NO fantasy colors', 'NO unnatural skin',
           // Technical
           'high resolution', 'sharp focus', 'detailed',
-          '35mm photograph', 'natural colors only'
+          '35mm photograph', 'natural colors only',
+          // SAFE FOR CHILDREN
+          'family friendly', 'appropriate for children', 'educational content'
         );
 
         const portraitPrompt = promptParts.join(', ');
@@ -663,7 +672,8 @@ export default function GenerateCasePage() {
         // CRITICAL: ZERO TOLERANCE FOR NUDITY - THIS IS A CHILDREN'S EDUCATIONAL APP
         const negativePromptParts = [
           // =========================================================
-          // ABSOLUTE PRIORITY #1: BLOCK ALL NSFW/NUDITY - CHILDREN'S APP
+          // ABSOLUTE PRIORITY #1: BLOCK ALL NSFW/REVEALING - CHILDREN'S APP
+          // 100% PG-13 SAFE - ZERO TOLERANCE FOR ANY REVEALING CONTENT
           // =========================================================
           'NSFW', 'nude', 'naked', 'nudity', 'bare skin', 'exposed skin',
           'topless', 'shirtless', 'no clothes', 'no shirt', 'no pants',
@@ -675,6 +685,26 @@ export default function GenerateCasePage() {
           'bedroom', 'bed scene', 'intimate', 'sensual',
           'skin showing', 'bare shoulders', 'bare legs', 'bare arms',
           'see through', 'transparent clothing', 'wet clothes',
+          // =========================================================
+          // BLOCK SEXY/PROVOCATIVE - MANDATORY FOR CHILDREN'S APP
+          // =========================================================
+          'sexy woman', 'sexy lady', 'sexy girl', 'attractive woman',
+          'beautiful woman', 'pretty girl', 'hot girl', 'hot woman',
+          'model', 'fashion model', 'glamour', 'glamorous',
+          'flirty', 'flirtatious', 'alluring', 'tempting', 'provocative',
+          'voluptuous', 'curvy', 'busty', 'large breasts', 'big breasts',
+          'short skirt', 'miniskirt', 'short dress', 'tight dress',
+          'sleeveless', 'strapless', 'backless', 'halter top',
+          'crop top', 'tank top', 'spaghetti straps', 'off shoulder',
+          'v-neck', 'deep neckline', 'plunging neckline',
+          'form fitting', 'body hugging', 'figure hugging',
+          'leggings', 'yoga pants', 'skinny jeans', 'bodysuit',
+          'stockings', 'fishnets', 'garter', 'thigh high',
+          'high heels', 'stilettos', 'platform heels',
+          'makeup', 'heavy makeup', 'lipstick', 'mascara', 'eyeshadow',
+          'pouty lips', 'bedroom eyes', 'seductive look', 'seductive pose',
+          'pin up', 'pinup', 'bombshell', 'femme fatale',
+          'revealing', 'exposed', 'showing skin', 'body exposure',
           // =========================================================
           // Quality
           'score_6, score_5, score_4, score_3',
