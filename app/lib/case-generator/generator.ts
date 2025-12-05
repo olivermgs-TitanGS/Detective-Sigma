@@ -816,9 +816,14 @@ export async function saveGeneratedCase(
   }
 
   // Create suspects (with images matched by original ID)
+  console.log('[DB SAVE] Suspect image lookup:', {
+    availableImageKeys: Object.keys(images.suspects || {}),
+    suspectIds: generatedCase.suspects.map(s => s.id),
+  });
   for (const suspect of generatedCase.suspects) {
     // Look up image by original suspect ID
-    const suspectImageUrl = images.suspects[suspect.id] || null;
+    const suspectImageUrl = images.suspects?.[suspect.id] || null;
+    console.log(`[DB SAVE] Suspect ${suspect.name} (${suspect.id}): imageUrl = ${suspectImageUrl ? 'YES (' + suspectImageUrl.length + ' chars)' : 'NULL'}`);
     await prisma.suspect.create({
       data: {
         caseId: newCase.id,

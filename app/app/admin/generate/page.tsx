@@ -142,6 +142,16 @@ export default function GenerateCasePage() {
     try {
       // Include generated images in the save payload
       // The save API will match images to records by name/index
+      console.log('[DEBUG] Saving case with images:', {
+        hasCover: !!generatedImages.cover,
+        suspectCount: Object.keys(generatedImages.suspects).length,
+        suspectIds: Object.keys(generatedImages.suspects),
+        sceneCount: Object.keys(generatedImages.scenes).length,
+        sceneIds: Object.keys(generatedImages.scenes),
+        clueCount: Object.keys(generatedImages.clues).length,
+      });
+      console.log('[DEBUG] Suspect IDs in generated case:', generatedCase?.suspects?.map(s => s.id));
+
       const response = await fetch('/api/admin/generate/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -798,9 +808,17 @@ export default function GenerateCasePage() {
             saveToPublic: false,
           }),
         });
-        if (suspectResponse.ok) {
-          const data = await suspectResponse.json();
-          if (data.success && data.imageUrl) newImages.suspects[suspect.id] = data.imageUrl;
+        const suspectData = await suspectResponse.json();
+        console.log(`[DEBUG] Suspect ${suspect.name} (ID: ${suspect.id}):`, {
+          status: suspectResponse.status,
+          success: suspectData.success,
+          hasUrl: !!suspectData.imageUrl,
+          error: suspectData.error,
+          urlLength: suspectData.imageUrl?.length
+        });
+        if (suspectResponse.ok && suspectData.success && suspectData.imageUrl) {
+          newImages.suspects[suspect.id] = suspectData.imageUrl;
+          console.log(`[DEBUG] Stored image for suspect ${suspect.id}, key exists:`, !!newImages.suspects[suspect.id]);
         }
         completed++;
         setGeneratedImages({ ...newImages });
