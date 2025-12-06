@@ -194,8 +194,18 @@ export default function CaseLibrary() {
                   {/* Folder Content */}
                   <div className="flex items-start gap-6">
                     {/* Left side - Case icon/image */}
-                    <div className={`text-6xl ${isSolved ? 'grayscale opacity-50' : ''}`}>
-                      {caseItem.coverImage || '🔍'}
+                    <div className={`w-20 h-20 flex-shrink-0 ${isSolved ? 'grayscale opacity-50' : ''}`}>
+                      {caseItem.coverImage ? (
+                        <img
+                          src={caseItem.coverImage}
+                          alt={caseItem.title}
+                          className="w-full h-full object-cover rounded-lg border-2 border-stone-400 shadow-md"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-5xl bg-stone-300 rounded-lg">
+                          🔍
+                        </div>
+                      )}
                     </div>
 
                     {/* Center - Case Info */}
