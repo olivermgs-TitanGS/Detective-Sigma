@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useCallback, ReactNode, useEffect } from 'react';
+import { playSynthSound, SynthSoundType, ensureAudioContext } from '@/lib/audio/synth-sounds';
 
 // Sound effect types
 export type SoundEffect =
@@ -33,7 +34,7 @@ export type SoundEffect =
   | 'modalClose'
   | 'notification';
 
-// Sound effect file paths (you can add actual audio files to public/sfx/)
+// Sound effect file paths (optional - synthetic sounds used as fallback)
 const SOUND_EFFECTS: Record<SoundEffect, string> = {
   // Original sounds
   click: '/sfx/click.mp3',
@@ -75,6 +76,8 @@ interface SoundEffectsContextType {
   volume: number;
   setVolume: (volume: number) => void;
   preloadSounds: () => void;
+  useSyntheticSounds: boolean;
+  setUseSyntheticSounds: (use: boolean) => void;
 }
 
 const SoundEffectsContext = createContext<SoundEffectsContextType | undefined>(undefined);
@@ -86,7 +89,9 @@ interface SoundEffectsProviderProps {
 export function SoundEffectsProvider({ children }: SoundEffectsProviderProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolumeState] = useState(0.5);
+  const [useSyntheticSounds, setUseSyntheticSounds] = useState(true); // Default to synthetic
   const audioRefs = useRef<Map<SoundEffect, HTMLAudioElement>>(new Map());
+  const failedSounds = useRef<Set<SoundEffect>>(new Set());
   const preloadedRef = useRef(false);
 
   // Initialize audio elements
@@ -94,12 +99,10 @@ export function SoundEffectsProvider({ children }: SoundEffectsProviderProps) {
     if (typeof window === 'undefined') return;
 
     // Create audio elements for each sound
-    Object.entries(SOUND_EFFECTS).forEach(([key, path]) => {
+    Object.entries(SOUND_EFFECTS).forEach(([key]) => {
       const audio = new Audio();
       audio.preload = 'auto';
       audio.volume = volume;
-      // Only set src when the file exists - for now use placeholder behavior
-      // audio.src = path;
       audioRefs.current.set(key as SoundEffect, audio);
     });
 
@@ -139,6 +142,18 @@ export function SoundEffectsProvider({ children }: SoundEffectsProviderProps) {
   const playSound = useCallback((sound: SoundEffect) => {
     if (isMuted) return;
 
+    // Use synthetic sounds if enabled or if the audio file previously failed
+    if (useSyntheticSounds || failedSounds.current.has(sound)) {
+      try {
+        ensureAudioContext();
+        playSynthSound(sound as SynthSoundType);
+      } catch (err) {
+        console.debug(`Synthetic sound "${sound}" failed:`, err);
+      }
+      return;
+    }
+
+    // Try to play audio file
     const audio = audioRefs.current.get(sound);
     if (audio) {
       // Ensure sound is loaded
@@ -149,11 +164,18 @@ export function SoundEffectsProvider({ children }: SoundEffectsProviderProps) {
       // Reset and play
       audio.currentTime = 0;
       audio.play().catch((err) => {
-        // Silently fail if audio can't play (file not found, etc.)
-        console.debug(`Sound effect "${sound}" not available:`, err.message);
+        // Fallback to synthetic sound
+        console.debug(`Sound file "${sound}" not available, using synthetic:`, err.message);
+        failedSounds.current.add(sound);
+        try {
+          ensureAudioContext();
+          playSynthSound(sound as SynthSoundType);
+        } catch (synthErr) {
+          console.debug(`Synthetic fallback also failed:`, synthErr);
+        }
       });
     }
-  }, [isMuted]);
+  }, [isMuted, useSyntheticSounds]);
 
   // Stop a specific sound
   const stopSound = useCallback((sound: SoundEffect) => {
@@ -191,6 +213,8 @@ export function SoundEffectsProvider({ children }: SoundEffectsProviderProps) {
     volume,
     setVolume,
     preloadSounds,
+    useSyntheticSounds,
+    setUseSyntheticSounds,
   };
 
   return (
@@ -228,4 +252,14 @@ export function useSoundAction(sound: SoundEffect) {
   return useCallback(() => {
     playSound(sound);
   }, [playSound, sound]);
+}
+
+// Hook to get sound handlers for buttons
+export function useButtonSounds() {
+  const { playSound } = useSoundEffects();
+
+  return {
+    onClick: useCallback(() => playSound('buttonClick'), [playSound]),
+    onMouseEnter: useCallback(() => playSound('buttonHover'), [playSound]),
+  };
 }

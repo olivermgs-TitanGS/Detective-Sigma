@@ -9,6 +9,8 @@ import MusicThemeSetter from '@/components/MusicThemeSetter';
 import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
 import { useStats } from '@/lib/hooks/useStats';
+import { SoundButton, SoundLink } from '@/components/ui/SoundButton';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,6 +21,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const { stats } = useStats();
+  const { playSound } = useSoundEffects();
 
   useEffect(() => {
     // Trigger animations after mount
@@ -28,6 +31,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    playSound('folderOpen');
     setError('');
     setIsLoading(true);
 
@@ -272,17 +276,19 @@ export default function LoginPage() {
                   REMEMBER AGENT
                 </span>
               </label>
-              <Link
+              <SoundLink
                 href="/forgot-password"
+                clickSound="paperRustle"
                 className="text-amber-400/70 hover:text-amber-400 transition-colors font-mono text-xs tracking-wider"
               >
                 LOST CREDENTIALS?
-              </Link>
+              </SoundLink>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
+              onMouseEnter={() => playSound('buttonHover')}
               className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed hover:scale-[1.02] relative overflow-hidden group"
               style={{
                 background: isLoading
@@ -328,7 +334,11 @@ export default function LoginPage() {
             {/* Google OAuth */}
             <button
               type="button"
-              onClick={() => signIn('google', { callbackUrl: '/student/dashboard' })}
+              onClick={() => {
+                playSound('buttonClick');
+                signIn('google', { callbackUrl: '/student/dashboard' });
+              }}
+              onMouseEnter={() => playSound('buttonHover')}
               disabled={isLoading}
               className="w-full py-3 rounded font-bold tracking-wider transition-all hover:scale-[1.02] flex items-center justify-center gap-3 group"
               style={{
@@ -357,8 +367,9 @@ export default function LoginPage() {
               🕵️ RECRUIT NEW OPERATIVES
             </p>
             <div className="space-y-3">
-              <Link
+              <SoundLink
                 href="/register/student"
+                clickSound="paperRustle"
                 className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02] font-mono group relative overflow-hidden"
                 style={{
                   background: 'rgba(255, 215, 0, 0.1)',
@@ -369,9 +380,10 @@ export default function LoginPage() {
               >
                 <span className="relative z-10">🎓 ENLIST AS JUNIOR DETECTIVE</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/20 to-amber-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
-              </Link>
-              <Link
+              </SoundLink>
+              <SoundLink
                 href="/register/teacher"
+                clickSound="folderOpen"
                 className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02] font-mono group relative overflow-hidden"
                 style={{
                   background: 'rgba(255, 149, 0, 0.1)',
@@ -382,7 +394,7 @@ export default function LoginPage() {
               >
                 <span className="relative z-10">🎖️ APPLY AS SENIOR INVESTIGATOR</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/20 to-orange-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
-              </Link>
+              </SoundLink>
             </div>
           </div>
 
@@ -409,6 +421,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={async () => {
+                    playSound('achievement');
                     setIsLoading(true);
                     setError('');
                     const result = await signIn('credentials', {
@@ -424,6 +437,7 @@ export default function LoginPage() {
                       router.refresh();
                     }
                   }}
+                  onMouseEnter={() => playSound('buttonHover')}
                   disabled={isLoading}
                   className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
                   style={{
@@ -437,6 +451,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={async () => {
+                    playSound('achievement');
                     setIsLoading(true);
                     setError('');
                     const result = await signIn('credentials', {
@@ -452,6 +467,7 @@ export default function LoginPage() {
                       router.refresh();
                     }
                   }}
+                  onMouseEnter={() => playSound('buttonHover')}
                   disabled={isLoading}
                   className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
                   style={{
@@ -465,6 +481,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={async () => {
+                    playSound('achievement');
                     setIsLoading(true);
                     setError('');
                     const result = await signIn('credentials', {
@@ -480,6 +497,7 @@ export default function LoginPage() {
                       router.refresh();
                     }
                   }}
+                  onMouseEnter={() => playSound('buttonHover')}
                   disabled={isLoading}
                   className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
                   style={{

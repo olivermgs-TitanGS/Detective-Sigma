@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SoundLink } from '@/components/ui/SoundButton';
 import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
 import MusicThemeSetter from '@/components/MusicThemeSetter';
@@ -208,8 +208,9 @@ export default function Home() {
               transition={{ delay: 2.5, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <Link
+              <SoundLink
                 href="/login"
+                clickSound="folderOpen"
                 className="group relative px-8 py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all hover:scale-105 overflow-hidden"
                 style={{
                   background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
@@ -221,9 +222,10 @@ export default function Home() {
               >
                 <span className="relative z-10">⚡ BEGIN INVESTIGATION</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </Link>
-              <Link
+              </SoundLink>
+              <SoundLink
                 href="/register/student"
+                clickSound="paperRustle"
                 className="group px-8 py-4 rounded font-bold text-lg tracking-[0.15em] uppercase transition-all hover:scale-105 font-mono"
                 style={{
                   background: 'rgba(255, 215, 0, 0.1)',
@@ -233,7 +235,7 @@ export default function Home() {
                 }}
               >
                 🎓 JOIN THE AGENCY
-              </Link>
+              </SoundLink>
             </motion.div>
           </motion.div>
 
@@ -410,8 +412,9 @@ export default function Home() {
               UNSOLVED MYSTERIES PILE UP BY THE HOUR. THE CITY NEEDS YOUR SHARP MIND.
               WILL YOU ANSWER THE CALL, DETECTIVE?
             </p>
-            <Link
+            <SoundLink
               href="/login"
+              clickSound="achievement"
               className="inline-block group relative px-10 py-5 rounded font-black text-xl tracking-[0.2em] uppercase transition-all hover:scale-105 overflow-hidden"
               style={{
                 background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
@@ -423,7 +426,7 @@ export default function Home() {
             >
               <span className="relative z-10">🔓 ACCEPT THE MISSION</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-            </Link>
+            </SoundLink>
           </motion.div>
         </section>
 
