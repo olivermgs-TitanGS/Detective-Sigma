@@ -15,7 +15,8 @@ const securityHeaders = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
 };
 
-// Rate limiting state (in-memory, for production use Redis)
+// Rate limiting state (in-memory, for production use Redis/Upstash)
+// Note: In serverless environments, this is per-instance and not shared
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 function getRateLimitKey(ip: string, path: string): string {
@@ -29,28 +30,24 @@ function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(key);
 
-  if (!entry || now > entry.resetTime) {
+  // Clean expired entries opportunistically (instead of setInterval)
+  if (entry && now > entry.resetTime) {
+    rateLimitMap.delete(key);
+  }
+
+  const currentEntry = rateLimitMap.get(key);
+  if (!currentEntry) {
     rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
     return true;
   }
 
-  if (entry.count >= limit) {
+  if (currentEntry.count >= limit) {
     return false;
   }
 
-  entry.count++;
+  currentEntry.count++;
   return true;
 }
-
-// Clean up old entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitMap.entries()) {
-    if (now > entry.resetTime) {
-      rateLimitMap.delete(key);
-    }
-  }
-}, 60000); // Every minute
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

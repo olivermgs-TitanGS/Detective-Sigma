@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering - this page requires database access
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET /api/cases/[caseId] - Get case details
 export async function GET(
   request: Request,
-  { params }: { params: { caseId: string } }
+  { params }: { params: Promise<{ caseId: string }> }
 ) {
   try {
+    const { caseId } = await params;
     const caseData = await prisma.case.findUnique({
-      where: { id: params.caseId },
+      where: { id: caseId },
       include: {
         scenes: {
           include: {
@@ -41,13 +46,14 @@ export async function GET(
 // PATCH /api/cases/[caseId] - Update case (Admin only)
 export async function PATCH(
   request: Request,
-  { params }: { params: { caseId: string } }
+  { params }: { params: Promise<{ caseId: string }> }
 ) {
   try {
+    const { caseId } = await params;
     const body = await request.json();
 
     const updatedCase = await prisma.case.update({
-      where: { id: params.caseId },
+      where: { id: caseId },
       data: body,
     });
 
@@ -64,11 +70,12 @@ export async function PATCH(
 // DELETE /api/cases/[caseId] - Delete case (Admin only)
 export async function DELETE(
   request: Request,
-  { params }: { params: { caseId: string } }
+  { params }: { params: Promise<{ caseId: string }> }
 ) {
   try {
+    const { caseId } = await params;
     await prisma.case.delete({
-      where: { id: params.caseId },
+      where: { id: caseId },
     });
 
     return NextResponse.json({ message: 'Case deleted successfully' });

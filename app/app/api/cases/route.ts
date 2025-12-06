@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering - this page requires database access
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET /api/cases - List all cases (with optional filters)
 export async function GET(request: Request) {
   try {
