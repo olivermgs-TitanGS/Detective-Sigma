@@ -82,6 +82,10 @@ export interface EvidenceChain {
 // EVIDENCE TEMPLATES BY CRIME TYPE
 // ============================================
 
+// Scene types for semantic placement
+type SceneTypeHint = 'primary' | 'security' | 'work_area' | 'investigation' | 'resolution';
+type PositionHint = 'floor' | 'surface' | 'wall' | 'screen' | 'desk' | 'cabinet' | 'locker' | 'lab_bench' | 'table';
+
 interface EvidenceTemplate {
   name: string;
   type: EvidenceType;
@@ -90,6 +94,10 @@ interface EvidenceTemplate {
   analysisResult: string;
   discoveryMethod: string;
   pointsToGuilty: boolean;
+  // Semantic placement hints
+  sceneTypeHint: SceneTypeHint;  // Which scene type this evidence belongs to
+  positionHint: PositionHint;    // Where in the scene (floor, desk, wall, etc.)
+  location: string;              // Descriptive location for discoveryLocation
 }
 
 const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
@@ -103,6 +111,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Clear fingerprints that can be matched to suspects',
       discoveryMethod: 'Examining the container closely',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'surface',
+      location: 'Crime scene - on the container',
     },
     {
       name: 'Torn fabric piece',
@@ -112,6 +123,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Material matches a specific type of clothing',
       discoveryMethod: 'Searching the area carefully',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'surface',
+      location: 'Crime scene - caught on furniture edge',
     },
     {
       name: 'Footprints',
@@ -121,6 +135,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shoe size and pattern can narrow down suspects',
       discoveryMethod: 'Following the trail from the scene',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'floor',
+      location: 'Crime scene - on the floor',
     },
     // Documentary evidence
     {
@@ -131,6 +148,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shows who was present during the crime window',
       discoveryMethod: 'Requesting records from management',
       pointsToGuilty: true,
+      sceneTypeHint: 'security',
+      positionHint: 'desk',
+      location: 'Security office - access records desk',
     },
     {
       name: 'Receipt with timestamp',
@@ -140,6 +160,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Timestamp contradicts alibi',
       discoveryMethod: 'Searching waste bins and surfaces',
       pointsToGuilty: true,
+      sceneTypeHint: 'work_area',
+      positionHint: 'desk',
+      location: 'Suspect workspace - in waste bin',
     },
     // Digital evidence
     {
@@ -150,6 +173,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shows movement during crime window',
       discoveryMethod: 'Reviewing security footage',
       pointsToGuilty: true,
+      sceneTypeHint: 'security',
+      positionHint: 'screen',
+      location: 'Security office - CCTV monitoring station',
     },
     // Misleading evidence
     {
@@ -160,6 +186,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Belongs to an innocent person who has an alibi',
       discoveryMethod: 'Found during initial search',
       pointsToGuilty: false,
+      sceneTypeHint: 'primary',
+      positionHint: 'floor',
+      location: 'Crime scene - dropped near entrance',
     },
   ],
 
@@ -172,6 +201,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Specific tool type required - check who has access',
       discoveryMethod: 'Close examination of damage',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'surface',
+      location: 'Crime scene - damaged equipment',
     },
     {
       name: 'Chemical residue',
@@ -181,6 +213,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Specific chemical used that limited people have access to',
       discoveryMethod: 'Laboratory analysis',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'lab_bench',
+      location: 'Forensic lab - analysis results',
     },
     {
       name: 'Timeline inconsistency note',
@@ -190,6 +225,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shows someone\'s claimed schedule doesn\'t match records',
       discoveryMethod: 'Cross-referencing multiple documents',
       pointsToGuilty: true,
+      sceneTypeHint: 'work_area',
+      positionHint: 'desk',
+      location: 'Staff office - schedule board',
     },
     {
       name: 'Witness observation log',
@@ -199,6 +237,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Places suspect at scene during crime window',
       discoveryMethod: 'Interviewing all potential witnesses',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'table',
+      location: 'Investigation room - witness statements',
     },
     {
       name: 'Access card records',
@@ -208,6 +249,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Electronic log of who entered secured areas',
       discoveryMethod: 'Obtaining system records',
       pointsToGuilty: true,
+      sceneTypeHint: 'security',
+      positionHint: 'screen',
+      location: 'Security office - access control system',
     },
     {
       name: 'Motive evidence',
@@ -217,6 +261,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Reveals underlying motivation for the crime',
       discoveryMethod: 'Searching personal belongings with permission',
       pointsToGuilty: true,
+      sceneTypeHint: 'work_area',
+      positionHint: 'locker',
+      location: 'Suspect locker - personal belongings',
     },
   ],
 
@@ -229,6 +276,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Has been tampered with to show incorrect readings',
       discoveryMethod: 'Comparing with standard equipment',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'surface',
+      location: 'Crime scene - tampered equipment',
     },
     {
       name: 'Financial discrepancy records',
@@ -238,6 +288,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Numbers don\'t add up over time',
       discoveryMethod: 'Auditing financial records',
       pointsToGuilty: true,
+      sceneTypeHint: 'work_area',
+      positionHint: 'desk',
+      location: 'Office - financial records desk',
     },
     {
       name: 'Comparison receipts',
@@ -247,6 +300,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shows pattern of overcharging',
       discoveryMethod: 'Collecting customer complaints and receipts',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'table',
+      location: 'Investigation room - collected receipts',
     },
     {
       name: 'Calibration records',
@@ -256,6 +312,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Equipment calibration doesn\'t match claimed service',
       discoveryMethod: 'Requesting service history',
       pointsToGuilty: true,
+      sceneTypeHint: 'work_area',
+      positionHint: 'cabinet',
+      location: 'Maintenance office - service records',
     },
     {
       name: 'Witness statement - customer',
@@ -265,6 +324,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Confirms pattern of questionable transactions',
       discoveryMethod: 'Interviewing recent customers',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'table',
+      location: 'Investigation room - customer statements',
     },
   ],
 
@@ -277,6 +339,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Matches supplies found with suspect',
       discoveryMethod: 'Tracing purchase records',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'floor',
+      location: 'Crime scene - near vandalized wall',
     },
     {
       name: 'Security footage',
@@ -286,6 +351,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Captures figure near scene during crime window',
       discoveryMethod: 'Reviewing all available footage',
       pointsToGuilty: true,
+      sceneTypeHint: 'security',
+      positionHint: 'screen',
+      location: 'Security office - CCTV monitoring',
     },
     {
       name: 'Witness account',
@@ -295,6 +363,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Provides partial description or timing',
       discoveryMethod: 'Canvassing the area for witnesses',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'table',
+      location: 'Investigation room - witness statements',
     },
   ],
 
@@ -307,6 +378,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Dust pattern shows item was recently moved',
       discoveryMethod: 'Examining the original location',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'surface',
+      location: 'Crime scene - original storage location',
     },
     {
       name: 'Access log',
@@ -316,6 +390,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shows last person to access the item',
       discoveryMethod: 'Reviewing official logs',
       pointsToGuilty: true,
+      sceneTypeHint: 'security',
+      positionHint: 'desk',
+      location: 'Security office - access records',
     },
     {
       name: 'Hidden item discovery',
@@ -325,6 +402,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Location links to specific person',
       discoveryMethod: 'Thorough search of premises',
       pointsToGuilty: true,
+      sceneTypeHint: 'work_area',
+      positionHint: 'locker',
+      location: 'Suspect area - hidden in personal belongings',
     },
   ],
 
@@ -337,6 +417,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Handwriting matches suspect',
       discoveryMethod: 'Searching desk or belongings',
       pointsToGuilty: true,
+      sceneTypeHint: 'primary',
+      positionHint: 'desk',
+      location: 'Crime scene - exam hall desk',
     },
     {
       name: 'Digital communication',
@@ -346,6 +429,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Shows planning of cheating scheme',
       discoveryMethod: 'Reviewing communication logs',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'screen',
+      location: 'Investigation room - phone evidence',
     },
     {
       name: 'Pattern analysis',
@@ -355,6 +441,9 @@ const EVIDENCE_TEMPLATES: Record<CrimeDetails['type'], EvidenceTemplate[]> = {
       analysisResult: 'Statistical analysis shows copying',
       discoveryMethod: 'Comparing answer sheets',
       pointsToGuilty: true,
+      sceneTypeHint: 'investigation',
+      positionHint: 'table',
+      location: 'Investigation room - answer sheet analysis',
     },
   ],
 };
@@ -372,6 +461,9 @@ const CLEARING_EVIDENCE_TEMPLATES: EvidenceTemplate[] = [
     analysisResult: 'Proves suspect was elsewhere during crime window',
     discoveryMethod: 'Verifying alibi claims',
     pointsToGuilty: false,
+    sceneTypeHint: 'investigation',
+    positionHint: 'desk',
+    location: 'Investigation room - alibi documentation',
   },
   {
     name: 'CCTV alibi footage',
@@ -381,6 +473,9 @@ const CLEARING_EVIDENCE_TEMPLATES: EvidenceTemplate[] = [
     analysisResult: 'Shows suspect in different location during crime',
     discoveryMethod: 'Reviewing security footage',
     pointsToGuilty: false,
+    sceneTypeHint: 'security',
+    positionHint: 'screen',
+    location: 'Security office - alibi verification footage',
   },
   {
     name: 'Witness confirmation',
@@ -390,6 +485,9 @@ const CLEARING_EVIDENCE_TEMPLATES: EvidenceTemplate[] = [
     analysisResult: 'Multiple witnesses confirm suspect\'s alibi',
     discoveryMethod: 'Interviewing witnesses',
     pointsToGuilty: false,
+    sceneTypeHint: 'investigation',
+    positionHint: 'table',
+    location: 'Investigation room - witness statements',
   },
   {
     name: 'Physical impossibility',
@@ -399,6 +497,9 @@ const CLEARING_EVIDENCE_TEMPLATES: EvidenceTemplate[] = [
     analysisResult: 'Suspect physically couldn\'t have committed the crime',
     discoveryMethod: 'Analysis of crime requirements',
     pointsToGuilty: false,
+    sceneTypeHint: 'investigation',
+    positionHint: 'desk',
+    location: 'Investigation room - medical records',
   },
 ];
 
@@ -421,7 +522,8 @@ function createEvidenceFromTemplate(
     type: template.type,
     importance: template.importance,
     description: `${template.visualCue}. ${template.analysisResult}`,
-    location: narrativeCase.setting.location,
+    // Use template location for semantic placement, with fallback to narrative setting
+    location: template.location || narrativeCase.setting.location,
     discoveryMethod: template.discoveryMethod,
     linkedCharacterId,
     visualCue: template.visualCue,

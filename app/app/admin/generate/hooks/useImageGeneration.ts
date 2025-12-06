@@ -70,12 +70,31 @@ export function useImageGeneration() {
         setImageGenProgress({ current: `Scene: ${scene.name}`, completed, total: totalImages });
 
         // Find clues that belong to this scene for embedding in the image
+        // Use cluesAvailable for semantic mapping, include position data for zone-based embedding
         const sceneClues = (caseData.clues || []).filter(clue => {
-          // Match by scene's cluesAvailable array or by discoveryLocation containing scene name
+          // Match by scene's cluesAvailable array (semantic mapping)
           const inCluesAvailable = scene.cluesAvailable?.includes(clue.id);
+          // Fallback: match by discoveryLocation containing scene name
           const matchesLocation = clue.discoveryLocation?.toLowerCase().includes(scene.name.toLowerCase());
           return inCluesAvailable || matchesLocation;
-        });
+        }).map(clue => ({
+          title: clue.title,
+          visualCue: clue.visualCue,
+          type: clue.type,
+          positionX: clue.positionX,
+          positionY: clue.positionY,
+        }));
+
+        // Build scene object with sceneType for enhanced prompts
+        const sceneForPrompt = {
+          description: scene.description,
+          locationType: scene.locationType,
+          id: scene.id,
+          sceneType: scene.locationType?.includes('security') ? 'security' :
+                     scene.name.toLowerCase().includes('work') ? 'work_area' :
+                     scene.name.toLowerCase().includes('investigation') ? 'investigation' :
+                     scene.name.toLowerCase().includes('resolution') ? 'resolution' : 'primary',
+        };
 
         // Scene images - Realistic Vision V6.0 settings
         // Square resolution (1024x1024) for mobile-friendly display across all platforms
@@ -87,11 +106,11 @@ export function useImageGeneration() {
             imageRequest: {
               id: `scene-${scene.id}`,
               type: 'scene',
-              prompt: buildScenePrompt(scene, sceneClues),
+              prompt: buildScenePrompt(sceneForPrompt, sceneClues),
               negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human figure, deformed, disfigured, ${ratingNegatives}`,
               width: 1024, height: 1024,
               settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 30, cfgScale: 7 },
-              metadata: { sceneId: scene.id, name: scene.name, embeddedClues: sceneClues.length },
+              metadata: { sceneId: scene.id, name: scene.name, sceneType: sceneForPrompt.sceneType, embeddedClues: sceneClues.length },
             },
             saveToPublic: false,
           }),

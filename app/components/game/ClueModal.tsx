@@ -39,14 +39,21 @@ export default function ClueModal({
     fireEvidence();
     // Delay showing revealed content for dramatic effect
     if (clue.contentRevealed) {
-      const timer = setTimeout(() => setShowRevealed(true), 1500);
+      const timer = setTimeout(() => {
+        setShowRevealed(true);
+        playSound('revealSuspense'); // Dramatic reveal sound
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [clue.contentRevealed, playSound, fireEvidence]);
 
   const handleClose = () => {
-    playSound('click');
+    playSound('modalClose');
     onClose();
+  };
+
+  const handleHover = () => {
+    playSound('hoverSubtle');
   };
 
   // Get icon based on clue type
@@ -106,6 +113,7 @@ export default function ClueModal({
               </div>
               <motion.button
                 onClick={handleClose}
+                onMouseEnter={handleHover}
                 className="text-black hover:text-amber-950 text-3xl leading-none transition-colors font-bold"
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
@@ -327,6 +335,7 @@ export default function ClueModal({
           >
             <motion.button
               onClick={handleClose}
+              onMouseEnter={handleHover}
               className="w-full border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 font-mono font-bold py-3 transition-all tracking-wider"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

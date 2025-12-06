@@ -33,14 +33,33 @@ export async function GET(request: Request) {
 
     // Build quiz questions from puzzles and add a "whodunit" question
     const questions = [
-      ...caseData.puzzles.map((puzzle, index) => ({
-        id: puzzle.id,
-        question: puzzle.questionText,
-        options: puzzle.options || generateOptions(puzzle.correctAnswer),
-        correctAnswer: puzzle.correctAnswer,
-        points: puzzle.points,
-        type: 'puzzle',
-      })),
+      ...caseData.puzzles.map((puzzle, index) => {
+        // Parse options from JSON if stored, otherwise generate fallback options
+        let options: string[];
+        if (puzzle.options && Array.isArray(puzzle.options)) {
+          options = puzzle.options as string[];
+        } else if (puzzle.options && typeof puzzle.options === 'string') {
+          try {
+            options = JSON.parse(puzzle.options);
+          } catch {
+            options = generateOptions(puzzle.correctAnswer, caseData.suspects.map(s => s.name));
+          }
+        } else {
+          options = generateOptions(puzzle.correctAnswer, caseData.suspects.map(s => s.name));
+        }
+
+        return {
+          id: puzzle.id,
+          question: puzzle.questionText,
+          options,
+          correctAnswer: puzzle.correctAnswer,
+          points: puzzle.points,
+          type: 'puzzle',
+          // Include narrative context for story-driven feedback
+          narrativeContext: puzzle.narrativeContext,
+          investigationPhase: puzzle.investigationPhase,
+        };
+      }),
       // Add the final "whodunit" question
       {
         id: 'whodunit',
@@ -196,18 +215,62 @@ export async function POST(request: Request) {
   }
 }
 
-function generateOptions(correctAnswer: string): string[] {
-  // For numeric answers, generate plausible alternatives
-  const num = parseFloat(correctAnswer);
-  if (!isNaN(num)) {
+function generateOptions(correctAnswer: string, suspectNames: string[] = []): string[] {
+  // For numeric/money answers, generate plausible alternatives
+  const numMatch = correctAnswer.match(/\$?([\d,]+\.?\d*)/);
+  if (numMatch) {
+    const num = parseFloat(numMatch[1].replace(',', ''));
+    if (!isNaN(num)) {
+      const prefix = correctAnswer.startsWith('$') ? '$' : '';
+      return [
+        `${prefix}${Math.round(num * 0.85).toLocaleString()}`,
+        `${prefix}${Math.round(num * 1.15).toLocaleString()}`,
+        correctAnswer,
+        `${prefix}${Math.round(num * 0.5).toLocaleString()}`,
+      ].sort(() => Math.random() - 0.5);
+    }
+  }
+
+  // For percentage answers
+  const percentMatch = correctAnswer.match(/(\d+)%/);
+  if (percentMatch) {
+    const pct = parseInt(percentMatch[1]);
     return [
-      String(num - 10),
-      String(num - 5),
-      String(num),
-      String(num + 5),
+      `${pct}%`,
+      `${Math.max(5, pct - 15)}%`,
+      `${Math.min(95, pct + 15)}%`,
+      `${Math.max(10, pct - 25)}%`,
     ].sort(() => Math.random() - 0.5);
   }
-  return [correctAnswer];
+
+  // For yes/no type answers
+  if (correctAnswer.toLowerCase().includes('yes') || correctAnswer.toLowerCase().includes('no')) {
+    return [
+      correctAnswer,
+      correctAnswer.toLowerCase().includes('yes') ? correctAnswer.replace(/yes/i, 'No') : correctAnswer.replace(/no/i, 'Yes'),
+      'Insufficient evidence to determine',
+      'More investigation needed',
+    ].sort(() => Math.random() - 0.5);
+  }
+
+  // For suspect-related answers, use other suspect names
+  if (suspectNames.length >= 4) {
+    const otherNames = suspectNames.filter(n => !correctAnswer.includes(n));
+    if (otherNames.length >= 3) {
+      return [
+        correctAnswer,
+        ...otherNames.slice(0, 3),
+      ].sort(() => Math.random() - 0.5);
+    }
+  }
+
+  // Fallback: Return correct answer with generic alternatives
+  return [
+    correctAnswer,
+    'None of the above',
+    'Insufficient data',
+    'Cannot be determined',
+  ].sort(() => Math.random() - 0.5);
 }
 
 function generateFeedback(

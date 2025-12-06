@@ -110,6 +110,10 @@ export interface GeneratedCase {
     examinationDetails?: string[];
     relatedTopicId?: string;
     puzzleHint?: string;
+    // Scene positioning for semantic evidence placement
+    positionX?: number;
+    positionY?: number;
+    requiredPuzzleId?: string;
   }>;
   puzzles: Array<{
     id: string;
@@ -117,6 +121,7 @@ export interface GeneratedCase {
     type: 'math' | 'logic' | 'observation' | 'deduction';
     question: string;
     answer: string;
+    options?: string[];  // MCQ choices (including correct answer)
     hint: string;
     points: number;
     difficulty: number;

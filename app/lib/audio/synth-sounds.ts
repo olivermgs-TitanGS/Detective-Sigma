@@ -114,15 +114,77 @@ export function playButtonHover(): void {
   }
 }
 
-// Typewriter key press
+// Typewriter key press - subtle noir style, soft mechanical click
 export function playTypewriter(): void {
   try {
     ensureAudioContext();
-    createNoise(0.04, 0.15);
-    createTone({ frequency: 300 + Math.random() * 100, duration: 0.02, type: 'square', volume: 0.1 });
+    const ctx = getAudioContext();
+
+    // Very subtle mechanical click - noir typewriter style
+    const variation = Math.random();
+    const baseFreq = 180 + variation * 40; // Subtle frequency variation
+
+    // Soft, muffled click sound
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    // Low-pass filter to muffle the sound (like a distant typewriter)
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(800, ctx.currentTime);
+    filter.Q.setValueAtTime(0.5, ctx.currentTime);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+
+    // Very quick, soft attack and decay
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 0.003); // Very soft
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
+
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.03);
+
+    // Occasional subtle paper touch sound (10% chance)
+    if (variation > 0.9) {
+      createFilteredNoise(0.015, 0.02, 1500, 'highpass');
+    }
   } catch (e) {
     console.debug('Audio not available');
   }
+}
+
+// Create filtered noise for subtle ambient sounds
+function createFilteredNoise(duration: number, volume: number, filterFreq: number, filterType: BiquadFilterType): void {
+  const ctx = getAudioContext();
+  const bufferSize = ctx.sampleRate * duration;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+  }
+
+  const source = ctx.createBufferSource();
+  const gainNode = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+
+  filter.type = filterType;
+  filter.frequency.setValueAtTime(filterFreq, ctx.currentTime);
+
+  source.buffer = buffer;
+  gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+  source.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(ctx.destination);
+
+  source.start();
 }
 
 // Paper rustle
@@ -327,8 +389,226 @@ export function playWrong(): void {
   }
 }
 
+// ==================== NEW NOIR DETECTIVE SOUNDS ====================
+
+// Suspect selection - mysterious, intriguing tone
+export function playSuspectSelect(): void {
+  try {
+    ensureAudioContext();
+    // Low mysterious tone with slight vibrato
+    createTone({ frequency: 220, duration: 0.2, type: 'sine', volume: 0.12 });
+    createTone({ frequency: 165, duration: 0.25, type: 'sine', volume: 0.08 });
+    setTimeout(() => {
+      createTone({ frequency: 277, duration: 0.15, type: 'sine', volume: 0.1 });
+    }, 100);
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Interrogation click - dramatic button press for dialogue
+export function playInterrogation(): void {
+  try {
+    ensureAudioContext();
+    // Subtle dramatic click
+    createTone({ frequency: 180, duration: 0.08, type: 'sine', volume: 0.1 });
+    createFilteredNoise(0.03, 0.06, 600, 'lowpass');
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Page turn - soft paper sound
+export function playPageTurn(): void {
+  try {
+    ensureAudioContext();
+    // Soft swoosh with paper texture
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(400, ctx.currentTime);
+    filter.Q.setValueAtTime(0.8, ctx.currentTime);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(150, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.15);
+
+    // Add subtle paper texture
+    createFilteredNoise(0.08, 0.04, 2000, 'highpass');
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Document slide - paper sliding on desk
+export function playDocumentSlide(): void {
+  try {
+    ensureAudioContext();
+    createFilteredNoise(0.1, 0.05, 800, 'lowpass');
+    createTone({ frequency: 120, duration: 0.08, type: 'sine', volume: 0.04 });
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Reveal suspense - dramatic discovery moment
+export function playRevealSuspense(): void {
+  try {
+    ensureAudioContext();
+    const ctx = getAudioContext();
+
+    // Low suspenseful drone
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(110, ctx.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(165, ctx.currentTime + 0.4);
+
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.1);
+    gainNode.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.3);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.5);
+
+    // Add shimmer at the end
+    setTimeout(() => {
+      createTone({ frequency: 440, duration: 0.2, type: 'sine', volume: 0.08 });
+      createTone({ frequency: 554, duration: 0.15, type: 'sine', volume: 0.06 });
+    }, 300);
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Text input focus - subtle focus sound
+export function playTextFocus(): void {
+  try {
+    ensureAudioContext();
+    createTone({ frequency: 400, duration: 0.04, type: 'sine', volume: 0.05 });
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Case file open - folder creak with weight
+export function playCaseFileOpen(): void {
+  try {
+    ensureAudioContext();
+    // Heavy folder opening sound
+    createTone({ frequency: 100, duration: 0.15, type: 'sine', volume: 0.08 });
+    createFilteredNoise(0.12, 0.08, 400, 'lowpass');
+    setTimeout(() => {
+      createTone({ frequency: 200, duration: 0.08, type: 'sine', volume: 0.06 });
+      createFilteredNoise(0.05, 0.04, 800, 'highpass');
+    }, 80);
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Evidence examine - forensic analysis tone
+export function playEvidenceExamine(): void {
+  try {
+    ensureAudioContext();
+    // Scientific/forensic beep sequence
+    createTone({ frequency: 660, duration: 0.08, type: 'sine', volume: 0.1 });
+    setTimeout(() => createTone({ frequency: 880, duration: 0.1, type: 'sine', volume: 0.08 }), 100);
+    setTimeout(() => createTone({ frequency: 1100, duration: 0.06, type: 'sine', volume: 0.06 }), 180);
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Dialogue advance - subtle conversation progression
+export function playDialogueAdvance(): void {
+  try {
+    ensureAudioContext();
+    createTone({ frequency: 350, duration: 0.05, type: 'sine', volume: 0.06 });
+    createTone({ frequency: 440, duration: 0.06, type: 'sine', volume: 0.05 });
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Scene transition - atmospheric whoosh
+export function playSceneTransition(): void {
+  try {
+    ensureAudioContext();
+    const ctx = getAudioContext();
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(200, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.2);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(80, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.25);
+
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.3);
+
+    createFilteredNoise(0.2, 0.08, 600, 'lowpass');
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Option select - multiple choice selection
+export function playOptionSelect(): void {
+  try {
+    ensureAudioContext();
+    createTone({ frequency: 500, duration: 0.06, type: 'sine', volume: 0.1 });
+    createFilteredNoise(0.02, 0.04, 1000, 'highpass');
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Hover subtle - very soft hover sound
+export function playHoverSubtle(): void {
+  try {
+    ensureAudioContext();
+    createTone({ frequency: 500, duration: 0.02, type: 'sine', volume: 0.03 });
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
 // Map all sound types to functions
 export const synthSounds = {
+  // Original sounds
   click: playButtonClick,
   buttonClick: playButtonClick,
   buttonHover: playButtonHover,
@@ -355,6 +635,19 @@ export const synthSounds = {
   combo: playPoints,
   tabSwitch: playButtonClick,
   pinDrop: playClueFound,
+  // New noir detective sounds
+  suspectSelect: playSuspectSelect,
+  interrogation: playInterrogation,
+  pageTurn: playPageTurn,
+  documentSlide: playDocumentSlide,
+  revealSuspense: playRevealSuspense,
+  textFocus: playTextFocus,
+  caseFileOpen: playCaseFileOpen,
+  evidenceExamine: playEvidenceExamine,
+  dialogueAdvance: playDialogueAdvance,
+  sceneTransition: playSceneTransition,
+  optionSelect: playOptionSelect,
+  hoverSubtle: playHoverSubtle,
 };
 
 export type SynthSoundType = keyof typeof synthSounds;

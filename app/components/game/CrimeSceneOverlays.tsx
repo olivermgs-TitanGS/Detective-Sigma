@@ -88,6 +88,7 @@ interface EvidenceMarkerProps {
   y: number; // percentage position
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
+  onHover?: () => void;
   discovered?: boolean;
 }
 
@@ -97,6 +98,7 @@ export function EvidenceMarker({
   y,
   size = 'md',
   onClick,
+  onHover,
   discovered = false,
 }: EvidenceMarkerProps) {
   const sizeStyles = {
@@ -124,6 +126,7 @@ export function EvidenceMarker({
         clipPath: 'polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)',
       }}
       onClick={onClick}
+      onMouseEnter={onHover}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       initial={{ scale: 0, opacity: 0 }}

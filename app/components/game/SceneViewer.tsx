@@ -56,15 +56,23 @@ export default function SceneViewer({
   };
 
   const handleNextScene = () => {
-    playSound('whoosh');
+    playSound('sceneTransition');
     setImageLoaded(false);
     onNextScene();
   };
 
   const handlePreviousScene = () => {
-    playSound('whoosh');
+    playSound('sceneTransition');
     setImageLoaded(false);
     onPreviousScene();
+  };
+
+  const handleButtonHover = () => {
+    playSound('hoverSubtle');
+  };
+
+  const handleClueHover = () => {
+    playSound('hoverSubtle');
   };
 
   // Determine if this scene should show crime scene tape
@@ -198,6 +206,7 @@ export default function SceneViewer({
                   y={clue.positionY}
                   size="md"
                   onClick={() => handleClueClick(clue)}
+                  onHover={handleClueHover}
                   discovered={isCollected}
                 />
               );
@@ -208,6 +217,7 @@ export default function SceneViewer({
               <motion.button
                 key={clue.id}
                 onClick={() => handleClueClick(clue)}
+                onMouseEnter={handleClueHover}
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
                 style={{
                   left: `${clue.positionX}%`,
@@ -311,6 +321,7 @@ export default function SceneViewer({
       >
         <motion.button
           onClick={handlePreviousScene}
+          onMouseEnter={currentSceneIndex > 0 ? handleButtonHover : undefined}
           disabled={currentSceneIndex === 0}
           className={`tracking-wider transition-colors ${
             currentSceneIndex === 0
@@ -332,6 +343,7 @@ export default function SceneViewer({
         </motion.span>
         <motion.button
           onClick={handleNextScene}
+          onMouseEnter={currentSceneIndex < totalScenes - 1 ? handleButtonHover : undefined}
           disabled={currentSceneIndex === totalScenes - 1}
           className={`tracking-wider transition-colors ${
             currentSceneIndex === totalScenes - 1

@@ -27,11 +27,22 @@ import {
   getAllEvidence,
 } from './evidence-chain';
 import {
+  mapEvidenceToScenes,
+  redistributeEvidence,
+  SceneInfo,
+  SceneType,
+} from './scene-evidence-mapper';
+import {
   generateStoryPuzzleSet,
   StoryPuzzle,
   StoryPuzzleSet,
   formatStoryPuzzlePresentation,
 } from './story-puzzles';
+import {
+  generateEvidenceBoundPuzzles,
+  EvidenceBoundPuzzle,
+  EvidenceBoundPuzzleSet,
+} from './evidence-bound-puzzles';
 
 // ============================================
 // HELPER FUNCTIONS FOR IMAGE GENERATION
@@ -444,9 +455,9 @@ function narrativeToGeneratedCase(
     })),
   }));
 
-  // Convert evidence chain to clues
-  const allEvidence = getAllEvidence(evidenceChain);
-  const clues: Clue[] = allEvidence.map(evidence => ({
+  // Convert evidence chain to clues (note: positions will be added after scene mapping)
+  const allEvidenceItems = getAllEvidence(evidenceChain);
+  const cluesWithoutPositions: Clue[] = allEvidenceItems.map(evidence => ({
     id: evidence.id,
     title: evidence.name,
     description: evidence.description,
@@ -460,15 +471,17 @@ function narrativeToGeneratedCase(
     visualCue: evidence.visualCue,
     analysisResult: evidence.analysisResult,
     discoveryMethod: evidence.discoveryMethod,
+    discoveryLocation: evidence.location, // Use the evidence location for semantic placement
   }));
 
-  // Convert story puzzles to puzzles with narrative context
+  // Convert story puzzles to puzzles with narrative context and MCQ options
   const puzzles: Puzzle[] = puzzleSet.puzzles.map(puzzle => ({
     id: puzzle.id,
     title: puzzle.title,
     type: puzzle.type,
     question: puzzle.question,
     answer: puzzle.answer,
+    options: (puzzle as unknown as { options?: string[] }).options, // MCQ options from evidence-bound puzzles
     hint: puzzle.hint,
     points: puzzle.points,
     difficulty: puzzle.difficulty,
@@ -482,10 +495,11 @@ function narrativeToGeneratedCase(
     relatedCharacterName: puzzle.relatedCharacterName,
   }));
 
-  // Generate immersive, story-connected scenes
+  // Generate immersive, story-connected scenes with distinct scene types
   const crimeTimeWindow = narrativeCase.crime.crimeWindow;
   const guiltyChar = characters.find(c => c.isGuilty);
 
+  // Create 5 scenes with distinct scene types for semantic evidence placement
   const scenes: Scene[] = [
     // Scene 1: Primary Crime Scene - Where it all happened
     {
@@ -498,30 +512,49 @@ function narrativeToGeneratedCase(
         'Nearby furniture that may have been moved',
         'Window or door that could have been entry point',
       ],
-      cluesAvailable: evidenceChain.initialEvidence.map(e => e.id),
+      cluesAvailable: [], // Will be populated by semantic mapping
       locationType: narrativeCase.setting.locationType,
+      sceneType: 'primary' as SceneType,
       ambiance: narrativeCase.setting.timeOfDay === 'morning' ? 'morning' :
                 narrativeCase.setting.timeOfDay === 'afternoon' ? 'day' :
                 narrativeCase.setting.timeOfDay === 'evening' ? 'evening' : 'day',
       mood: 'mysterious',
     },
-    // Scene 2: Secondary Location - Where suspects were or evidence leads
+    // Scene 2: Security Office - CCTV and access records
+    {
+      id: `scene-${nanoid(6)}`,
+      name: 'Security Office',
+      description: `The security monitoring station with CCTV screens and access logs. Digital evidence from the time of the incident (${crimeTimeWindow.start} - ${crimeTimeWindow.end}) can be reviewed here.`,
+      interactiveElements: [
+        'CCTV monitoring screens',
+        'Access card log computer',
+        'Security desk with records',
+        'Visitor sign-in logbook',
+      ],
+      cluesAvailable: [], // Will be populated by semantic mapping
+      locationType: narrativeCase.setting.locationType,
+      sceneType: 'security' as SceneType,
+      ambiance: 'day',
+      mood: 'tense',
+    },
+    // Scene 3: Work Area - Personal belongings and workspace
     {
       id: `scene-${nanoid(6)}`,
       name: `${guiltyChar?.role || 'Staff'} Work Area`,
       description: `The workspace connected to the investigation. Personal belongings and work materials provide clues about who had access during the crime window. Look for anything out of place.`,
       interactiveElements: [
         'Work desk with personal items',
+        'Personal locker area',
         'Schedule board showing timings',
-        'Storage area with supplies',
         'Notice board with announcements',
       ],
-      cluesAvailable: evidenceChain.discoveredEvidence.slice(0, Math.ceil(evidenceChain.discoveredEvidence.length / 2)).map(e => e.id),
+      cluesAvailable: [], // Will be populated by semantic mapping
       locationType: narrativeCase.setting.locationType,
+      sceneType: 'work_area' as SceneType,
       ambiance: 'day',
       mood: 'tense',
     },
-    // Scene 3: Investigation Room - For analysis and interviews
+    // Scene 4: Investigation Room - For analysis and interviews
     {
       id: `scene-${nanoid(6)}`,
       name: 'Investigation Room',
@@ -530,14 +563,15 @@ function narrativeToGeneratedCase(
         'Evidence analysis table',
         'Timeline reconstruction board',
         'Suspect interview notes',
-        'Case file with gathered clues',
+        'Forensic analysis lab bench',
       ],
-      cluesAvailable: evidenceChain.discoveredEvidence.slice(Math.ceil(evidenceChain.discoveredEvidence.length / 2)).map(e => e.id),
+      cluesAvailable: [], // Will be populated by semantic mapping
       locationType: 'school',
+      sceneType: 'investigation' as SceneType,
       ambiance: 'day',
       mood: 'calm',
     },
-    // Scene 4: Confrontation Area - Final evidence and resolution
+    // Scene 5: Resolution Chamber - Final evidence and confrontation
     {
       id: `scene-${nanoid(6)}`,
       name: 'Resolution Chamber',
@@ -548,12 +582,48 @@ function narrativeToGeneratedCase(
         'Truth revelation board',
         'Case closure documentation',
       ],
-      cluesAvailable: evidenceChain.conclusiveEvidence.map(e => e.id),
+      cluesAvailable: [], // Will be populated by semantic mapping
       locationType: narrativeCase.setting.locationType,
+      sceneType: 'resolution' as SceneType,
       ambiance: 'evening',
       mood: 'urgent',
     },
   ];
+
+  // Create scene info for evidence mapper
+  const sceneInfoList: SceneInfo[] = scenes.map(s => ({
+    id: s.id,
+    name: s.name,
+    sceneType: s.sceneType || 'primary',
+    locationType: s.locationType,
+  }));
+
+  // Map evidence to scenes based on semantic location
+  let evidencePlacementMap = mapEvidenceToScenes(allEvidenceItems, sceneInfoList);
+
+  // Redistribute to ensure all scenes have some evidence
+  evidencePlacementMap = redistributeEvidence(allEvidenceItems, sceneInfoList, evidencePlacementMap);
+
+  // Populate cluesAvailable for each scene based on semantic mapping
+  scenes.forEach(scene => {
+    scene.cluesAvailable = [];
+    evidencePlacementMap.forEach((placement, evidenceId) => {
+      if (placement.sceneId === scene.id) {
+        scene.cluesAvailable.push(evidenceId);
+      }
+    });
+  });
+
+  // Add position data to clues from the evidence placement map
+  const clues: Clue[] = cluesWithoutPositions.map(clue => {
+    const placement = evidencePlacementMap.get(clue.id);
+    return {
+      ...clue,
+      positionX: placement?.positionX,
+      positionY: placement?.positionY,
+      requiredPuzzleId: placement?.requiredPuzzleId,
+    };
+  });
 
   // Calculate estimated time
   const estimatedMinutes = puzzleSet.estimatedTotalMinutes + 10; // +10 for reading/exploration
@@ -633,14 +703,65 @@ export async function generateNarrativeDrivenCase(
   // 4. Generate evidence chain
   const evidenceChain = generateEvidenceChain(narrativeCase, characters);
 
-  // 5. Generate story-integrated puzzles
-  const puzzleSet = generateStoryPuzzleSet(
+  // 5. Generate EVIDENCE-BOUND puzzles that directly test evidence and suspect statements
+  // These puzzles are interconnected with the story - they verify alibis, test evidence, and reveal contradictions
+  const evidenceBoundPuzzleSet = generateEvidenceBoundPuzzles(
     narrativeCase,
     characters,
     evidenceChain,
     subject,
-    puzzleCount
+    puzzleCount,
+    puzzleComplexity
   );
+
+  // Also generate some story puzzles for variety (will be merged)
+  const storyPuzzleSet = generateStoryPuzzleSet(
+    narrativeCase,
+    characters,
+    evidenceChain,
+    subject,
+    Math.max(1, puzzleCount - evidenceBoundPuzzleSet.puzzles.length)
+  );
+
+  // Merge puzzle sets - prioritize evidence-bound puzzles
+  const mergedPuzzleSet: StoryPuzzleSet = {
+    caseId: narrativeCase.id,
+    puzzles: [
+      // Convert evidence-bound puzzles to StoryPuzzle format
+      ...evidenceBoundPuzzleSet.puzzles.map(p => ({
+        ...p,
+        locationInStory: narrativeCase.setting.location,
+        narrativeContext: p.narrativeIntro,
+        revelation: {
+          type: 'evidence' as const,
+          description: p.proves.truth,
+          storyText: p.successNarrative,
+          importance: p.proves.isContradiction ? 'major' as const : 'moderate' as const,
+        },
+      })),
+      // Add remaining story puzzles if needed
+      ...storyPuzzleSet.puzzles.slice(0, Math.max(0, puzzleCount - evidenceBoundPuzzleSet.puzzles.length)),
+    ],
+    totalPoints: evidenceBoundPuzzleSet.totalPoints + storyPuzzleSet.totalPoints,
+    estimatedTotalMinutes: evidenceBoundPuzzleSet.estimatedMinutes + storyPuzzleSet.estimatedTotalMinutes,
+    puzzlesByPhase: {
+      initial: [
+        ...evidenceBoundPuzzleSet.puzzlesByPhase.initial.map(p => ({ ...p, locationInStory: narrativeCase.setting.location, narrativeContext: p.narrativeIntro, revelation: { type: 'evidence' as const, description: p.proves.truth, storyText: p.successNarrative, importance: p.proves.isContradiction ? 'major' as const : 'moderate' as const } })),
+        ...storyPuzzleSet.puzzlesByPhase.initial,
+      ],
+      investigation: [
+        ...evidenceBoundPuzzleSet.puzzlesByPhase.investigation.map(p => ({ ...p, locationInStory: narrativeCase.setting.location, narrativeContext: p.narrativeIntro, revelation: { type: 'evidence' as const, description: p.proves.truth, storyText: p.successNarrative, importance: p.proves.isContradiction ? 'major' as const : 'moderate' as const } })),
+        ...storyPuzzleSet.puzzlesByPhase.investigation,
+      ],
+      conclusion: [
+        ...evidenceBoundPuzzleSet.puzzlesByPhase.conclusion.map(p => ({ ...p, locationInStory: narrativeCase.setting.location, narrativeContext: p.narrativeIntro, revelation: { type: 'evidence' as const, description: p.proves.truth, storyText: p.successNarrative, importance: p.proves.isContradiction ? 'major' as const : 'moderate' as const } })),
+        ...storyPuzzleSet.puzzlesByPhase.conclusion,
+      ],
+    },
+  };
+
+  // Use merged puzzle set for case generation
+  const puzzleSet = mergedPuzzleSet;
 
   // 6. Convert to GeneratedCase format
   const generatedCase = narrativeToGeneratedCase(
@@ -922,14 +1043,26 @@ export async function saveGeneratedCase(
 
   const defaultSceneId = sceneIds[0]; // First scene is the main crime scene
 
+  // Create a map of clue IDs to their target scene (from cluesAvailable)
+  const clueToSceneMap = new Map<string, string>();
+  for (const scene of generatedCase.scenes) {
+    const dbSceneId = idMappings.scenes[scene.id];
+    for (const clueId of scene.cluesAvailable) {
+      clueToSceneMap.set(clueId, dbSceneId);
+    }
+  }
+
   for (let i = 0; i < generatedCase.clues.length && sceneIds.length > 0; i++) {
     const clue = generatedCase.clues[i];
-    // Distribute clues across scenes or assign to first scene
-    const targetSceneId = sceneIds[Math.floor(i / Math.ceil(generatedCase.clues.length / sceneIds.length))] || defaultSceneId;
 
-    // Generate random position for clue hotspot (20-80% range to keep within bounds)
-    const positionX = 20 + Math.random() * 60;
-    const positionY = 20 + Math.random() * 60;
+    // Use semantic scene mapping from cluesAvailable, fallback to distribution
+    const targetSceneId = clueToSceneMap.get(clue.id) ||
+      sceneIds[Math.floor(i / Math.ceil(generatedCase.clues.length / sceneIds.length))] ||
+      defaultSceneId;
+
+    // Use clue positions from semantic placement, fallback to reasonable defaults
+    const positionX = clue.positionX ?? (20 + Math.random() * 60);
+    const positionY = clue.positionY ?? (20 + Math.random() * 60);
 
     const dbClue = await prisma.clue.create({
       data: {
@@ -948,7 +1081,7 @@ export async function saveGeneratedCase(
     idMappings.clues[clue.id] = dbClue.id;
   }
 
-  // Create puzzles with narrative revelation data
+  // Create puzzles with narrative revelation data and MCQ options
   for (const puzzle of generatedCase.puzzles) {
     await prisma.puzzle.create({
       data: {
@@ -961,6 +1094,8 @@ export async function saveGeneratedCase(
         correctAnswer: puzzle.answer,
         hint: puzzle.hint,
         points: puzzle.points,
+        // MCQ options - stored as JSON array for the quiz interface
+        options: puzzle.options && puzzle.options.length > 0 ? puzzle.options : null,
         // Narrative revelation system - story context for each puzzle
         narrativeContext: puzzle.narrativeContext || null,
         investigationPhase: puzzle.investigationPhase || null,

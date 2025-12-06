@@ -17,7 +17,7 @@ export type SoundEffect =
   | 'clueFound'
   | 'pinDrop'
   | 'whoosh'
-  // New celebration sounds
+  // Celebration sounds
   | 'levelUp'
   | 'achievement'
   | 'points'
@@ -32,7 +32,20 @@ export type SoundEffect =
   | 'tabSwitch'
   | 'modalOpen'
   | 'modalClose'
-  | 'notification';
+  | 'notification'
+  // New noir detective sounds
+  | 'suspectSelect'
+  | 'interrogation'
+  | 'pageTurn'
+  | 'documentSlide'
+  | 'revealSuspense'
+  | 'textFocus'
+  | 'caseFileOpen'
+  | 'evidenceExamine'
+  | 'dialogueAdvance'
+  | 'sceneTransition'
+  | 'optionSelect'
+  | 'hoverSubtle';
 
 // Sound effect file paths (optional - synthetic sounds used as fallback)
 const SOUND_EFFECTS: Record<SoundEffect, string> = {
@@ -65,6 +78,19 @@ const SOUND_EFFECTS: Record<SoundEffect, string> = {
   modalOpen: '/sfx/modal-open.mp3',
   modalClose: '/sfx/modal-close.mp3',
   notification: '/sfx/notification.mp3',
+  // New noir detective sounds (synthetic fallback used)
+  suspectSelect: '/sfx/suspect-select.mp3',
+  interrogation: '/sfx/interrogation.mp3',
+  pageTurn: '/sfx/page-turn.mp3',
+  documentSlide: '/sfx/document-slide.mp3',
+  revealSuspense: '/sfx/reveal-suspense.mp3',
+  textFocus: '/sfx/text-focus.mp3',
+  caseFileOpen: '/sfx/case-file-open.mp3',
+  evidenceExamine: '/sfx/evidence-examine.mp3',
+  dialogueAdvance: '/sfx/dialogue-advance.mp3',
+  sceneTransition: '/sfx/scene-transition.mp3',
+  optionSelect: '/sfx/option-select.mp3',
+  hoverSubtle: '/sfx/hover-subtle.mp3',
 };
 
 interface SoundEffectsContextType {

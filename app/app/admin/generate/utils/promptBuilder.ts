@@ -187,38 +187,91 @@ export function buildCoverPrompt(caseData: GeneratedCase, subject: string): stri
 
 /**
  * Build scene image prompt - Realistic Vision V6.0 format
- * Enhanced to embed visible evidence items within the scene
+ * Enhanced to embed visible evidence items within the scene by position zone
  */
 export function buildScenePrompt(
-  scene: { description: string; locationType?: string; id?: string },
-  embeddedClues?: Array<{ title: string; visualCue?: string; type: string }>
+  scene: { description: string; locationType?: string; id?: string; sceneType?: string },
+  embeddedClues?: Array<{
+    title: string;
+    visualCue?: string;
+    type: string;
+    positionX?: number;
+    positionY?: number;
+  }>
 ): string {
-  // Build evidence items description for embedding in scene
+  // Build zone-based evidence description for embedding in scene
   let evidenceDescription = '';
   if (embeddedClues && embeddedClues.length > 0) {
-    // Extract key visual elements from clues (limit to 3-4 for prompt clarity)
-    const visualElements = embeddedClues
-      .slice(0, 4)
-      .map(clue => {
-        // Use visualCue if available, otherwise derive from title
+    // Group clues by position zone (floor, surface, wall)
+    const floorClues = embeddedClues.filter(c => (c.positionY ?? 50) > 65);
+    const surfaceClues = embeddedClues.filter(c => {
+      const y = c.positionY ?? 50;
+      return y >= 40 && y <= 65;
+    });
+    const wallClues = embeddedClues.filter(c => (c.positionY ?? 50) < 40);
+
+    const zoneParts: string[] = [];
+
+    // Floor evidence (bottom of image)
+    if (floorClues.length > 0) {
+      const floorItems = floorClues.slice(0, 2).map(clue => {
         if (clue.visualCue) {
-          // Extract the main object from visualCue (first part before comma)
-          const mainObject = clue.visualCue.split(',')[0].trim();
-          return mainObject;
+          return clue.visualCue.split(',')[0].trim().toLowerCase();
         }
         return clue.title.toLowerCase();
-      })
-      .filter(Boolean);
-
-    if (visualElements.length > 0) {
-      evidenceDescription = `, visible evidence items in scene: ${visualElements.join(', ')}, evidence markers with numbers near items`;
+      }).filter(Boolean);
+      if (floorItems.length > 0) {
+        zoneParts.push(`on the floor: ${floorItems.join(', ')}`);
+      }
     }
+
+    // Surface evidence (tables, desks, counters - middle of image)
+    if (surfaceClues.length > 0) {
+      const surfaceItems = surfaceClues.slice(0, 2).map(clue => {
+        if (clue.visualCue) {
+          return clue.visualCue.split(',')[0].trim().toLowerCase();
+        }
+        return clue.title.toLowerCase();
+      }).filter(Boolean);
+      if (surfaceItems.length > 0) {
+        zoneParts.push(`on desk/table surface: ${surfaceItems.join(', ')}`);
+      }
+    }
+
+    // Wall evidence (monitors, boards, cabinets - upper portion)
+    if (wallClues.length > 0) {
+      const wallItems = wallClues.slice(0, 2).map(clue => {
+        if (clue.visualCue) {
+          return clue.visualCue.split(',')[0].trim().toLowerCase();
+        }
+        return clue.title.toLowerCase();
+      }).filter(Boolean);
+      if (wallItems.length > 0) {
+        zoneParts.push(`on wall/monitor area: ${wallItems.join(', ')}`);
+      }
+    }
+
+    if (zoneParts.length > 0) {
+      evidenceDescription = `, visible evidence: ${zoneParts.join(', ')}, evidence markers with numbers near items`;
+    }
+  }
+
+  // Scene type specific enhancements
+  let sceneEnhancement = '';
+  if (scene.sceneType === 'security') {
+    sceneEnhancement = ', security office with CCTV monitors, access control systems, surveillance equipment';
+  } else if (scene.sceneType === 'work_area') {
+    sceneEnhancement = ', work area with desk, personal belongings, storage lockers';
+  } else if (scene.sceneType === 'investigation') {
+    sceneEnhancement = ', investigation room with evidence board, analysis equipment, forensic lab bench';
+  } else if (scene.sceneType === 'resolution') {
+    sceneEnhancement = ', confrontation room with evidence display, interview table';
   }
 
   // Realistic Vision V6.0 - natural language prompts with quality tags
   // Square format (1:1) optimized for mobile and desktop viewing
   // Centered composition with evidence visible in frame
-  return `RAW photo, centered interior view, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area${evidenceDescription}, numbered evidence markers on floor, yellow crime scene tape, forensic lighting, photorealistic, highly detailed environment, symmetrical composition, centered framing, high quality, 8k uhd, dslr, sharp focus, professional photography, square format composition`;
+  return `RAW photo, centered interior view, ${scene.description}${sceneEnhancement}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area${evidenceDescription}, numbered evidence markers, yellow crime scene tape, forensic lighting, photorealistic, highly detailed environment, symmetrical composition, centered framing, high quality, 8k uhd, dslr, sharp focus, professional photography, square format composition`;
 }
 
 /**

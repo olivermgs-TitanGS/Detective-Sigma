@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 interface TypewriterTextProps {
   text: string;
@@ -11,6 +12,10 @@ interface TypewriterTextProps {
   style?: React.CSSProperties;
   onComplete?: () => void;
   cursor?: boolean;
+  /** Enable subtle typewriter sound effects */
+  sound?: boolean;
+  /** Minimum interval between sounds in ms (prevents audio overload) */
+  soundInterval?: number;
 }
 
 export function TypewriterText({
@@ -21,10 +26,25 @@ export function TypewriterText({
   style = {},
   onComplete,
   cursor = true,
+  sound = true,
+  soundInterval = 60,
 }: TypewriterTextProps) {
   const [displayedText, setDisplayedText] = useState('');
   const [isComplete, setIsComplete] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const lastSoundTime = useRef(0);
+  const { playSound, isMuted } = useSoundEffects();
+
+  // Throttled sound player to prevent audio overload
+  const playTypingSound = useCallback(() => {
+    if (!sound || isMuted) return;
+
+    const now = Date.now();
+    if (now - lastSoundTime.current >= soundInterval) {
+      lastSoundTime.current = now;
+      playSound('typewriter');
+    }
+  }, [sound, isMuted, soundInterval, playSound]);
 
   useEffect(() => {
     const startTimeout = setTimeout(() => {
@@ -39,14 +59,20 @@ export function TypewriterText({
 
     if (displayedText.length < text.length) {
       const timeout = setTimeout(() => {
+        const nextChar = text[displayedText.length];
         setDisplayedText(text.slice(0, displayedText.length + 1));
+
+        // Play sound for non-space characters to feel more natural
+        if (nextChar && nextChar !== ' ' && nextChar !== '\n') {
+          playTypingSound();
+        }
       }, speed);
       return () => clearTimeout(timeout);
     } else {
       setIsComplete(true);
       onComplete?.();
     }
-  }, [displayedText, text, speed, hasStarted, onComplete]);
+  }, [displayedText, text, speed, hasStarted, onComplete, playTypingSound]);
 
   return (
     <span className={className} style={style}>

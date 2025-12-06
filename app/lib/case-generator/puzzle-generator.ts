@@ -44,9 +44,93 @@ interface MathPuzzleTemplate {
     question: string;
     answer: string;
     hint: string;
+    // MCQ support
+    correctValue: string;       // Simple answer for MCQ matching
+    options?: string[];         // MCQ options (including correct answer)
   };
   type: 'math';
   skills: string[];
+}
+
+/**
+ * Generate plausible wrong options for numeric MCQ
+ */
+function generateNumericOptions(correctValue: number, isPercentage: boolean = false): string[] {
+  const options: string[] = [];
+  const prefix = isPercentage ? '' : '$';
+  const suffix = isPercentage ? '%' : '';
+
+  // Add the correct answer
+  options.push(`${prefix}${correctValue.toLocaleString()}${suffix}`);
+
+  // Generate wrong options with common calculation errors
+  const wrongOffsets = [
+    Math.round(correctValue * 0.85),   // 15% too low
+    Math.round(correctValue * 1.15),   // 15% too high
+    Math.round(correctValue * 0.5),    // Half (forgot to add components)
+    Math.round(correctValue * 1.5),    // 50% too high
+    Math.round(correctValue + 10),     // Simple addition error
+    Math.round(correctValue - 10),     // Simple subtraction error
+    Math.round(correctValue * 2),      // Doubled by mistake
+  ];
+
+  // Add unique wrong options
+  for (const wrong of wrongOffsets) {
+    if (wrong !== correctValue && wrong > 0 && !options.includes(`${prefix}${wrong.toLocaleString()}${suffix}`)) {
+      options.push(`${prefix}${wrong.toLocaleString()}${suffix}`);
+    }
+    if (options.length >= 4) break;
+  }
+
+  // Ensure we have 4 options
+  while (options.length < 4) {
+    const randomWrong = Math.round(correctValue * (0.7 + Math.random() * 0.6));
+    const formatted = `${prefix}${randomWrong.toLocaleString()}${suffix}`;
+    if (!options.includes(formatted) && randomWrong > 0) {
+      options.push(formatted);
+    }
+  }
+
+  // Shuffle options
+  return options.sort(() => Math.random() - 0.5);
+}
+
+/**
+ * Generate plausible wrong options for suspect name MCQ
+ */
+function generateSuspectOptions(correctSuspect: string, allSuspects: string[]): string[] {
+  const options = [correctSuspect];
+
+  // Add other suspects
+  for (const suspect of allSuspects) {
+    if (suspect !== correctSuspect && options.length < 4) {
+      options.push(suspect);
+    }
+  }
+
+  // If not enough suspects, add "None of them" or "Multiple suspects"
+  if (options.length < 4) {
+    options.push('None of them could have done it');
+  }
+  if (options.length < 4) {
+    options.push('Multiple suspects are possible');
+  }
+
+  // Shuffle options
+  return options.sort(() => Math.random() - 0.5);
+}
+
+/**
+ * Generate Yes/No options with explanations
+ */
+function generateYesNoOptions(correctAnswer: boolean, context: string): string[] {
+  const options = [
+    `Yes, ${context}`,
+    `No, ${context.replace('could', 'could not').replace('is', 'is not')}`,
+    'More information needed',
+    'The data is inconclusive',
+  ];
+  return correctAnswer ? options : [options[1], options[0], options[2], options[3]];
 }
 
 export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
@@ -102,6 +186,8 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
         question,
         answer,
         hint: 'Calculate total sales for each item, add to opening balance, compare with actual closing.',
+        correctValue: `$${actualMissing.toFixed(2)}`,
+        options: generateNumericOptions(actualMissing),
       };
     },
   },
@@ -114,7 +200,7 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
     generatePuzzle: (complexity) => {
       const suspects = randomChoice(singaporeNames.people);
       const suspectCount = complexity === 'BASIC' ? 2 : complexity === 'STANDARD' ? 3 : 4;
-      const suspectNames = [];
+      const suspectNames: string[] = [];
       for (let i = 0; i < suspectCount; i++) {
         let name = randomChoice(singaporeNames.people);
         while (suspectNames.includes(name)) {
@@ -181,10 +267,15 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
 
       answerText += `CONCLUSION: ${couldCommit.length > 0 ? couldCommit.join(' and ') : 'None of the suspects'} could have committed the crime.`;
 
+      // Build correct answer text for MCQ
+      const correctAnswer = couldCommit.length > 0 ? couldCommit.join(' and ') : 'None of them';
+
       return {
         question,
         answer: answerText,
         hint: 'Calculate departure time for each suspect (arrival + stay duration). Check overlap with crime window.',
+        correctValue: correctAnswer,
+        options: generateSuspectOptions(correctAnswer, suspectNames),
       };
     },
   },
@@ -218,6 +309,8 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
         question,
         answer,
         hint: 'Find what 1 "part" is worth by dividing smallest share by its ratio number.',
+        correctValue: `$${totalValue}`,
+        options: generateNumericOptions(totalValue),
       };
     },
   },
@@ -263,6 +356,8 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
         question,
         answer: answerText,
         hint: 'Calculate stolen quantity (% × total), then multiply by price for each item.',
+        correctValue: `$${totalValue.toLocaleString()}`,
+        options: generateNumericOptions(totalValue),
       };
     },
   },
@@ -295,10 +390,14 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
         `${canEscape ? 'YES' : 'NO'}, the suspect ${canEscape ? 'COULD' : 'COULD NOT'} have reached the bus stop ` +
         `${canEscape ? `(${(policeDelay - timeToReach).toFixed(1)} minutes to spare)` : `(would take ${(timeToReach - policeDelay).toFixed(1)} minutes longer)`}`;
 
+      const correctAnswer = canEscape ? 'Yes, suspect could escape' : 'No, suspect could not escape';
+
       return {
         question,
         answer,
         hint: 'Convert speed to km per minute. Time = Distance ÷ Speed.',
+        correctValue: correctAnswer,
+        options: generateYesNoOptions(canEscape, 'the suspect could have reached the bus stop'),
       };
     },
   },
@@ -356,10 +455,19 @@ export const mathPuzzleGenerators: MathPuzzleTemplate[] = [
         ? `SUSPICIOUS: The per-customer revenue is TOO CONSISTENT ($${variance.toFixed(2)} variance). Natural business variation should show $1.50-3.00 difference between days. This suggests artificial number manipulation.`
         : `NORMAL: The variance ($${variance.toFixed(2)}) falls within expected natural business variation.`;
 
+      const correctAnswer = isSuspicious ? 'Suspicious - numbers manipulated' : 'Normal - natural variation';
+
       return {
         question,
         answer: answerText,
         hint: 'Calculate revenue per customer for each day. Look for patterns that are statistically unlikely.',
+        correctValue: correctAnswer,
+        options: [
+          'Suspicious - numbers manipulated',
+          'Normal - natural variation',
+          'Insufficient data to determine',
+          'Revenue is below industry average',
+        ].sort(() => Math.random() - 0.5),
       };
     },
   },
@@ -406,6 +514,7 @@ export function generateUniquePuzzle(
     type: generator.type,
     question: generated.question,
     answer: generated.answer,
+    options: generated.options,  // MCQ options
     hint: generated.hint,
     points: points[complexity],
     difficulty: complexity === 'BASIC' ? 1 : complexity === 'STANDARD' ? 2 : complexity === 'CHALLENGING' ? 3 : 4,

@@ -213,7 +213,11 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
                   {puzzle.options.map((option, index) => (
                     <button
                       key={index}
-                      onClick={() => setAnswer(option)}
+                      onClick={() => {
+                        playSound('optionSelect');
+                        setAnswer(option);
+                      }}
+                      onMouseEnter={() => playSound('hoverSubtle')}
                       className={`w-full text-left p-4 border-2 transition-all font-mono ${
                         answer === option
                           ? 'bg-amber-600 border-amber-500 text-black font-bold'
@@ -233,6 +237,7 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                    onFocus={() => playSound('textFocus')}
                     placeholder="Type your answer..."
                     className="w-full bg-black border-2 border-amber-600/30 px-4 py-3 text-amber-50 text-lg font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600"
                     autoFocus
@@ -243,6 +248,7 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
               {/* Submit Button */}
               <button
                 onClick={handleSubmit}
+                onMouseEnter={() => answer && playSound('hoverSubtle')}
                 disabled={!answer}
                 className={`w-full font-mono font-bold py-3 transition-all tracking-wider ${
                   answer

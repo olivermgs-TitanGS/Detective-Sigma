@@ -184,6 +184,10 @@ export interface Clue {
   visualCue?: string;        // What player sees/notices initially
   analysisResult?: string;   // What detailed analysis reveals
   discoveryMethod?: string;  // How this clue can be found
+  // Scene positioning (for semantic evidence placement)
+  positionX?: number;        // X position (0-100 percentage)
+  positionY?: number;        // Y position (0-100 percentage)
+  requiredPuzzleId?: string; // Puzzle that must be solved to reveal this clue
 }
 
 export interface Puzzle {
@@ -192,6 +196,7 @@ export interface Puzzle {
   type: 'math' | 'logic' | 'observation' | 'deduction';
   question: string;
   answer: string;
+  options?: string[];                  // MCQ choices (including correct answer)
   hint: string;
   points: number;
   difficulty: number;
@@ -217,6 +222,9 @@ export interface PuzzleRevelation {
   importance: 'minor' | 'moderate' | 'major';
 }
 
+// Scene type for semantic evidence mapping
+export type SceneType = 'primary' | 'security' | 'work_area' | 'investigation' | 'resolution';
+
 export interface Scene {
   id: string;
   name: string;
@@ -226,6 +234,7 @@ export interface Scene {
   // Enhanced scene data
   imageRequest?: ImageRequest;
   locationType?: string;
+  sceneType?: SceneType;  // For semantic evidence placement
   ambiance?: 'day' | 'night' | 'evening' | 'morning';
   mood?: 'mysterious' | 'tense' | 'calm' | 'urgent';
   interactiveAreas?: {

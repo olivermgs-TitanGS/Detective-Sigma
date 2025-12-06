@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 interface Suspect {
   id: string;
@@ -53,6 +54,35 @@ function SuspectAvatar({ imageUrl, name, size = 'md' }: { imageUrl?: string; nam
 
 export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps) {
   const [selectedSuspect, setSelectedSuspect] = useState<Suspect | null>(null);
+  const { playSound } = useSoundEffects();
+
+  // Play modal open sound on mount
+  useEffect(() => {
+    playSound('caseFileOpen');
+  }, [playSound]);
+
+  const handleSelectSuspect = (suspect: Suspect) => {
+    playSound('suspectSelect');
+    setSelectedSuspect(suspect);
+  };
+
+  const handleBackToList = () => {
+    playSound('pageTurn');
+    setSelectedSuspect(null);
+  };
+
+  const handleInterrogationClick = () => {
+    playSound('interrogation');
+  };
+
+  const handleClose = () => {
+    playSound('modalClose');
+    onClose();
+  };
+
+  const handleSuspectHover = () => {
+    playSound('hoverSubtle');
+  };
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -68,7 +98,7 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
               </p>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="text-black hover:text-amber-950 text-3xl leading-none transition-colors font-bold"
             >
               ×
@@ -84,7 +114,8 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
               {suspects.map((suspect) => (
                 <button
                   key={suspect.id}
-                  onClick={() => setSelectedSuspect(suspect)}
+                  onClick={() => handleSelectSuspect(suspect)}
+                  onMouseEnter={handleSuspectHover}
                   className="bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-6 transition-all group text-center"
                 >
                   {/* Suspect Portrait */}
@@ -110,7 +141,7 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
             <div className="space-y-6">
               {/* Back Button */}
               <button
-                onClick={() => setSelectedSuspect(null)}
+                onClick={handleBackToList}
                 className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2 font-mono tracking-wider"
               >
                 ← BACK TO ALL SUSPECTS
@@ -146,19 +177,31 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
                 </h4>
 
                 <div className="space-y-3">
-                  <button className="w-full text-left bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-4 transition-all group">
+                  <button
+                    onClick={handleInterrogationClick}
+                    onMouseEnter={handleSuspectHover}
+                    className="w-full text-left bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-4 transition-all group"
+                  >
                     <p className="text-slate-400 group-hover:text-amber-400 transition-colors font-mono tracking-wide">
                       "Where were you when the incident occurred?"
                     </p>
                   </button>
 
-                  <button className="w-full text-left bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-4 transition-all group">
+                  <button
+                    onClick={handleInterrogationClick}
+                    onMouseEnter={handleSuspectHover}
+                    className="w-full text-left bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-4 transition-all group"
+                  >
                     <p className="text-slate-400 group-hover:text-amber-400 transition-colors font-mono tracking-wide">
                       "Did you witness anything suspicious?"
                     </p>
                   </button>
 
-                  <button className="w-full text-left bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-4 transition-all group">
+                  <button
+                    onClick={handleInterrogationClick}
+                    onMouseEnter={handleSuspectHover}
+                    className="w-full text-left bg-black/60 hover:bg-black border-2 border-amber-600/30 hover:border-amber-600 p-4 transition-all group"
+                  >
                     <p className="text-slate-400 group-hover:text-amber-400 transition-colors font-mono tracking-wide">
                       "Can anyone verify your alibi?"
                     </p>
@@ -181,7 +224,8 @@ export default function SuspectDialog({ suspects, onClose }: SuspectDialogProps)
         {/* Footer */}
         <div className="p-6 bg-black/50 border-t-2 border-amber-600/30">
           <button
-            onClick={onClose}
+            onClick={handleClose}
+            onMouseEnter={handleSuspectHover}
             className="w-full border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 font-mono font-bold py-3 transition-all tracking-wider"
           >
             CONTINUE INVESTIGATION
