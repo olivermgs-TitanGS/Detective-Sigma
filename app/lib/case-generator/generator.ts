@@ -10,7 +10,10 @@ import {
 } from './types';
 import { generateUniquePuzzles } from './puzzle-generator';
 
-// NEW NARRATIVE ENGINE IMPORTS
+// NEW ARCHITECTURE V2 - Crime-First, Evidence-Driven Generation
+import { generateCaseFromArchitecture } from './architecture/orchestrator';
+
+// LEGACY NARRATIVE ENGINE IMPORTS (kept for gradual migration)
 import {
   generateNarrativeCase as generateNarrativeCaseCore,
   NarrativeCase,
@@ -915,8 +918,144 @@ export async function generateNarrativeDrivenCase(
 }
 
 
-// Main Generator Function - Uses narrative-driven generation only
+// Main Generator Function
+// Uses the new Crime-First, Evidence-Driven Architecture (V2)
+// The legacy narrative engine is kept as fallback
 export async function generateCase(request: GenerationRequest): Promise<GeneratedCase> {
+  // Check if we should use the new architecture (V2)
+  // New architecture provides:
+  // - Crime-First generation (detailed crime story drives everything)
+  // - Evidence-Driven guilt (culprit determined by evidence intersection, not random)
+  // - Rich narratives (atmospheric descriptions, dialogue trees)
+  // - Scalable and extensible (plugin-based phases)
+  const useNewArchitecture = request.useNarrativeEngine !== false; // Default to new architecture
+
+  if (useNewArchitecture) {
+    try {
+      console.log('[CaseGenerator] Using new Crime-First Architecture (V2)');
+      const generatedCase = await generateCaseFromArchitecture({
+        difficulty: request.difficulty,
+        subject: request.subject,
+        gradeLevel: request.gradeLevel,
+        puzzleComplexity: request.puzzleComplexity || 'STANDARD',
+        constraints: request.constraints,
+      });
+
+      // Generate image requests for the case
+      const caseContext = {
+        title: generatedCase.title,
+        subject: request.subject,
+        difficulty: request.difficulty,
+        gradeLevel: request.gradeLevel,
+        story: {
+          setting: generatedCase.story.setting,
+          crime: generatedCase.story.crime,
+          resolution: generatedCase.story.resolution,
+          theme: generatedCase.story.backstory || '',
+          location: generatedCase.story.setting,
+          locationType: 'school' as const,
+        },
+        timeOfDay: 'afternoon' as const,
+        atmosphere: 'mysterious' as const,
+      };
+
+      // Build rich suspect data
+      const richSuspectData = generatedCase.suspects.map(suspect => ({
+        name: suspect.name,
+        role: suspect.role,
+        alibi: suspect.alibi,
+        personality: suspect.personality,
+        isGuilty: suspect.isGuilty,
+        motive: suspect.motive,
+        ethnicity: suspect.ethnicity || inferEthnicityFromCharacter(suspect.name),
+        gender: suspect.gender || inferGenderFromCharacter(suspect.name),
+        ageGroup: (suspect.ageCategory === 'child' || suspect.ageCategory === 'teen' || suspect.ageCategory === 'young_adult') ? 'young' as const :
+                  (suspect.ageCategory === 'senior') ? 'senior' as const : 'middle' as const,
+        expression: suspect.isGuilty ? 'nervous' as const : 'neutral' as const,
+      }));
+
+      // Build rich clue data
+      const richClueData = generatedCase.clues.map(clue => ({
+        title: clue.title,
+        description: `${clue.visualCue || ''}. ${clue.analysisResult || clue.description}`,
+        type: clue.type,
+        relevance: clue.relevance,
+        discoveryLocation: clue.discoveryLocation,
+        examinationDetails: clue.examinationDetails || [],
+      }));
+
+      // Build scene data
+      const richSceneData = generatedCase.scenes.map(scene => ({
+        name: scene.name,
+        description: scene.description,
+        isCrimeScene: scene.sceneType === 'primary',
+        crimeType: generatedCase.story.crime,
+      }));
+
+      // Generate image requests
+      const imageRequests = generateContextualCaseImages(
+        caseContext,
+        richSuspectData,
+        richClueData,
+        richSceneData
+      );
+
+      generatedCase.imageRequests = {
+        cover: {
+          id: imageRequests.cover.id,
+          type: 'cover',
+          prompt: imageRequests.cover.prompt,
+          negativePrompt: imageRequests.cover.negativePrompt,
+          width: imageRequests.cover.width,
+          height: imageRequests.cover.height,
+          settings: imageRequests.cover.settings,
+          metadata: imageRequests.cover.metadata,
+          status: 'pending',
+        },
+        scenes: imageRequests.scenes.map(s => ({
+          id: s.id,
+          type: 'scene' as const,
+          prompt: s.prompt,
+          negativePrompt: s.negativePrompt,
+          width: s.width,
+          height: s.height,
+          settings: s.settings,
+          metadata: s.metadata,
+          status: 'pending' as const,
+        })),
+        suspects: imageRequests.suspects.map(s => ({
+          id: s.id,
+          type: 'suspect' as const,
+          prompt: s.prompt,
+          negativePrompt: s.negativePrompt,
+          width: s.width,
+          height: s.height,
+          settings: s.settings,
+          metadata: s.metadata,
+          status: 'pending' as const,
+        })),
+        evidence: imageRequests.evidence.map(e => ({
+          id: e.id,
+          type: 'evidence' as const,
+          prompt: e.prompt,
+          negativePrompt: e.negativePrompt,
+          width: e.width,
+          height: e.height,
+          settings: e.settings,
+          metadata: e.metadata,
+          status: 'pending' as const,
+        })),
+      };
+
+      return generatedCase;
+    } catch (error) {
+      console.error('[CaseGenerator] V2 Architecture failed, falling back to legacy:', error);
+      // Fall back to legacy engine if new architecture fails
+    }
+  }
+
+  // Fallback to legacy narrative-driven generation
+  console.log('[CaseGenerator] Using legacy narrative engine');
   return generateNarrativeDrivenCase(request);
 }
 
