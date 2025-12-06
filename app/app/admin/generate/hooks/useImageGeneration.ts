@@ -65,10 +65,20 @@ export function useImageGeneration() {
       completed++;
       setGeneratedImages({ ...newImages });
 
-      // 2. Generate scene images
+      // 2. Generate scene images (larger for immersive gameplay with embedded evidence)
       for (const scene of (caseData.scenes || [])) {
         setImageGenProgress({ current: `Scene: ${scene.name}`, completed, total: totalImages });
+
+        // Find clues that belong to this scene for embedding in the image
+        const sceneClues = (caseData.clues || []).filter(clue => {
+          // Match by scene's cluesAvailable array or by discoveryLocation containing scene name
+          const inCluesAvailable = scene.cluesAvailable?.includes(clue.id);
+          const matchesLocation = clue.discoveryLocation?.toLowerCase().includes(scene.name.toLowerCase());
+          return inCluesAvailable || matchesLocation;
+        });
+
         // Scene images - Realistic Vision V6.0 settings
+        // Larger resolution (1024x768) for immersive scenes with visible evidence
         const sceneResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -76,11 +86,11 @@ export function useImageGeneration() {
             imageRequest: {
               id: `scene-${scene.id}`,
               type: 'scene',
-              prompt: buildScenePrompt(scene),
+              prompt: buildScenePrompt(scene, sceneClues),
               negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human figure, deformed, disfigured, ${ratingNegatives}`,
-              width: 768, height: 512,
-              settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 25, cfgScale: 7 },
-              metadata: { sceneId: scene.id, name: scene.name },
+              width: 1024, height: 768,
+              settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 30, cfgScale: 7 },
+              metadata: { sceneId: scene.id, name: scene.name, embeddedClues: sceneClues.length },
             },
             saveToPublic: false,
           }),

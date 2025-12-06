@@ -187,10 +187,37 @@ export function buildCoverPrompt(caseData: GeneratedCase, subject: string): stri
 
 /**
  * Build scene image prompt - Realistic Vision V6.0 format
+ * Enhanced to embed visible evidence items within the scene
  */
-export function buildScenePrompt(scene: { description: string; locationType?: string }): string {
+export function buildScenePrompt(
+  scene: { description: string; locationType?: string; id?: string },
+  embeddedClues?: Array<{ title: string; visualCue?: string; type: string }>
+): string {
+  // Build evidence items description for embedding in scene
+  let evidenceDescription = '';
+  if (embeddedClues && embeddedClues.length > 0) {
+    // Extract key visual elements from clues (limit to 3-4 for prompt clarity)
+    const visualElements = embeddedClues
+      .slice(0, 4)
+      .map(clue => {
+        // Use visualCue if available, otherwise derive from title
+        if (clue.visualCue) {
+          // Extract the main object from visualCue (first part before comma)
+          const mainObject = clue.visualCue.split(',')[0].trim();
+          return mainObject;
+        }
+        return clue.title.toLowerCase();
+      })
+      .filter(Boolean);
+
+    if (visualElements.length > 0) {
+      evidenceDescription = `, visible evidence items in scene: ${visualElements.join(', ')}, evidence markers with numbers near items`;
+    }
+  }
+
   // Realistic Vision V6.0 - natural language prompts with quality tags
-  return `RAW photo, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area, evidence markers visible, forensic lighting, photorealistic, detailed environment, high quality, 8k uhd, dslr, sharp focus, professional photography, architectural photography`;
+  // Wide angle for immersive scene with embedded evidence
+  return `RAW photo, wide angle interior shot, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area${evidenceDescription}, numbered evidence markers on floor, yellow crime scene tape, forensic lighting, photorealistic, highly detailed environment, immersive perspective, high quality, 8k uhd, dslr, sharp focus, professional photography, architectural photography, wide field of view`;
 }
 
 /**
