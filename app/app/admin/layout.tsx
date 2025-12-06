@@ -2,9 +2,14 @@
 
 import Link from 'next/link';
 import { ReactNode, useState } from 'react';
+import { signOut } from 'next-auth/react';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
 
   return (
     <div className="min-h-screen crime-scene-bg relative overflow-hidden">
@@ -74,7 +79,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex items-center gap-2 md:gap-4">
               <span className="hidden sm:block text-slate-400 font-mono text-xs md:text-sm tracking-wider">ADMIN</span>
-              <button className="border-2 border-red-600 bg-black hover:bg-red-600 hover:text-black text-red-400 px-2 md:px-4 py-1 md:py-2 transition-all font-mono font-bold tracking-wider text-xs md:text-sm">
+              <button
+                onClick={handleLogout}
+                className="border-2 border-red-600 bg-black hover:bg-red-600 hover:text-black text-red-400 px-2 md:px-4 py-1 md:py-2 transition-all font-mono font-bold tracking-wider text-xs md:text-sm"
+              >
                 LOGOUT
               </button>
             </div>
