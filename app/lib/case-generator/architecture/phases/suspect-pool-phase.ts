@@ -583,26 +583,93 @@ export class SuspectPoolPhase implements IGenerationPhase<void, ISuspectProfile[
     return { name: unique, ethnicity: 'chinese', gender: 'male' };
   }
 
+  /**
+   * Generate age category based on role - Singapore Education System
+   *
+   * Singapore Education Pathway:
+   * - Nursery/Kindergarten: 3-6 years
+   * - Primary School: 7-12 years (P1-P6, PSLE at P6)
+   * - Secondary School: 13-16 years (Sec 1-4, O-Levels)
+   * - Secondary 5: 17 years (Normal stream only)
+   * - JC: 17-18 years (2 years, A-Levels)
+   * - Polytechnic: 17-20 years (3 years diploma)
+   * - ITE: 17-19 years (2 years NITEC/Higher NITEC)
+   * - National Service: 18-20 years (males, 2 years)
+   * - University: 21-25 years (3-5 years depending on course)
+   */
   private generateAgeCategory(role: string): string {
-    // Match age to role
-    if (role.includes('Student')) return 'teen';
-    if (role.includes('Teacher') || role.includes('Manager')) return 'adult';
-    if (role.includes('Assistant') || role.includes('Staff')) return 'young_adult';
-    if (role.includes('Senior') || role.includes('Head')) return 'middle_aged';
+    const roleLower = role.toLowerCase();
+
+    // Pre-school roles (3-6 years)
+    if (/nursery|kindergarten|k1|k2|preschool|childcare/i.test(roleLower)) return 'child';
+
+    // Primary school students (7-12 years)
+    if (/primary|p1|p2|p3|p4|p5|p6|psle/i.test(roleLower) && /student/i.test(roleLower)) return 'child';
+
+    // Secondary school students (13-17 years)
+    if (/secondary|sec\s*[1-5]|o-level/i.test(roleLower) && /student/i.test(roleLower)) return 'teen';
+
+    // JC students (17-18 years)
+    if (/jc|junior college|a-level/i.test(roleLower) && /student/i.test(roleLower)) return 'teen';
+
+    // Post-secondary (17-20 years)
+    if (/polytechnic|poly|ite|nitec|nsf|ns recruit/i.test(roleLower)) return 'young_adult';
+
+    // University students (21-25 years)
+    if (/university|undergraduate|nus|ntu|smu|sutd/i.test(roleLower) && /student/i.test(roleLower)) return 'young_adult';
+
+    // Generic student - default to teen
+    if (/student|pupil/i.test(roleLower)) return 'teen';
+
+    // Child/kid roles (not childcare worker)
+    if (/\b(child|kid|boy|girl)\b/i.test(roleLower) && !/childcare|children's/i.test(roleLower)) return 'child';
+
+    // Intern/trainee roles
+    if (/intern|trainee|apprentice/i.test(roleLower)) return 'young_adult';
+
+    // Junior staff roles
+    if (/junior|assistant|cashier|waiter|waitress|barista|receptionist/i.test(roleLower)) return 'young_adult';
+
+    // Teaching/education professionals
+    if (/teacher|librarian|coach/i.test(roleLower)) return 'adult';
+
+    // General workers
+    if (/cleaner|security|driver|technician|nurse|mechanic|worker/i.test(roleLower)) return 'adult';
+
+    // Business owners/vendors
+    if (/owner|vendor|hawker|stall|kopitiam/i.test(roleLower)) return 'middle_aged';
+
+    // Management roles
+    if (/manager|supervisor|coordinator/i.test(roleLower)) return 'adult';
+
+    // Senior/executive roles
+    if (/senior|head|director|principal|vice principal|ceo|chairman|professor|hod/i.test(roleLower)) return 'middle_aged';
+
+    // Retiree roles
+    if (/retiree|retired|elderly|pensioner|ah ma|ah gong|grandparent/i.test(roleLower)) return 'senior';
+
+    // Parent/family roles
+    if (/parent|guardian/i.test(roleLower)) return 'adult';
+
+    // Default: adult (most common)
     return this.selectRandom(['young_adult', 'adult', 'middle_aged']);
   }
 
+  /**
+   * Generate specific age within category - Singapore context
+   */
   private generateSpecificAge(category: string): number {
     const ranges: Record<string, [number, number]> = {
-      child: [8, 12],
-      teen: [13, 17],
-      young_adult: [18, 29],
-      adult: [30, 45],
-      middle_aged: [46, 59],
-      senior: [60, 75],
+      // Singapore education system ages
+      child: [7, 12],         // Primary school (P1-P6)
+      teen: [13, 17],         // Secondary school (Sec 1-5)
+      young_adult: [18, 29],  // Post-secondary, NS, University, early career
+      adult: [30, 45],        // Working adults
+      middle_aged: [46, 65],  // Senior professionals
+      senior: [66, 80],       // Retirees
     };
-    const [min, max] = ranges[category] || [25, 45];
-    return min + Math.floor(Math.random() * (max - min));
+    const [min, max] = ranges[category] || [30, 45];
+    return min + Math.floor(Math.random() * (max - min + 1));
   }
 
   private generateTimeline(

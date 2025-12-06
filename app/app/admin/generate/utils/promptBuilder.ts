@@ -1,134 +1,411 @@
 /**
  * Prompt building utilities for image generation
+ *
+ * ENHANCED FOR MAXIMUM ACCURACY with Realistic Vision V6.0 and similar models
+ * - More specific visual descriptors
+ * - Better camera angles and composition
+ * - Improved lighting descriptions
+ * - Singapore-accurate details
  */
 
 import { parsePersonInfo, inferEthnicity } from './personParser';
 import type { GeneratedCase } from './types';
 
+// ============================================
+// ENHANCED QUALITY TAGS
+// ============================================
+
+const QUALITY_PRESETS = {
+  portrait: 'RAW photo, (masterpiece:1.2), (best quality:1.2), (photorealistic:1.4), DSLR, 85mm lens, f/2.8 aperture, natural skin texture, skin pores, subsurface scattering',
+  scene: 'RAW photo, (masterpiece:1.2), (best quality:1.2), (photorealistic:1.4), DSLR, wide angle lens, HDR, high dynamic range, architectural photography',
+  evidence: 'RAW photo, (masterpiece:1.2), (best quality:1.2), (photorealistic:1.4), macro photography, forensic documentation, sharp focus, high detail',
+  cover: 'RAW photo, (masterpiece:1.2), (best quality:1.2), product photography, dramatic lighting, noir aesthetic',
+};
+
+const ENHANCED_NEGATIVE = {
+  portrait: '(worst quality:2), (low quality:2), (normal quality:1.5), bad anatomy, bad hands, extra fingers, fewer fingers, missing fingers, bad face, ugly face, deformed face, asymmetrical face, cross-eyed, bad teeth, watermark, signature, text, logo, blurry, out of focus, cartoon, painting, illustration, drawing, art, anime, cgi, 3d render, doll, plastic, unrealistic, duplicate, clone, twins',
+  scene: '(worst quality:2), (low quality:2), (normal quality:1.5), blurry, out of focus, dark, underexposed, overexposed, cluttered, messy, people, humans, figures, watermark, signature, text, logo, cartoon, painting, illustration, anime, cgi, 3d render, jpeg artifacts',
+  evidence: '(worst quality:2), (low quality:2), (normal quality:1.5), blurry, out of focus, dark, overexposed, watermark, signature, text, logo, cartoon, illustration, anime, hands, fingers, human body parts',
+};
+
 /**
- * Get occupation-specific clothing based on role
+ * Get occupation-specific clothing based on role - ENHANCED with more detail
  */
 export function getOccupationClothing(roleKeywords: string): string {
   if (/teacher|educator|professor|lecturer|tutor/i.test(roleKeywords)) {
-    return 'teacher wearing professional work attire, formal shirt, neat appearance';
+    return 'wearing crisp button-up shirt, smart office pants, lanyard with ID badge around neck, neat professional teacher appearance';
   } else if (/doctor|physician|surgeon/i.test(roleKeywords)) {
-    return 'doctor wearing white coat, stethoscope around neck, professional medical attire';
+    return 'wearing pristine white lab coat over formal shirt, stethoscope draped around neck, hospital ID badge clipped to pocket';
   } else if (/nurse|healthcare|medical staff/i.test(roleKeywords)) {
-    return 'nurse wearing medical scrubs, professional healthcare uniform';
+    return 'wearing clean medical scrubs in teal or navy blue, comfortable nursing shoes, hospital ID badge';
   } else if (/engineer|technician|it|programmer|developer/i.test(roleKeywords)) {
-    return 'engineer wearing smart casual office attire, polo shirt';
+    return 'wearing smart casual polo shirt, khaki pants, company lanyard, slightly casual tech worker appearance';
   } else if (/chef|cook|kitchen/i.test(roleKeywords)) {
-    return 'chef wearing white double-breasted chef jacket, chef hat, professional kitchen attire';
+    return 'wearing traditional white double-breasted chef jacket with buttons, tall white chef toque hat, clean kitchen apron';
   } else if (/police|cop|detective|inspector/i.test(roleKeywords)) {
-    return 'police officer wearing Singapore Police Force uniform, professional law enforcement attire';
+    return 'wearing Singapore Police Force uniform, dark blue formal shirt with shoulder epaulettes, police badge visible, professional law enforcement look';
   } else if (/security|guard/i.test(roleKeywords)) {
-    return 'security guard wearing security uniform, professional security attire';
+    return 'wearing dark navy security uniform with company patch on shoulder, utility belt, walkie-talkie clipped, alert posture';
   } else if (/student|pupil|school/i.test(roleKeywords)) {
-    return 'student wearing neat school uniform, white shirt, tie';
+    return 'wearing Singapore school uniform with white short-sleeve shirt, school tie or pinafore, neat and tidy student appearance';
   } else if (/ceo|director|chairman|president/i.test(roleKeywords)) {
-    return 'executive wearing expensive formal suit and tie, luxury business attire';
+    return 'wearing expensive tailored dark suit with silk tie, luxury wristwatch visible, executive presence, confident posture';
   } else if (/manager|supervisor|executive|business/i.test(roleKeywords)) {
-    return 'business professional wearing formal suit and tie, professional office attire';
+    return 'wearing formal business suit with tie, professional office attire, polished appearance, manager demeanor';
   } else if (/lawyer|attorney|advocate/i.test(roleKeywords)) {
-    return 'lawyer wearing formal black suit, professional legal attire';
+    return 'wearing formal black or charcoal suit, conservative tie, leather briefcase nearby, professional legal appearance';
   } else if (/accountant|banker|finance/i.test(roleKeywords)) {
-    return 'finance professional wearing formal business suit, office attire';
+    return 'wearing conservative business suit, reading glasses perhaps, neat meticulous appearance, finance professional look';
   } else if (/scientist|researcher|lab/i.test(roleKeywords)) {
-    return 'scientist wearing white lab coat, safety glasses, professional research attire';
+    return 'wearing white laboratory coat, safety goggles pushed up on forehead, pen in coat pocket, analytical expression';
   } else if (/pilot|captain|aviator/i.test(roleKeywords)) {
-    return 'pilot wearing airline uniform with captain stripes, professional pilot attire';
+    return 'wearing airline pilot uniform with gold captain stripes on epaulettes, pilot wings badge, professional aviator appearance';
   } else if (/flight attendant|cabin crew|steward/i.test(roleKeywords)) {
-    return 'cabin crew wearing airline uniform, professional flight attendant attire';
+    return 'wearing neat airline cabin crew uniform, silk scarf or tie, name tag, pleasant welcoming appearance';
   } else if (/construction|builder|contractor/i.test(roleKeywords)) {
-    return 'construction worker wearing safety vest, hard hat, work boots';
+    return 'wearing high-visibility orange safety vest, white hard hat, dusty work boots, rugged outdoor worker appearance';
   } else if (/worker|labor|factory/i.test(roleKeywords)) {
-    return 'worker wearing work clothes, safety vest, practical work attire';
+    return 'wearing practical work coveralls, safety boots, work gloves tucked in pocket, hardworking laborer appearance';
   } else if (/shopkeeper|vendor|seller|merchant|retail/i.test(roleKeywords)) {
-    return 'shopkeeper wearing casual work clothes, store apron';
+    return 'wearing casual polo shirt with shop apron, comfortable shoes, name tag, friendly neighborhood shopkeeper appearance';
   } else if (/cleaner|janitor|maintenance/i.test(roleKeywords)) {
-    return 'cleaner wearing work uniform, practical cleaning attire';
+    return 'wearing practical cleaning uniform or coveralls, comfortable work shoes, cleaning supplies nearby, humble worker appearance';
   } else if (/taxi|grab|driver|delivery/i.test(roleKeywords)) {
-    return 'driver wearing casual work shirt, comfortable driving attire';
+    return 'wearing casual collared shirt, comfortable pants, driver appearance, perhaps with company lanyard or ID';
   } else if (/waiter|waitress|server|f&b/i.test(roleKeywords)) {
-    return 'waiter wearing restaurant uniform, bow tie, server apron';
+    return 'wearing restaurant uniform with black vest and bow tie, white dress shirt, server apron, attentive service appearance';
   } else if (/barista|coffee|cafe/i.test(roleKeywords)) {
-    return 'barista wearing cafe apron, casual work attire';
+    return 'wearing hipster cafe apron over casual shirt, rolled up sleeves, coffee shop worker aesthetic';
   } else if (/hawker|food stall|kopitiam/i.test(roleKeywords)) {
-    return 'hawker wearing casual clothes, cooking apron, practical food vendor attire';
+    return 'wearing casual t-shirt under cooking apron, sweat towel around neck, hardworking hawker appearance';
   } else if (/artist|designer|creative/i.test(roleKeywords)) {
-    return 'creative professional wearing trendy casual clothes, artistic attire';
+    return 'wearing trendy casual clothes, perhaps paint-stained or artistic accessories, creative bohemian style';
   } else if (/journalist|reporter|media/i.test(roleKeywords)) {
-    return 'journalist wearing smart casual office wear, press attire';
+    return 'wearing smart casual business attire, press ID lanyard, notebook visible, inquisitive journalist appearance';
   } else if (/athlete|sportsman|coach/i.test(roleKeywords)) {
-    return 'athlete wearing sports attire, athletic wear, tracksuit';
+    return 'wearing sports tracksuit or athletic wear, sports brand visible, fit athletic appearance';
   } else if (/farmer|gardener|agriculture/i.test(roleKeywords)) {
-    return 'farmer wearing practical outdoor clothes, sun hat, gardening attire';
+    return 'wearing practical outdoor clothes, wide-brimmed sun hat, gardening gloves, outdoor worker appearance';
   } else if (/fisherman|sailor/i.test(roleKeywords)) {
-    return 'fisherman wearing practical waterproof clothes, fishing attire';
+    return 'wearing practical waterproof jacket, weathered cap, tanned skin, seasoned maritime worker appearance';
   } else if (/military|army|soldier|saf/i.test(roleKeywords)) {
-    return 'soldier wearing Singapore Armed Forces uniform, military attire';
+    return 'wearing Singapore Armed Forces No.4 uniform, camouflage pattern, military beret, disciplined soldier posture';
   } else if (/firefighter|scdf/i.test(roleKeywords)) {
-    return 'firefighter wearing fire service uniform, SCDF attire';
+    return 'wearing SCDF blue duty uniform, fire service badge, ready and alert firefighter appearance';
   } else if (/paramedic|ambulance|emergency/i.test(roleKeywords)) {
-    return 'paramedic wearing emergency medical uniform, ambulance crew attire';
+    return 'wearing emergency medical uniform, stethoscope, medical equipment pouch, alert paramedic appearance';
   } else if (/librarian|archivist/i.test(roleKeywords)) {
-    return 'librarian wearing smart casual professional attire, glasses';
+    return 'wearing smart casual cardigan over blouse, reading glasses, quiet studious librarian appearance';
   } else if (/receptionist|admin|secretary/i.test(roleKeywords)) {
-    return 'office staff wearing smart casual office attire, professional appearance';
+    return 'wearing smart office blouse and skirt or pants, professional makeup, organized admin appearance';
   } else if (/electrician|plumber|mechanic/i.test(roleKeywords)) {
-    return 'tradesman wearing work clothes, tool belt, practical work attire';
+    return 'wearing work coveralls with tool belt, practical boots, skilled tradesman appearance';
   } else if (/postman|mailman|singpost/i.test(roleKeywords)) {
-    return 'postman wearing postal uniform, SingPost delivery attire';
+    return 'wearing SingPost red uniform shirt, postal cap, mail bag, friendly postman appearance';
   } else if (/housewife|homemaker|stay-at-home/i.test(roleKeywords)) {
-    return 'wearing comfortable casual home clothes, neat appearance';
+    return 'wearing comfortable casual home clothes, neat maternal appearance, warm and approachable';
   } else if (/retiree|retired|pensioner/i.test(roleKeywords)) {
-    return 'wearing comfortable casual clothes, relaxed neat attire';
+    return 'wearing comfortable casual clothes like polo shirt and slacks, relaxed elderly appearance, reading glasses perhaps';
   }
-  return 'professional business attire';
+  return 'wearing smart casual Singapore attire, neat professional appearance';
 }
 
 /**
- * Build suspect portrait prompt
+ * Derive expression from storyline elements (personality, dialogue emotions)
+ * Returns undefined if no storyline data available - allows fallback to defaults
  */
-export function buildSuspectPrompt(suspect: { name: string; role: string; isGuilty: boolean }): {
+function deriveStorylineExpression(
+  personality?: string[],
+  dialogueEmotions?: string[],
+  motive?: string,
+  isChild?: boolean
+): string | undefined {
+  // For children, always use natural expressions regardless of storyline
+  if (isChild) {
+    return undefined; // Will use default child expression
+  }
+
+  // Emotion priority mapping - what expression should show for each emotion/trait
+  const expressionMap: Record<string, string> = {
+    // Dialogue emotions (from dialogueTree)
+    'nervous': 'subtly nervous expression, slight tension in jaw, fidgeting hands',
+    'defensive': 'guarded defensive expression, crossed arms body language, wary eyes',
+    'angry': 'controlled anger expression, tightened lips, intense focused gaze',
+    'evasive': 'evasive shifty expression, avoiding direct eye contact, uncomfortable posture',
+    'helpful': 'open helpful expression, friendly demeanor, engaged and attentive',
+    'calm': 'calm composed expression, relaxed facial muscles, steady gaze',
+    // Personality traits
+    'anxious': 'anxious worried expression, furrowed brow, tense shoulders',
+    'suspicious': 'suspicious guarded expression, narrowed eyes, skeptical look',
+    'confident': 'confident self-assured expression, direct eye contact, upright posture',
+    'friendly': 'warm friendly expression, slight smile, approachable demeanor',
+    'reserved': 'reserved neutral expression, measured demeanor, professional distance',
+    'aggressive': 'assertive intense expression, firm jaw, challenging gaze',
+    'timid': 'timid uncertain expression, downcast eyes, submissive posture',
+    'cheerful': 'pleasant cheerful expression, genuine smile, bright eyes',
+    'stern': 'stern serious expression, firm set mouth, authoritative presence',
+    'worried': 'worried concerned expression, creased forehead, troubled eyes',
+    'secretive': 'secretive guarded expression, knowing look, slight tension',
+    'professional': 'professional neutral expression, composed demeanor, business-like',
+    'impatient': 'impatient restless expression, slight irritation visible, checking time',
+    'cooperative': 'cooperative open expression, willing demeanor, attentive posture',
+    'resentful': 'resentful bitter expression, tight-lipped, underlying frustration visible',
+  };
+
+  // Collect all storyline indicators
+  const indicators: string[] = [];
+
+  // Add dominant dialogue emotion (take first/most common)
+  if (dialogueEmotions && dialogueEmotions.length > 0) {
+    // Count emotion frequencies
+    const emotionCounts: Record<string, number> = {};
+    dialogueEmotions.forEach(e => {
+      emotionCounts[e.toLowerCase()] = (emotionCounts[e.toLowerCase()] || 0) + 1;
+    });
+    // Find dominant emotion
+    const dominant = Object.entries(emotionCounts)
+      .sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (dominant) indicators.push(dominant);
+  }
+
+  // Add personality traits
+  if (personality && personality.length > 0) {
+    personality.forEach(trait => indicators.push(trait.toLowerCase()));
+  }
+
+  // Check for motive-related expressions
+  if (motive) {
+    const motiveLower = motive.toLowerCase();
+    if (/revenge|grudge|hate/i.test(motiveLower)) indicators.push('resentful');
+    if (/fear|afraid|scared/i.test(motiveLower)) indicators.push('anxious');
+    if (/jealous|envy/i.test(motiveLower)) indicators.push('resentful');
+    if (/greed|money|profit/i.test(motiveLower)) indicators.push('secretive');
+  }
+
+  // Find first matching expression from storyline data
+  for (const indicator of indicators) {
+    if (expressionMap[indicator]) {
+      return expressionMap[indicator];
+    }
+  }
+
+  return undefined; // No storyline data found, use defaults
+}
+
+/**
+ * Build suspect portrait prompt - ENHANCED with quality presets and explicit age support
+ * Supports Singapore education system ages:
+ * - Kindergarten: 3-6 years (young child)
+ * - Primary school: 7-12 years (child)
+ * - Secondary school: 13-16 years (teen)
+ * - JC/Poly/ITE: 17-19 years (older teen)
+ * - University: 20-25 years (young adult)
+ *
+ * Expression is now storyline-inspired (from personality/dialogue) with guilt-based fallback
+ */
+export function buildSuspectPrompt(suspect: {
+  name: string;
+  role: string;
+  isGuilty: boolean;
+  // Optional explicit age fields from case generator
+  specificAge?: number;
+  displayAge?: string;
+  ageCategory?: 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+  gender?: 'male' | 'female';
+  // Storyline fields for expression derivation
+  personality?: string[];
+  motive?: string;
+  dialogueTree?: Array<{
+    emotion?: 'calm' | 'nervous' | 'defensive' | 'helpful' | 'evasive' | 'angry';
+  }>;
+}): {
   prompt: string;
   negativePrompt: string;
-  metadata: { gender: string; age: string };
+  metadata: { gender: string; age: string; specificAge?: number };
 } {
   const ethnicityInfo = inferEthnicity(suspect.name);
-  const personInfo = parsePersonInfo(suspect.name, suspect.role);
-  const expression = suspect.isGuilty ? 'slightly nervous expression' : 'calm confident expression';
+
+  // Parse basic info from name and role
+  let personInfo = parsePersonInfo(suspect.name, suspect.role);
+
+  // Override with explicit age if provided from case data
+  if (suspect.specificAge !== undefined) {
+    const age = suspect.specificAge;
+    if (age <= 6) {
+      // Kindergarten age (3-6)
+      personInfo.age = 'young_child';
+      personInfo.ageDescriptor = `${age} years old kindergarten child`;
+      personInfo.agePrompt = `${age} year old very young child, kindergarten age, tiny child face, very small stature, innocent toddler appearance`;
+      personInfo.gender = personInfo.gender === 'woman' ? 'little girl' : personInfo.gender === 'man' ? 'little boy' : 'young child';
+    } else if (age <= 12) {
+      // Primary school age (7-12)
+      personInfo.age = 'child';
+      personInfo.ageDescriptor = `${age} years old primary school student`;
+      personInfo.agePrompt = `${age} year old child, primary school age, childlike face, small child stature, innocent school child appearance`;
+      personInfo.gender = personInfo.gender === 'woman' ? 'girl' : personInfo.gender === 'man' ? 'boy' : 'child';
+    } else if (age <= 16) {
+      // Secondary school age (13-16)
+      personInfo.age = 'teenager';
+      personInfo.ageDescriptor = `${age} years old secondary school student`;
+      personInfo.agePrompt = `${age} year old teenager, secondary school age, teenage appearance, adolescent face, youthful student`;
+      personInfo.gender = personInfo.gender === 'woman' ? 'teenage girl' : personInfo.gender === 'man' ? 'teenage boy' : 'teenager';
+    } else if (age <= 19) {
+      // JC/Poly/ITE age (17-19)
+      personInfo.age = 'older_teen';
+      personInfo.ageDescriptor = `${age} years old JC/polytechnic student`;
+      personInfo.agePrompt = `${age} year old older teenager, young adult appearance, late teens, college student face`;
+      personInfo.gender = personInfo.gender === 'woman' ? 'young woman' : personInfo.gender === 'man' ? 'young man' : 'young person';
+    } else if (age <= 25) {
+      // University/young adult (20-25)
+      personInfo.age = 'young';
+      personInfo.ageDescriptor = `${age} years old young adult`;
+      personInfo.agePrompt = `${age} year old young adult, fresh face, energetic youthful appearance`;
+    } else if (age <= 40) {
+      personInfo.age = 'adult';
+      personInfo.ageDescriptor = `${age} years old`;
+      personInfo.agePrompt = `${age} year old adult, mature appearance`;
+    } else if (age <= 60) {
+      personInfo.age = 'middle-aged';
+      personInfo.ageDescriptor = `${age} years old`;
+      personInfo.agePrompt = `${age} year old adult, mature middle-aged appearance, some fine lines`;
+    } else {
+      personInfo.age = 'elderly';
+      personInfo.ageDescriptor = `${age} years old elderly`;
+      personInfo.agePrompt = `${age} year old elderly person, gray hair, wrinkles, wise appearance, aged face`;
+      personInfo.gender = personInfo.gender === 'woman' ? 'elderly woman' : personInfo.gender === 'man' ? 'elderly man' : 'elderly person';
+    }
+    console.log(`[PROMPT_BUILDER] Using explicit age: ${age} → ${personInfo.ageDescriptor}`);
+  } else if (suspect.displayAge) {
+    // Use displayAge string if provided
+    personInfo.ageDescriptor = suspect.displayAge;
+    console.log(`[PROMPT_BUILDER] Using displayAge: ${suspect.displayAge}`);
+  } else if (suspect.ageCategory) {
+    // Map ageCategory to age details (Singapore education system)
+    const ageCategoryMap: Record<string, { age: string; descriptor: string; prompt: string; genderMod?: boolean }> = {
+      'child': { age: 'child', descriptor: '8-11 years old primary school child', prompt: 'primary school age child, childlike face, small stature, innocent school child appearance', genderMod: true },
+      'teen': { age: 'teenager', descriptor: '14-16 years old secondary school student', prompt: 'secondary school teenager, teenage appearance, adolescent, youthful student face', genderMod: true },
+      'young_adult': { age: 'young', descriptor: '22-26 years old young adult', prompt: 'young adult, fresh face, energetic appearance' },
+      'adult': { age: 'adult', descriptor: '32-38 years old', prompt: 'adult, mature professional appearance' },
+      'middle_aged': { age: 'middle-aged', descriptor: '48-55 years old', prompt: 'middle-aged adult, mature appearance, some fine lines visible' },
+      'senior': { age: 'elderly', descriptor: '65-75 years old elderly', prompt: 'elderly person, gray hair, wrinkles, wise senior appearance', genderMod: true },
+    };
+    const mapped = ageCategoryMap[suspect.ageCategory];
+    if (mapped) {
+      personInfo.age = mapped.age;
+      personInfo.ageDescriptor = mapped.descriptor;
+      personInfo.agePrompt = mapped.prompt;
+      if (mapped.genderMod && suspect.ageCategory === 'child') {
+        personInfo.gender = personInfo.gender === 'woman' ? 'girl' : personInfo.gender === 'man' ? 'boy' : 'child';
+      } else if (mapped.genderMod && suspect.ageCategory === 'teen') {
+        personInfo.gender = personInfo.gender === 'woman' ? 'teenage girl' : personInfo.gender === 'man' ? 'teenage boy' : 'teenager';
+      } else if (mapped.genderMod && suspect.ageCategory === 'senior') {
+        personInfo.gender = personInfo.gender === 'woman' ? 'elderly woman' : personInfo.gender === 'man' ? 'elderly man' : 'elderly person';
+      }
+    }
+    console.log(`[PROMPT_BUILDER] Using ageCategory: ${suspect.ageCategory} → ${personInfo.ageDescriptor}`);
+  }
+
+  // Override gender if explicitly provided
+  if (suspect.gender) {
+    const baseGender = suspect.gender === 'female' ? 'woman' : 'man';
+    // Keep age-appropriate gender if already set (boy/girl/teenage boy/etc)
+    if (!['boy', 'girl', 'little boy', 'little girl', 'teenage boy', 'teenage girl', 'elderly man', 'elderly woman', 'young man', 'young woman'].includes(personInfo.gender)) {
+      personInfo.gender = baseGender;
+    }
+  }
+
+  // Expression logic: Storyline-inspired (personality/dialogue) with guilt-based fallback
+  // For children, expressions are always natural/innocent
+  const isYoungChild = personInfo.age === 'young_child' || personInfo.age === 'child';
+
+  // Extract dialogue emotions from dialogueTree
+  const dialogueEmotions = suspect.dialogueTree
+    ?.map(d => d.emotion)
+    .filter((e): e is NonNullable<typeof e> => e !== undefined) || [];
+
+  // Try storyline-derived expression first
+  const storylineExpression = deriveStorylineExpression(
+    suspect.personality,
+    dialogueEmotions,
+    suspect.motive,
+    isYoungChild
+  );
+
+  // Final expression: storyline > child default > guilt-based fallback
+  const expression = isYoungChild
+    ? 'natural child expression, innocent face, school photo pose'
+    : storylineExpression
+    ? storylineExpression
+    : suspect.isGuilty
+    ? 'slightly tense expression, avoiding direct eye contact, subtle nervousness in eyes'
+    : 'calm composed expression, confident posture, direct eye contact with camera';
+
+  // Log expression source for debugging
+  console.log(`[PROMPT_BUILDER] Expression for ${suspect.name}: ${storylineExpression ? 'storyline-derived' : isYoungChild ? 'child-default' : 'guilt-fallback'} → "${expression.substring(0, 50)}..."`);
 
   // DEBUG: Log name parsing results
   console.log(`[PROMPT_BUILDER] Building prompt for: ${suspect.name}`);
-  console.log(`[PROMPT_BUILDER] Detected gender: ${personInfo.gender}, age: ${personInfo.age}`);
+  console.log(`[PROMPT_BUILDER] Detected gender: ${personInfo.gender}, age: ${personInfo.age}, descriptor: ${personInfo.ageDescriptor}`);
 
   // For Realistic Vision V6.0 - use natural language prompts
   const occupationClothing = getOccupationClothing(suspect.role.toLowerCase());
 
   // Determine gender-specific descriptors for Realistic Vision
-  const isMale = personInfo.gender === 'man' || personInfo.gender === 'boy' ||
-                 personInfo.gender === 'teenage boy' || personInfo.gender === 'elderly man';
-  const genderWord = isMale ? 'man' : 'woman';
-  const genderAdjective = isMale ? 'male' : 'female';
+  const isMale = ['man', 'boy', 'little boy', 'teenage boy', 'elderly man', 'young man'].includes(personInfo.gender);
+  const isFemale = ['woman', 'girl', 'little girl', 'teenage girl', 'elderly woman', 'young woman'].includes(personInfo.gender);
 
-  // Build natural language prompt for Realistic Vision
+  // Display gender based on age
+  const displayGender = personInfo.gender; // Already age-appropriate from above
+  const genderAdjective = isMale ? 'male' : isFemale ? 'female' : 'person';
+
+  // Age-specific face details - ENHANCED for all age groups
+  const ageDetails = personInfo.age === 'elderly'
+    ? 'aged facial features, wrinkles, grey hair, weathered skin'
+    : personInfo.age === 'middle-aged'
+    ? 'mature facial features, some fine lines, professional appearance'
+    : personInfo.age === 'young'
+    ? 'youthful facial features, smooth skin, energetic appearance'
+    : personInfo.age === 'older_teen'
+    ? 'late teenage facial features, young adult appearance, smooth skin'
+    : personInfo.age === 'teenager'
+    ? 'teenage facial features, youthful adolescent appearance, smooth young skin'
+    : personInfo.age === 'child'
+    ? 'childlike facial features, young innocent face, small child appearance, baby fat cheeks'
+    : personInfo.age === 'young_child'
+    ? 'very young childlike features, toddler/kindergarten face, very small, baby face, round cheeks'
+    : 'adult facial features';
+
+  // Build natural language prompt for Realistic Vision - START WITH QUALITY PRESET
   const promptParts = [
-    // 1. GENDER with emphasis - CRITICAL for correct generation
-    `a ${genderWord}`,
-    `${genderAdjective} person`,
-    `${genderAdjective}`,
-    // 2. AGE description
-    personInfo.ageDescriptor,
-    // 3. ETHNICITY
-    `${ethnicityInfo.race} ethnicity`,
+    // QUALITY PRESET FIRST - critical for best results
+    QUALITY_PRESETS.portrait,
+    // 1. SUBJECT TYPE
+    'solo portrait', 'single person', 'one person only',
+    // 2. GENDER with emphasis - CRITICAL for correct generation
+    `(${displayGender}:1.4)`,
+    `(${genderAdjective}:1.3)`,
+    // 3. AGE description with details
+    `(${personInfo.ageDescriptor}:1.2)`,
+    ageDetails,
+    // 4. ETHNICITY with emphasis
+    `(${ethnicityInfo.race} ethnicity:1.2)`,
     ethnicityInfo.ethnicity,
     ethnicityInfo.skinTone,
-    // 4. OCCUPATION and clothing
-    suspect.role,
+    'natural skin texture with visible pores',
+    // 5. OCCUPATION and clothing - detailed
+    `${suspect.role} occupation`,
     occupationClothing,
-    // 5. Expression
+    // 6. Expression and pose
     expression,
+    'head and shoulders portrait',
+    'centered composition',
+    // 7. Photography settings for ID photo look
+    'corporate ID photo style',
+    'plain neutral grey background',
+    'front facing camera',
+    'soft studio lighting from above',
+    'catch light in eyes',
+    'slight shadow under chin',
   ];
 
   // Add religious attire if applicable
@@ -136,35 +413,24 @@ export function buildSuspectPrompt(suspect: { name: string; role: string; isGuil
     promptParts.push(personInfo.religiousAttire);
   }
 
-  // Add photography style and quality tags for Realistic Vision
-  promptParts.push(
-    'RAW photo', 'professional portrait photograph',
-    'corporate ID photo', 'passport photo style',
-    'front facing', 'looking at camera',
-    'soft natural lighting', 'plain background',
-    'high quality', '8k uhd', 'dslr', 'sharp focus',
-    'professional photography', 'natural skin texture'
-  );
-
-  // Negative prompt for Realistic Vision - emphasize OPPOSITE gender strongly
+  // Negative prompt for Realistic Vision - USE ENHANCED PRESET + gender-specific
   const oppositeGender = isMale
-    ? 'woman, women, female, girl, feminine, breasts, long hair, feminine features'
-    : 'man, men, male, boy, masculine, beard, mustache, masculine features';
+    ? '(woman:1.8), (women:1.8), (female:1.8), (girl:1.8), (feminine:1.6), breasts, long feminine hair, feminine features, makeup, lipstick, feminine clothing'
+    : '(man:1.8), (men:1.8), (male:1.8), (boy:1.8), (masculine:1.6), beard, mustache, masculine features, adam\'s apple, masculine jaw';
 
   const negativePrompt = [
-    // OPPOSITE GENDER with high weight - most important
-    `(${oppositeGender}:1.5)`,
-    // Quality issues
-    '(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy',
-    'extra limbs, missing limbs, floating limbs, mutated hands, extra fingers',
+    // ENHANCED PRESET FIRST
+    ENHANCED_NEGATIVE.portrait,
+    // OPPOSITE GENDER with very high weight
+    oppositeGender,
+    // Multiple people prevention
+    '(multiple people:1.8), (two people:1.8), (crowd:1.5), (group:1.5), (couple:1.5)',
     // Inappropriate content
-    'nsfw, nude, naked, revealing, suggestive',
-    // Style issues
-    'anime, cartoon, illustration, 3d render, cgi',
-    // Other issues
-    'blurry, low quality, watermark, text, signature',
-    'multiple people, crowd, group',
-  ].join(', ');
+    '(nsfw:2), (nude:2), (naked:2), (revealing:1.5), (suggestive:1.5), cleavage',
+    // Wrong age
+    personInfo.age === 'elderly' ? '(young:1.3), (youthful:1.3)' : '',
+    personInfo.age === 'young' ? '(old:1.3), (elderly:1.3), wrinkles' : '',
+  ].filter(Boolean).join(', ');
 
   return {
     prompt: promptParts.join(', '),
@@ -174,20 +440,150 @@ export function buildSuspectPrompt(suspect: { name: string; role: string; isGuil
 }
 
 /**
- * Build cover image prompt - Realistic Vision V6.0 format
+ * Build cover image prompt - ENHANCED for noir detective case file aesthetic
  */
 export function buildCoverPrompt(caseData: GeneratedCase, subject: string): string {
   const storyKeywords = caseData.story.setting.split(' ').slice(0, 10).join(' ');
-  const subjectElements = subject === 'MATH' ? 'mathematical equations written on paper' :
-                          subject === 'SCIENCE' ? 'scientific equipment and lab notes' : 'math and science elements';
 
-  // Realistic Vision V6.0 - natural language prompts with quality tags
-  return `RAW photo, manila case folder file, detective case file, classified document, ${storyKeywords}, ${subjectElements}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, high quality, 8k uhd, dslr, sharp focus, professional photography, photorealistic`;
+  // Subject-specific elements with more detail
+  const subjectElements = subject === 'MATH'
+    ? 'handwritten mathematical equations on yellowed paper, algebra formulas, geometry diagrams, calculation notes'
+    : subject === 'SCIENCE'
+    ? 'scientific lab report papers, molecular diagrams, experiment data tables, measurement notes'
+    : 'academic papers with equations and diagrams';
+
+  // Crime type specific elements
+  const crimeElements = caseData.story.setting.toLowerCase().includes('theft')
+    ? 'photos of missing items, inventory lists'
+    : caseData.story.setting.toLowerCase().includes('fraud')
+    ? 'financial documents, receipts, bank statements'
+    : 'crime scene photographs, evidence photos';
+
+  // Build comprehensive noir cover prompt
+  const promptParts = [
+    // Quality preset
+    QUALITY_PRESETS.cover,
+    // Main subject - case file
+    'detective case folder', 'manila envelope file',
+    'TOP SECRET stamp in red ink', 'CLASSIFIED document',
+    'police case file number visible',
+    // Contents spilling out
+    `contents visible: ${subjectElements}`,
+    crimeElements,
+    'handwritten detective notes', 'red string connecting clues',
+    // Story context
+    storyKeywords,
+    // Noir atmosphere
+    'film noir aesthetic', 'moody dramatic lighting',
+    'single desk lamp illumination', 'dark wooden desk surface',
+    'shadows and highlights', 'vintage 1940s detective office feel',
+    // Paper and texture details
+    'aged yellowed paper', 'coffee ring stains on documents',
+    'paper clips and staples', 'bent corners',
+    // Composition
+    'top-down view', 'flat lay arrangement',
+    'scattered documents composition',
+    // Technical quality
+    'professional product photography',
+    'sharp focus on documents', '8k uhd detail',
+  ];
+
+  return promptParts.join(', ');
 }
 
+// ============================================
+// LOCATION-SPECIFIC SCENE TEMPLATES
+// ============================================
+
+const LOCATION_TEMPLATES: Record<string, {
+  architecture: string;
+  furniture: string;
+  lighting: string;
+  atmosphere: string;
+  singaporeDetails: string;
+}> = {
+  office: {
+    architecture: 'modern Singapore office interior, glass partitions, dropped ceiling with recessed lighting',
+    furniture: 'ergonomic office chairs, computer workstations, filing cabinets, desk dividers',
+    lighting: 'fluorescent office lighting, natural light from windows, air-conditioned environment',
+    atmosphere: 'professional corporate atmosphere, busy workplace, organized office space',
+    singaporeDetails: 'Singaporean office building, CBD area feel, multi-storey commercial building',
+  },
+  school: {
+    architecture: 'Singapore school classroom, whiteboard at front, ceiling fans, louvered windows',
+    furniture: 'student desks in rows, teacher desk, notice board with posters, lockers in corridor',
+    lighting: 'bright classroom lighting, natural daylight from windows, well-lit educational space',
+    atmosphere: 'academic environment, school supplies visible, educational posters on walls',
+    singaporeDetails: 'typical Singapore MOE school design, HDB area school, covered walkways',
+  },
+  laboratory: {
+    architecture: 'modern science laboratory, fume hood, safety shower visible, chemical storage',
+    furniture: 'lab benches with sinks, high stools, equipment shelves, glassware cabinets',
+    lighting: 'bright clinical lab lighting, no shadows for safety, well-illuminated workspace',
+    atmosphere: 'sterile research environment, scientific equipment, safety signs visible',
+    singaporeDetails: 'Singapore research facility, A*STAR style lab, modern equipment',
+  },
+  hospital: {
+    architecture: 'Singapore hospital interior, clean white walls, medical equipment bays',
+    furniture: 'medical equipment, hospital beds, nurses station, wheeled equipment',
+    lighting: 'bright clinical lighting, 24-hour lighting, emergency lighting visible',
+    atmosphere: 'sterile medical environment, antiseptic smell implied, professional healthcare',
+    singaporeDetails: 'Singapore General Hospital style, public healthcare facility',
+  },
+  hawker_center: {
+    architecture: 'open-air hawker center, high ceiling with industrial fans, concrete floor',
+    furniture: 'food stalls with signboards, plastic tables and chairs, shared seating areas',
+    lighting: 'bright fluorescent hawker lighting, neon food stall signs, well-lit eating area',
+    atmosphere: 'bustling food court atmosphere, steam from cooking, busy meal time',
+    singaporeDetails: 'iconic Singapore hawker center, HDB void deck nearby, multilingual signs',
+  },
+  mrt_station: {
+    architecture: 'underground MRT station platform, platform screen doors, directional signs',
+    furniture: 'platform benches, fare gates visible, escalators, information displays',
+    lighting: 'bright station lighting, LED displays, platform safety lighting',
+    atmosphere: 'busy commuter environment, organized public transport, clean and efficient',
+    singaporeDetails: 'Singapore MRT station, Circle Line or North-South Line style',
+  },
+  hdb_flat: {
+    architecture: 'HDB flat interior, typical Singapore public housing layout, corridor windows',
+    furniture: 'practical home furniture, TV console, dining table, shoe cabinet at entrance',
+    lighting: 'residential warm lighting, ceiling lights, natural light from windows',
+    atmosphere: 'lived-in family home, personal belongings, homey environment',
+    singaporeDetails: 'typical HDB 4-room flat, common corridor outside, void deck visible',
+  },
+  shopping_mall: {
+    architecture: 'air-conditioned shopping mall interior, marble floors, high ceilings',
+    furniture: 'retail displays, benches, escalators, decorative plants',
+    lighting: 'bright retail lighting, accent lighting on displays, skylight areas',
+    atmosphere: 'busy shopping environment, consumers walking, retail activity',
+    singaporeDetails: 'Singaporean shopping mall like VivoCity or Ion style',
+  },
+  warehouse: {
+    architecture: 'industrial warehouse interior, high metal roof, loading dock doors',
+    furniture: 'metal shelving racks, pallets, forklifts, inventory boxes',
+    lighting: 'industrial high-bay lighting, some darker corners, dock door light',
+    atmosphere: 'working industrial space, logistics environment, organized storage',
+    singaporeDetails: 'Tuas or Jurong industrial area warehouse',
+  },
+  restaurant: {
+    architecture: 'restaurant dining area, decorative interior, kitchen pass visible',
+    furniture: 'dining tables with tablecloths, chairs, service station, bar area',
+    lighting: 'ambient restaurant lighting, pendant lights, mood lighting',
+    atmosphere: 'dining establishment, food service environment, hospitality setting',
+    singaporeDetails: 'Singapore restaurant, could be any cuisine, kopitiam to fine dining',
+  },
+  park: {
+    architecture: 'Singapore park outdoor area, walking paths, park benches, sheltered areas',
+    furniture: 'park benches, exercise equipment, waste bins, lamp posts',
+    lighting: 'natural daylight, dappled sunlight through trees, park lamp posts',
+    atmosphere: 'peaceful outdoor recreation, nature surroundings, public park',
+    singaporeDetails: 'Singapore park like East Coast or Bishan Park, well-maintained greenery',
+  },
+};
+
 /**
- * Build scene image prompt - Realistic Vision V6.0 format
- * Enhanced to embed visible evidence items within the scene by position zone
+ * Build scene image prompt - ENHANCED with location templates
+ * Better location accuracy and Singapore-specific details
  */
 export function buildScenePrompt(
   scene: { description: string; locationType?: string; id?: string; sceneType?: string },
@@ -199,10 +595,27 @@ export function buildScenePrompt(
     positionY?: number;
   }>
 ): string {
+  // Detect location type from description
+  const desc = scene.description.toLowerCase();
+  let locationKey = 'office'; // default
+
+  if (/school|classroom|teacher|student|education/i.test(desc)) locationKey = 'school';
+  else if (/lab|laboratory|science|research|experiment/i.test(desc)) locationKey = 'laboratory';
+  else if (/hospital|clinic|medical|doctor|nurse|patient/i.test(desc)) locationKey = 'hospital';
+  else if (/hawker|food court|kopitiam|eating/i.test(desc)) locationKey = 'hawker_center';
+  else if (/mrt|train|station|platform|commuter/i.test(desc)) locationKey = 'mrt_station';
+  else if (/hdb|flat|apartment|home|residence/i.test(desc)) locationKey = 'hdb_flat';
+  else if (/mall|shopping|retail|store/i.test(desc)) locationKey = 'shopping_mall';
+  else if (/warehouse|storage|industrial|factory/i.test(desc)) locationKey = 'warehouse';
+  else if (/restaurant|cafe|dining|kitchen/i.test(desc)) locationKey = 'restaurant';
+  else if (/park|garden|outdoor|nature/i.test(desc)) locationKey = 'park';
+  else if (/office|corporate|meeting|board/i.test(desc)) locationKey = 'office';
+
+  const locationTemplate = LOCATION_TEMPLATES[locationKey];
+
   // Build zone-based evidence description for embedding in scene
   let evidenceDescription = '';
   if (embeddedClues && embeddedClues.length > 0) {
-    // Group clues by position zone (floor, surface, wall)
     const floorClues = embeddedClues.filter(c => (c.positionY ?? 50) > 65);
     const surfaceClues = embeddedClues.filter(c => {
       const y = c.positionY ?? 50;
@@ -212,100 +625,126 @@ export function buildScenePrompt(
 
     const zoneParts: string[] = [];
 
-    // Floor evidence (bottom of image)
     if (floorClues.length > 0) {
-      const floorItems = floorClues.slice(0, 2).map(clue => {
-        if (clue.visualCue) {
-          return clue.visualCue.split(',')[0].trim().toLowerCase();
-        }
-        return clue.title.toLowerCase();
-      }).filter(Boolean);
+      const floorItems = floorClues.slice(0, 2).map(clue =>
+        (clue.visualCue?.split(',')[0].trim() || clue.title).toLowerCase()
+      ).filter(Boolean);
       if (floorItems.length > 0) {
-        zoneParts.push(`on the floor: ${floorItems.join(', ')}`);
+        zoneParts.push(`on the floor in foreground: ${floorItems.join(', ')}`);
       }
     }
 
-    // Surface evidence (tables, desks, counters - middle of image)
     if (surfaceClues.length > 0) {
-      const surfaceItems = surfaceClues.slice(0, 2).map(clue => {
-        if (clue.visualCue) {
-          return clue.visualCue.split(',')[0].trim().toLowerCase();
-        }
-        return clue.title.toLowerCase();
-      }).filter(Boolean);
+      const surfaceItems = surfaceClues.slice(0, 2).map(clue =>
+        (clue.visualCue?.split(',')[0].trim() || clue.title).toLowerCase()
+      ).filter(Boolean);
       if (surfaceItems.length > 0) {
-        zoneParts.push(`on desk/table surface: ${surfaceItems.join(', ')}`);
+        zoneParts.push(`on table/desk surface: ${surfaceItems.join(', ')}`);
       }
     }
 
-    // Wall evidence (monitors, boards, cabinets - upper portion)
     if (wallClues.length > 0) {
-      const wallItems = wallClues.slice(0, 2).map(clue => {
-        if (clue.visualCue) {
-          return clue.visualCue.split(',')[0].trim().toLowerCase();
-        }
-        return clue.title.toLowerCase();
-      }).filter(Boolean);
+      const wallItems = wallClues.slice(0, 2).map(clue =>
+        (clue.visualCue?.split(',')[0].trim() || clue.title).toLowerCase()
+      ).filter(Boolean);
       if (wallItems.length > 0) {
-        zoneParts.push(`on wall/monitor area: ${wallItems.join(', ')}`);
+        zoneParts.push(`on wall/background: ${wallItems.join(', ')}`);
       }
     }
 
     if (zoneParts.length > 0) {
-      evidenceDescription = `, visible evidence: ${zoneParts.join(', ')}, evidence markers with numbers near items`;
+      evidenceDescription = `visible evidence items: ${zoneParts.join(', ')}, yellow evidence markers with numbers`;
     }
   }
 
   // Scene type specific enhancements
-  let sceneEnhancement = '';
+  let sceneTypeDetails = '';
   if (scene.sceneType === 'security') {
-    sceneEnhancement = ', security office with CCTV monitors, access control systems, surveillance equipment';
+    sceneTypeDetails = 'security monitoring room, multiple CCTV screens, access control panel, surveillance equipment rack';
   } else if (scene.sceneType === 'work_area') {
-    sceneEnhancement = ', work area with desk, personal belongings, storage lockers';
+    sceneTypeDetails = 'personal work station area, employee belongings, storage lockers, name tags visible';
   } else if (scene.sceneType === 'investigation') {
-    sceneEnhancement = ', investigation room with evidence board, analysis equipment, forensic lab bench';
+    sceneTypeDetails = 'forensic investigation setup, evidence collection in progress, crime scene markers';
   } else if (scene.sceneType === 'resolution') {
-    sceneEnhancement = ', confrontation room with evidence display, interview table';
+    sceneTypeDetails = 'confrontation scene, evidence laid out on table, interview setting';
   }
 
-  // Realistic Vision V6.0 - natural language prompts with quality tags
-  // Square format (1:1) optimized for mobile and desktop viewing
-  // Centered composition with evidence visible in frame
-  return `RAW photo, centered interior view, ${scene.description}${sceneEnhancement}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area${evidenceDescription}, numbered evidence markers, yellow crime scene tape, forensic lighting, photorealistic, highly detailed environment, symmetrical composition, centered framing, high quality, 8k uhd, dslr, sharp focus, professional photography, square format composition`;
+  // Build comprehensive scene prompt
+  const promptParts = [
+    // QUALITY PRESET FIRST
+    QUALITY_PRESETS.scene,
+    // Main scene description
+    scene.description,
+    // Location-specific details
+    locationTemplate.architecture,
+    locationTemplate.furniture,
+    locationTemplate.lighting,
+    locationTemplate.atmosphere,
+    locationTemplate.singaporeDetails,
+    // Scene type details
+    sceneTypeDetails,
+    // Evidence in scene
+    evidenceDescription,
+    // Crime scene elements
+    'police investigation in progress',
+    'yellow crime scene tape cordoning area',
+    'forensic markers on floor',
+    // Composition
+    'wide angle interior shot',
+    'centered symmetrical composition',
+    'eye-level camera angle',
+    'no people visible in frame',
+    // Technical quality
+    'sharp focus throughout',
+    '8k uhd resolution',
+    'HDR lighting',
+  ].filter(Boolean);
+
+  return promptParts.join(', ');
 }
 
 /**
- * Evidence type visual descriptions for different categories
+ * Evidence type visual descriptions for different categories - ENHANCED
  */
 const EVIDENCE_TYPE_VISUALS: Record<string, {
   style: string;
   lighting: string;
   composition: string;
   details: string;
+  background: string;
+  props: string;
 }> = {
   physical: {
-    style: 'forensic evidence photograph, police evidence documentation',
-    lighting: 'clinical forensic lighting, bright even illumination',
-    composition: 'close-up macro shot, evidence marker with number visible, measuring ruler for scale',
-    details: 'detailed surface textures, visible fingerprint dust, evidence collection setting',
+    style: 'forensic evidence photograph, police evidence documentation, crime scene investigation photo',
+    lighting: 'clinical forensic flash lighting, bright even illumination with no shadows, professional evidence lighting setup',
+    composition: 'close-up macro shot centered on evidence, yellow evidence marker with number prominently visible, measuring ruler for scale alongside item',
+    details: 'highly detailed surface textures, visible forensic powder dust if fingerprint-related, evidence bag edge visible, sharp focus on key features',
+    background: 'sterile grey evidence examination table, clean neutral backdrop, forensic lab surface',
+    props: 'yellow numbered evidence marker, metric measuring ruler, evidence collection tweezers nearby, latex gloves visible at edge',
   },
   document: {
-    style: 'document photography, paper evidence documentation',
-    lighting: 'soft diffused lighting to avoid glare, even paper illumination',
-    composition: 'flat lay top-down view, full document visible, evidence tag nearby',
-    details: 'readable text visible, paper texture, creases and folds shown, dated timestamp',
+    style: 'document photography, paper evidence archival documentation, official police record photo',
+    lighting: 'soft diffused lighting to eliminate glare, even illumination across entire document, copy stand lighting setup',
+    composition: 'flat lay top-down bird eye view, entire document visible within frame, straight edges aligned, evidence tag in corner',
+    details: 'readable text clearly visible, paper texture and grain shown, any creases folds or damage documented, date stamps visible',
+    background: 'clean document examination surface, archival grey backdrop, evidence photography mat',
+    props: 'evidence tag with case number, scale reference card, document examination magnifier nearby',
   },
   digital: {
-    style: 'screen capture photograph, digital forensics documentation',
-    lighting: 'screen glow visible, ambient office lighting',
-    composition: 'device screen clearly visible, timestamp overlay, forensic software interface',
-    details: 'clear readable display, evidence of digital analysis, metadata visible',
+    style: 'digital forensics documentation, screen capture photograph, cyber evidence photo',
+    lighting: 'screen glow as primary light source, ambient office lighting supplement, realistic monitor illumination',
+    composition: 'device screen clearly visible and readable, timestamp overlay on screen, forensic analysis software interface shown',
+    details: 'clear readable display text, evidence of digital analysis tools, metadata visible, file properties shown',
+    background: 'digital forensics workstation, dark cyber lab environment, multiple monitors visible',
+    props: 'forensic write-blocker device, evidence hard drive, USB forensic tools, digital chain of custody form',
   },
   testimony: {
-    style: 'interview documentation, witness statement setting',
-    lighting: 'soft indoor lighting, professional office setting',
-    composition: 'document or notepad visible, pen nearby, official letterhead',
-    details: 'handwritten or typed notes, signature area, official stamp',
+    style: 'interview documentation photograph, witness statement record, official declaration photo',
+    lighting: 'soft professional indoor lighting, interview room ambiance, formal documentation setting',
+    composition: 'official document or statement form visible, signing pen nearby, formal letterhead shown',
+    details: 'handwritten or typed statement text, signature line visible, official stamps and seals, date and time recorded',
+    background: 'interview room table surface, police station desk, formal office setting',
+    props: 'official statement form, black signing pen, witness badge, recording device indicator',
   },
 };
 
@@ -392,58 +831,112 @@ function detectEvidenceKeywords(description: string, title: string): string {
 }
 
 /**
- * Build clue/evidence image prompt - Realistic Vision V6.0 format
- * Enhanced for story-accurate, detailed evidence images
+ * Build clue/evidence image prompt - STORY-ACCURATE version
+ * Prioritizes the actual description from the case narrative
+ * The visual should match EXACTLY what's described in the story
  */
 export function buildCluePrompt(clue: {
   title: string;
   description: string;
   type: string;
   relevance: string;
-  /** Visual description from evidence templates - prioritized for image generation */
+  /** Visual description from evidence templates - HIGHEST PRIORITY for image generation */
   visualCue?: string;
   analysisResult?: string;
-}): string {
+}): {
+  prompt: string;
+  negativePrompt: string;
+} {
   // Get type-specific visual settings
   const typeVisuals = EVIDENCE_TYPE_VISUALS[clue.type] || EVIDENCE_TYPE_VISUALS.physical;
 
-  // PRIORITIZE visualCue if available - it's specifically designed for images
-  // Examples: "Visible fingerprint ridges on clear glass", "Metal screwdriver on floor"
-  const primaryVisual = clue.visualCue || clue.description;
+  // HIGHEST PRIORITY: visualCue is the most specific visual description
+  // It should describe EXACTLY what the evidence looks like
+  const visualCue = clue.visualCue || '';
 
-  // Detect specific evidence keywords for more detailed prompts
-  const keywordDetails = detectEvidenceKeywords(primaryVisual, clue.title);
+  // Parse the description for specific visual elements
+  // This is the actual story description that should be matched
+  const storyDescription = clue.description;
 
-  // Relevance affects visual prominence
-  const relevanceStyle = clue.relevance === 'critical'
-    ? 'key evidence, prominently displayed, clear focus, important clue'
-    : clue.relevance === 'red-herring'
-    ? 'suspicious looking, appears significant, misleading evidence'
-    : 'supporting evidence, documented carefully';
+  // Extract key visual nouns and adjectives from description
+  const visualElements = extractVisualElements(storyDescription);
 
-  // Build comprehensive prompt - visualCue FIRST for strongest influence
+  // Detect specific evidence keywords for detailed prompts
+  const keywordDetails = detectEvidenceKeywords(storyDescription, clue.title);
+
+  // Build prompt with STORY ACCURACY as the TOP priority
+  // Using weighted tags to ensure the description content dominates
   const promptParts = [
-    // Core quality tags for Realistic Vision
-    'RAW photo',
-    'professional forensic evidence photography',
-    // VISUAL CUE FIRST - most important for image accuracy
-    primaryVisual,
-    // Evidence title for context
-    clue.title,
-    // Detected specific details (from keyword matching)
-    keywordDetails,
-    // Type-specific styling
+    // 1. QUALITY PRESET - technical foundation
+    QUALITY_PRESETS.evidence,
+
+    // 2. PRIMARY CONTENT - HIGHEST WEIGHT - what the image MUST show
+    // The visualCue is the most specific description
+    visualCue ? `(${visualCue}:1.5)` : '',
+    // The actual story description with high weight
+    `(${storyDescription}:1.4)`,
+    // The title describes what this evidence IS
+    `(${clue.title}:1.3)`,
+
+    // 3. DETECTED KEYWORDS - specific visual details from content
+    keywordDetails ? `(${keywordDetails}:1.2)` : '',
+
+    // 4. EXTRACTED VISUAL ELEMENTS - key objects/colors/materials
+    visualElements,
+
+    // 5. Photography style - lower weight, just for quality
+    'evidence photograph',
     typeVisuals.style,
     typeVisuals.lighting,
     typeVisuals.composition,
-    typeVisuals.details,
-    // Relevance styling
-    relevanceStyle,
-    // Quality tags
-    'photorealistic', 'highly detailed textures', 'sharp focus',
-    'high quality', '8k uhd', 'dslr', 'macro photography',
-    'evidence documentation', 'Singapore Police Force standards',
+
+    // 6. Basic quality tags
+    'sharp focus', 'high detail', 'photorealistic',
   ].filter(Boolean);
 
-  return promptParts.join(', ');
+  // Build negative prompt - prevent things that contradict the description
+  const negativePrompt = [
+    ENHANCED_NEGATIVE.evidence,
+    // No people unless specifically in description
+    !storyDescription.toLowerCase().includes('person') && !storyDescription.toLowerCase().includes('human')
+      ? '(person:1.8), (people:1.8), (face:1.8), (human:1.8)' : '',
+    // No hands unless specifically mentioned
+    !storyDescription.toLowerCase().includes('hand')
+      ? '(hands:1.5), (fingers:1.5)' : '',
+    // General quality issues
+    'blurry, out of focus, low quality',
+    'wrong item, different object, incorrect evidence',
+    'cartoon, anime, illustration, drawing',
+  ].filter(Boolean).join(', ');
+
+  return {
+    prompt: promptParts.join(', '),
+    negativePrompt,
+  };
+}
+
+/**
+ * Extract visual elements (objects, colors, materials) from description
+ * Helps ensure the prompt includes specific visual details from the story
+ */
+function extractVisualElements(description: string): string {
+  const elements: string[] = [];
+
+  // Colors
+  const colors = description.match(/\b(red|blue|green|yellow|black|white|brown|grey|gray|orange|purple|pink|silver|gold|metallic|transparent|clear)\b/gi);
+  if (colors) elements.push(...colors.map(c => c.toLowerCase()));
+
+  // Materials
+  const materials = description.match(/\b(paper|metal|plastic|glass|wood|fabric|leather|rubber|ceramic|cardboard|digital|electronic)\b/gi);
+  if (materials) elements.push(...materials.map(m => m.toLowerCase()));
+
+  // Common evidence objects
+  const objects = description.match(/\b(note|letter|receipt|phone|laptop|computer|key|card|badge|document|file|folder|photo|photograph|bottle|container|bag|box|tool|knife|weapon|money|cash|coin)\b/gi);
+  if (objects) elements.push(...objects.map(o => o.toLowerCase()));
+
+  // Conditions/states
+  const states = description.match(/\b(broken|torn|crumpled|folded|stained|dusty|dirty|clean|new|old|worn|damaged)\b/gi);
+  if (states) elements.push(...states.map(s => s.toLowerCase()));
+
+  return elements.length > 0 ? elements.join(', ') : '';
 }

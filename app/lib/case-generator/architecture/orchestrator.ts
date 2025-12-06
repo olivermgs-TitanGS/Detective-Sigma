@@ -112,6 +112,42 @@ function contextToGeneratedCase(context: GenerationContext): GeneratedCase {
       description: r.description,
     }));
 
+    // Build proper displayAge from specificAge and role context
+    const age = s.appearance.specificAge;
+    let displayAge: string;
+    if (age !== undefined) {
+      // Create descriptive age string based on age and role
+      if (age <= 6) {
+        displayAge = `${age} years old (kindergarten)`;
+      } else if (age <= 12) {
+        displayAge = `${age} years old (primary school)`;
+      } else if (age <= 16) {
+        displayAge = `${age} years old (secondary school)`;
+      } else if (age <= 19) {
+        displayAge = `${age} years old (JC/Poly/ITE)`;
+      } else if (age <= 25) {
+        displayAge = `${age} years old (young adult)`;
+      } else if (age <= 45) {
+        displayAge = `${age} years old`;
+      } else if (age <= 65) {
+        displayAge = `${age} years old (experienced)`;
+      } else {
+        displayAge = `${age} years old (senior)`;
+      }
+    } else {
+      // Fallback to ageCategory label
+      const ageCategoryLabels: Record<string, string> = {
+        child: 'Primary school age',
+        teen: 'Teenage',
+        young_adult: 'Young adult',
+        adult: 'Adult',
+        middle_aged: 'Middle-aged',
+        senior: 'Senior',
+      };
+      const cat = s.appearance.ageCategory || 'adult';
+      displayAge = ageCategoryLabels[cat] || cat;
+    }
+
     return {
       id: s.id,
       name: s.name,
@@ -124,7 +160,7 @@ function contextToGeneratedCase(context: GenerationContext): GeneratedCase {
       gender: s.appearance.gender as Suspect['gender'],
       ageCategory: s.appearance.ageCategory as Suspect['ageCategory'],
       specificAge: s.appearance.specificAge,
-      displayAge: s.appearance.ageCategory,
+      displayAge,
       dialogueTree,
       relationships,
     };

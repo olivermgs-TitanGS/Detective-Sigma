@@ -90,34 +90,91 @@ export function CasePreview({ generatedCase, generatedImages, puzzleComplexity }
 }
 
 function SuspectsSection({ suspects, images }: { suspects: GeneratedCase['suspects']; images: Record<string, string> }) {
+  // Helper to format age display
+  const getAgeDisplay = (suspect: GeneratedCase['suspects'][0]) => {
+    if (suspect.displayAge) return suspect.displayAge;
+    if (suspect.specificAge) return `${suspect.specificAge} years old`;
+    if (suspect.ageCategory) {
+      const categoryLabels: Record<string, string> = {
+        child: 'Child (7-12)',
+        teen: 'Teen (13-17)',
+        young_adult: 'Young Adult (18-25)',
+        adult: 'Adult (26-45)',
+        middle_aged: 'Middle-Aged (46-65)',
+        senior: 'Senior (65+)',
+      };
+      return categoryLabels[suspect.ageCategory] || suspect.ageCategory;
+    }
+    return null;
+  };
+
   return (
     <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
       <h3 className="text-xl font-bold text-red-400 font-mono mb-4">SUSPECTS ({suspects.length})</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {suspects.map((suspect) => (
-          <div
-            key={suspect.id}
-            className={`p-4 rounded border-2 ${
-              suspect.isGuilty ? 'bg-red-900/30 border-red-600' : 'bg-slate-800 border-slate-600'
-            }`}
-          >
-            <div className="flex gap-3 mb-2">
-              {images[suspect.id] ? (
-                <img src={images[suspect.id]} alt={suspect.name} className="w-16 h-16 object-cover rounded-lg border border-slate-500" />
-              ) : (
-                <div className="w-16 h-16 bg-slate-700 rounded-lg border border-slate-500 flex items-center justify-center">
-                  <span className="text-slate-500 text-2xl">?</span>
+        {suspects.map((suspect) => {
+          const ageDisplay = getAgeDisplay(suspect);
+          return (
+            <div
+              key={suspect.id}
+              className={`p-4 rounded border-2 ${
+                suspect.isGuilty ? 'bg-red-900/30 border-red-600' : 'bg-slate-800 border-slate-600'
+              }`}
+            >
+              <div className="flex gap-3 mb-2">
+                {images[suspect.id] ? (
+                  <img src={images[suspect.id]} alt={suspect.name} className="w-16 h-16 object-cover rounded-lg border border-slate-500" />
+                ) : (
+                  <div className="w-16 h-16 bg-slate-700 rounded-lg border border-slate-500 flex items-center justify-center">
+                    <span className="text-slate-500 text-2xl">?</span>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-white truncate">{suspect.name}</div>
+                  <div className="text-amber-400 text-sm truncate">{suspect.role}</div>
+                  {/* Age & Demographics Row */}
+                  <div className="flex flex-wrap items-center gap-1 mt-1">
+                    {ageDisplay && (
+                      <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-blue-800/70 text-blue-200">
+                        {suspect.specificAge ? `${suspect.specificAge}y` : ageDisplay}
+                      </span>
+                    )}
+                    {suspect.gender && (
+                      <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${
+                        suspect.gender === 'female' ? 'bg-pink-800/70 text-pink-200' : 'bg-cyan-800/70 text-cyan-200'
+                      }`}>
+                        {suspect.gender === 'female' ? '♀' : '♂'}
+                      </span>
+                    )}
+                    {suspect.ethnicity && (
+                      <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">
+                        {suspect.ethnicity}
+                      </span>
+                    )}
+                  </div>
+                  {suspect.isGuilty && <div className="text-red-400 font-mono text-xs mt-1">⚠ GUILTY</div>}
+                </div>
+              </div>
+              {/* Full age description if available */}
+              {suspect.displayAge && suspect.displayAge !== `${suspect.specificAge} years old` && (
+                <div className="text-blue-300/80 text-xs mb-2 font-mono">
+                  📅 {suspect.displayAge}
                 </div>
               )}
-              <div>
-                <div className="font-bold text-white">{suspect.name}</div>
-                <div className="text-amber-400 text-sm">{suspect.role}</div>
-                {suspect.isGuilty && <div className="text-red-400 font-mono text-xs">GUILTY</div>}
-              </div>
+              <div className="text-slate-400 text-sm line-clamp-2">{suspect.alibi}</div>
+              {/* Personality traits */}
+              {suspect.personality && suspect.personality.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {suspect.personality.slice(0, 3).map((trait, i) => (
+                    <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-300">
+                      {trait}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="text-slate-400 text-sm">{suspect.alibi}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -15,12 +15,13 @@ const MALE_NAMES = /^(ahmad|muhammad|ali|hassan|ibrahim|ismail|mohamed|abdul|raz
 const FEMALE_ROLES = /\b(mother|wife|sister|daughter|aunt|grandmother|mrs|ms|miss|woman|lady|girl|waitress|actress|hostess|saleswoman|businesswoman|female|makcik|aunty|kakak|madam|mdm)\b/i;
 const MALE_ROLES = /\b(father|husband|brother|son|uncle|grandfather|mr|man|boy|waiter|actor|host|salesman|businessman|male|pakcik|abang|encik|sir)\b/i;
 
-// Age detection patterns
-const CHILD_ROLES = /\b(child|kid|boy|girl|student|pupil|primary school|elementary)\b/i;
-const TEEN_ROLES = /\b(teen|teenager|secondary school|high school|youth|young adult|polytechnic|ite|jc|junior college)\b/i;
-const YOUNG_ADULT_ROLES = /\b(university|undergraduate|graduate|intern|trainee|fresh graduate|nsf|national service)\b/i;
-const MIDDLE_AGED_ROLES = /\b(manager|supervisor|director|executive|professional|experienced)\b/i;
-const ELDER_ROLES = /\b(elderly|old|senior|grandfather|grandmother|grandpa|grandma|retired|pakcik|makcik|veteran|retiree)\b/i;
+// Age detection patterns - ENHANCED with more occupation-based detection
+const CHILD_ROLES = /\b(child|kid|primary school|elementary|kindergarten|preschool|childcare)\b/i;
+const TEEN_ROLES = /\b(teen|teenager|secondary school|high school|youth|polytechnic student|ite student|jc student|junior college student|sec \d|secondary \d)\b/i;
+const YOUNG_ADULT_ROLES = /\b(university student|undergraduate|graduate student|intern|trainee|fresh graduate|nsf|national service|ns boy|recruit|junior staff|junior \w+|entry.level|new hire|assistant|clerk|receptionist|barista|waiter|waitress|delivery|grab driver|food panda|server)\b/i;
+const ADULT_ROLES = /\b(teacher|nurse|doctor|engineer|programmer|developer|accountant|lawyer|police|officer|guard|security|technician|mechanic|electrician|plumber|chef|cook|driver|salesperson|agent|consultant|analyst|designer|photographer|journalist|reporter|worker|staff|employee)\b/i;
+const MIDDLE_AGED_ROLES = /\b(manager|supervisor|director|executive|professional|experienced|senior \w+|head of|chief|principal|vice principal|department head|lead|team lead|owner|proprietor|ceo|cfo|coo|chairman|chairwoman|md|managing director)\b/i;
+const ELDER_ROLES = /\b(elderly|old|senior citizen|grandfather|grandmother|grandpa|grandma|retired|pakcik|makcik|veteran|retiree|pensioner|ex-\w+|former \w+)\b/i;
 
 /**
  * Parse suspect description for age, gender, and religion (Singapore-sensitive)

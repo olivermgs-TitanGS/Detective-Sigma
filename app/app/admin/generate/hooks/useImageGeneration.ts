@@ -164,6 +164,8 @@ export function useImageGeneration() {
       for (const clue of cluesWithImages) {
         setImageGenProgress({ current: `Evidence: ${clue.title}`, completed, total: totalImages });
         // Evidence/clue images - Realistic Vision V6.0 settings
+        // buildCluePrompt now returns { prompt, negativePrompt } for better accuracy
+        const cluePromptData = buildCluePrompt(clue);
         const clueResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -171,8 +173,8 @@ export function useImageGeneration() {
             imageRequest: {
               id: `clue-${clue.id}`,
               type: 'evidence',
-              prompt: buildCluePrompt(clue),
-              negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human hands, deformed, disfigured, ${ratingNegatives}`,
+              prompt: cluePromptData.prompt,
+              negativePrompt: `${cluePromptData.negativePrompt}, ${ratingNegatives}`,
               width: 512, height: 512,
               settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 25, cfgScale: 7 },
               metadata: { clueId: clue.id, title: clue.title },

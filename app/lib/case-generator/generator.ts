@@ -119,28 +119,150 @@ function inferEthnicityFromName(name: string): 'Chinese' | 'Malay' | 'Indian' | 
 // ============================================
 
 /**
- * Age categories with realistic age ranges
+ * Age categories with realistic age ranges - SINGAPORE EDUCATION SYSTEM
+ *
+ * Singapore Education Pathway:
+ * - Nursery/Kindergarten: 3-6 years (pre-school)
+ * - Primary School: 7-12 years (P1-P6, PSLE at P6)
+ * - Secondary School: 13-16 years (Sec 1-4, O-Levels)
+ * - Secondary 5: 17 years (Normal stream only)
+ * - JC: 17-18 years (2 years, A-Levels)
+ * - Polytechnic: 17-20 years (3 years diploma)
+ * - ITE: 17-19 years (2 years NITEC/Higher NITEC)
+ * - National Service: 18-20 years (males, 2 years)
+ * - University: 21-25 years (3-5 years depending on course)
+ * - Working Adults: 22-65 years
+ * - Seniors/Retirees: 66+ years
  */
-type AgeCategory = 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+type AgeCategory = 'toddler' | 'kindergarten' | 'lower_primary' | 'upper_primary' | 'lower_secondary' | 'upper_secondary' | 'post_secondary' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+
+// Simplified mapping for backwards compatibility
+type SimplifiedAgeCategory = 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
 
 interface AgeRange {
   category: AgeCategory;
+  simplifiedCategory: SimplifiedAgeCategory;
   minAge: number;
   maxAge: number;
   displayRange: string;
+  schoolLevel: string;
+  description: string;
 }
 
 const AGE_RANGES: Record<AgeCategory, AgeRange> = {
-  child: { category: 'child', minAge: 7, maxAge: 12, displayRange: '7-12 years old' },
-  teen: { category: 'teen', minAge: 13, maxAge: 17, displayRange: '13-17 years old' },
-  young_adult: { category: 'young_adult', minAge: 18, maxAge: 29, displayRange: '18-29 years old' },
-  adult: { category: 'adult', minAge: 30, maxAge: 45, displayRange: '30-45 years old' },
-  middle_aged: { category: 'middle_aged', minAge: 46, maxAge: 60, displayRange: '46-60 years old' },
-  senior: { category: 'senior', minAge: 61, maxAge: 80, displayRange: '61-80 years old' },
+  toddler: {
+    category: 'toddler',
+    simplifiedCategory: 'child',
+    minAge: 3,
+    maxAge: 4,
+    displayRange: '3-4 years old',
+    schoolLevel: 'Nursery',
+    description: 'nursery-age toddler, very young child'
+  },
+  kindergarten: {
+    category: 'kindergarten',
+    simplifiedCategory: 'child',
+    minAge: 5,
+    maxAge: 6,
+    displayRange: '5-6 years old',
+    schoolLevel: 'Kindergarten K1-K2',
+    description: 'kindergarten student, young child'
+  },
+  lower_primary: {
+    category: 'lower_primary',
+    simplifiedCategory: 'child',
+    minAge: 7,
+    maxAge: 9,
+    displayRange: '7-9 years old',
+    schoolLevel: 'Primary 1-3',
+    description: 'lower primary school student'
+  },
+  upper_primary: {
+    category: 'upper_primary',
+    simplifiedCategory: 'child',
+    minAge: 10,
+    maxAge: 12,
+    displayRange: '10-12 years old',
+    schoolLevel: 'Primary 4-6',
+    description: 'upper primary school student, preparing for PSLE'
+  },
+  lower_secondary: {
+    category: 'lower_secondary',
+    simplifiedCategory: 'teen',
+    minAge: 13,
+    maxAge: 14,
+    displayRange: '13-14 years old',
+    schoolLevel: 'Secondary 1-2',
+    description: 'lower secondary school teenager'
+  },
+  upper_secondary: {
+    category: 'upper_secondary',
+    simplifiedCategory: 'teen',
+    minAge: 15,
+    maxAge: 17,
+    displayRange: '15-17 years old',
+    schoolLevel: 'Secondary 3-5 / JC Year 1',
+    description: 'upper secondary or JC student, preparing for O/A-Levels'
+  },
+  post_secondary: {
+    category: 'post_secondary',
+    simplifiedCategory: 'young_adult',
+    minAge: 17,
+    maxAge: 20,
+    displayRange: '17-20 years old',
+    schoolLevel: 'JC/Polytechnic/ITE/NS',
+    description: 'post-secondary student or NS enlistee'
+  },
+  young_adult: {
+    category: 'young_adult',
+    simplifiedCategory: 'young_adult',
+    minAge: 21,
+    maxAge: 30,
+    displayRange: '21-30 years old',
+    schoolLevel: 'University/Early Career',
+    description: 'university student or young professional'
+  },
+  adult: {
+    category: 'adult',
+    simplifiedCategory: 'adult',
+    minAge: 31,
+    maxAge: 45,
+    displayRange: '31-45 years old',
+    schoolLevel: 'Working Adult',
+    description: 'working adult in prime career'
+  },
+  middle_aged: {
+    category: 'middle_aged',
+    simplifiedCategory: 'middle_aged',
+    minAge: 46,
+    maxAge: 65,
+    displayRange: '46-65 years old',
+    schoolLevel: 'Senior Professional',
+    description: 'middle-aged professional, possibly in leadership'
+  },
+  senior: {
+    category: 'senior',
+    simplifiedCategory: 'senior',
+    minAge: 66,
+    maxAge: 85,
+    displayRange: '66-85 years old',
+    schoolLevel: 'Retired',
+    description: 'senior citizen, possibly retired'
+  },
+};
+
+// Legacy mapping for backwards compatibility
+const SIMPLIFIED_AGE_RANGES: Record<SimplifiedAgeCategory, AgeRange> = {
+  child: AGE_RANGES.upper_primary,
+  teen: AGE_RANGES.upper_secondary,
+  young_adult: AGE_RANGES.young_adult,
+  adult: AGE_RANGES.adult,
+  middle_aged: AGE_RANGES.middle_aged,
+  senior: AGE_RANGES.senior,
 };
 
 /**
- * Occupation definitions with valid age ranges
+ * Occupation definitions with valid age ranges - GRANULAR SINGAPORE SYSTEM
  * Each occupation specifies which age categories are valid for it
  */
 interface OccupationAgeConstraint {
@@ -150,76 +272,166 @@ interface OccupationAgeConstraint {
 }
 
 const OCCUPATION_AGE_CONSTRAINTS: OccupationAgeConstraint[] = [
-  // STUDENT ROLES (children and teens only)
-  { role: 'Primary Student', validAges: ['child'], preferredAges: ['child'] },
-  { role: 'Secondary Student', validAges: ['teen'], preferredAges: ['teen'] },
-  { role: 'Student Helper', validAges: ['teen', 'young_adult'], preferredAges: ['teen'] },
-  { role: 'Student Researcher', validAges: ['teen', 'young_adult'], preferredAges: ['young_adult'] },
-  { role: 'Team Captain', validAges: ['teen', 'young_adult'], preferredAges: ['teen'] },
-  { role: 'Student Witness', validAges: ['child', 'teen'], preferredAges: ['teen'] },
+  // ============================================
+  // STUDENT ROLES - Singapore Education System
+  // ============================================
 
-  // INTERN/TRAINEE ROLES (young adults primarily)
-  { role: 'Intern', validAges: ['young_adult'], preferredAges: ['young_adult'] },
-  { role: 'Trainee', validAges: ['young_adult'], preferredAges: ['young_adult'] },
-  { role: 'Apprentice', validAges: ['teen', 'young_adult'], preferredAges: ['young_adult'] },
+  // Pre-school students (3-6 years)
+  { role: 'Nursery Student', validAges: ['toddler'], preferredAges: ['toddler'] },
+  { role: 'Kindergarten Student', validAges: ['kindergarten'], preferredAges: ['kindergarten'] },
+  { role: 'K1 Student', validAges: ['kindergarten'], preferredAges: ['kindergarten'] },
+  { role: 'K2 Student', validAges: ['kindergarten'], preferredAges: ['kindergarten'] },
 
-  // JUNIOR STAFF ROLES (young adults and adults)
+  // Primary school students (7-12 years)
+  { role: 'Primary Student', validAges: ['lower_primary', 'upper_primary'], preferredAges: ['upper_primary'] },
+  { role: 'P1 Student', validAges: ['lower_primary'], preferredAges: ['lower_primary'] },
+  { role: 'P2 Student', validAges: ['lower_primary'], preferredAges: ['lower_primary'] },
+  { role: 'P3 Student', validAges: ['lower_primary'], preferredAges: ['lower_primary'] },
+  { role: 'P4 Student', validAges: ['upper_primary'], preferredAges: ['upper_primary'] },
+  { role: 'P5 Student', validAges: ['upper_primary'], preferredAges: ['upper_primary'] },
+  { role: 'P6 Student', validAges: ['upper_primary'], preferredAges: ['upper_primary'] },
+  { role: 'PSLE Student', validAges: ['upper_primary'], preferredAges: ['upper_primary'] },
+  { role: 'Primary School Student', validAges: ['lower_primary', 'upper_primary'], preferredAges: ['upper_primary'] },
+
+  // Secondary school students (13-17 years)
+  { role: 'Secondary Student', validAges: ['lower_secondary', 'upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'Sec 1 Student', validAges: ['lower_secondary'], preferredAges: ['lower_secondary'] },
+  { role: 'Sec 2 Student', validAges: ['lower_secondary'], preferredAges: ['lower_secondary'] },
+  { role: 'Sec 3 Student', validAges: ['upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'Sec 4 Student', validAges: ['upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'Sec 5 Student', validAges: ['upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'O-Level Student', validAges: ['upper_secondary'], preferredAges: ['upper_secondary'] },
+
+  // Post-secondary students (17-20 years)
+  { role: 'JC Student', validAges: ['upper_secondary', 'post_secondary'], preferredAges: ['post_secondary'] },
+  { role: 'JC1 Student', validAges: ['upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'JC2 Student', validAges: ['post_secondary'], preferredAges: ['post_secondary'] },
+  { role: 'A-Level Student', validAges: ['post_secondary'], preferredAges: ['post_secondary'] },
+  { role: 'Polytechnic Student', validAges: ['post_secondary'], preferredAges: ['post_secondary'] },
+  { role: 'ITE Student', validAges: ['post_secondary'], preferredAges: ['post_secondary'] },
+  { role: 'NSF', validAges: ['post_secondary'], preferredAges: ['post_secondary'] },
+  { role: 'NS Recruit', validAges: ['post_secondary'], preferredAges: ['post_secondary'] },
+
+  // University students (21-25 years)
+  { role: 'University Student', validAges: ['young_adult'], preferredAges: ['young_adult'] },
+  { role: 'Undergraduate', validAges: ['young_adult'], preferredAges: ['young_adult'] },
+  { role: 'NUS Student', validAges: ['young_adult'], preferredAges: ['young_adult'] },
+  { role: 'NTU Student', validAges: ['young_adult'], preferredAges: ['young_adult'] },
+  { role: 'SMU Student', validAges: ['young_adult'], preferredAges: ['young_adult'] },
+
+  // Generic student roles
+  { role: 'Student Helper', validAges: ['upper_secondary', 'post_secondary', 'young_adult'], preferredAges: ['upper_secondary'] },
+  { role: 'Student Researcher', validAges: ['upper_secondary', 'post_secondary', 'young_adult'], preferredAges: ['young_adult'] },
+  { role: 'Team Captain', validAges: ['upper_primary', 'lower_secondary', 'upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'Student Witness', validAges: ['upper_primary', 'lower_secondary', 'upper_secondary'], preferredAges: ['lower_secondary'] },
+  { role: 'Student Prefect', validAges: ['upper_primary', 'lower_secondary', 'upper_secondary'], preferredAges: ['upper_secondary'] },
+  { role: 'Class Monitor', validAges: ['lower_primary', 'upper_primary', 'lower_secondary', 'upper_secondary'], preferredAges: ['upper_primary'] },
+
+  // ============================================
+  // INTERN/TRAINEE ROLES
+  // ============================================
+  { role: 'Intern', validAges: ['post_secondary', 'young_adult'], preferredAges: ['young_adult'] },
+  { role: 'Trainee', validAges: ['post_secondary', 'young_adult'], preferredAges: ['young_adult'] },
+  { role: 'Apprentice', validAges: ['upper_secondary', 'post_secondary', 'young_adult'], preferredAges: ['post_secondary'] },
+  { role: 'Relief Teacher', validAges: ['young_adult'], preferredAges: ['young_adult'] },
+
+  // ============================================
+  // JUNIOR STAFF ROLES
+  // ============================================
   { role: 'Junior Staff', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
-  { role: 'Shop Assistant', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
+  { role: 'Shop Assistant', validAges: ['post_secondary', 'young_adult', 'adult'], preferredAges: ['young_adult'] },
   { role: 'Library Assistant', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
   { role: 'Lab Assistant', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
   { role: 'Canteen Staff', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
-  { role: 'Cashier', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
-  { role: 'Waiter', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
+  { role: 'Cashier', validAges: ['post_secondary', 'young_adult', 'adult'], preferredAges: ['young_adult'] },
+  { role: 'Waiter', validAges: ['post_secondary', 'young_adult', 'adult'], preferredAges: ['young_adult'] },
+  { role: 'Waitress', validAges: ['post_secondary', 'young_adult', 'adult'], preferredAges: ['young_adult'] },
   { role: 'Receptionist', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult', 'adult'] },
+  { role: 'Barista', validAges: ['post_secondary', 'young_adult'], preferredAges: ['young_adult'] },
 
-  // GENERAL WORKER ROLES (adults primarily, some flexibility)
+  // ============================================
+  // GENERAL WORKER ROLES
+  // ============================================
   { role: 'Cleaner', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Security Guard', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Delivery Person', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Driver', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
+  { role: 'Taxi Driver', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
+  { role: 'Grab Driver', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Bus Driver', validAges: ['adult', 'middle_aged'], preferredAges: ['middle_aged'] },
   { role: 'Maintenance Worker', validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Construction Worker', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Factory Worker', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
 
-  // SKILLED WORKER ROLES (adults and middle-aged)
+  // ============================================
+  // SKILLED WORKER ROLES
+  // ============================================
   { role: 'Technician', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'IT Technician', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['young_adult', 'adult'] },
   { role: 'Lab Technician', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Equipment Manager', validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Electrician', validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Plumber', validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Mechanic', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
 
-  // PROFESSIONAL ROLES (adults, middle-aged, some senior)
+  // ============================================
+  // EDUCATION PROFESSIONALS
+  // ============================================
   { role: 'Teacher', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Teacher on Duty', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Science Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Math Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'English Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'PE Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Art Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Music Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Form Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Discipline Master', validAges: ['adult', 'middle_aged'], preferredAges: ['middle_aged'] },
+  { role: 'Kindergarten Teacher', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult', 'adult'] },
+  { role: 'Childcare Teacher', validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] },
   { role: 'Librarian', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Sports Coach', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Tuition Teacher', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+
+  // ============================================
+  // OTHER PROFESSIONALS
+  // ============================================
   { role: 'Referee', validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Safety Officer', validAges: ['adult', 'middle_aged'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Nurse', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Doctor', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Accountant', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'Lawyer', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
+  { role: 'Engineer', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
   { role: 'Visiting Scientist', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
+  { role: 'Police Officer', validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] },
 
-  // BUSINESS OWNER / VENDOR ROLES (adults, middle-aged, seniors)
+  // ============================================
+  // BUSINESS OWNER / VENDOR ROLES
+  // ============================================
   { role: 'Stall Owner', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Market Vendor', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Canteen Vendor', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Shop Owner', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Food Stall Owner', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Hawker', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged', 'senior'] },
+  { role: 'Kopitiam Auntie', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged'] },
+  { role: 'Kopitiam Uncle', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged'] },
 
-  // MANAGEMENT ROLES (middle-aged and senior primarily)
+  // ============================================
+  // MANAGEMENT ROLES
+  // ============================================
   { role: 'Manager', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Canteen Manager', validAges: ['adult', 'middle_aged'], preferredAges: ['middle_aged'] },
   { role: 'Market Manager', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Office Manager', validAges: ['adult', 'middle_aged'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Department Head', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Sports Secretary', validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] },
+  { role: 'HOD', validAges: ['adult', 'middle_aged'], preferredAges: ['middle_aged'] },
 
-  // SENIOR/EXECUTIVE ROLES (middle-aged and senior only)
+  // ============================================
+  // SENIOR/EXECUTIVE ROLES
+  // ============================================
   { role: 'Principal', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged', 'senior'] },
   { role: 'Vice Principal', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged'] },
   { role: 'Director', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged', 'senior'] },
@@ -228,18 +440,27 @@ const OCCUPATION_AGE_CONSTRAINTS: OccupationAgeConstraint[] = [
   { role: 'Professor', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged', 'senior'] },
   { role: 'Senior Manager', validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged'] },
 
-  // CUSTOMER/VISITOR ROLES (flexible ages)
-  { role: 'Regular Customer', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
-  { role: 'Regular Patron', validAges: ['teen', 'young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
-  { role: 'Visitor', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
+  // ============================================
+  // FAMILY/VISITOR ROLES
+  // ============================================
+  { role: 'Parent', validAges: ['adult', 'middle_aged'], preferredAges: ['adult', 'middle_aged'] },
   { role: 'Parent Volunteer', validAges: ['adult', 'middle_aged'], preferredAges: ['adult', 'middle_aged'] },
-  { role: 'Bystander', validAges: ['teen', 'young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
-  { role: 'Witness', validAges: ['teen', 'young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
+  { role: 'Grandparent', validAges: ['senior'], preferredAges: ['senior'] },
+  { role: 'Guardian', validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
+  { role: 'Regular Customer', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult', 'middle_aged'] },
+  { role: 'Regular Patron', validAges: ['upper_secondary', 'post_secondary', 'young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
+  { role: 'Visitor', validAges: ['young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
+  { role: 'Bystander', validAges: ['upper_secondary', 'post_secondary', 'young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
+  { role: 'Witness', validAges: ['upper_primary', 'lower_secondary', 'upper_secondary', 'post_secondary', 'young_adult', 'adult', 'middle_aged', 'senior'], preferredAges: ['adult'] },
 
-  // RETIREE ROLES (senior only)
+  // ============================================
+  // RETIREE ROLES
+  // ============================================
   { role: 'Retiree', validAges: ['senior'], preferredAges: ['senior'] },
   { role: 'Retired Teacher', validAges: ['senior'], preferredAges: ['senior'] },
   { role: 'Elderly Resident', validAges: ['senior'], preferredAges: ['senior'] },
+  { role: 'Ah Ma', validAges: ['senior'], preferredAges: ['senior'] },
+  { role: 'Ah Gong', validAges: ['senior'], preferredAges: ['senior'] },
 ];
 
 /**
@@ -433,30 +654,45 @@ function narrativeToGeneratedCase(
 ): GeneratedCase {
   const caseId = narrativeCase.id;
 
-  // Convert SuspectCharacter to Suspect
-  const suspects: Suspect[] = characters.map(char => ({
-    id: char.id,
-    name: char.name,
-    role: char.role,
-    alibi: char.alibi.claimed,
-    personality: char.background.personality,
-    isGuilty: char.isGuilty,
-    motive: char.isGuilty ? narrativeCase.culprit.motive.description : undefined,
-    // Enhanced fields from character web
-    dialogueTree: char.dialogue.map(d => ({
-      id: d.id,
-      question: d.question,
-      answer: d.answer,
-      emotion: d.emotion,
-      revealsInfo: d.revealsInfo,
-    })),
-    relationships: char.relationships.map(r => ({
-      targetId: r.targetId,
-      targetName: r.targetName,
-      type: r.type,
-      description: r.description,
-    })),
-  }));
+  // Convert SuspectCharacter to Suspect with proper demographics
+  const suspects: Suspect[] = characters.map(char => {
+    // Get age data based on role for accurate image generation
+    const ageData = getCompatibleAgeForRole(char.role);
+
+    // Map detailed ageCategory to simplified for backwards compatibility
+    const simplifiedAgeCategory = AGE_RANGES[ageData.ageCategory]?.simplifiedCategory || 'adult';
+
+    return {
+      id: char.id,
+      name: char.name,
+      role: char.role,
+      alibi: char.alibi.claimed,
+      personality: char.background.personality,
+      isGuilty: char.isGuilty,
+      motive: char.isGuilty ? narrativeCase.culprit.motive.description : undefined,
+      // Demographic fields for accurate image generation
+      ethnicity: inferEthnicityFromCharacter(char.name),
+      gender: inferGenderFromCharacter(char.name),
+      ageGroup: ageData.ageGroup,
+      ageCategory: simplifiedAgeCategory as 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior',
+      specificAge: ageData.specificAge,
+      displayAge: ageData.displayAge,
+      // Enhanced fields from character web
+      dialogueTree: char.dialogue.map(d => ({
+        id: d.id,
+        question: d.question,
+        answer: d.answer,
+        emotion: d.emotion,
+        revealsInfo: d.revealsInfo,
+      })),
+      relationships: char.relationships.map(r => ({
+        targetId: r.targetId,
+        targetName: r.targetName,
+        type: r.type,
+        description: r.description,
+      })),
+    };
+  });
 
   // Convert evidence chain to clues (note: positions will be added after scene mapping)
   const allEvidenceItems = getAllEvidence(evidenceChain);
@@ -813,7 +1049,7 @@ export async function generateNarrativeDrivenCase(
     ].filter(Boolean),
   }));
 
-  // Build RICH suspect data with demeanor from dialogue emotions
+  // Build RICH suspect data with demeanor from dialogue emotions and PROPER age demographics
   const richSuspectData = characters.map(char => {
     // Get the primary emotion from their dialogue (alibi response is most telling)
     const alibiDialogue = char.dialogue.find(d => d.id === 'alibi');
@@ -829,6 +1065,10 @@ export async function generateNarrativeDrivenCase(
       angry: 'suspicious',
     };
 
+    // Get PROPER age data based on role - NOT a flimsy heuristic!
+    const ageData = getCompatibleAgeForRole(char.role);
+    const simplifiedAgeCategory = AGE_RANGES[ageData.ageCategory]?.simplifiedCategory || 'adult';
+
     return {
       name: char.name,
       role: char.role,
@@ -839,7 +1079,11 @@ export async function generateNarrativeDrivenCase(
       // Use character web data for accurate ethnicity
       ethnicity: inferEthnicityFromCharacter(char.name),
       gender: inferGenderFromCharacter(char.name),
-      ageGroup: char.background.yearsAtLocation > 5 ? 'middle' as const : 'young' as const,
+      // PROPER age data from role-based age constraints
+      ageGroup: ageData.ageGroup,
+      ageCategory: simplifiedAgeCategory as 'child' | 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior',
+      specificAge: ageData.specificAge,
+      displayAge: ageData.displayAge,
       // Pass the demeanor for accurate expression in portrait
       expression: emotionToExpression[demeanorEmotion] || 'neutral',
     };
@@ -959,20 +1203,37 @@ export async function generateCase(request: GenerationRequest): Promise<Generate
         atmosphere: 'mysterious' as const,
       };
 
-      // Build rich suspect data
-      const richSuspectData = generatedCase.suspects.map(suspect => ({
-        name: suspect.name,
-        role: suspect.role,
-        alibi: suspect.alibi,
-        personality: suspect.personality,
-        isGuilty: suspect.isGuilty,
-        motive: suspect.motive,
-        ethnicity: suspect.ethnicity || inferEthnicityFromCharacter(suspect.name),
-        gender: suspect.gender || inferGenderFromCharacter(suspect.name),
-        ageGroup: (suspect.ageCategory === 'child' || suspect.ageCategory === 'teen' || suspect.ageCategory === 'young_adult') ? 'young' as const :
-                  (suspect.ageCategory === 'senior') ? 'senior' as const : 'middle' as const,
-        expression: suspect.isGuilty ? 'nervous' as const : 'neutral' as const,
-      }));
+      // Build rich suspect data with full age demographics
+      const richSuspectData = generatedCase.suspects.map(suspect => {
+        // If suspect already has age data, use it; otherwise derive from role
+        const hasAgeData = suspect.specificAge !== undefined;
+        const ageData = hasAgeData ? {
+          ageGroup: suspect.ageGroup || 'middle',
+          specificAge: suspect.specificAge!,
+          displayAge: suspect.displayAge!,
+          ageCategory: suspect.ageCategory!,
+        } : getCompatibleAgeForRole(suspect.role);
+
+        // Map ageCategory to simplified ageGroup for backwards compatibility
+        const derivedAgeGroup = (suspect.ageCategory === 'child' || suspect.ageCategory === 'teen' || suspect.ageCategory === 'young_adult') ? 'young' as const :
+                      (suspect.ageCategory === 'senior') ? 'senior' as const : 'middle' as const;
+
+        return {
+          name: suspect.name,
+          role: suspect.role,
+          alibi: suspect.alibi,
+          personality: suspect.personality,
+          isGuilty: suspect.isGuilty,
+          motive: suspect.motive,
+          ethnicity: suspect.ethnicity || inferEthnicityFromCharacter(suspect.name),
+          gender: suspect.gender || inferGenderFromCharacter(suspect.name),
+          ageGroup: hasAgeData ? derivedAgeGroup : (ageData as ReturnType<typeof getCompatibleAgeForRole>).ageGroup,
+          ageCategory: suspect.ageCategory || (ageData as { ageCategory?: string }).ageCategory,
+          specificAge: suspect.specificAge || (ageData as { specificAge?: number }).specificAge,
+          displayAge: suspect.displayAge || (ageData as { displayAge?: string }).displayAge,
+          expression: suspect.isGuilty ? 'nervous' as const : 'neutral' as const,
+        };
+      });
 
       // Build rich clue data
       const richClueData = generatedCase.clues.map(clue => ({

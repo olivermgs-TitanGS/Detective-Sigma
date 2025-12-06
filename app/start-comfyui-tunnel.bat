@@ -1,17 +1,21 @@
 @echo off
+title Detective Sigma - ComfyUI Tunnel
+color 0B
+
+echo.
 echo ========================================
-echo   ComfyUI Cloudflare Tunnel Starter
-echo   Detective Sigma - Image Generation
+echo  Detective Sigma - ComfyUI Tunnel
 echo ========================================
 echo.
-echo Starting Cloudflare Tunnel to expose ComfyUI...
-echo Make sure ComfyUI is running on localhost:8188
+echo This script will:
+echo  1. Start a Cloudflare tunnel to ComfyUI
+echo  2. Copy the tunnel URL to your clipboard
+echo  3. Save the URL to scripts\current-tunnel-url.txt
 echo.
-echo The tunnel URL will appear below - copy it to your Vercel environment variables:
-echo   Variable name: COMFYUI_REMOTE_URL
-echo.
-echo Press Ctrl+C to stop the tunnel when done.
-echo ========================================
+echo Make sure ComfyUI is running first!
 echo.
 
-"%~dp0cloudflared.exe" tunnel --url http://localhost:8188
+REM Run the PowerShell script
+powershell -ExecutionPolicy Bypass -File "%~dp0scripts\start-comfyui-tunnel.ps1"
+
+pause
