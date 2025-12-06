@@ -37,3 +37,4 @@ coverage/
 Thumbs.db
 .vercel
 .env*.local
+app/tunnel_url.txt
