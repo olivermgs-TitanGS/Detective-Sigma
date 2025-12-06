@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ProgressBar, ProgressRing } from '@/components/ui/ProgressBar';
+import { PageSkeleton, StatSkeleton, CardSkeleton } from '@/components/ui/Skeleton';
+import { StreakFire } from '@/components/ui/StreakFire';
+import { StaggerContainer, StaggerItem } from '@/components/ui/PageTransition';
 
 interface DashboardStats {
   casesSolved: number;
@@ -126,67 +130,87 @@ export default function StudentDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="text-center">
-          <div className="text-6xl mb-4 animate-pulse">🔍</div>
-          <p className="text-amber-500 font-mono">Loading dashboard...</p>
+      <div className="space-y-8">
+        {/* Skeleton header */}
+        <div className="border-2 border-amber-600/50 bg-black/80 p-8">
+          <div className="h-10 w-64 bg-slate-700 rounded animate-pulse mb-2" />
+          <div className="h-4 w-96 bg-slate-700 rounded animate-pulse" />
+        </div>
+        {/* Skeleton stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <StatSkeleton key={i} />
+          ))}
+        </div>
+        {/* Skeleton cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <StaggerContainer className="space-y-8" staggerDelay={0.1}>
       {/* Welcome Section - Crime Scene Style */}
-      <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
-        <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
-          DETECTIVE DOSSIER
-        </h1>
-        <p className="text-slate-400 font-mono tracking-wide">
-          &gt; Your investigative record and case statistics
-        </p>
-      </div>
+      <StaggerItem>
+        <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
+          <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
+            DETECTIVE DOSSIER
+          </h1>
+          <p className="text-slate-400 font-mono tracking-wide">
+            &gt; Your investigative record and case statistics
+          </p>
+        </div>
+      </StaggerItem>
 
       {/* Stats Grid - Evidence Tags */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
-        <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-          <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.casesSolved}</div>
-          <div className="text-amber-400 font-mono text-sm tracking-wider">CASES CLOSED</div>
-          <div className="text-slate-500 text-xs font-mono mt-1">
-            &gt; Out of {totalCases}
+      <StaggerItem>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
+            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.casesSolved}</div>
+            <div className="text-amber-400 font-mono text-sm tracking-wider">CASES CLOSED</div>
+            <div className="mt-2">
+              <ProgressBar value={stats.casesSolved} max={totalCases || 1} showPercentage={false} size="sm" color="amber" />
+            </div>
+            <div className="text-slate-500 text-xs font-mono mt-1">
+              &gt; Out of {totalCases}
+            </div>
+          </div>
+          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
+            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalScore}</div>
+            <div className="text-amber-400 font-mono text-sm tracking-wider">TOTAL SCORE</div>
+            <div className="text-slate-500 text-xs font-mono mt-1">
+              &gt; Points earned
+            </div>
+          </div>
+          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
+            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalClues}</div>
+            <div className="text-amber-400 font-mono text-sm tracking-wider">CLUES FOUND</div>
+            <div className="text-slate-500 text-xs font-mono mt-1">
+              &gt; Evidence collected
+            </div>
+          </div>
+          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
+            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{solveRate}%</div>
+            <div className="text-amber-400 font-mono text-sm tracking-wider">SOLVE RATE</div>
+            <div className="mt-2">
+              <ProgressBar value={solveRate} max={100} showPercentage={false} size="sm" color="green" />
+            </div>
+          </div>
+          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors col-span-2 md:col-span-1">
+            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">
+              {stats.rank > 0 ? `#${stats.rank}` : '-'}
+            </div>
+            <div className="text-amber-400 font-mono text-sm tracking-wider">RANK</div>
+            <div className="text-slate-500 text-xs font-mono mt-1">
+              &gt; Leaderboard position
+            </div>
           </div>
         </div>
-        <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-          <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalScore}</div>
-          <div className="text-amber-400 font-mono text-sm tracking-wider">TOTAL SCORE</div>
-          <div className="text-slate-500 text-xs font-mono mt-1">
-            &gt; Points earned
-          </div>
-        </div>
-        <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-          <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalClues}</div>
-          <div className="text-amber-400 font-mono text-sm tracking-wider">CLUES FOUND</div>
-          <div className="text-slate-500 text-xs font-mono mt-1">
-            &gt; Evidence collected
-          </div>
-        </div>
-        <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-          <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{solveRate}%</div>
-          <div className="text-amber-400 font-mono text-sm tracking-wider">SOLVE RATE</div>
-          <div className="text-slate-500 text-xs font-mono mt-1">
-            &gt; Cases completed
-          </div>
-        </div>
-        <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors col-span-2 md:col-span-1">
-          <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">
-            {stats.rank > 0 ? `#${stats.rank}` : '-'}
-          </div>
-          <div className="text-amber-400 font-mono text-sm tracking-wider">RANK</div>
-          <div className="text-slate-500 text-xs font-mono mt-1">
-            &gt; Leaderboard position
-          </div>
-        </div>
-      </div>
+      </StaggerItem>
 
       {/* Active Cases - Investigation Board */}
       {activeCases.length > 0 && (
@@ -312,6 +336,6 @@ export default function StudentDashboard() {
           </div>
         )}
       </div>
-    </div>
+    </StaggerContainer>
   );
 }

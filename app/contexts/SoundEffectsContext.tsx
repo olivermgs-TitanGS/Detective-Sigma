@@ -15,10 +15,27 @@ export type SoundEffect =
   | 'error'
   | 'clueFound'
   | 'pinDrop'
-  | 'whoosh';
+  | 'whoosh'
+  // New celebration sounds
+  | 'levelUp'
+  | 'achievement'
+  | 'points'
+  | 'streak'
+  | 'confetti'
+  | 'correct'
+  | 'wrong'
+  | 'combo'
+  // UI interaction sounds
+  | 'buttonHover'
+  | 'buttonClick'
+  | 'tabSwitch'
+  | 'modalOpen'
+  | 'modalClose'
+  | 'notification';
 
 // Sound effect file paths (you can add actual audio files to public/sfx/)
 const SOUND_EFFECTS: Record<SoundEffect, string> = {
+  // Original sounds
   click: '/sfx/click.mp3',
   paperRustle: '/sfx/paper-rustle.mp3',
   folderOpen: '/sfx/folder-open.mp3',
@@ -31,6 +48,22 @@ const SOUND_EFFECTS: Record<SoundEffect, string> = {
   clueFound: '/sfx/clue-found.mp3',
   pinDrop: '/sfx/pin-drop.mp3',
   whoosh: '/sfx/whoosh.mp3',
+  // Celebration sounds
+  levelUp: '/sfx/level-up.mp3',
+  achievement: '/sfx/achievement.mp3',
+  points: '/sfx/points.mp3',
+  streak: '/sfx/streak.mp3',
+  confetti: '/sfx/confetti.mp3',
+  correct: '/sfx/correct.mp3',
+  wrong: '/sfx/wrong.mp3',
+  combo: '/sfx/combo.mp3',
+  // UI interaction sounds
+  buttonHover: '/sfx/button-hover.mp3',
+  buttonClick: '/sfx/button-click.mp3',
+  tabSwitch: '/sfx/tab-switch.mp3',
+  modalOpen: '/sfx/modal-open.mp3',
+  modalClose: '/sfx/modal-close.mp3',
+  notification: '/sfx/notification.mp3',
 };
 
 interface SoundEffectsContextType {

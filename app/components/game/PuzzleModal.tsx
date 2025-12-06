@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useConfetti } from '@/components/ui/Confetti';
+import { SinglePointFloat } from '@/components/ui/PointsFloat';
+import { SuccessPulse } from '@/components/ui/SuccessPulse';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 interface PuzzleModalProps {
   puzzle: {
@@ -22,6 +26,10 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
   const [showHint, setShowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [attempts, setAttempts] = useState(0);
+  const [showPoints, setShowPoints] = useState(false);
+
+  const { fireSuccess } = useConfetti();
+  const { playSound } = useSoundEffects();
 
   const handleSubmit = () => {
     const userAnswer = answer.trim().toLowerCase();
@@ -29,12 +37,18 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
 
     if (userAnswer === correctAnswer) {
       setIsCorrect(true);
+      setShowPoints(true);
+      // Play celebration effects
+      fireSuccess();
+      playSound('correct');
+      playSound('confetti');
       setTimeout(() => {
         onSolved();
       }, 2000);
     } else {
       setIsCorrect(false);
       setAttempts(attempts + 1);
+      playSound('wrong');
       setTimeout(() => {
         setIsCorrect(null);
       }, 2000);
@@ -141,13 +155,21 @@ export default function PuzzleModal({ puzzle, onSolved, onClose }: PuzzleModalPr
           )}
 
           {isCorrect === true && (
-            <div className="bg-green-900/30 border-2 border-green-600/50 p-4">
-              <p className="text-green-200 font-mono font-bold flex items-center gap-2 text-lg tracking-wide">
-                <span className="text-3xl">✅</span>
-                <span>CORRECT! +{puzzle.points} POINTS!</span>
-              </p>
-              <p className="text-green-300 text-sm mt-2 font-mono tracking-wide">&gt; Unlocking evidence...</p>
-            </div>
+            <SuccessPulse active={true} color="green" intensity="high">
+              <div className="bg-green-900/30 border-2 border-green-600/50 p-4 relative">
+                <p className="text-green-200 font-mono font-bold flex items-center gap-2 text-lg tracking-wide">
+                  <span className="text-3xl">✅</span>
+                  <span>CORRECT! +{puzzle.points} POINTS!</span>
+                </p>
+                <p className="text-green-300 text-sm mt-2 font-mono tracking-wide">&gt; Unlocking evidence...</p>
+                <SinglePointFloat
+                  value={puzzle.points}
+                  show={showPoints}
+                  type="points"
+                  onComplete={() => setShowPoints(false)}
+                />
+              </div>
+            </SuccessPulse>
           )}
 
           {/* Hint Section */}
