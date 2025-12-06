@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import MusicThemeSetter from '@/components/MusicThemeSetter';
 import { useConfetti, CaseSolvedStamp } from '@/components/ui/Confetti';
 import { toast } from '@/components/ui/Toast';
 import { CaseFileLoader, LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -146,7 +145,6 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
-      <MusicThemeSetter theme="results" />
       {/* Case Solved Stamp Overlay */}
       <CaseSolvedStamp show={showStamp} onComplete={() => {}} />
 

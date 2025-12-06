@@ -5,7 +5,6 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginSchema } from '@/lib/validations/auth';
-import MusicThemeSetter from '@/components/MusicThemeSetter';
 import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
 import { useStats } from '@/lib/hooks/useStats';
@@ -75,8 +74,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
-      <MusicThemeSetter theme="registration" />
-
       {/* Detective Background Image */}
       <div
         className="absolute inset-0 z-0"

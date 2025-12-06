@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { teacherRegisterSchema } from '@/lib/validations/auth';
-import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 export default function TeacherRegisterPage() {
   const router = useRouter();
@@ -72,7 +71,6 @@ export default function TeacherRegisterPage() {
 
   return (
     <div className="min-h-screen crime-scene-bg relative overflow-hidden flex items-center justify-center py-12">
-      <MusicThemeSetter theme="registration" />
       {/* Background decorations */}
       <div className="chalk-body-outline" style={{ top: '10%', left: '5%', transform: 'rotate(25deg)', width: '200px', opacity: 0.1 }}></div>
       <div className="chalk-body-outline" style={{ bottom: '15%', right: '10%', transform: 'rotate(-15deg)', width: '180px', opacity: 0.1 }}></div>

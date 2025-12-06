@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SoundLink } from '@/components/ui/SoundButton';
 import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
-import MusicThemeSetter from '@/components/MusicThemeSetter';
 import { useStats } from '@/lib/hooks/useStats';
 
 const FEATURES = [
@@ -71,8 +70,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-black">
-      <MusicThemeSetter theme="menu" />
-
       {/* Background */}
       <div
         className="fixed inset-0 z-0"

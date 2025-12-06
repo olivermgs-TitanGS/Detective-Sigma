@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import MusicThemeSetter from '@/components/MusicThemeSetter';
 
 interface CaseData {
   id: string;
@@ -88,8 +87,6 @@ export default function CaseLibrary() {
 
   return (
     <div className="space-y-8">
-      <MusicThemeSetter theme="cases" />
-
       {/* Header - Evidence Board Style */}
       <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
         <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
