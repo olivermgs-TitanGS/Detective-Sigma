@@ -78,7 +78,8 @@ export function useImageGeneration() {
         });
 
         // Scene images - Realistic Vision V6.0 settings
-        // Larger resolution (1024x768) for immersive scenes with visible evidence
+        // Square resolution (1024x1024) for mobile-friendly display across all platforms
+        // Square format works well on mobile portrait, mobile landscape, and desktop
         const sceneResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -88,7 +89,7 @@ export function useImageGeneration() {
               type: 'scene',
               prompt: buildScenePrompt(scene, sceneClues),
               negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human figure, deformed, disfigured, ${ratingNegatives}`,
-              width: 1024, height: 768,
+              width: 1024, height: 1024,
               settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 30, cfgScale: 7 },
               metadata: { sceneId: scene.id, name: scene.name, embeddedClues: sceneClues.length },
             },

@@ -216,8 +216,9 @@ export function buildScenePrompt(
   }
 
   // Realistic Vision V6.0 - natural language prompts with quality tags
-  // Wide angle for immersive scene with embedded evidence
-  return `RAW photo, wide angle interior shot, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area${evidenceDescription}, numbered evidence markers on floor, yellow crime scene tape, forensic lighting, photorealistic, highly detailed environment, immersive perspective, high quality, 8k uhd, dslr, sharp focus, professional photography, architectural photography, wide field of view`;
+  // Square format (1:1) optimized for mobile and desktop viewing
+  // Centered composition with evidence visible in frame
+  return `RAW photo, centered interior view, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area${evidenceDescription}, numbered evidence markers on floor, yellow crime scene tape, forensic lighting, photorealistic, highly detailed environment, symmetrical composition, centered framing, high quality, 8k uhd, dslr, sharp focus, professional photography, square format composition`;
 }
 
 /**
