@@ -22,6 +22,12 @@ import {
   registry,
 } from '../index';
 
+// Curriculum-story integrated puzzle system imports
+import { extractStoryContext } from '../../story-context-extractor';
+import { generateCurriculumStoryPuzzles, StoryIntegratedPuzzle } from '../../curriculum-story-puzzles';
+import { GradeLevel, Subject } from '../../syllabus';
+import { PuzzleComplexity } from '../../types';
+
 // ============================================
 // PHASE 4: EVIDENCE GENERATION
 // ============================================
@@ -516,6 +522,81 @@ export class PuzzleGenerationPhase implements IGenerationPhase<void, IPuzzle[]> 
   }
 
   async execute(context: GenerationContext): Promise<IPuzzle[]> {
+    const { params } = context;
+    const puzzleCount = this.getPuzzleCount(params.difficulty, params.puzzleComplexity);
+
+    console.log('[PuzzleGenerationPhase] Generating curriculum-aligned, story-integrated puzzles...');
+
+    try {
+      // Extract story context from the case for puzzle generation
+      const storyContext = extractStoryContext(context);
+
+      // Map grade level for syllabus (P1-P3 → P4, P4-P6 stay same)
+      const gradeLevelMap: Record<string, GradeLevel> = {
+        P1: 'P4', P2: 'P4', P3: 'P4',
+        P4: 'P4', P5: 'P5', P6: 'P6',
+      };
+      const gradeLevel: GradeLevel = gradeLevelMap[params.gradeLevel] || 'P5';
+      const subject: Subject = params.subject as Subject;
+      const complexity: PuzzleComplexity = (params.puzzleComplexity || 'STANDARD') as PuzzleComplexity;
+
+      // Generate puzzles using the new curriculum-story integrated system
+      // These puzzles are:
+      // 1. Aligned with Singapore MOE syllabus topics
+      // 2. Deeply integrated with the case storyline
+      // 3. Essential to solving the mystery
+      const integratedPuzzles = generateCurriculumStoryPuzzles(
+        gradeLevel,
+        subject,
+        storyContext,
+        puzzleCount,
+        complexity
+      );
+
+      console.log(`[PuzzleGenerationPhase] Generated ${integratedPuzzles.length} integrated puzzles`);
+      console.log(`[PuzzleGenerationPhase] Topics covered: ${integratedPuzzles.map(p => (p as StoryIntegratedPuzzle).syllabusTopicName || 'unknown').join(', ')}`);
+
+      // Map to IPuzzle interface
+      const puzzles: IPuzzle[] = integratedPuzzles.map(p => ({
+        id: p.id,
+        title: p.title,
+        type: p.type,
+        complexity: p.complexity,
+        difficulty: p.difficulty,
+        estimatedMinutes: p.estimatedMinutes,
+        narrativeContext: p.narrativeContext,
+        question: p.question,
+        answer: p.answer,
+        options: p.options,
+        hint: p.hint,
+        investigationPhase: p.investigationPhase,
+        relatedEvidenceId: p.relatedEvidenceId,
+        relatedSuspectId: p.relatedSuspectId,
+        revelation: p.revelation,
+        points: p.points,
+        // Include curriculum metadata for tracking
+        syllabusTopicId: (p as StoryIntegratedPuzzle).syllabusTopicId,
+        syllabusTopicName: (p as StoryIntegratedPuzzle).syllabusTopicName,
+        learningObjective: (p as StoryIntegratedPuzzle).learningObjective,
+        skills: (p as StoryIntegratedPuzzle).skills,
+        storyConnection: (p as StoryIntegratedPuzzle).storyConnection,
+        revealsAbout: (p as StoryIntegratedPuzzle).revealsAbout,
+      }));
+
+      context.puzzleSet = puzzles;
+      return puzzles;
+
+    } catch (error) {
+      console.error('[PuzzleGenerationPhase] Curriculum-story generation failed, falling back to legacy:', error);
+      // Fallback to legacy generation if the new system fails
+      return this.legacyGenerate(context);
+    }
+  }
+
+  /**
+   * Legacy puzzle generation - used as fallback if curriculum-story system fails
+   */
+  private async legacyGenerate(context: GenerationContext): Promise<IPuzzle[]> {
     const blueprint = context.crimeBlueprint!;
     const evidence = context.evidenceSet!;
     const culpritDetermination = context.culpritDetermination!;

@@ -396,22 +396,30 @@ export interface IPuzzle {
   options?: string[];       // For MCQ
   hint: string;
 
-  // Curriculum alignment
+  // Curriculum alignment (Singapore MOE syllabus)
   topicId?: string;
+  syllabusTopicId?: string;      // Specific syllabus topic ID (e.g., 'p5-math-rate')
+  syllabusTopicName?: string;    // Human-readable topic name
+  learningObjective?: string;    // Primary learning objective
   learningObjectives?: string[];
+  skills?: string[];             // Skills practiced (e.g., ['speed-distance-time', 'unit-conversion'])
   dataTablesProvided?: string[];
+
+  // Story integration
+  storyConnection?: string;      // How this puzzle connects to the case
+  revealsAbout?: 'alibi' | 'evidence' | 'motive' | 'timeline' | 'culprit';
 
   // Integration
   investigationPhase: 'initial' | 'investigation' | 'conclusion';
   relatedEvidenceId?: string;
   relatedSuspectId?: string;
 
-  // Revelation
+  // Revelation - what solving this puzzle reveals about the case
   revelation: {
-    type: string;
+    type: 'alibi_verified' | 'alibi_broken' | 'evidence_analyzed' | 'suspect_eliminated' | 'culprit_identified' | string;
     description: string;
     storyText: string;
-    importance: 'minor' | 'moderate' | 'major';
+    importance: 'minor' | 'moderate' | 'major' | 'critical';
   };
 
   // Points

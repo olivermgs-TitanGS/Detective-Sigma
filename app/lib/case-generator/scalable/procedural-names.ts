@@ -155,25 +155,54 @@ interface RoleAgeConstraint {
 function getRoleAgeConstraints(role: string): RoleAgeConstraint {
   const roleLower = role.toLowerCase();
 
-  // Student roles - children and teens only
-  if (/primary student|schoolchild/i.test(role)) {
+  // ============================================
+  // SINGAPORE SCHOOL SYSTEM AGE MAPPING
+  // ============================================
+  // Primary 1-6: Ages 7-12 (child)
+  // Secondary 1-4/5: Ages 13-17 (teen)
+  // JC/Poly: Ages 17-20 (teen/young_adult)
+  // ============================================
+
+  // Primary school students (P1-P6) - children ages 7-12
+  // Matches: "Primary 6 Student", "Primary 5 Prefect", "Primary 6 Science Club Member", etc.
+  if (/primary\s*[1-6]|primary student|primary school|p[1-6]\s|schoolchild/i.test(role)) {
     return { validAges: ['child'], preferredAges: ['child'] };
   }
-  if (/secondary student|student helper|team captain/i.test(role)) {
-    return { validAges: ['teen', 'young_adult'], preferredAges: ['teen'] };
+
+  // Secondary school students - teens ages 13-17
+  // Matches: "Secondary School Student", "Sec 3 Student", etc.
+  if (/secondary\s*(school|[1-5])|sec\s*[1-5]/i.test(role)) {
+    return { validAges: ['teen'], preferredAges: ['teen'] };
   }
-  if (/student/i.test(role)) {
+
+  // Generic student roles without school level - default to teen
+  if (/student/i.test(role) && !/primary/i.test(role)) {
     return { validAges: ['teen', 'young_adult'], preferredAges: ['teen'] };
   }
 
-  // Child-specific detection
+  // Child-specific detection (non-school context)
   if (/child|kid|boy|girl/i.test(role) && !/childcare|children's/i.test(role)) {
     return { validAges: ['child', 'teen'], preferredAges: ['child'] };
   }
 
+  // ============================================
+  // SINGAPORE HONORIFICS - UNCLE/AUNTIE
+  // ============================================
+  // "Uncle" and "Auntie" are respectful terms for older adults in Singapore
+  // Typically middle-aged to senior workers in service roles
+
+  // Uncle/Auntie roles - middle-aged to senior
+  if (/\buncle\b|\bauntie\b|\bah\s*(kow|beng|seng|huat|lian|mei|hua)/i.test(role)) {
+    return { validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged'] };
+  }
+
+  // ============================================
+  // PROFESSIONAL ROLES
+  // ============================================
+
   // Intern/Trainee - young adults
-  if (/intern|trainee|apprentice/i.test(role)) {
-    return { validAges: ['young_adult'], preferredAges: ['young_adult'] };
+  if (/intern|trainee|apprentice|part-time helper/i.test(role)) {
+    return { validAges: ['teen', 'young_adult'], preferredAges: ['young_adult'] };
   }
 
   // Junior/Assistant roles
@@ -181,18 +210,23 @@ function getRoleAgeConstraints(role: string): RoleAgeConstraint {
     return { validAges: ['young_adult', 'adult'], preferredAges: ['young_adult'] };
   }
 
-  // Cleaner/Security - adults to senior
-  if (/cleaner|security guard|driver/i.test(role)) {
+  // Cleaner/Security/Caretaker - adults to senior
+  if (/cleaner|security|guard|driver|caretaker|repairman/i.test(role)) {
     return { validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] };
   }
 
-  // Professional roles
+  // Professional roles (Mr/Mrs/Ms titles indicate adults)
+  if (/\b(mr|mrs|ms|miss|mdm|madam)\b/i.test(role)) {
+    return { validAges: ['adult', 'middle_aged'], preferredAges: ['adult'] };
+  }
+
+  // Teachers, coaches, librarians
   if (/teacher|librarian|coach|nurse|technician/i.test(role)) {
     return { validAges: ['young_adult', 'adult', 'middle_aged'], preferredAges: ['adult'] };
   }
 
-  // Vendor/Owner roles
-  if (/vendor|owner|hawker|stall/i.test(role)) {
+  // Vendor/Hawker roles (Singapore context)
+  if (/vendor|owner|hawker|stall|fishmonger|butcher/i.test(role)) {
     return { validAges: ['adult', 'middle_aged', 'senior'], preferredAges: ['middle_aged'] };
   }
 
@@ -201,9 +235,14 @@ function getRoleAgeConstraints(role: string): RoleAgeConstraint {
     return { validAges: ['adult', 'middle_aged'], preferredAges: ['adult', 'middle_aged'] };
   }
 
-  // Senior/Executive roles
-  if (/senior|head|director|chief|ceo|chairman|principal|professor/i.test(role)) {
+  // Senior/Executive roles (but not "Senior Librarian" which uses different "senior")
+  if (/\b(head|director|chief|ceo|chairman|principal|professor)\b/i.test(role)) {
     return { validAges: ['middle_aged', 'senior'], preferredAges: ['middle_aged', 'senior'] };
+  }
+
+  // "Senior" in job title (like "Senior Librarian") - experienced adults
+  if (/\bsenior\b/i.test(role) && /librarian|teacher|staff|officer/i.test(role)) {
+    return { validAges: ['adult', 'middle_aged'], preferredAges: ['middle_aged'] };
   }
 
   // Retiree roles
