@@ -149,6 +149,11 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
             hint: puzzle.hint,
             points: puzzle.points,
             options: puzzle.options,
+            // Narrative revelation system for storyline
+            narrativeContext: puzzle.narrativeContext,
+            investigationPhase: puzzle.investigationPhase,
+            revelation: puzzle.revelation,
+            relatedCharacterName: puzzle.relatedCharacterName,
           })),
           suspects: caseData.case.suspects.map((suspect: any) => ({
             id: suspect.id,

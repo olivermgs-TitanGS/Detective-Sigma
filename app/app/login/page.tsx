@@ -1,18 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginSchema } from '@/lib/validations/auth';
 import MusicThemeSetter from '@/components/MusicThemeSetter';
+import { FloatingParticles, FogEffect } from '@/components/ui/FloatingParticles';
+import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    // Trigger animations after mount
+    const timer = setTimeout(() => setShowContent(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +39,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError('Access denied. Invalid credentials.');
         setIsLoading(false);
         return;
       }
@@ -46,11 +56,12 @@ export default function LoginPage() {
         router.push('/student/dashboard');
       }
       router.refresh();
-    } catch (err: any) {
-      if (err.errors) {
-        setError(err.errors[0].message);
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'errors' in err) {
+        const zodErr = err as { errors: Array<{ message: string }> };
+        setError(zodErr.errors[0].message);
       } else {
-        setError('An error occurred during login');
+        setError('Investigation halted. System error detected.');
       }
       setIsLoading(false);
     }
@@ -59,6 +70,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
       <MusicThemeSetter theme="registration" />
+
       {/* Detective Background Image */}
       <div
         className="absolute inset-0 z-0"
@@ -72,25 +84,29 @@ export default function LoginPage() {
 
       {/* Dark Overlay for readability */}
       <div
-        className="absolute inset-0 z-1"
+        className="absolute inset-0 z-[1]"
         style={{
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.9) 100%)',
         }}
       />
 
+      {/* Atmospheric Effects */}
+      <FloatingParticles count={50} color="rgba(255, 215, 0, 0.3)" className="z-[2]" />
+      <FogEffect className="z-[3]" />
+
       {/* Gold accent glow at top */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 z-2"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 z-[4]"
         style={{
           background: 'radial-gradient(ellipse at top, rgba(255, 215, 0, 0.15) 0%, transparent 70%)',
         }}
       />
 
       {/* Login Card */}
-      <div className="relative z-30 w-full max-w-md mx-4">
+      <div className={`relative z-30 w-full max-w-md mx-4 transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         {/* Glowing Border Effect */}
         <div
-          className="absolute -inset-1 rounded-lg opacity-75 blur-sm"
+          className="absolute -inset-1 rounded-lg opacity-75 blur-sm animate-pulse"
           style={{
             background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
           }}
@@ -107,8 +123,11 @@ export default function LoginPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div
-              className="mb-4 text-6xl"
-              style={{ filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))' }}
+              className="mb-4 text-6xl animate-bounce"
+              style={{
+                filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))',
+                animationDuration: '3s',
+              }}
             >
               🔎
             </div>
@@ -120,63 +139,89 @@ export default function LoginPage() {
                 fontFamily: "'Impact', 'Arial Black', sans-serif",
               }}
             >
-              DETECTIVE SIGMA
+              {showContent ? (
+                <TypewriterText text="DETECTIVE SIGMA" speed={80} cursor={false} />
+              ) : (
+                'DETECTIVE SIGMA'
+              )}
             </h1>
             <p
-              className="text-lg tracking-[0.4em] uppercase font-bold"
+              className="text-lg tracking-[0.3em] uppercase font-bold"
               style={{
                 color: '#ff9500',
                 textShadow: '0 0 10px rgba(255, 149, 0, 0.6)',
               }}
             >
-              Block 221B, Tanjong Pagar
+              CLASSIFIED INVESTIGATIONS UNIT
             </p>
             <div className="mt-4 flex items-center justify-center gap-4">
-              <div className="h-0.5 w-20 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-              <span className="text-amber-400 text-sm font-bold tracking-widest">EST. 2025</span>
-              <div className="h-0.5 w-20 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+              <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+              <span className="text-amber-400/80 text-xs font-mono tracking-widest">CASE FILE #221B</span>
+              <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+            </div>
+          </div>
+
+          {/* Stats Bar */}
+          <div className="flex justify-center gap-6 mb-6 py-3 border-y border-amber-500/20">
+            <div className="text-center">
+              <div className="text-amber-400 font-bold text-lg font-mono">
+                {showContent ? <AnimatedCounter end={1247} duration={2000} suffix="+" /> : '0'}
+              </div>
+              <div className="text-amber-400/60 text-[10px] tracking-widest uppercase">Cases Cracked</div>
+            </div>
+            <div className="text-center">
+              <div className="text-amber-400 font-bold text-lg font-mono">
+                {showContent ? <AnimatedCounter end={89} duration={2000} suffix="%" /> : '0'}
+              </div>
+              <div className="text-amber-400/60 text-[10px] tracking-widest uppercase">Solve Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-amber-400 font-bold text-lg font-mono">
+                {showContent ? <AnimatedCounter end={523} duration={2000} /> : '0'}
+              </div>
+              <div className="text-amber-400/60 text-[10px] tracking-widest uppercase">Detectives</div>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
             <div
-              className="mb-6 p-4 text-center rounded"
+              className="mb-6 p-4 text-center rounded relative overflow-hidden"
               style={{
                 background: 'rgba(220, 38, 38, 0.2)',
                 border: '2px solid #dc2626',
                 boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)',
               }}
             >
-              <p className="text-red-400 font-bold text-sm tracking-wider">
-                ⚠ {error}
+              <p className="text-red-400 font-bold text-sm tracking-wider font-mono">
+                ⛔ ALERT: {error}
               </p>
             </div>
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-bold tracking-[0.2em] mb-2 uppercase"
+                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase font-mono"
                 style={{ color: '#ffd700' }}
               >
-                Electronic Mail
+                🔑 Agent Identifier
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded font-mono focus:outline-none transition-all"
                 style={{
                   background: 'rgba(0, 0, 0, 0.8)',
                   border: '2px solid #ff9500',
                   color: '#ffffff',
                   boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
                 }}
-                placeholder="detective@bakerstreet.com"
+                placeholder="agent.codename@sigma.hq"
                 required
                 disabled={isLoading}
               />
@@ -185,33 +230,54 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-bold tracking-[0.2em] mb-2 uppercase"
+                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase font-mono"
                 style={{ color: '#ffd700' }}
               >
-                Secret Cipher
+                🔐 Classified Passphrase
               </label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded font-medium focus:outline-none transition-all"
+                className="w-full px-4 py-3 rounded font-mono focus:outline-none transition-all"
                 style={{
                   background: 'rgba(0, 0, 0, 0.8)',
                   border: '2px solid #ff9500',
                   color: '#ffffff',
                   boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
                 }}
-                placeholder="••••••••"
+                placeholder="••••••••••••"
                 required
                 disabled={isLoading}
               />
             </div>
 
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-amber-500 bg-black/50 text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
+                />
+                <span className="text-amber-400/70 group-hover:text-amber-400 transition-colors font-mono text-xs tracking-wider">
+                  REMEMBER AGENT
+                </span>
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-amber-400/70 hover:text-amber-400 transition-colors font-mono text-xs tracking-wider"
+              >
+                LOST CREDENTIALS?
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed hover:scale-[1.02] relative overflow-hidden"
+              className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed hover:scale-[1.02] relative overflow-hidden group"
               style={{
                 background: isLoading
                   ? 'linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%)'
@@ -222,7 +288,7 @@ export default function LoginPage() {
                   : '0 0 30px rgba(255, 215, 0, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3)',
                 border: isLoading ? '2px solid #00ff00' : '2px solid #ffea00',
                 textShadow: isLoading ? '0 0 10px rgba(0, 255, 0, 0.8)' : '0 1px 0 rgba(255, 255, 255, 0.3)',
-                fontFamily: isLoading ? "'Courier New', monospace" : 'inherit',
+                fontFamily: "'Courier New', monospace",
               }}
             >
               {isLoading ? (
@@ -231,29 +297,63 @@ export default function LoginPage() {
                     className="inline-block w-2 h-2 bg-green-400 rounded-full"
                     style={{ animation: 'pulse 1s ease-in-out infinite' }}
                   />
-                  <span style={{ animation: 'pulse 2s ease-in-out infinite' }}>VERIFYING</span>
+                  <span style={{ animation: 'pulse 2s ease-in-out infinite' }}>DECRYPTING ACCESS</span>
                   <span className="inline-flex tracking-[0.3em]">
                     <span style={{ animation: 'blink 1s ease-in-out infinite' }}>.</span>
                     <span style={{ animation: 'blink 1s ease-in-out 0.2s infinite' }}>.</span>
                     <span style={{ animation: 'blink 1s ease-in-out 0.4s infinite' }}>.</span>
                   </span>
                 </span>
-              ) : 'ACCESS CASE FILES'}
+              ) : (
+                <>
+                  <span className="relative z-10">⚡ ENTER THE INVESTIGATION</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </>
+              )}
+            </button>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+              <span className="text-amber-400/60 text-xs font-bold tracking-widest font-mono">ALTERNATE ACCESS</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+            </div>
+
+            {/* Google OAuth */}
+            <button
+              type="button"
+              onClick={() => signIn('google', { callbackUrl: '/student/dashboard' })}
+              disabled={isLoading}
+              className="w-full py-3 rounded font-bold tracking-wider transition-all hover:scale-[1.02] flex items-center justify-center gap-3 group"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#ffffff',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 0 15px rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              <span className="font-mono tracking-wider">GOOGLE CLEARANCE</span>
             </button>
           </form>
 
           {/* Register Links */}
           <div className="mt-8 pt-6" style={{ borderTop: '2px solid rgba(255, 215, 0, 0.3)' }}>
             <p
-              className="text-center text-sm font-bold tracking-[0.2em] mb-4 uppercase"
+              className="text-center text-sm font-bold tracking-[0.15em] mb-4 uppercase font-mono"
               style={{ color: '#ff9500' }}
             >
-              New to the Agency?
+              🕵️ RECRUIT NEW OPERATIVES
             </p>
             <div className="space-y-3">
               <Link
                 href="/register/student"
-                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02]"
+                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02] font-mono group relative overflow-hidden"
                 style={{
                   background: 'rgba(255, 215, 0, 0.1)',
                   color: '#ffd700',
@@ -261,11 +361,12 @@ export default function LoginPage() {
                   boxShadow: '0 0 15px rgba(255, 215, 0, 0.2)',
                 }}
               >
-                🎓 REGISTER AS STUDENT
+                <span className="relative z-10">🎓 ENLIST AS JUNIOR DETECTIVE</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/20 to-amber-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
               </Link>
               <Link
                 href="/register/teacher"
-                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02]"
+                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02] font-mono group relative overflow-hidden"
                 style={{
                   background: 'rgba(255, 149, 0, 0.1)',
                   color: '#ff9500',
@@ -273,7 +374,8 @@ export default function LoginPage() {
                   boxShadow: '0 0 15px rgba(255, 149, 0, 0.2)',
                 }}
               >
-                👨‍🏫 REGISTER AS TEACHER
+                <span className="relative z-10">🎖️ APPLY AS SENIOR INVESTIGATOR</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/20 to-orange-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
               </Link>
             </div>
           </div>
@@ -281,27 +383,125 @@ export default function LoginPage() {
           {/* Quote */}
           <div className="mt-6 text-center">
             <p
-              className="text-base italic font-medium"
+              className="text-sm italic font-medium font-mono"
               style={{
                 color: '#ffd700',
                 textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
               }}
             >
-              "The truth is out there. Will you find it?"
+              "When you have eliminated the impossible, whatever remains,
+              <br />however improbable, must be the truth."
             </p>
+            <p className="text-amber-400/50 text-xs mt-1 font-mono">— Sherlock Holmes</p>
           </div>
+
+          {/* Dev-only Quick Access */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 pt-4 space-y-2" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <p className="text-center text-xs text-gray-500 font-mono mb-2">⚙️ DEV BACKDOOR ACCESS</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    setError('');
+                    const result = await signIn('credentials', {
+                      redirect: false,
+                      email: 'admin@example.com',
+                      password: 'admin123',
+                    });
+                    if (result?.error) {
+                      setError('Admin login failed - check seed data');
+                      setIsLoading(false);
+                    } else {
+                      router.push('/admin/dashboard');
+                      router.refresh();
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    color: '#f87171',
+                    border: '1px dashed #dc2626',
+                  }}
+                >
+                  🔐 CHIEF
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    setError('');
+                    const result = await signIn('credentials', {
+                      redirect: false,
+                      email: 'teacher@example.com',
+                      password: 'teacher123',
+                    });
+                    if (result?.error) {
+                      setError('Teacher login failed - check seed data');
+                      setIsLoading(false);
+                    } else {
+                      router.push('/teacher/dashboard');
+                      router.refresh();
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.2)',
+                    color: '#60a5fa',
+                    border: '1px dashed #2563eb',
+                  }}
+                >
+                  🎖️ SENIOR
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    setError('');
+                    const result = await signIn('credentials', {
+                      redirect: false,
+                      email: 'student@example.com',
+                      password: 'student123',
+                    });
+                    if (result?.error) {
+                      setError('Student login failed - check seed data');
+                      setIsLoading(false);
+                    } else {
+                      router.push('/student/dashboard');
+                      router.refresh();
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
+                  style={{
+                    background: 'rgba(34, 197, 94, 0.2)',
+                    color: '#4ade80',
+                    border: '1px dashed #16a34a',
+                  }}
+                >
+                  🎓 ROOKIE
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom Decoration */}
         <div className="mt-6 text-center">
           <p
-            className="text-sm font-bold tracking-[0.3em] uppercase"
+            className="text-sm font-bold tracking-[0.3em] uppercase font-mono"
             style={{
               color: '#ff9500',
               textShadow: '0 0 10px rgba(255, 149, 0, 0.5)',
             }}
           >
-            CASE FILE #2025 • CONFIDENTIAL
+            ⚠️ AUTHORIZED PERSONNEL ONLY ⚠️
+          </p>
+          <p className="text-amber-400/40 text-xs mt-1 font-mono tracking-widest">
+            SIGMA HQ • TANJONG PAGAR • EST. 2025
           </p>
         </div>
       </div>

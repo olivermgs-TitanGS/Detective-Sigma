@@ -96,6 +96,12 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
         fireSuccess();
         fireStars();
         toast.caseComplete(resultsData.caseTitle, resultsData.percentageScore >= 90 ? 3 : resultsData.percentageScore >= 70 ? 2 : 1);
+
+        // Hide the stamp after 2 seconds
+        setTimeout(() => {
+          setShowStamp(false);
+        }, 2000);
+
         if (resultsData.percentageScore >= 80) {
           setTimeout(() => {
             fireAchievement();

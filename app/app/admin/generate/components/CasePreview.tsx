@@ -203,20 +203,86 @@ function CluesSection({ clues, images }: { clues: GeneratedCase['clues']; images
 }
 
 function PuzzlesSection({ puzzles }: { puzzles: GeneratedCase['puzzles'] }) {
+  const phaseColors = {
+    initial: 'bg-blue-600',
+    investigation: 'bg-amber-600',
+    conclusion: 'bg-red-600',
+  };
+
+  const typeColors = {
+    math: 'bg-purple-700',
+    logic: 'bg-green-700',
+    observation: 'bg-cyan-700',
+    deduction: 'bg-orange-700',
+  };
+
   return (
     <div className="bg-black/60 border-2 border-slate-600 rounded-lg p-6">
       <h3 className="text-xl font-bold text-blue-400 font-mono mb-4">PUZZLES ({puzzles.length})</h3>
       <div className="space-y-4">
         {puzzles.map((puzzle, index) => (
           <div key={puzzle.id} className="p-4 bg-slate-800 rounded border border-slate-600">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-bold text-white">{index + 1}. {puzzle.title}</div>
-                <div className="text-slate-300 mt-2">{puzzle.question}</div>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-white">{index + 1}. {puzzle.title}</span>
+                  {puzzle.investigationPhase && (
+                    <span className={`${phaseColors[puzzle.investigationPhase]} text-white text-xs px-2 py-0.5 font-mono rounded`}>
+                      {puzzle.investigationPhase.toUpperCase()}
+                    </span>
+                  )}
+                  {puzzle.type && (
+                    <span className={`${typeColors[puzzle.type]} text-white text-xs px-2 py-0.5 font-mono rounded`}>
+                      {puzzle.type}
+                    </span>
+                  )}
+                </div>
+                {puzzle.narrativeContext && (
+                  <div className="text-amber-400/80 text-sm italic mb-2 border-l-2 border-amber-500 pl-2">
+                    {puzzle.narrativeContext}
+                  </div>
+                )}
+                <div className="text-slate-300">{puzzle.question}</div>
                 <div className="text-green-400 text-sm mt-2">Answer: {puzzle.answer}</div>
+                {puzzle.hint && (
+                  <div className="text-slate-500 text-sm mt-1">Hint: {puzzle.hint}</div>
+                )}
               </div>
-              <div className="text-amber-400 font-mono">{puzzle.points} pts</div>
+              <div className="text-right flex-shrink-0 ml-4">
+                <div className="text-amber-400 font-mono font-bold">{puzzle.points} pts</div>
+                {puzzle.complexity && (
+                  <div className="text-slate-500 text-xs font-mono">{puzzle.complexity}</div>
+                )}
+              </div>
             </div>
+            {puzzle.revelation && (
+              <div className={`mt-3 p-3 rounded border ${
+                puzzle.revelation.importance === 'major' ? 'bg-yellow-900/30 border-yellow-600' :
+                puzzle.revelation.importance === 'moderate' ? 'bg-blue-900/30 border-blue-600' :
+                'bg-green-900/20 border-green-600/50'
+              }`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono text-slate-400">REVEALS:</span>
+                  <span className={`text-xs font-mono px-1 rounded ${
+                    puzzle.revelation.importance === 'major' ? 'bg-yellow-700 text-yellow-100' :
+                    puzzle.revelation.importance === 'moderate' ? 'bg-blue-700 text-blue-100' :
+                    'bg-green-700 text-green-100'
+                  }`}>
+                    {puzzle.revelation.type.replace('_', ' ')}
+                  </span>
+                  {puzzle.revelation.importance === 'major' && (
+                    <span className="text-yellow-400 text-xs font-bold">CRITICAL</span>
+                  )}
+                </div>
+                <div className="text-sm text-slate-300">{puzzle.revelation.description}</div>
+                <div className="text-xs text-slate-400 mt-1 italic">&quot;{puzzle.revelation.storyText}&quot;</div>
+              </div>
+            )}
+            {puzzle.relatedCharacterName && (
+              <div className="mt-2 text-xs text-amber-500">
+                Related to: {puzzle.relatedCharacterName}
+              </div>
+            )}
           </div>
         ))}
       </div>

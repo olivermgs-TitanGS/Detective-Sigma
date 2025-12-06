@@ -482,21 +482,76 @@ function narrativeToGeneratedCase(
     relatedCharacterName: puzzle.relatedCharacterName,
   }));
 
-  // Generate scenes from narrative setting
+  // Generate immersive, story-connected scenes
+  const crimeTimeWindow = narrativeCase.crime.crimeWindow;
+  const guiltyChar = characters.find(c => c.isGuilty);
+
   const scenes: Scene[] = [
+    // Scene 1: Primary Crime Scene - Where it all happened
     {
       id: `scene-${nanoid(6)}`,
       name: narrativeCase.setting.location,
-      description: narrativeCase.setting.description,
-      interactiveElements: ['Crime Scene', 'Evidence Board', 'Witness Area'],
+      description: `${narrativeCase.setting.description} The ${narrativeCase.crime.type.replace('_', ' ')} occurred here between ${crimeTimeWindow.start} and ${crimeTimeWindow.end}. ${narrativeCase.setting.dayContext}. Signs of disturbance are visible.`,
+      interactiveElements: [
+        `Area where ${narrativeCase.crime.target} was last seen`,
+        'Footprint marks on the floor',
+        'Nearby furniture that may have been moved',
+        'Window or door that could have been entry point',
+      ],
       cluesAvailable: evidenceChain.initialEvidence.map(e => e.id),
+      locationType: narrativeCase.setting.locationType,
+      ambiance: narrativeCase.setting.timeOfDay === 'morning' ? 'morning' :
+                narrativeCase.setting.timeOfDay === 'afternoon' ? 'day' :
+                narrativeCase.setting.timeOfDay === 'evening' ? 'evening' : 'day',
+      mood: 'mysterious',
     },
+    // Scene 2: Secondary Location - Where suspects were or evidence leads
+    {
+      id: `scene-${nanoid(6)}`,
+      name: `${guiltyChar?.role || 'Staff'} Work Area`,
+      description: `The workspace connected to the investigation. Personal belongings and work materials provide clues about who had access during the crime window. Look for anything out of place.`,
+      interactiveElements: [
+        'Work desk with personal items',
+        'Schedule board showing timings',
+        'Storage area with supplies',
+        'Notice board with announcements',
+      ],
+      cluesAvailable: evidenceChain.discoveredEvidence.slice(0, Math.ceil(evidenceChain.discoveredEvidence.length / 2)).map(e => e.id),
+      locationType: narrativeCase.setting.locationType,
+      ambiance: 'day',
+      mood: 'tense',
+    },
+    // Scene 3: Investigation Room - For analysis and interviews
     {
       id: `scene-${nanoid(6)}`,
       name: 'Investigation Room',
-      description: 'A dedicated space for analyzing evidence and interviewing suspects.',
-      interactiveElements: ['Evidence Table', 'Suspect Profiles', 'Timeline Board'],
-      cluesAvailable: evidenceChain.discoveredEvidence.map(e => e.id),
+      description: `A dedicated space for analyzing collected evidence and interviewing suspects. The timeline board shows events between ${crimeTimeWindow.start} and ${crimeTimeWindow.end}. Suspect profiles are pinned to the wall.`,
+      interactiveElements: [
+        'Evidence analysis table',
+        'Timeline reconstruction board',
+        'Suspect interview notes',
+        'Case file with gathered clues',
+      ],
+      cluesAvailable: evidenceChain.discoveredEvidence.slice(Math.ceil(evidenceChain.discoveredEvidence.length / 2)).map(e => e.id),
+      locationType: 'school',
+      ambiance: 'day',
+      mood: 'calm',
+    },
+    // Scene 4: Confrontation Area - Final evidence and resolution
+    {
+      id: `scene-${nanoid(6)}`,
+      name: 'Resolution Chamber',
+      description: `The final piece of the puzzle. Conclusive evidence points to the culprit. ${narrativeCase.culprit.mistakes[0] || 'A critical mistake was made.'}`,
+      interactiveElements: [
+        'Final evidence display',
+        'Accusation podium',
+        'Truth revelation board',
+        'Case closure documentation',
+      ],
+      cluesAvailable: evidenceChain.conclusiveEvidence.map(e => e.id),
+      locationType: narrativeCase.setting.locationType,
+      ambiance: 'evening',
+      mood: 'urgent',
     },
   ];
 
@@ -856,26 +911,44 @@ export async function saveGeneratedCase(
     idMappings.suspects[suspect.id] = dbSuspect.id;
   }
 
-  // Create clues (without images initially)
-  for (const clue of generatedCase.clues) {
+  // Create clues linked to scenes (clues belong to scenes, not cases directly)
+  // Get the first scene ID (crime scene) to link clues
+  const sceneIds = Object.values(idMappings.scenes) as string[];
+
+  // Safety check: if no scenes were created, skip clue creation
+  if (sceneIds.length === 0) {
+    console.warn('No scenes created, skipping clue creation');
+  }
+
+  const defaultSceneId = sceneIds[0]; // First scene is the main crime scene
+
+  for (let i = 0; i < generatedCase.clues.length && sceneIds.length > 0; i++) {
+    const clue = generatedCase.clues[i];
+    // Distribute clues across scenes or assign to first scene
+    const targetSceneId = sceneIds[Math.floor(i / Math.ceil(generatedCase.clues.length / sceneIds.length))] || defaultSceneId;
+
+    // Generate random position for clue hotspot (20-80% range to keep within bounds)
+    const positionX = 20 + Math.random() * 60;
+    const positionY = 20 + Math.random() * 60;
+
     const dbClue = await prisma.clue.create({
       data: {
-        caseId: newCase.id,
+        sceneId: targetSceneId,
         name: clue.title,
         description: clue.description,
-        type: clue.type === 'physical' ? 'PHYSICAL' :
-              clue.type === 'document' ? 'DOCUMENT' :
-              clue.type === 'testimony' ? 'TESTIMONY' : 'DIGITAL',
         imageUrl: null, // Placeholder, updated via separate upload
-        importance: clue.relevance === 'critical' ? 'CRITICAL' :
-                   clue.relevance === 'red-herring' ? 'RED_HERRING' : 'SUPPORTING',
+        // Use analysisResult as the revealed content when player examines the clue
+        contentRevealed: clue.analysisResult || `This ${clue.type} evidence ${clue.relevance === 'critical' ? 'is crucial to the case' : 'may help with the investigation'}.`,
+        isHidden: clue.relevance === 'red-herring', // Hide red herrings initially
+        positionX: positionX,
+        positionY: positionY,
       },
     });
     // Map generated ID to database ID
     idMappings.clues[clue.id] = dbClue.id;
   }
 
-  // Create puzzles
+  // Create puzzles with narrative revelation data
   for (const puzzle of generatedCase.puzzles) {
     await prisma.puzzle.create({
       data: {
@@ -888,6 +961,16 @@ export async function saveGeneratedCase(
         correctAnswer: puzzle.answer,
         hint: puzzle.hint,
         points: puzzle.points,
+        // Narrative revelation system - story context for each puzzle
+        narrativeContext: puzzle.narrativeContext || null,
+        investigationPhase: puzzle.investigationPhase || null,
+        revelation: puzzle.revelation ? {
+          type: puzzle.revelation.type,
+          description: puzzle.revelation.description,
+          storyText: puzzle.revelation.storyText,
+          importance: puzzle.revelation.importance,
+        } : null,
+        relatedCharacterName: puzzle.relatedCharacterName || null,
       },
     });
   }
