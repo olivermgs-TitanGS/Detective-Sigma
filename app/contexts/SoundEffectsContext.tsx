@@ -45,7 +45,16 @@ export type SoundEffect =
   | 'dialogueAdvance'
   | 'sceneTransition'
   | 'optionSelect'
-  | 'hoverSubtle';
+  | 'hoverSubtle'
+  // Leaderboard and achievement sounds
+  | 'goldRank'
+  | 'silverRank'
+  | 'bronzeRank'
+  | 'topTenRank'
+  | 'rankUp'
+  | 'caseSolved'
+  | 'clueUnlock'
+  | 'badgeEarned';
 
 // Sound effect file paths (optional - synthetic sounds used as fallback)
 const SOUND_EFFECTS: Record<SoundEffect, string> = {
@@ -91,6 +100,15 @@ const SOUND_EFFECTS: Record<SoundEffect, string> = {
   sceneTransition: '/sfx/scene-transition.mp3',
   optionSelect: '/sfx/option-select.mp3',
   hoverSubtle: '/sfx/hover-subtle.mp3',
+  // Leaderboard and achievement sounds (synthetic)
+  goldRank: '/sfx/gold-rank.mp3',
+  silverRank: '/sfx/silver-rank.mp3',
+  bronzeRank: '/sfx/bronze-rank.mp3',
+  topTenRank: '/sfx/top-ten-rank.mp3',
+  rankUp: '/sfx/rank-up.mp3',
+  caseSolved: '/sfx/case-solved.mp3',
+  clueUnlock: '/sfx/clue-unlock.mp3',
+  badgeEarned: '/sfx/badge-earned.mp3',
 };
 
 interface SoundEffectsContextType {

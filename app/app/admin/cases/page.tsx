@@ -168,7 +168,7 @@ export default async function CasesListPage() {
                         Edit
                       </Link>
                       <Link
-                        href={`/admin/cases/${caseItem.id}/scenes`}
+                        href={`/admin/cases/${caseItem.id}/edit#scenes`}
                         className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors"
                       >
                         Scenes

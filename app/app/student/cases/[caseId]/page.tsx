@@ -66,7 +66,18 @@ export default async function CaseDetail({ params }: { params: Promise<{ caseId:
 
       {/* Case Header */}
       <div className="bg-black/60 backdrop-blur-sm border-2 border-amber-600/30 p-8 text-center">
-        <div className="text-8xl mb-6">{caseData.coverImage || '🔍'}</div>
+        {/* Cover Image or Default Icon */}
+        <div className="mb-6 flex justify-center">
+          {caseData.coverImage ? (
+            <img
+              src={caseData.coverImage}
+              alt={caseData.title}
+              className="w-32 h-32 object-cover rounded-lg border-2 border-amber-600 shadow-lg"
+            />
+          ) : (
+            <div className="text-8xl">🔍</div>
+          )}
+        </div>
         <div className="flex items-center justify-center gap-3 mb-4">
           <span
             className={`${difficultyColors[caseData.difficulty] || 'bg-gray-600'} text-white text-sm px-4 py-1 font-semibold font-mono`}

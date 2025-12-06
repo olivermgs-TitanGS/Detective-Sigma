@@ -606,6 +606,218 @@ export function playHoverSubtle(): void {
   }
 }
 
+// ==================== LEADERBOARD RANK SOUNDS ====================
+
+// Gold rank (1st place) - Triumphant fanfare, majestic
+export function playGoldRank(): void {
+  try {
+    ensureAudioContext();
+    const ctx = getAudioContext();
+
+    // Majestic fanfare - C major chord progression
+    const notes = [
+      { freq: 523, delay: 0, dur: 0.15 },      // C5
+      { freq: 659, delay: 0.08, dur: 0.15 },   // E5
+      { freq: 784, delay: 0.16, dur: 0.2 },    // G5
+      { freq: 1047, delay: 0.28, dur: 0.4 },   // C6 (triumphant high)
+    ];
+
+    notes.forEach(({ freq, delay, dur }) => {
+      setTimeout(() => {
+        createTone({ frequency: freq, duration: dur, type: 'sine', volume: 0.2 });
+        createTone({ frequency: freq * 1.5, duration: dur * 0.8, type: 'sine', volume: 0.08 }); // Overtone
+      }, delay * 1000);
+    });
+
+    // Shimmer effect at the end
+    setTimeout(() => {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          createTone({ frequency: 1200 + Math.random() * 800, duration: 0.1, type: 'sine', volume: 0.05 });
+        }, i * 50);
+      }
+    }, 600);
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Silver rank (2nd place) - Noble fanfare, slightly less triumphant
+export function playSilverRank(): void {
+  try {
+    ensureAudioContext();
+
+    // Noble fanfare - D major
+    const notes = [
+      { freq: 440, delay: 0, dur: 0.12 },      // A4
+      { freq: 554, delay: 0.07, dur: 0.12 },   // C#5
+      { freq: 659, delay: 0.14, dur: 0.18 },   // E5
+      { freq: 880, delay: 0.24, dur: 0.3 },    // A5
+    ];
+
+    notes.forEach(({ freq, delay, dur }) => {
+      setTimeout(() => {
+        createTone({ frequency: freq, duration: dur, type: 'sine', volume: 0.18 });
+      }, delay * 1000);
+    });
+
+    // Soft shimmer
+    setTimeout(() => {
+      createTone({ frequency: 1100, duration: 0.15, type: 'sine', volume: 0.06 });
+      createTone({ frequency: 1400, duration: 0.12, type: 'sine', volume: 0.04 });
+    }, 500);
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Bronze rank (3rd place) - Warm, solid fanfare
+export function playBronzeRank(): void {
+  try {
+    ensureAudioContext();
+
+    // Warm fanfare - E major
+    const notes = [
+      { freq: 330, delay: 0, dur: 0.1 },       // E4
+      { freq: 415, delay: 0.06, dur: 0.1 },    // G#4
+      { freq: 494, delay: 0.12, dur: 0.15 },   // B4
+      { freq: 659, delay: 0.2, dur: 0.25 },    // E5
+    ];
+
+    notes.forEach(({ freq, delay, dur }) => {
+      setTimeout(() => {
+        createTone({ frequency: freq, duration: dur, type: 'sine', volume: 0.15 });
+      }, delay * 1000);
+    });
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Top 10 rank sound - Proud achievement
+export function playTopTenRank(): void {
+  try {
+    ensureAudioContext();
+    // Quick ascending arpeggio
+    createTone({ frequency: 392, duration: 0.08, type: 'sine', volume: 0.12 });
+    setTimeout(() => createTone({ frequency: 494, duration: 0.08, type: 'sine', volume: 0.12 }), 70);
+    setTimeout(() => createTone({ frequency: 587, duration: 0.15, type: 'sine', volume: 0.14 }), 140);
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Rank up sound - Level progression
+export function playRankUp(): void {
+  try {
+    ensureAudioContext();
+    const ctx = getAudioContext();
+
+    // Exciting ascending fanfare
+    const notes = [262, 330, 392, 523]; // C major scale
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        createTone({ frequency: freq, duration: 0.12, type: 'sine', volume: 0.15 });
+        createTone({ frequency: freq * 2, duration: 0.08, type: 'sine', volume: 0.06 }); // Octave
+      }, i * 100);
+    });
+
+    // Victory stinger
+    setTimeout(() => {
+      createTone({ frequency: 784, duration: 0.3, type: 'sine', volume: 0.18 });
+      createTone({ frequency: 1047, duration: 0.25, type: 'sine', volume: 0.1 });
+    }, 450);
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Case solved celebration - Detective triumph
+export function playCaseSolved(): void {
+  try {
+    ensureAudioContext();
+
+    // Dramatic reveal followed by celebration
+    // Low suspense build
+    createTone({ frequency: 110, duration: 0.3, type: 'sine', volume: 0.1 });
+
+    setTimeout(() => {
+      // The reveal - dramatic chord
+      createTone({ frequency: 440, duration: 0.2, type: 'sine', volume: 0.15 });
+      createTone({ frequency: 554, duration: 0.2, type: 'sine', volume: 0.12 });
+      createTone({ frequency: 659, duration: 0.2, type: 'sine', volume: 0.1 });
+    }, 300);
+
+    // Triumphant finish
+    setTimeout(() => {
+      const celebNotes = [523, 659, 784, 1047];
+      celebNotes.forEach((freq, i) => {
+        setTimeout(() => {
+          createTone({ frequency: freq, duration: 0.15, type: 'sine', volume: 0.12 });
+        }, i * 80);
+      });
+    }, 550);
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Clue unlock - Discovery moment
+export function playClueUnlock(): void {
+  try {
+    ensureAudioContext();
+
+    // Mysterious reveal
+    createTone({ frequency: 220, duration: 0.15, type: 'sine', volume: 0.1 });
+    setTimeout(() => {
+      createTone({ frequency: 440, duration: 0.12, type: 'sine', volume: 0.12 });
+      createTone({ frequency: 554, duration: 0.1, type: 'sine', volume: 0.08 });
+    }, 120);
+
+    // Sparkle discovery
+    setTimeout(() => {
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          createTone({ frequency: 800 + i * 200, duration: 0.08, type: 'sine', volume: 0.06 });
+        }, i * 60);
+      }
+    }, 250);
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
+// Badge earned - Achievement unlocked
+export function playBadgeEarned(): void {
+  try {
+    ensureAudioContext();
+
+    // Majestic achievement sound
+    createTone({ frequency: 392, duration: 0.1, type: 'sine', volume: 0.12 });
+    setTimeout(() => createTone({ frequency: 494, duration: 0.1, type: 'sine', volume: 0.14 }), 80);
+    setTimeout(() => createTone({ frequency: 587, duration: 0.1, type: 'sine', volume: 0.14 }), 160);
+    setTimeout(() => createTone({ frequency: 784, duration: 0.3, type: 'sine', volume: 0.18 }), 240);
+
+    // Shimmer celebration
+    setTimeout(() => {
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => {
+          createTone({ frequency: 1000 + Math.random() * 500, duration: 0.08, type: 'sine', volume: 0.04 });
+        }, i * 40);
+      }
+    }, 500);
+
+  } catch (e) {
+    console.debug('Audio not available');
+  }
+}
+
 // Map all sound types to functions
 export const synthSounds = {
   // Original sounds
@@ -648,6 +860,15 @@ export const synthSounds = {
   sceneTransition: playSceneTransition,
   optionSelect: playOptionSelect,
   hoverSubtle: playHoverSubtle,
+  // Leaderboard and achievement sounds
+  goldRank: playGoldRank,
+  silverRank: playSilverRank,
+  bronzeRank: playBronzeRank,
+  topTenRank: playTopTenRank,
+  rankUp: playRankUp,
+  caseSolved: playCaseSolved,
+  clueUnlock: playClueUnlock,
+  badgeEarned: playBadgeEarned,
 };
 
 export type SynthSoundType = keyof typeof synthSounds;

@@ -117,6 +117,35 @@ export default function EditScenePage({
     }
   };
 
+  const handleEditClue = async (clue: Clue) => {
+    const name = prompt('Edit clue name:', clue.name);
+    if (name === null) return; // User cancelled
+
+    const description = prompt('Edit clue description:', clue.description || '');
+    if (description === null) return;
+
+    const contentRevealed = prompt('Edit content revealed (what the clue tells the player):', clue.contentRevealed || '');
+    if (contentRevealed === null) return;
+
+    try {
+      const response = await fetch(`/api/admin/clues/${clue.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name || clue.name,
+          description: description || null,
+          contentRevealed: contentRevealed || null,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update clue');
+      setSuccessMessage('Clue updated!');
+      fetchScene();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update clue');
+    }
+  };
+
   const handleDeleteClue = async (clueId: string) => {
     if (!confirm('Delete this clue?')) return;
 
@@ -292,12 +321,12 @@ export default function EditScenePage({
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <Link
-                    href={`/admin/cases/${resolvedParams.id}/scenes/${resolvedParams.sceneId}/clues/${clue.id}/edit`}
+                  <button
+                    onClick={() => handleEditClue(clue)}
                     className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm transition-colors"
                   >
                     Edit
-                  </Link>
+                  </button>
                   <button
                     onClick={() => handleDeleteClue(clue.id)}
                     className="px-3 py-1 bg-red-900/50 hover:bg-red-800 text-red-300 text-sm transition-colors"

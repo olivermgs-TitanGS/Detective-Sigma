@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CaseData {
   id: string;
@@ -27,8 +28,26 @@ const difficultyColors = {
 
 export default function CaseLibrary() {
   const [cases, setCases] = useState<CaseData[]>([]);
+  const [filteredCases, setFilteredCases] = useState<CaseData[]>([]);
   const [loading, setLoading] = useState(true);
   const [openFolder, setOpenFolder] = useState<string | null>(null);
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [subjectFilter, setSubjectFilter] = useState<string>('');
+  const [difficultyFilter, setDifficultyFilter] = useState<string>('');
+  const router = useRouter();
+
+  // Navigation with loading state
+  const handleNavigate = (caseId: string, path: 'detail' | 'play') => {
+    const url = path === 'detail'
+      ? `/student/cases/${caseId}`
+      : `/student/cases/${caseId}/play`;
+
+    setNavigatingTo(`${caseId}-${path}`);
+    startTransition(() => {
+      router.push(url);
+    });
+  };
 
   useEffect(() => {
     async function fetchCasesAndProgress() {
@@ -57,6 +76,7 @@ export default function CaseLibrary() {
           }
 
           setCases(casesWithProgress);
+          setFilteredCases(casesWithProgress);
         }
       } catch (err) {
         console.error('Error fetching cases:', err);
@@ -67,6 +87,21 @@ export default function CaseLibrary() {
 
     fetchCasesAndProgress();
   }, []);
+
+  const applyFilters = () => {
+    let filtered = [...cases];
+
+    if (subjectFilter) {
+      filtered = filtered.filter(c => c.subjectFocus === subjectFilter);
+    }
+
+    if (difficultyFilter) {
+      filtered = filtered.filter(c => c.difficulty === difficultyFilter);
+    }
+
+    setFilteredCases(filtered);
+    setOpenFolder(null); // Close any open folders when filtering
+  };
 
   const toggleFolder = (caseId: string) => {
     setOpenFolder(openFolder === caseId ? null : caseId);
@@ -87,6 +122,62 @@ export default function CaseLibrary() {
 
   return (
     <div className="space-y-8">
+      {/* Navigation Loading Overlay */}
+      <AnimatePresence>
+        {(navigatingTo || isPending) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-center"
+            >
+              {/* Magnifying glass animation */}
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-8xl mb-6"
+              >
+                🔍
+              </motion.div>
+
+              <motion.p
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="text-amber-400 font-mono text-lg tracking-wider"
+              >
+                {navigatingTo?.includes('-play')
+                  ? 'Entering investigation...'
+                  : 'Opening case file...'}
+              </motion.p>
+
+              {/* Loading dots */}
+              <div className="flex justify-center gap-2 mt-4">
+                {[0, 1, 2].map(i => (
+                  <motion.div
+                    key={i}
+                    className="w-2 h-2 rounded-full bg-amber-600"
+                    animate={{
+                      scale: [1, 1.5, 1],
+                      opacity: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      delay: i * 0.2,
+                    }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header - Evidence Board Style */}
       <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
         <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
@@ -102,7 +193,11 @@ export default function CaseLibrary() {
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
             <label className="block text-amber-400 mb-2 text-sm font-mono tracking-wider">SUBJECT FOCUS</label>
-            <select className="w-full bg-black border-2 border-amber-600/30 px-4 py-2 text-amber-400 font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600 transition-colors">
+            <select
+              value={subjectFilter}
+              onChange={(e) => setSubjectFilter(e.target.value)}
+              className="w-full bg-black border-2 border-amber-600/30 px-4 py-2 text-amber-400 font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600 transition-colors"
+            >
               <option value="">ALL SUBJECTS</option>
               <option value="MATH">MATH</option>
               <option value="SCIENCE">SCIENCE</option>
@@ -111,7 +206,11 @@ export default function CaseLibrary() {
           </div>
           <div className="flex-1 min-w-[200px]">
             <label className="block text-amber-400 mb-2 text-sm font-mono tracking-wider">DIFFICULTY LEVEL</label>
-            <select className="w-full bg-black border-2 border-amber-600/30 px-4 py-2 text-amber-400 font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600 transition-colors">
+            <select
+              value={difficultyFilter}
+              onChange={(e) => setDifficultyFilter(e.target.value)}
+              className="w-full bg-black border-2 border-amber-600/30 px-4 py-2 text-amber-400 font-mono focus:ring-2 focus:ring-amber-600 focus:border-amber-600 transition-colors"
+            >
               <option value="">ALL RANKS</option>
               <option value="ROOKIE">ROOKIE (P4)</option>
               <option value="INSPECTOR">INSPECTOR (P5)</option>
@@ -119,7 +218,10 @@ export default function CaseLibrary() {
             </select>
           </div>
           <div className="flex items-end">
-            <button className="border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-8 py-2 transition-all font-mono font-bold tracking-wider">
+            <button
+              onClick={applyFilters}
+              className="border-2 border-amber-600 bg-black hover:bg-amber-600 hover:text-black text-amber-400 px-8 py-2 transition-all font-mono font-bold tracking-wider"
+            >
               APPLY FILTERS
             </button>
           </div>
@@ -128,7 +230,7 @@ export default function CaseLibrary() {
 
       {/* Case Folders - Manila Paper Style */}
       <div className="space-y-6">
-        {cases.map((caseItem, index) => {
+        {filteredCases.map((caseItem, index) => {
           const colors = difficultyColors[caseItem.difficulty as keyof typeof difficultyColors] || difficultyColors.ROOKIE;
           const isOpen = openFolder === caseItem.id;
           const caseNumber = getCaseNumber(index);
@@ -349,12 +451,25 @@ export default function CaseLibrary() {
                           CLASSIFIED - FOR DETECTIVE EYES ONLY
                         </p>
                       </div>
-                      <Link
-                        href={`/student/cases/${caseItem.id}`}
-                        className="bg-stone-800 hover:bg-stone-700 text-white px-4 py-2 font-mono text-sm font-bold tracking-wider transition-all rounded"
+                      <button
+                        onClick={() => handleNavigate(caseItem.id, 'detail')}
+                        disabled={!!navigatingTo}
+                        className="bg-stone-800 hover:bg-stone-700 text-white px-4 py-2 font-mono text-sm font-bold tracking-wider transition-all rounded disabled:opacity-50 disabled:cursor-wait flex items-center gap-2"
                       >
-                        FULL REPORT →
-                      </Link>
+                        {navigatingTo === `${caseItem.id}-detail` ? (
+                          <>
+                            <motion.span
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                            >
+                              ⏳
+                            </motion.span>
+                            LOADING...
+                          </>
+                        ) : (
+                          'FULL REPORT →'
+                        )}
+                      </button>
                     </div>
                     <p className="text-stone-700 font-mono text-sm leading-relaxed">
                       {caseItem.description}
@@ -369,22 +484,48 @@ export default function CaseLibrary() {
                           ✅ CASE SOLVED - Score: {caseItem.userProgress?.score || 0} pts
                         </div>
                         <div>
-                          <Link
-                            href={`/student/cases/${caseItem.id}/play`}
-                            className="inline-block bg-stone-700 hover:bg-stone-600 text-white px-8 py-3 font-mono font-bold text-lg tracking-wider transition-all hover:scale-105 shadow-lg rounded"
+                          <button
+                            onClick={() => handleNavigate(caseItem.id, 'play')}
+                            disabled={!!navigatingTo}
+                            className="inline-block bg-stone-700 hover:bg-stone-600 text-white px-8 py-3 font-mono font-bold text-lg tracking-wider transition-all hover:scale-105 shadow-lg rounded disabled:opacity-50 disabled:cursor-wait"
                           >
-                            🔄 REVIEW CASE FILES
-                          </Link>
+                            {navigatingTo === `${caseItem.id}-play` ? (
+                              <span className="flex items-center gap-2">
+                                <motion.span
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                >
+                                  ⏳
+                                </motion.span>
+                                LOADING...
+                              </span>
+                            ) : (
+                              '🔄 REVIEW CASE FILES'
+                            )}
+                          </button>
                         </div>
                       </div>
                     ) : (
-                      <Link
-                        href={`/student/cases/${caseItem.id}/play`}
-                        className="inline-block bg-red-700 hover:bg-red-600 text-white px-10 py-4 font-mono font-bold text-lg tracking-wider transition-all hover:scale-105 shadow-lg rounded border-2 border-red-900"
+                      <button
+                        onClick={() => handleNavigate(caseItem.id, 'play')}
+                        disabled={!!navigatingTo}
+                        className="inline-block bg-red-700 hover:bg-red-600 text-white px-10 py-4 font-mono font-bold text-lg tracking-wider transition-all hover:scale-105 shadow-lg rounded border-2 border-red-900 disabled:opacity-50 disabled:cursor-wait"
                         style={{ boxShadow: '0 4px 12px rgba(185, 28, 28, 0.4)' }}
                       >
-                        🔍 BEGIN INVESTIGATION
-                      </Link>
+                        {navigatingTo === `${caseItem.id}-play` ? (
+                          <span className="flex items-center gap-2 justify-center">
+                            <motion.span
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                            >
+                              ⏳
+                            </motion.span>
+                            ENTERING INVESTIGATION...
+                          </span>
+                        ) : (
+                          '🔍 BEGIN INVESTIGATION'
+                        )}
+                      </button>
                     )}
                   </div>
 
@@ -399,11 +540,17 @@ export default function CaseLibrary() {
       </div>
 
       {/* Empty State (if no cases) */}
-      {cases.length === 0 && (
+      {filteredCases.length === 0 && (
         <div className="border-2 border-amber-600/30 bg-black/60 p-12 text-center backdrop-blur-sm">
           <div className="text-6xl mb-4">📁</div>
-          <h3 className="text-2xl font-bold text-amber-50 mb-2 font-mono tracking-widest">NO CASE FILES AVAILABLE</h3>
-          <p className="text-slate-400 font-mono tracking-wide">&gt; Check back later for new investigations!</p>
+          <h3 className="text-2xl font-bold text-amber-50 mb-2 font-mono tracking-widest">
+            {cases.length === 0 ? 'NO CASE FILES AVAILABLE' : 'NO MATCHING CASES'}
+          </h3>
+          <p className="text-slate-400 font-mono tracking-wide">
+            {cases.length === 0
+              ? '> Check back later for new investigations!'
+              : '> Try adjusting your filters to find more cases.'}
+          </p>
         </div>
       )}
     </div>

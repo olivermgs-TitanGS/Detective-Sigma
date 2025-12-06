@@ -16,6 +16,34 @@ export default function BulkImportPage() {
     console.log('Uploading file:', selectedFile);
   };
 
+  const downloadCasesTemplate = () => {
+    const csvContent = `title,description,difficulty,subjectFocus,estimatedMinutes
+"The Missing Calculator","A math-based mystery about a stolen calculator",ROOKIE,MATH,30
+"Science Lab Sabotage","Someone tampered with the science experiment",INSPECTOR,SCIENCE,45`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'cases_template.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadUsersTemplate = () => {
+    const csvContent = `name,email,role,class
+"John Doe","john@school.edu",STUDENT,"P5A"
+"Jane Smith","jane@school.edu",TEACHER,""`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'users_template.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
@@ -32,7 +60,10 @@ export default function BulkImportPage() {
           <p className="text-red-200 mb-4">
             Upload a CSV file with case data, scenes, clues, and puzzles
           </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold">
+          <button
+            onClick={downloadCasesTemplate}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold"
+          >
             Download Template
           </button>
         </div>
@@ -43,7 +74,10 @@ export default function BulkImportPage() {
           <p className="text-red-200 mb-4">
             Upload a CSV file with student or teacher accounts
           </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold">
+          <button
+            onClick={downloadUsersTemplate}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2  transition-colors font-semibold"
+          >
             Download Template
           </button>
         </div>

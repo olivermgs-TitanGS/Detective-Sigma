@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import { loginSchema } from '@/lib/validations/auth';
 import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
@@ -110,14 +110,33 @@ export default function LoginPage() {
       />
 
       {/* Login Card */}
-      <div className={`relative z-30 w-full max-w-md mx-4 transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 50, scale: 0.95, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        transition={{
+          duration: 0.8,
+          ease: [0.22, 1, 0.36, 1],
+          delay: 0.2,
+        }}
+        className="relative z-30 w-full max-w-md mx-4"
+      >
         {/* Glowing Border Effect */}
-        <div
-          className="absolute -inset-1 rounded-lg opacity-75 blur-sm animate-pulse"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 0.75, scale: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="absolute -inset-1 rounded-lg blur-sm"
           style={{
             background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
           }}
-        />
+        >
+          <motion.div
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-full h-full rounded-lg"
+            style={{ background: 'inherit' }}
+          />
+        </motion.div>
 
         <div
           className="relative p-8 rounded-lg"
@@ -129,15 +148,31 @@ export default function LoginPage() {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <div
-              className="mb-4 text-6xl animate-bounce"
-              style={{
-                filter: 'drop-shadow(0 0 15px rgba(255, 215, 0, 0.8))',
-                animationDuration: '3s',
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{
+                type: 'spring',
+                stiffness: 200,
+                damping: 15,
+                delay: 0.5,
               }}
+              className="mb-4 text-6xl"
             >
-              🔎
-            </div>
+              <motion.span
+                animate={{
+                  filter: [
+                    'drop-shadow(0 0 15px rgba(255, 215, 0, 0.5))',
+                    'drop-shadow(0 0 30px rgba(255, 215, 0, 0.8))',
+                    'drop-shadow(0 0 15px rgba(255, 215, 0, 0.5))',
+                  ],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className="inline-block"
+              >
+                🔎
+              </motion.span>
+            </motion.div>
             <h1
               className="text-4xl font-black tracking-[0.2em] mb-2"
               style={{
@@ -525,7 +560,7 @@ export default function LoginPage() {
             SIGMA HQ • TANJONG PAGAR • EST. 2025
           </p>
         </div>
-      </div>
+      </motion.div>
 
       <style jsx>{`
         input::placeholder {

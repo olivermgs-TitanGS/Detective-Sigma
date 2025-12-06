@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SoundLink } from '@/components/ui/SoundButton';
+import { SoundLink, SoundButton } from '@/components/ui/SoundButton';
 import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
 import { useStats } from '@/lib/hooks/useStats';
+import { NoirTransition } from '@/components/ui/PageTransition';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 const FEATURES = [
   {
@@ -52,14 +55,33 @@ const TESTIMONIALS = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [showContent, setShowContent] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [navigationTarget, setNavigationTarget] = useState('');
+  const [isPending, startTransition] = useTransition();
   const { stats } = useStats();
+  const { playSound } = useSoundEffects();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 300);
     return () => clearTimeout(timer);
   }, []);
+
+  // Handle dramatic navigation with transition
+  const handleNavigate = (path: string, loadingMessage: string) => {
+    setNavigationTarget(loadingMessage);
+    setIsNavigating(true);
+    playSound('sceneTransition');
+
+    // Delay navigation to show transition effect
+    setTimeout(() => {
+      startTransition(() => {
+        router.push(path);
+      });
+    }, 800);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -70,6 +92,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-black">
+      {/* Noir page transition overlay */}
+      <NoirTransition
+        isTransitioning={isNavigating || isPending}
+        message={navigationTarget || 'ACCESSING HEADQUARTERS...'}
+      />
       {/* Background */}
       <div
         className="fixed inset-0 z-0"
@@ -205,10 +232,11 @@ export default function Home() {
               transition={{ delay: 2.5, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <SoundLink
-                href="/login"
-                clickSound="folderOpen"
-                className="group relative px-8 py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all hover:scale-105 overflow-hidden"
+              <button
+                onClick={() => handleNavigate('/login', 'ACCESSING SECURE LOGIN...')}
+                onMouseEnter={() => playSound('buttonHover')}
+                disabled={isNavigating}
+                className="group relative px-8 py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all hover:scale-105 overflow-hidden disabled:opacity-50"
                 style={{
                   background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
                   color: '#000000',
@@ -219,11 +247,12 @@ export default function Home() {
               >
                 <span className="relative z-10">⚡ BEGIN INVESTIGATION</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </SoundLink>
-              <SoundLink
-                href="/register/student"
-                clickSound="paperRustle"
-                className="group px-8 py-4 rounded font-bold text-lg tracking-[0.15em] uppercase transition-all hover:scale-105 font-mono"
+              </button>
+              <button
+                onClick={() => handleNavigate('/register/student', 'PREPARING ENROLLMENT...')}
+                onMouseEnter={() => playSound('buttonHover')}
+                disabled={isNavigating}
+                className="group px-8 py-4 rounded font-bold text-lg tracking-[0.15em] uppercase transition-all hover:scale-105 font-mono disabled:opacity-50"
                 style={{
                   background: 'rgba(255, 215, 0, 0.1)',
                   color: '#ffd700',
@@ -232,7 +261,7 @@ export default function Home() {
                 }}
               >
                 🎓 JOIN THE AGENCY
-              </SoundLink>
+              </button>
             </motion.div>
           </motion.div>
 
@@ -409,10 +438,11 @@ export default function Home() {
               UNSOLVED MYSTERIES PILE UP BY THE HOUR. THE CITY NEEDS YOUR SHARP MIND.
               WILL YOU ANSWER THE CALL, DETECTIVE?
             </p>
-            <SoundLink
-              href="/login"
-              clickSound="achievement"
-              className="inline-block group relative px-10 py-5 rounded font-black text-xl tracking-[0.2em] uppercase transition-all hover:scale-105 overflow-hidden"
+            <button
+              onClick={() => handleNavigate('/login', 'INITIATING MISSION BRIEFING...')}
+              onMouseEnter={() => playSound('buttonHover')}
+              disabled={isNavigating}
+              className="inline-block group relative px-10 py-5 rounded font-black text-xl tracking-[0.2em] uppercase transition-all hover:scale-105 overflow-hidden disabled:opacity-50"
               style={{
                 background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
                 color: '#000000',
@@ -423,7 +453,7 @@ export default function Home() {
             >
               <span className="relative z-10">🔓 ACCEPT THE MISSION</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-            </SoundLink>
+            </button>
           </motion.div>
         </section>
 

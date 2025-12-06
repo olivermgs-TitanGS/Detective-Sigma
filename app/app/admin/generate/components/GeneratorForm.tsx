@@ -192,7 +192,7 @@ export function GeneratorForm({
 
         {savedCaseId && (
           <a
-            href={`/admin/cases/${savedCaseId}`}
+            href={`/admin/cases/${savedCaseId}/edit`}
             className="px-4 md:px-8 py-2 md:py-3 font-mono font-bold tracking-wider rounded bg-blue-600 hover:bg-blue-500 text-white transition-all text-sm md:text-base"
           >
             VIEW SAVED

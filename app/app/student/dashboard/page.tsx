@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ProgressBar, ProgressRing } from '@/components/ui/ProgressBar';
 import { PageSkeleton, StatSkeleton, CardSkeleton } from '@/components/ui/Skeleton';
 import { StreakFire } from '@/components/ui/StreakFire';
 import { StaggerContainer, StaggerItem } from '@/components/ui/PageTransition';
+import DetectiveRank from '@/components/ui/DetectiveRank';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 interface DashboardStats {
   casesSolved: number;
@@ -46,6 +51,18 @@ interface ProgressData {
   };
 }
 
+// Daily detective tips
+const DETECTIVE_TIPS = [
+  "A good detective always checks the timeline twice.",
+  "Never assume - let the evidence guide you.",
+  "The smallest clue can crack the biggest case.",
+  "Listen carefully - suspects often reveal more than they intend.",
+  "Mathematics is your ally in verifying alibis.",
+  "Cross-reference every statement with physical evidence.",
+  "Patience and persistence solve cases.",
+  "Trust the data, but question everything else.",
+];
+
 export default function StudentDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     casesSolved: 0,
@@ -57,6 +74,18 @@ export default function StudentDashboard() {
   const [allProgress, setAllProgress] = useState<ProgressData[]>([]);
   const [totalCases, setTotalCases] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
+  const [dailyTip] = useState(() => DETECTIVE_TIPS[Math.floor(Math.random() * DETECTIVE_TIPS.length)]);
+
+  const router = useRouter();
+  const { playSound } = useSoundEffects();
+
+  // Navigation with loading state and sound
+  const handleNavigate = (path: string, caseId?: string) => {
+    playSound('caseFileOpen');
+    setNavigatingTo(caseId || path);
+    router.push(path);
+  };
 
   useEffect(() => {
     async function fetchDashboard() {
@@ -154,23 +183,98 @@ export default function StudentDashboard() {
 
   return (
     <StaggerContainer className="space-y-8" staggerDelay={0.1}>
-      {/* Welcome Section - Crime Scene Style */}
+      {/* Navigation Loading Overlay */}
+      <AnimatePresence>
+        {navigatingTo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-center"
+            >
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-8xl mb-6"
+              >
+                🔍
+              </motion.div>
+              <motion.p
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="text-amber-400 font-mono text-lg tracking-wider"
+              >
+                Opening case file...
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Welcome Section with Rank Badge */}
       <StaggerItem>
         <div className="border-2 border-amber-600/50 bg-black/80 p-8 backdrop-blur-sm">
-          <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
-            DETECTIVE DOSSIER
-          </h1>
-          <p className="text-slate-400 font-mono tracking-wide">
-            &gt; Your investigative record and case statistics
-          </p>
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+            {/* Left - Rank Badge */}
+            <div className="flex-shrink-0">
+              <DetectiveRank
+                score={stats.totalScore}
+                casesSolved={stats.casesSolved}
+                size="lg"
+                showProgress={true}
+              />
+            </div>
+
+            {/* Right - Welcome Text */}
+            <div className="flex-1 text-center lg:text-left">
+              <h1 className="text-4xl font-bold text-amber-50 font-mono tracking-[0.2em] mb-2">
+                DETECTIVE DOSSIER
+              </h1>
+              <p className="text-slate-400 font-mono tracking-wide mb-4">
+                &gt; Your investigative record and case statistics
+              </p>
+
+              {/* Daily Tip */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-amber-900/30 border-l-4 border-amber-500 p-4 mt-4"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">💡</span>
+                  <div>
+                    <h4 className="text-amber-400 font-mono font-bold text-xs tracking-wider mb-1">
+                      DETECTIVE TIP OF THE DAY
+                    </h4>
+                    <p className="text-amber-100 font-mono text-sm italic">
+                      &quot;{dailyTip}&quot;
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
         </div>
       </StaggerItem>
 
-      {/* Stats Grid - Evidence Tags */}
+      {/* Stats Grid - Evidence Tags with Animated Counters */}
       <StaggerItem>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
-          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.casesSolved}</div>
+          <motion.div
+            whileHover={{ scale: 1.02, borderColor: 'rgb(217, 119, 6)' }}
+            className="border-2 border-amber-600/30 bg-black/60 p-6 transition-colors"
+          >
+            <AnimatedCounter
+              value={stats.casesSolved}
+              className="text-4xl font-bold text-amber-500 mb-2 font-mono block"
+              delay={0.2}
+            />
             <div className="text-amber-400 font-mono text-sm tracking-wider">CASES CLOSED</div>
             <div className="mt-2">
               <ProgressBar value={stats.casesSolved} max={totalCases || 1} showPercentage={false} size="sm" color="amber" />
@@ -178,37 +282,64 @@ export default function StudentDashboard() {
             <div className="text-slate-500 text-xs font-mono mt-1">
               &gt; Out of {totalCases}
             </div>
-          </div>
-          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalScore}</div>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02, borderColor: 'rgb(217, 119, 6)' }}
+            className="border-2 border-amber-600/30 bg-black/60 p-6 transition-colors"
+          >
+            <AnimatedCounter
+              value={stats.totalScore}
+              className="text-4xl font-bold text-amber-500 mb-2 font-mono block"
+              delay={0.4}
+            />
             <div className="text-amber-400 font-mono text-sm tracking-wider">TOTAL SCORE</div>
             <div className="text-slate-500 text-xs font-mono mt-1">
               &gt; Points earned
             </div>
-          </div>
-          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{stats.totalClues}</div>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02, borderColor: 'rgb(217, 119, 6)' }}
+            className="border-2 border-amber-600/30 bg-black/60 p-6 transition-colors"
+          >
+            <AnimatedCounter
+              value={stats.totalClues}
+              className="text-4xl font-bold text-amber-500 mb-2 font-mono block"
+              delay={0.6}
+            />
             <div className="text-amber-400 font-mono text-sm tracking-wider">CLUES FOUND</div>
             <div className="text-slate-500 text-xs font-mono mt-1">
               &gt; Evidence collected
             </div>
-          </div>
-          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors">
-            <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">{solveRate}%</div>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02, borderColor: 'rgb(217, 119, 6)' }}
+            className="border-2 border-amber-600/30 bg-black/60 p-6 transition-colors"
+          >
+            <AnimatedCounter
+              value={solveRate}
+              suffix="%"
+              className="text-4xl font-bold text-amber-500 mb-2 font-mono block"
+              delay={0.8}
+            />
             <div className="text-amber-400 font-mono text-sm tracking-wider">SOLVE RATE</div>
             <div className="mt-2">
               <ProgressBar value={solveRate} max={100} showPercentage={false} size="sm" color="green" />
             </div>
-          </div>
-          <div className="border-2 border-amber-600/30 bg-black/60 p-6 hover:border-amber-600 transition-colors col-span-2 md:col-span-1">
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02, borderColor: 'rgb(217, 119, 6)' }}
+            className="border-2 border-amber-600/30 bg-black/60 p-6 transition-colors col-span-2 md:col-span-1"
+          >
             <div className="text-4xl font-bold text-amber-500 mb-2 font-mono">
-              {stats.rank > 0 ? `#${stats.rank}` : '-'}
+              {stats.rank > 0 ? (
+                <AnimatedCounter value={stats.rank} prefix="#" delay={1.0} />
+              ) : '-'}
             </div>
             <div className="text-amber-400 font-mono text-sm tracking-wider">RANK</div>
             <div className="text-slate-500 text-xs font-mono mt-1">
               &gt; Leaderboard position
             </div>
-          </div>
+          </motion.div>
         </div>
       </StaggerItem>
 
