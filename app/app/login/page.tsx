@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginSchema } from '@/lib/validations/auth';
 import MusicThemeSetter from '@/components/MusicThemeSetter';
-import { FloatingParticles, FogEffect } from '@/components/ui/FloatingParticles';
+import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
+import { useStats } from '@/lib/hooks/useStats';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const { stats } = useStats();
 
   useEffect(() => {
     // Trigger animations after mount
@@ -90,9 +92,13 @@ export default function LoginPage() {
         }}
       />
 
-      {/* Atmospheric Effects */}
-      <FloatingParticles count={50} color="rgba(255, 215, 0, 0.3)" className="z-[2]" />
-      <FogEffect className="z-[3]" />
+      {/* Atmospheric Effects - Layered for depth */}
+      <Vignette className="z-[2]" intensity={0.6} />
+      <SmokeEffect className="z-[3]" />
+      <MysteryOrbs className="z-[4]" />
+      <FloatingParticles count={50} color="rgba(255, 215, 0, 0.3)" className="z-[5]" />
+      <FogEffect className="z-[6]" />
+      <FlickeringLight className="z-[7]" />
 
       {/* Gold accent glow at top */}
       <div
@@ -161,25 +167,25 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Stats Bar */}
-          <div className="flex justify-center gap-6 mb-6 py-3 border-y border-amber-500/20">
+          {/* Stats Bar - Real data from database */}
+          <div className="flex justify-center gap-4 sm:gap-6 mb-6 py-3 border-y border-amber-500/20">
             <div className="text-center">
-              <div className="text-amber-400 font-bold text-lg font-mono">
-                {showContent ? <AnimatedCounter end={1247} duration={2000} suffix="+" /> : '0'}
+              <div className="text-amber-400 font-bold text-base sm:text-lg font-mono">
+                {showContent && stats ? <AnimatedCounter end={stats.casesSolved} duration={2000} /> : '0'}
               </div>
-              <div className="text-amber-400/60 text-[10px] tracking-widest uppercase">Cases Cracked</div>
+              <div className="text-amber-400/60 text-[9px] sm:text-[10px] tracking-widest uppercase">Cases Cracked</div>
             </div>
             <div className="text-center">
-              <div className="text-amber-400 font-bold text-lg font-mono">
-                {showContent ? <AnimatedCounter end={89} duration={2000} suffix="%" /> : '0'}
+              <div className="text-amber-400 font-bold text-base sm:text-lg font-mono">
+                {showContent && stats ? <AnimatedCounter end={stats.solveRate} duration={2000} suffix="%" /> : '0'}
               </div>
-              <div className="text-amber-400/60 text-[10px] tracking-widest uppercase">Solve Rate</div>
+              <div className="text-amber-400/60 text-[9px] sm:text-[10px] tracking-widest uppercase">Solve Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-amber-400 font-bold text-lg font-mono">
-                {showContent ? <AnimatedCounter end={523} duration={2000} /> : '0'}
+              <div className="text-amber-400 font-bold text-base sm:text-lg font-mono">
+                {showContent && stats ? <AnimatedCounter end={stats.detectivesCount} duration={2000} /> : '0'}
               </div>
-              <div className="text-amber-400/60 text-[10px] tracking-widest uppercase">Detectives</div>
+              <div className="text-amber-400/60 text-[9px] sm:text-[10px] tracking-widest uppercase">Detectives</div>
             </div>
           </div>
 

@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FloatingParticles, FogEffect } from '@/components/ui/FloatingParticles';
+import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
 import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
 import MusicThemeSetter from '@/components/MusicThemeSetter';
+import { useStats } from '@/lib/hooks/useStats';
 
 const FEATURES = [
   {
@@ -54,6 +55,7 @@ const TESTIMONIALS = [
 export default function Home() {
   const [showContent, setShowContent] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const { stats } = useStats();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 300);
@@ -88,9 +90,13 @@ export default function Home() {
         }}
       />
 
-      {/* Atmospheric Effects */}
-      <FloatingParticles count={60} color="rgba(255, 215, 0, 0.25)" className="z-[2]" />
-      <FogEffect className="z-[3]" />
+      {/* Atmospheric Effects - Layered for depth */}
+      <Vignette className="z-[2]" intensity={0.7} />
+      <SmokeEffect className="z-[3]" />
+      <MysteryOrbs className="z-[4]" />
+      <FloatingParticles count={60} color="rgba(255, 215, 0, 0.25)" className="z-[5]" />
+      <FogEffect className="z-[6]" />
+      <FlickeringLight className="z-[7]" />
 
       {/* Content */}
       <div className="relative z-10">
@@ -168,7 +174,7 @@ export default function Home() {
               <div className="h-0.5 w-24 md:w-32 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats - Real data from database */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -177,19 +183,19 @@ export default function Home() {
             >
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-amber-400 font-mono">
-                  {showContent ? <AnimatedCounter end={1247} duration={2500} delay={2200} suffix="+" /> : '0'}
+                  {showContent && stats ? <AnimatedCounter end={stats.casesSolved} duration={2500} delay={2200} /> : '0'}
                 </div>
                 <div className="text-amber-400/60 text-xs tracking-[0.3em] uppercase mt-1">Cases Cracked</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-amber-400 font-mono">
-                  {showContent ? <AnimatedCounter end={89} duration={2500} delay={2400} suffix="%" /> : '0'}
+                  {showContent && stats ? <AnimatedCounter end={stats.solveRate} duration={2500} delay={2400} suffix="%" /> : '0'}
                 </div>
                 <div className="text-amber-400/60 text-xs tracking-[0.3em] uppercase mt-1">Solve Rate</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-amber-400 font-mono">
-                  {showContent ? <AnimatedCounter end={523} duration={2500} delay={2600} /> : '0'}
+                  {showContent && stats ? <AnimatedCounter end={stats.detectivesCount} duration={2500} delay={2600} /> : '0'}
                 </div>
                 <div className="text-amber-400/60 text-xs tracking-[0.3em] uppercase mt-1">Active Agents</div>
               </div>
