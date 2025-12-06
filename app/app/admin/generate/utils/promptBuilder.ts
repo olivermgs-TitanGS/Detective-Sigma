@@ -319,12 +319,19 @@ export function buildCluePrompt(clue: {
   description: string;
   type: string;
   relevance: string;
+  /** Visual description from evidence templates - prioritized for image generation */
+  visualCue?: string;
+  analysisResult?: string;
 }): string {
   // Get type-specific visual settings
   const typeVisuals = EVIDENCE_TYPE_VISUALS[clue.type] || EVIDENCE_TYPE_VISUALS.physical;
 
+  // PRIORITIZE visualCue if available - it's specifically designed for images
+  // Examples: "Visible fingerprint ridges on clear glass", "Metal screwdriver on floor"
+  const primaryVisual = clue.visualCue || clue.description;
+
   // Detect specific evidence keywords for more detailed prompts
-  const keywordDetails = detectEvidenceKeywords(clue.description, clue.title);
+  const keywordDetails = detectEvidenceKeywords(primaryVisual, clue.title);
 
   // Relevance affects visual prominence
   const relevanceStyle = clue.relevance === 'critical'
@@ -333,15 +340,16 @@ export function buildCluePrompt(clue: {
     ? 'suspicious looking, appears significant, misleading evidence'
     : 'supporting evidence, documented carefully';
 
-  // Build comprehensive prompt
+  // Build comprehensive prompt - visualCue FIRST for strongest influence
   const promptParts = [
     // Core quality tags for Realistic Vision
     'RAW photo',
     'professional forensic evidence photography',
-    // Evidence title and description
-    `${clue.title}`,
-    clue.description,
-    // Detected specific details
+    // VISUAL CUE FIRST - most important for image accuracy
+    primaryVisual,
+    // Evidence title for context
+    clue.title,
+    // Detected specific details (from keyword matching)
     keywordDetails,
     // Type-specific styling
     typeVisuals.style,

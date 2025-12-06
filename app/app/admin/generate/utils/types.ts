@@ -43,6 +43,10 @@ export interface GeneratedCase {
     description: string;
     type: 'physical' | 'document' | 'testimony' | 'digital';
     relevance: 'critical' | 'supporting' | 'red-herring';
+    /** Visual description for image generation - more specific than description */
+    visualCue?: string;
+    /** Analysis result text */
+    analysisResult?: string;
   }>;
   puzzles: Array<{
     id: string;
