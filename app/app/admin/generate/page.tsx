@@ -57,12 +57,16 @@ export default function GenerateCasePage() {
         try {
           const healthCheck = await fetch('/api/generate-image');
           const health = await healthCheck.json();
+          console.log('[Generate] Health check result:', health);
           if (health.status === 'online') {
+            console.log('[Generate] Starting image generation...');
             generateImagesForCase(data.case, subject, contentRating);
           } else {
+            console.warn('[Generate] Service offline:', health);
             setImageGenError('Image generation unavailable (ComfyUI not connected). Click "Generate Images" when ready.');
           }
-        } catch {
+        } catch (error) {
+          console.error('[Generate] Health check failed:', error);
           setImageGenError('Image generation unavailable. Run ComfyUI locally and click "Generate Images".');
         }
       }

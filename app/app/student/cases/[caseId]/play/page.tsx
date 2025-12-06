@@ -12,6 +12,13 @@ import { GlowButton, CTAButton } from '@/components/ui/GlowButton';
 import { RippleButton } from '@/components/ui/RippleButton';
 import { toast } from '@/components/ui/Toast';
 import { useConfetti } from '@/components/ui/Confetti';
+// New immersive UI components
+import InvestigationNotebook from '@/components/game/InvestigationNotebook';
+import { CaseTimeline, TimelineEvent, MiniTimeline } from '@/components/game/CaseTimeline';
+import SuspectNetwork from '@/components/game/SuspectNetwork';
+import { FilmWipeTransition, SceneTitleCard, CaseSolvedTransition } from '@/components/ui/CinematicTransitions';
+import { FullPageLoader } from '@/components/ui/DetectiveLoader';
+import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 interface Clue {
   id: string;
@@ -87,6 +94,16 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
   const [activePuzzle, setActivePuzzle] = useState<Puzzle | null>(null);
   const [showSuspects, setShowSuspects] = useState(false);
   const [showEvidenceBoard, setShowEvidenceBoard] = useState(false);
+
+  // New immersive UI states
+  const [showNotebook, setShowNotebook] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [showSuspectNetwork, setShowSuspectNetwork] = useState(false);
+  const [showSceneTransition, setShowSceneTransition] = useState(false);
+  const [showSceneTitle, setShowSceneTitle] = useState(false);
+  const [showCaseSolved, setShowCaseSolved] = useState(false);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+  const { playSound } = useSoundEffects();
 
   // Track time spent
   const startTimeRef = useRef<number>(Date.now());
@@ -253,6 +270,16 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
   const currentScene = gameData.scenes[currentSceneIndex];
   const totalScenes = gameData.scenes.length;
 
+  // Helper to add timeline events
+  const addTimelineEvent = useCallback((event: Omit<TimelineEvent, 'id' | 'timestamp'>) => {
+    const newEvent: TimelineEvent = {
+      ...event,
+      id: `event-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+    setTimelineEvents(prev => [...prev, newEvent]);
+  }, []);
+
   const handleClueClick = async (clue: Clue) => {
     // If clue requires puzzle and puzzle not solved yet
     if (clue.requiredPuzzleId && !solvedPuzzles.includes(clue.requiredPuzzleId)) {
@@ -273,6 +300,14 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
       fireClueFound();
       toast.clueFound(clue.name, clue.type === 'testimony' ? 'major' : 'moderate');
 
+      // Add to timeline
+      addTimelineEvent({
+        title: `Evidence Found: ${clue.name}`,
+        description: clue.description || 'New evidence collected',
+        type: 'clue',
+        completed: true,
+      });
+
       // Save progress immediately
       await fetch('/api/progress', {
         method: 'POST',
@@ -287,9 +322,18 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
   };
 
   const handlePuzzleSolved = async (puzzleId: string) => {
+    const puzzle = gameData.puzzles.find(p => p.id === puzzleId);
     const newPuzzles = [...solvedPuzzles, puzzleId];
     setSolvedPuzzles(newPuzzles);
     setActivePuzzle(null);
+
+    // Add to timeline
+    addTimelineEvent({
+      title: `Puzzle Solved: ${puzzle?.title || 'Unknown'}`,
+      description: puzzle?.revelation?.description || 'A mystery has been unraveled',
+      type: 'puzzle',
+      completed: true,
+    });
 
     // Save progress
     await fetch('/api/progress', {
@@ -328,7 +372,26 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
   const handleNextScene = async () => {
     if (currentSceneIndex < totalScenes - 1) {
       const newIndex = currentSceneIndex + 1;
-      setCurrentSceneIndex(newIndex);
+
+      // Play transition sound and show cinematic transition
+      playSound('sceneTransition');
+      setShowSceneTransition(true);
+
+      // Add scene change to timeline
+      addTimelineEvent({
+        title: `Moved to: ${gameData.scenes[newIndex].name}`,
+        description: gameData.scenes[newIndex].description || 'Investigating new location',
+        type: 'scene',
+        completed: true,
+      });
+
+      // Delay scene change for transition effect
+      setTimeout(() => {
+        setCurrentSceneIndex(newIndex);
+        setShowSceneTransition(false);
+        setShowSceneTitle(true);
+        setTimeout(() => setShowSceneTitle(false), 2500);
+      }, 800);
 
       await fetch('/api/progress', {
         method: 'POST',
@@ -345,7 +408,18 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
   const handlePreviousScene = async () => {
     if (currentSceneIndex > 0) {
       const newIndex = currentSceneIndex - 1;
-      setCurrentSceneIndex(newIndex);
+
+      // Play transition sound and show cinematic transition
+      playSound('sceneTransition');
+      setShowSceneTransition(true);
+
+      // Delay scene change for transition effect
+      setTimeout(() => {
+        setCurrentSceneIndex(newIndex);
+        setShowSceneTransition(false);
+        setShowSceneTitle(true);
+        setTimeout(() => setShowSceneTitle(false), 2500);
+      }, 800);
 
       await fetch('/api/progress', {
         method: 'POST',
@@ -382,9 +456,18 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
               <p className="text-sm text-purple-200">{currentScene.name}</p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4 flex-wrap justify-end">
+              {/* Mini Timeline */}
+              <div className="hidden xl:block">
+                <MiniTimeline
+                  events={timelineEvents}
+                  maxEvents={3}
+                  onClick={() => setShowTimeline(true)}
+                />
+              </div>
+
               {/* Progress Bar - Detective Styled */}
-              <div className="hidden md:block w-56">
+              <div className="hidden md:block w-40 lg:w-56">
                 <ProgressBar
                   value={collectedClues.length}
                   max={totalClues}
@@ -397,12 +480,28 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
 
               {/* Action Buttons - Detective Styled */}
               <GlowButton
+                onClick={() => { playSound('caseFileOpen'); setShowNotebook(!showNotebook); }}
+                variant="evidence"
+                size="sm"
+                glowIntensity="low"
+              >
+                📓
+              </GlowButton>
+              <GlowButton
+                onClick={() => { playSound('pageTurn'); setShowTimeline(!showTimeline); }}
+                variant="evidence"
+                size="sm"
+                glowIntensity="low"
+              >
+                📅
+              </GlowButton>
+              <GlowButton
                 onClick={() => setShowEvidenceBoard(!showEvidenceBoard)}
                 variant="evidence"
                 size="sm"
                 glowIntensity="medium"
               >
-                🔍 Evidence ({collectedClues.length})
+                🔍 <span className="hidden sm:inline">Evidence</span> ({collectedClues.length})
               </GlowButton>
               <GlowButton
                 onClick={() => setShowSuspects(!showSuspects)}
@@ -410,7 +509,15 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
                 size="sm"
                 glowIntensity="medium"
               >
-                👤 Suspects ({gameData.suspects.length})
+                👤 <span className="hidden sm:inline">Suspects</span> ({gameData.suspects.length})
+              </GlowButton>
+              <GlowButton
+                onClick={() => { playSound('suspectSelect'); setShowSuspectNetwork(!showSuspectNetwork); }}
+                variant="amber"
+                size="sm"
+                glowIntensity="low"
+              >
+                🕸️
               </GlowButton>
             </div>
           </div>
@@ -525,6 +632,61 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
           </div>
         </div>
       )}
+
+      {/* Investigation Notebook */}
+      {showNotebook && (
+        <InvestigationNotebook
+          caseId={gameData.id}
+          isOpen={showNotebook}
+          onClose={() => setShowNotebook(false)}
+        />
+      )}
+
+      {/* Case Timeline */}
+      {showTimeline && (
+        <CaseTimeline
+          events={timelineEvents}
+          isOpen={showTimeline}
+          onClose={() => setShowTimeline(false)}
+          caseTitle={gameData.title}
+        />
+      )}
+
+      {/* Suspect Network */}
+      <SuspectNetwork
+        suspects={gameData.suspects.map(s => ({
+          id: s.id,
+          name: s.name,
+          role: s.role || 'Unknown',
+          imageUrl: s.imageUrl,
+          isCulprit: s.isCulprit,
+        }))}
+        relationships={[]} // Relationships can be added from case data if available
+        isOpen={showSuspectNetwork}
+        onClose={() => setShowSuspectNetwork(false)}
+      />
+
+      {/* Cinematic Scene Transition */}
+      <FilmWipeTransition
+        isActive={showSceneTransition}
+        direction="left"
+        onComplete={() => setShowSceneTransition(false)}
+      />
+
+      {/* Scene Title Card */}
+      <SceneTitleCard
+        isActive={showSceneTitle}
+        title={currentScene.name}
+        subtitle={currentScene.description || `Location ${currentSceneIndex + 1} of ${totalScenes}`}
+        onComplete={() => setShowSceneTitle(false)}
+      />
+
+      {/* Case Solved Celebration */}
+      <CaseSolvedTransition
+        isActive={showCaseSolved}
+        caseTitle={gameData.title}
+        onComplete={() => setShowCaseSolved(false)}
+      />
     </div>
   );
 }
