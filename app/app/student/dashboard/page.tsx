@@ -226,7 +226,19 @@ export default function StudentDashboard() {
                 className="border-2 border-amber-600/30 bg-black/60 p-4 hover:border-amber-600 transition-all group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-3xl">{activeCase.case.coverImage || '📁'}</span>
+                  <div className="w-12 h-12 flex-shrink-0">
+                    {activeCase.case.coverImage ? (
+                      <img
+                        src={activeCase.case.coverImage}
+                        alt={activeCase.case.title}
+                        className="w-full h-full object-cover rounded border border-amber-600/50"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl bg-slate-800 rounded">
+                        📁
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <h3 className="text-amber-50 font-mono font-bold group-hover:text-amber-400 transition-colors">
                       {activeCase.case.title}
@@ -265,8 +277,18 @@ export default function StudentDashboard() {
               >
                 <div className="flex items-center gap-4">
                   {/* Case Icon */}
-                  <div className="text-4xl">
-                    {item.case.coverImage || '📁'}
+                  <div className="w-16 h-16 flex-shrink-0">
+                    {item.case.coverImage ? (
+                      <img
+                        src={item.case.coverImage}
+                        alt={item.case.title}
+                        className="w-full h-full object-cover rounded border-2 border-amber-600/50"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl bg-slate-800 rounded">
+                        📁
+                      </div>
+                    )}
                   </div>
 
                   {/* Case Info */}
