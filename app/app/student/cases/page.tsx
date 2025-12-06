@@ -288,20 +288,28 @@ export default function CaseLibrary() {
                     boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.2)',
                   }}
                 >
-                  {/* Scattered Evidence Items */}
+                  {/* Case Preview Items */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    {/* Evidence Photo 1 */}
+                    {/* Case Cover Image */}
                     <div
                       className="bg-white p-2 shadow-lg transform -rotate-2 hover:rotate-0 transition-transform"
                       style={{ boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}
                     >
-                      <div className="bg-slate-200 h-24 flex items-center justify-center text-4xl">
-                        📷
-                      </div>
-                      <p className="text-xs text-stone-600 mt-1 font-mono text-center">Crime Scene Photo</p>
+                      {caseItem.coverImage ? (
+                        <img
+                          src={caseItem.coverImage}
+                          alt="Case Preview"
+                          className="w-full h-24 object-cover"
+                        />
+                      ) : (
+                        <div className="bg-slate-200 h-24 flex items-center justify-center text-4xl">
+                          📷
+                        </div>
+                      )}
+                      <p className="text-xs text-stone-600 mt-1 font-mono text-center">Case Preview</p>
                     </div>
 
-                    {/* Evidence Note */}
+                    {/* Case Info Note */}
                     <div
                       className="bg-yellow-100 p-3 shadow-lg transform rotate-1 hover:rotate-0 transition-transform"
                       style={{
@@ -310,19 +318,23 @@ export default function CaseLibrary() {
                       }}
                     >
                       <p className="text-xs text-stone-700 font-mono leading-relaxed">
-                        📝 Key suspects identified. Evidence suggests insider involvement...
+                        📝 {caseItem.subjectFocus} case • {caseItem.difficulty} difficulty • Est. {caseItem.estimatedMinutes} min
                       </p>
                     </div>
 
-                    {/* Evidence Item */}
+                    {/* Status Badge */}
                     <div
                       className="bg-white p-2 shadow-lg transform rotate-2 hover:rotate-0 transition-transform"
                       style={{ boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}
                     >
-                      <div className="bg-red-100 h-24 flex items-center justify-center text-4xl border-2 border-dashed border-red-300">
-                        🔍
+                      <div className={`h-24 flex items-center justify-center text-4xl border-2 border-dashed ${
+                        isSolved ? 'bg-green-100 border-green-300' : 'bg-amber-100 border-amber-300'
+                      }`}>
+                        {isSolved ? '✅' : '🔍'}
                       </div>
-                      <p className="text-xs text-stone-600 mt-1 font-mono text-center">Evidence Tag #001</p>
+                      <p className="text-xs text-stone-600 mt-1 font-mono text-center">
+                        {isSolved ? 'Case Closed' : 'Investigation Pending'}
+                      </p>
                     </div>
                   </div>
 
