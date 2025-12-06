@@ -35,17 +35,18 @@ export default function TestImagePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Using Realistic Vision V6.0 settings
           imageRequest: {
             id: 'test-' + Date.now(),
             type: 'scene',
-            prompt: 'score_9, score_8_up, score_7_up, a beautiful sunset over Singapore skyline, orange sky, city lights, masterpiece, best quality',
-            negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark',
+            prompt: 'RAW photo, a beautiful sunset over Singapore skyline, orange sky, city lights, high quality, 8k uhd, dslr, sharp focus, professional photography, photorealistic',
+            negativePrompt: 'worst quality, low quality, blurry, text, watermark, deformed, disfigured',
             width: 512,
             height: 512,
             settings: {
-              model: 'ponyDiffusionV6XL',
-              sampler: 'euler',
-              steps: 15,
+              model: 'realisticVisionV60B1',
+              sampler: 'DPM++ 2M Karras',
+              steps: 25,
               cfgScale: 7,
             },
             metadata: { test: true },

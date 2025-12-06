@@ -41,6 +41,7 @@ export function useImageGeneration() {
 
       // 1. Generate cover image
       setImageGenProgress({ current: 'Case Cover', completed, total: totalImages });
+      // Cover image - Realistic Vision V6.0 settings
       const coverResponse = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,9 +50,9 @@ export function useImageGeneration() {
             id: `cover-${caseData.caseId}`,
             type: 'cover',
             prompt: buildCoverPrompt(caseData, subject),
-            negativePrompt: `score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human, ${ratingNegatives}`,
+            negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human, deformed, disfigured, ${ratingNegatives}`,
             width: 512, height: 512,
-            settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+            settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 25, cfgScale: 7 },
             metadata: { caseId: caseData.caseId },
           },
           saveToPublic: false,
@@ -67,6 +68,7 @@ export function useImageGeneration() {
       // 2. Generate scene images
       for (const scene of (caseData.scenes || [])) {
         setImageGenProgress({ current: `Scene: ${scene.name}`, completed, total: totalImages });
+        // Scene images - Realistic Vision V6.0 settings
         const sceneResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -75,9 +77,9 @@ export function useImageGeneration() {
               id: `scene-${scene.id}`,
               type: 'scene',
               prompt: buildScenePrompt(scene),
-              negativePrompt: `score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human figure, ${ratingNegatives}`,
+              negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human figure, deformed, disfigured, ${ratingNegatives}`,
               width: 768, height: 512,
-              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+              settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 25, cfgScale: 7 },
               metadata: { sceneId: scene.id, name: scene.name },
             },
             saveToPublic: false,
@@ -97,6 +99,7 @@ export function useImageGeneration() {
         const { prompt, negativePrompt, metadata } = buildSuspectPrompt(suspect);
 
         try {
+          // Suspect portraits - Realistic Vision V6.0 settings (higher steps for faces)
           const suspectResponse = await fetch('/api/generate-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -107,7 +110,7 @@ export function useImageGeneration() {
                 prompt,
                 negativePrompt: `${negativePrompt}, ${ratingNegatives}`,
                 width: 512, height: 512,
-                settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 30, cfgScale: 6 },
+                settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 30, cfgScale: 7 },
                 metadata: { suspectId: suspect.id, name: suspect.name, ...metadata },
               },
               saveToPublic: false,
@@ -130,6 +133,7 @@ export function useImageGeneration() {
       // 4. Generate clue images
       for (const clue of cluesWithImages) {
         setImageGenProgress({ current: `Evidence: ${clue.title}`, completed, total: totalImages });
+        // Evidence/clue images - Realistic Vision V6.0 settings
         const clueResponse = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -138,9 +142,9 @@ export function useImageGeneration() {
               id: `clue-${clue.id}`,
               type: 'evidence',
               prompt: buildCluePrompt(clue),
-              negativePrompt: `score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human hands, ${ratingNegatives}`,
+              negativePrompt: `worst quality, low quality, blurry, text, watermark, people, human hands, deformed, disfigured, ${ratingNegatives}`,
               width: 512, height: 512,
-              settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
+              settings: { model: 'realisticVisionV60B1', sampler: 'DPM++ 2M Karras', steps: 25, cfgScale: 7 },
               metadata: { clueId: clue.id, title: clue.title },
             },
             saveToPublic: false,

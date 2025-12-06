@@ -103,85 +103,67 @@ export function buildSuspectPrompt(suspect: { name: string; role: string; isGuil
   console.log(`[PROMPT_BUILDER] Building prompt for: ${suspect.name}`);
   console.log(`[PROMPT_BUILDER] Detected gender: ${personInfo.gender}, age: ${personInfo.age}`);
 
-  // IMPORTANT: For Pony Diffusion, gender token MUST be first, followed by age, then occupation
+  // For Realistic Vision V6.0 - use natural language prompts
   const occupationClothing = getOccupationClothing(suspect.role.toLowerCase());
 
+  // Determine gender-specific descriptors for Realistic Vision
+  const isMale = personInfo.gender === 'man' || personInfo.gender === 'boy' ||
+                 personInfo.gender === 'teenage boy' || personInfo.gender === 'elderly man';
+  const genderWord = isMale ? 'man' : 'woman';
+  const genderAdjective = isMale ? 'male' : 'female';
+
+  // Build natural language prompt for Realistic Vision
   const promptParts = [
-    // 1. GENDER FIRST (most important for Pony)
-    `1${personInfo.gender}`, 'solo',
-    // 2. AGE second
+    // 1. GENDER with emphasis - CRITICAL for correct generation
+    `a ${genderWord}`,
+    `${genderAdjective} person`,
+    `${genderAdjective}`,
+    // 2. AGE description
     personInfo.ageDescriptor,
-    personInfo.agePrompt,
-    // 3. OCCUPATION third
-    suspect.role, occupationClothing,
-    // 4. Quality/safety tags
-    'score_9, score_8_up, score_7_up',
-    'rating_safe', 'safe_for_work', 'sfw',
-    'single person', 'one person only', 'alone',
-  ];
-
-  if (personInfo.religiousAttire && personInfo.religion === 'Muslim') {
-    promptParts.push(personInfo.religiousAttire);
-  }
-
-  promptParts.push(
-    'photorealistic', 'realistic', 'real life photo', 'photograph', 'real person',
-    'dignified', 'respectful portrayal', 'professional appearance',
-    'non-glamorous', 'documentary style', 'news photo style',
-    'professional portrait', 'corporate ID photo', 'passport photo style',
-    'neutral appearance', 'ordinary person', 'average looking person',
-    'plain appearance', 'normal person'
-  );
-
-  promptParts.push(
+    // 3. ETHNICITY
     `${ethnicityInfo.race} ethnicity`,
     ethnicityInfo.ethnicity,
     ethnicityInfo.skinTone,
-    'natural realistic human skin color',
-    'accurate ethnic skin tone',
-    'beautiful natural complexion',
-    ethnicityInfo.features
-  );
+    // 4. OCCUPATION and clothing
+    suspect.role,
+    occupationClothing,
+    // 5. Expression
+    expression,
+  ];
 
-  if (personInfo.religiousAttire && personInfo.religion !== 'Muslim') {
+  // Add religious attire if applicable
+  if (personInfo.religiousAttire) {
     promptParts.push(personInfo.religiousAttire);
   }
 
-  // Add expression (occupation already added at the top)
-  promptParts.push(expression);
-
+  // Add photography style and quality tags for Realistic Vision
   promptParts.push(
-    'FULLY CLOTHED', 'wearing complete conservative outfit',
-    'MODEST clothing', 'CONSERVATIVE attire', 'appropriate family-friendly attire',
-    'professional formal attire', 'covered shoulders', 'covered arms',
-    'long sleeves preferred', 'high neckline', 'no skin showing',
-    'buttoned up shirt', 'formal professional look',
-    'professional ID photo', 'passport photo style', 'corporate headshot',
+    'RAW photo', 'professional portrait photograph',
+    'corporate ID photo', 'passport photo style',
     'front facing', 'looking at camera',
-    'neutral professional expression', 'natural dignified pose',
-    'soft natural lighting', 'plain white background',
-    'natural human skin only', 'realistic skin texture', 'natural skin pores',
-    'normal human eyes', 'natural eye color brown or black',
-    'NO fantasy colors', 'NO unnatural skin',
-    'high resolution', 'sharp focus', 'detailed',
-    '35mm photograph', 'natural colors only',
-    'family friendly', 'appropriate for children', 'educational content'
+    'soft natural lighting', 'plain background',
+    'high quality', '8k uhd', 'dslr', 'sharp focus',
+    'professional photography', 'natural skin texture'
   );
 
-  const isMale = personInfo.gender === 'man' || personInfo.gender === 'boy' ||
-                 personInfo.gender === 'teenage boy' || personInfo.gender === 'elderly man';
+  // Negative prompt for Realistic Vision - emphasize OPPOSITE gender strongly
   const oppositeGender = isMale
-    ? '1woman, 1girl, female, woman, girl, feminine, breasts, long hair, makeup, lipstick'
-    : '1man, 1boy, male, man, boy, masculine, beard, mustache, stubble, adam\'s apple';
+    ? 'woman, women, female, girl, feminine, breasts, long hair, feminine features'
+    : 'man, men, male, boy, masculine, beard, mustache, masculine features';
 
   const negativePrompt = [
-    oppositeGender,
-    'score_6, score_5, worst quality, low quality, blurry, jpeg artifacts',
-    'nsfw, nude, naked, revealing, suggestive, inappropriate',
-    'anime, cartoon, manga, illustration, 3d, cgi, digital art',
-    'unnatural skin, fantasy colors, glowing eyes, deformed, bad anatomy',
-    'extra limbs, missing fingers, bad hands, ugly, distorted',
-    'watermark, text, logo, multiple people, crowd, two people, 2people, duo, pair, group, couple',
+    // OPPOSITE GENDER with high weight - most important
+    `(${oppositeGender}:1.5)`,
+    // Quality issues
+    '(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy',
+    'extra limbs, missing limbs, floating limbs, mutated hands, extra fingers',
+    // Inappropriate content
+    'nsfw, nude, naked, revealing, suggestive',
+    // Style issues
+    'anime, cartoon, illustration, 3d render, cgi',
+    // Other issues
+    'blurry, low quality, watermark, text, signature',
+    'multiple people, crowd, group',
   ].join(', ');
 
   return {
@@ -192,27 +174,30 @@ export function buildSuspectPrompt(suspect: { name: string; role: string; isGuil
 }
 
 /**
- * Build cover image prompt
+ * Build cover image prompt - Realistic Vision V6.0 format
  */
 export function buildCoverPrompt(caseData: GeneratedCase, subject: string): string {
   const storyKeywords = caseData.story.setting.split(' ').slice(0, 10).join(' ');
-  const subjectElements = subject === 'MATH' ? 'mathematical equations' :
-                          subject === 'SCIENCE' ? 'scientific equipment' : 'math and science elements';
+  const subjectElements = subject === 'MATH' ? 'mathematical equations written on paper' :
+                          subject === 'SCIENCE' ? 'scientific equipment and lab notes' : 'math and science elements';
 
-  return `score_9, score_8_up, score_7_up, manila case folder file, detective case file, classified document, ${storyKeywords}, ${subjectElements}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, masterpiece, best quality, 8k`;
+  // Realistic Vision V6.0 - natural language prompts with quality tags
+  return `RAW photo, manila case folder file, detective case file, classified document, ${storyKeywords}, ${subjectElements}, mysterious noir atmosphere, dramatic lighting, vintage paper texture, high quality, 8k uhd, dslr, sharp focus, professional photography, photorealistic`;
 }
 
 /**
- * Build scene image prompt
+ * Build scene image prompt - Realistic Vision V6.0 format
  */
 export function buildScenePrompt(scene: { description: string; locationType?: string }): string {
-  return `score_9, score_8_up, score_7_up, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area, evidence markers visible, forensic lighting, photorealistic, detailed environment, masterpiece, best quality, 8k, architectural photography`;
+  // Realistic Vision V6.0 - natural language prompts with quality tags
+  return `RAW photo, ${scene.description}, ${scene.locationType || 'indoor location'}, Singapore setting, crime scene investigation area, evidence markers visible, forensic lighting, photorealistic, detailed environment, high quality, 8k uhd, dslr, sharp focus, professional photography, architectural photography`;
 }
 
 /**
- * Build clue/evidence image prompt
+ * Build clue/evidence image prompt - Realistic Vision V6.0 format
  */
 export function buildCluePrompt(clue: { description: string; type: string; relevance: string }): string {
   const highlight = clue.relevance === 'critical' ? 'key evidence highlighted' : '';
-  return `score_9, score_8_up, score_7_up, ${clue.description}, ${clue.type} evidence, forensic evidence photography, evidence marker visible, close-up documentation shot, ${highlight}, photorealistic, detailed textures, masterpiece, best quality, 8k, macro photography`;
+  // Realistic Vision V6.0 - natural language prompts with quality tags
+  return `RAW photo, ${clue.description}, ${clue.type} evidence, forensic evidence photography, evidence marker visible, close-up documentation shot, ${highlight}, photorealistic, detailed textures, high quality, 8k uhd, dslr, sharp focus, macro photography`;
 }
