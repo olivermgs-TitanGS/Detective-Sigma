@@ -1,6 +1,8 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
+import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
+import Apple from 'next-auth/providers/apple';
 import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
 import { authConfig } from './auth.config';
@@ -22,6 +24,27 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           response_type: 'code',
         },
       },
+    })
+  );
+}
+
+// Add Microsoft (Azure AD / Entra ID) OAuth if credentials are configured
+if (process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET) {
+  providers.push(
+    MicrosoftEntraID({
+      clientId: process.env.MICROSOFT_CLIENT_ID,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+      tenantId: process.env.MICROSOFT_TENANT_ID || 'common', // 'common' allows any Microsoft account
+    })
+  );
+}
+
+// Add Apple OAuth if credentials are configured
+if (process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET) {
+  providers.push(
+    Apple({
+      clientId: process.env.APPLE_CLIENT_ID,
+      clientSecret: process.env.APPLE_CLIENT_SECRET,
     })
   );
 }
@@ -92,8 +115,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user, account, profile }) {
-      // Handle Google OAuth sign-in
-      if (account?.provider === 'google') {
+      // Handle OAuth sign-in (Google, Microsoft, Apple)
+      if (account?.provider && ['google', 'microsoft-entra-id', 'apple'].includes(account.provider)) {
         if (!user.email) return false;
 
         // Check if user exists
@@ -102,9 +125,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (!dbUser) {
-          // Create new user from Google OAuth
-          // Generate username from email
-          const baseUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+          // Create new user from OAuth
+          // Generate username from email or name
+          const baseName = user.name || user.email.split('@')[0];
+          const baseUsername = baseName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
           let username = baseUsername;
           let counter = 1;
 
@@ -133,7 +157,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               entityType: 'User',
               entityId: dbUser.id,
               details: {
-                provider: 'google',
+                provider: account.provider,
                 registeredAt: new Date().toISOString(),
               },
             },

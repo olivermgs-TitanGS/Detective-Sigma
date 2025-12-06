@@ -734,100 +734,355 @@ function narrativeToGeneratedCase(
     relatedCharacterName: puzzle.relatedCharacterName,
   }));
 
-  // Generate immersive, story-connected scenes with distinct scene types
+  // Generate immersive, story-connected scenes using ACTUAL CRIME SCENE LOCATIONS
   const crimeTimeWindow = narrativeCase.crime.crimeWindow;
   const guiltyChar = characters.find(c => c.isGuilty);
 
-  // Create 5 scenes with distinct scene types for semantic evidence placement
-  const scenes: Scene[] = [
-    // Scene 1: Primary Crime Scene - Where it all happened
-    {
-      id: `scene-${nanoid(6)}`,
-      name: narrativeCase.setting.location,
-      description: `${narrativeCase.setting.description} The ${narrativeCase.crime.type.replace('_', ' ')} occurred here between ${crimeTimeWindow.start} and ${crimeTimeWindow.end}. ${narrativeCase.setting.dayContext}. Signs of disturbance are visible.`,
-      interactiveElements: [
-        `Area where ${narrativeCase.crime.target} was last seen`,
-        'Footprint marks on the floor',
-        'Nearby furniture that may have been moved',
-        'Window or door that could have been entry point',
+  // Use keyLocations from the story scenario (e.g., 'Main counter', 'Storeroom', 'Kitchen')
+  // These are the actual locations in the crime scene, NOT generic office templates
+  const keyLocations = narrativeCase.keyLocations || [];
+  const mainLocation = narrativeCase.setting.location; // e.g., "Sunrise Primary School Canteen"
+  const locationType = narrativeCase.setting.locationType; // e.g., "school"
+
+  // Helper: Generate DETAILED scene description for accurate image prompts
+  // These descriptions drive the AI image generation - they must be visually specific
+  const generateSceneDescription = (locationName: string, role: string): string => {
+    const crimeType = narrativeCase.crime.type.replace('_', ' ');
+    const timeContext = narrativeCase.setting.timeOfDay;
+    const dayContext = narrativeCase.setting.dayContext;
+
+    const locationDescriptions: Record<string, string> = {
+      // ============================================
+      // CANTEEN LOCATIONS - Visual details for image prompts
+      // ============================================
+      'main counter': `Singapore school canteen main service counter with stainless steel serving area, laminated menu boards with prices in multiple languages above, plastic money tray on counter, food warmers with local dishes visible, stack of melamine plates and bowls, beverage dispenser with iced drinks, canteen auntie workspace behind counter. ${dayContext}. Fluorescent lights overhead, tiled floor, queue barrier ropes.`,
+
+      'storeroom': `School canteen storeroom with industrial metal shelving racks stacked with ingredient boxes labeled in Chinese and English, large refrigerator unit humming, cleaning supplies in corner, inventory clipboard on wall, single fluorescent tube light casting shadows, concrete floor with drainage, locked metal door with small window, staff aprons hanging on hooks.`,
+
+      'kitchen': `Commercial school canteen kitchen with stainless steel wok stations, industrial gas stoves with blue flames, ventilation hoods above, prep tables with cutting boards and knives, ingredient containers labeled, utensil racks, staff in aprons cooking, steam rising from woks, floor drains, time card machine on wall, staff notice board with schedules.`,
+
+      'back entrance': `Service entrance behind school canteen with concrete loading area, metal roller shutter half-open, stacked empty delivery crates, trolley with supplies, waste bins for food recycling, staff bicycles parked against wall, delivery timing board, morning sunlight streaming in, worn floor markings, staff notice board with delivery schedules.`,
+
+      'toilet': `School restroom near canteen area with tiled walls and floor, row of wash basins with mirrors, hand dryer on wall, paper towel dispenser, wet floor near sinks, fluorescent lighting, student notices on wall, maintenance log near door, ventilation grilles, cleaning supplies cupboard.`,
+
+      // ============================================
+      // SCIENCE LAB LOCATIONS - Visual details for image prompts
+      // ============================================
+      'main lab': `Primary school science laboratory with rows of black resin lab benches fitted with gas taps and ceramic sinks, high wooden stools, fume cupboard at side wall, emergency shower station with red handle, periodic table poster on wall, safety goggles rack near door, microscopes on shelves, beakers and test tubes in racks, student experiment notebooks on benches. ${dayContext}. Natural light from high windows, safety first posters in multiple languages.`,
+
+      'storage cabinet': `Locked chemical storage area within science lab with glass-fronted cabinets showing organized reagent bottles with hazard labels, specimen jars with preserved samples, flammable storage cabinet in yellow, chemical inventory log on clipboard, safety data sheets folder, restricted access warning signs, bright safety lighting, SCDF compliance stickers on cabinet doors.`,
+
+      'plant display area': `Science fair display area with folding tables arranged in rows, tri-fold project boards with student names and experiment details, potted plants at various growth stages with measurement rulers beside them, data collection notebooks, plant labels with scientific names, competition judging sheets, natural light from windows highlighting the displays, excited academic atmosphere. ${dayContext}.`,
+
+      'lab entrance': `Science laboratory entrance area with safety protocol signs, student sign-in sheet on clipboard, safety goggles dispensing station, lab coat hooks, hand sanitizer dispenser, emergency procedures poster, fire extinguisher in red cabinet, glass window looking into main lab, tiled floor with caution markings.`,
+
+      'equipment room': `Science equipment storage room with industrial shelving holding microscopes in protective cases, balances and scales, spare glassware in organized boxes, calibration equipment, maintenance tools, MOE inventory tags on all items, maintenance schedule posted on wall, key cabinet for restricted equipment, fluorescent lighting, organized workspace atmosphere.`,
+
+      // ============================================
+      // LIBRARY LOCATIONS - Visual details for image prompts
+      // ============================================
+      'special collection room': `Climate-controlled rare books room with glass display cases showing valuable first editions, reading pedestals with book supports, white cotton gloves on examination table, archive boxes with acid-free tissue, humidity and temperature monitors, UV-filtered lighting, secure access door with keypad, heritage collection signage, hushed scholarly atmosphere, Singapore history books prominently displayed.`,
+
+      'front desk': `Library main service desk with L-shaped counter, computer terminals for catalogue searches, barcode scanner for book loans, book return slot, staff workstations behind counter, membership card reader, multilingual signage, queue management system, lost and found box, reserved books shelf, helpful librarian workspace. ${dayContext}.`,
+
+      'reading room': `Quiet library study area with individual study carrels along walls, group study tables in center, comfortable reading armchairs in corners, desk lamps on tables, power outlets for laptops, magazine racks, natural light from large windows, silent zone signs, students and adults focused on reading and study, PSLE preparation materials visible. ${dayContext}.`,
+
+      "children's section": `Colorful children's library area with low bookshelves at child height, bright picture book displays, story corner with floor cushions and bean bags, child-sized tables and chairs in primary colors, puppet theater setup, interactive reading nooks, warm welcoming lighting, playful ceiling decorations, Malay Tamil Chinese English books mixed on shelves, joyful learning atmosphere.`,
+
+      'staff room': `Library staff room with personal lockers, duty roster on wall, staff belongings on shelves, small kitchenette area, schedule board with assignments, filing cabinets with administrative documents, staff notice board, comfortable break area with chairs, fluorescent lighting, professional workspace atmosphere.`,
+
+      // ============================================
+      // SPORTS FACILITY LOCATIONS - Visual details for image prompts
+      // ============================================
+      'main court': `Competition badminton court with professional wooden flooring, white court line markings, badminton net at regulation height, umpire high chair at side, player benches with team banners, electronic scoreboard, competition-grade overhead lighting with no shadows, audience bleacher seating visible, school flags and SSSBA banners displayed, championship atmosphere. ${dayContext}.`,
+
+      'locker rooms': `Sports facility locker room with rows of green metal lockers with combination locks, wooden benches between rows, sports bags on hooks, PE uniforms visible through open lockers, mirror area for athletes, team photos on wall, shower area visible at back, fluorescent strip lighting, floor mats, pre-game energy atmosphere.`,
+
+      'security office': `Sports facility security office with CCTV monitoring screens showing multiple camera feeds, access card log computer, security desk with patrol schedule, visitor sign-in logbook, key cabinet on wall, radio communication equipment, security guard workspace, fluorescent lighting, professional monitoring atmosphere.`,
+
+      'entrance gate': `Sports facility main entrance with security checkpoint, visitor registration desk, turnstile gates, event banner overhead, directional signage, crowd control barriers, early morning light, competition day setup, school buses arriving in background, excited atmosphere. ${dayContext}.`,
+
+      // ============================================
+      // WET MARKET LOCATIONS - Visual details for image prompts
+      // ============================================
+      'fish stall': `Traditional Singapore wet market fish stall with stainless steel display counter covered in crushed ice, fresh fish arranged in rows with price tags in Chinese, weighing scale prominently displayed, cutting board with professional knife set, running water hose, live seafood tanks with prawns and crabs, fishmonger in rubber boots and apron, overhead fluorescent lights, morning market bustle. ${dayContext}.`,
+
+      'market office': `Market management office with small enclosed room, glass window facing market floor, NEA license display board, CCTV monitors showing stall areas, filing cabinets with vendor records, office desk with computer, complaint forms on counter, vendor payment records, official atmosphere, fluorescent office lighting.`,
+
+      'storage area': `Market cold storage area with walk-in refrigerator visible, stacked styrofoam boxes with ice, inventory shelving, temperature monitoring equipment, loading trolleys, drainage on floor, bright overhead lights, organized inventory labels, morning delivery boxes being sorted.`,
+
+      'weighing station': `Official NEA market weighing station with certified scale on counter with calibration sticker, consumer protection signage, weight verification equipment, complaint procedure poster, bright clinical lighting, customers verifying purchases, official government atmosphere.`,
+
+      'loading bay': `Market loading and delivery area with concrete platform, roller shutters opening to truck access, stacked delivery crates, pallet jacks, delivery personnel unloading goods, early morning natural light, delivery timing restrictions sign, HDB carpark visible in background, market preparation bustle. ${dayContext}.`,
+    };
+
+    const lowerLocation = locationName.toLowerCase();
+    const baseDescription = locationDescriptions[lowerLocation];
+
+    if (baseDescription) {
+      return baseDescription;
+    }
+
+    // Fallback with detailed generic description based on location type
+    const locTypeDescriptions: Record<string, string> = {
+      'school': `A location within ${mainLocation} with typical Singapore school features - notice boards, student work displays, fluorescent lighting, tiled floors. ${dayContext}. ${role === 'primary' ? `This is where the ${crimeType} occurred.` : 'Witnesses and evidence may be found here.'}`,
+      'community': `A public community space at ${mainLocation} with Singapore community centre features - notice boards, plastic chairs, fluorescent lighting. ${dayContext}. ${role === 'primary' ? `This is where the ${crimeType} occurred.` : 'Witnesses and evidence may be found here.'}`,
+      'commercial': `A commercial area at ${mainLocation} with typical Singapore retail features - signage, display counters, air conditioning. ${dayContext}. ${role === 'primary' ? `This is where the ${crimeType} occurred.` : 'Witnesses and evidence may be found here.'}`,
+    };
+
+    return locTypeDescriptions[locationType] ||
+      `The ${locationName} at ${mainLocation}. ${dayContext}. ${role === 'primary' ? `This is where the ${crimeType} occurred.` : 'Witnesses and evidence may be found here.'}`;
+  };
+
+  // Helper: Generate VENUE-SPECIFIC interactive elements
+  // These are realistic items that could contain evidence or be interaction points
+  const generateInteractiveElements = (locationName: string): string[] => {
+    const lowerLocation = locationName.toLowerCase();
+    const elements: Record<string, string[]> = {
+      // Canteen locations - where theft/fraud evidence would be found
+      'main counter': [
+        'Cash register with receipt rolls (check transaction times)',
+        'Staff schedule board (verify who was working)',
+        'CCTV camera angle (footage of counter area)',
+        'Money tray with coin slots (fingerprint evidence)',
       ],
-      cluesAvailable: [], // Will be populated by semantic mapping
-      locationType: narrativeCase.setting.locationType,
-      sceneType: 'primary' as SceneType,
-      ambiance: narrativeCase.setting.timeOfDay === 'morning' ? 'morning' :
-                narrativeCase.setting.timeOfDay === 'afternoon' ? 'day' :
-                narrativeCase.setting.timeOfDay === 'evening' ? 'evening' : 'day',
-      mood: 'mysterious',
-    },
-    // Scene 2: Security Office - CCTV and access records
-    {
-      id: `scene-${nanoid(6)}`,
-      name: 'Security Office',
-      description: `The security monitoring station with CCTV screens and access logs. Digital evidence from the time of the incident (${crimeTimeWindow.start} - ${crimeTimeWindow.end}) can be reviewed here.`,
-      interactiveElements: [
-        'CCTV monitoring screens',
-        'Access card log computer',
-        'Security desk with records',
-        'Visitor sign-in logbook',
+      'storeroom': [
+        'Inventory clipboard with sign-out log (access records)',
+        'Delivery receipt box (verify delivery times)',
+        'Staff locker area (personal belongings)',
+        'Refrigerator temperature log (timestamp evidence)',
       ],
-      cluesAvailable: [], // Will be populated by semantic mapping
-      locationType: narrativeCase.setting.locationType,
-      sceneType: 'security' as SceneType,
-      ambiance: 'day',
-      mood: 'tense',
-    },
-    // Scene 3: Work Area - Personal belongings and workspace
-    {
-      id: `scene-${nanoid(6)}`,
-      name: `${guiltyChar?.role || 'Staff'} Work Area`,
-      description: `The workspace connected to the investigation. Personal belongings and work materials provide clues about who had access during the crime window. Look for anything out of place.`,
-      interactiveElements: [
-        'Work desk with personal items',
-        'Personal locker area',
-        'Schedule board showing timings',
-        'Notice board with announcements',
+      'kitchen': [
+        'Time card machine (staff clock-in records)',
+        'Staff notice board with duty roster',
+        'Ingredient order forms (handwriting samples)',
+        'CCTV camera covering prep area',
       ],
-      cluesAvailable: [], // Will be populated by semantic mapping
-      locationType: narrativeCase.setting.locationType,
-      sceneType: 'work_area' as SceneType,
-      ambiance: 'day',
-      mood: 'tense',
-    },
-    // Scene 4: Investigation Room - For analysis and interviews
-    {
-      id: `scene-${nanoid(6)}`,
-      name: 'Investigation Room',
-      description: `A dedicated space for analyzing collected evidence and interviewing suspects. The timeline board shows events between ${crimeTimeWindow.start} and ${crimeTimeWindow.end}. Suspect profiles are pinned to the wall.`,
-      interactiveElements: [
-        'Evidence analysis table',
-        'Timeline reconstruction board',
-        'Suspect interview notes',
-        'Forensic analysis lab bench',
+      'back entrance': [
+        'Delivery log book (who entered when)',
+        'Staff bicycle parking sign-in',
+        'Waste disposal schedule board',
+        'Security camera blind spot markers',
       ],
-      cluesAvailable: [], // Will be populated by semantic mapping
-      locationType: 'school',
-      sceneType: 'investigation' as SceneType,
-      ambiance: 'day',
-      mood: 'calm',
-    },
-    // Scene 5: Resolution Chamber - Final evidence and confrontation
-    {
-      id: `scene-${nanoid(6)}`,
-      name: 'Resolution Chamber',
-      description: `The final piece of the puzzle. Conclusive evidence points to the culprit. ${narrativeCase.culprit.mistakes[0] || 'A critical mistake was made.'}`,
-      interactiveElements: [
-        'Final evidence display',
-        'Accusation podium',
-        'Truth revelation board',
-        'Case closure documentation',
+      'toilet': [
+        'Maintenance log on door (cleaning times)',
+        'Hand dryer (fingerprint surface)',
+        'Waste bin (discarded evidence)',
+        'Mirror reflection (hidden camera check)',
       ],
-      cluesAvailable: [], // Will be populated by semantic mapping
-      locationType: narrativeCase.setting.locationType,
-      sceneType: 'resolution' as SceneType,
-      ambiance: 'evening',
-      mood: 'urgent',
-    },
-  ];
+
+      // Science lab locations - where sabotage evidence would be found
+      'main lab': [
+        'Experiment logbooks (tampering evidence)',
+        'Safety goggles sign-out sheet (who was in lab)',
+        'Fume cupboard usage log',
+        'Water tap handles (fingerprint evidence)',
+      ],
+      'storage cabinet': [
+        'Chemical checkout log (who accessed what)',
+        'Key sign-out register',
+        'Reagent bottle labels (tampering signs)',
+        'MSDS folder (unusual chemical research)',
+      ],
+      'plant display area': [
+        'Project labels with student names',
+        'Watering schedule and care log',
+        'Competition judging criteria sheet',
+        'Before/after photo documentation',
+      ],
+      'lab entrance': [
+        'Student sign-in sheet (entry times)',
+        'Safety equipment checkout log',
+        'Emergency contact list',
+        'After-hours access log',
+      ],
+      'equipment room': [
+        'Equipment checkout register',
+        'Maintenance schedule calendar',
+        'Key cabinet access log',
+        'Inventory audit trail',
+      ],
+
+      // Library locations - where theft evidence would be found
+      'special collection room': [
+        'Access log terminal (entry timestamps)',
+        'Climate control readings (door open times)',
+        'Security camera footage archive',
+        'Rare book handling gloves (DNA evidence)',
+      ],
+      'front desk': [
+        'Library computer loan history',
+        'Staff shift handover notes',
+        'Lost and found log book',
+        'Membership card swipe records',
+      ],
+      'reading room': [
+        'Study room booking system',
+        'Student sign-in registry',
+        'CCTV camera positions',
+        'Desk lamp touch surfaces',
+      ],
+      "children's section": [
+        'Story time attendance sheet',
+        'Parent sign-in log',
+        'Activity corner supervision notes',
+        'Book return trolley',
+      ],
+      'staff room': [
+        'Personal lockers (search with permission)',
+        'Duty roster and leave records',
+        'Staff meeting minutes',
+        'Personal belongings storage',
+      ],
+
+      // Sports locations - where equipment tampering evidence would be found
+      'main court': [
+        'Scoreboard control panel access',
+        'Equipment storage cabinet',
+        'Umpire observation notes',
+        'Player bench area',
+      ],
+      'locker rooms': [
+        'Locker assignment list',
+        'Personal belongings storage',
+        'Shower room access times',
+        'Team equipment storage',
+      ],
+      'security office': [
+        'CCTV playback terminal',
+        'Visitor log book',
+        'Access card swipe records',
+        'Patrol schedule and notes',
+      ],
+      'entrance gate': [
+        'Visitor registration forms',
+        'School bus arrival log',
+        'Event ticket stubs',
+        'Security checkpoint notes',
+      ],
+
+      // Market locations - where fraud evidence would be found
+      'fish stall': [
+        'Weighing scale (check calibration)',
+        'Daily sales record book',
+        'Price tag display (original vs current)',
+        'Receipt carbon copies',
+      ],
+      'market office': [
+        'Vendor complaint files',
+        'License renewal records',
+        'CCTV monitoring system',
+        'Cash handling records',
+      ],
+      'storage area': [
+        'Cold storage temperature log',
+        'Inventory delivery receipts',
+        'Vendor access sign-in sheet',
+        'Quality inspection records',
+      ],
+      'weighing station': [
+        'Calibration certificate log',
+        'Customer complaint forms',
+        'NEA inspection records',
+        'Verification test weights',
+      ],
+      'loading bay': [
+        'Delivery truck log book',
+        'Goods receiving checklist',
+        'Time-stamped delivery photos',
+        'Vendor identification records',
+      ],
+    };
+
+    return elements[lowerLocation] || [
+      `Evidence collection area in ${locationName}`,
+      'Notice board with schedules and announcements',
+      'Storage area for personal belongings',
+      'CCTV camera coverage zone',
+    ];
+  };
+
+  // Create scenes from ACTUAL story locations instead of generic templates
+  const scenes: Scene[] = [];
+
+  // Scene 1: Primary Crime Scene (keyLocations[0]) - Where the crime happened
+  const primaryLocation = keyLocations[0] || 'Main Area';
+  scenes.push({
+    id: `scene-${nanoid(6)}`,
+    name: `${primaryLocation} - ${mainLocation}`,
+    description: `${narrativeCase.setting.description} The ${narrativeCase.crime.type.replace('_', ' ')} occurred here between ${crimeTimeWindow.start} and ${crimeTimeWindow.end}. ${narrativeCase.setting.dayContext}. This is where ${narrativeCase.crime.target} was last seen.`,
+    interactiveElements: [
+      `Area where ${narrativeCase.crime.target} was last seen`,
+      ...generateInteractiveElements(primaryLocation).slice(0, 3),
+    ],
+    cluesAvailable: [],
+    locationType: locationType,
+    sceneType: 'primary' as SceneType,
+    ambiance: narrativeCase.setting.timeOfDay === 'morning' ? 'morning' :
+              narrativeCase.setting.timeOfDay === 'afternoon' ? 'day' :
+              narrativeCase.setting.timeOfDay === 'evening' ? 'evening' : 'day',
+    mood: 'mysterious',
+  });
+
+  // Scene 2: Secondary location (keyLocations[1]) - Related area
+  const secondaryLocation = keyLocations[1] || 'Storage Area';
+  scenes.push({
+    id: `scene-${nanoid(6)}`,
+    name: secondaryLocation,
+    description: generateSceneDescription(secondaryLocation, 'secondary'),
+    interactiveElements: generateInteractiveElements(secondaryLocation),
+    cluesAvailable: [],
+    locationType: locationType,
+    sceneType: 'security' as SceneType,
+    ambiance: 'day',
+    mood: 'tense',
+  });
+
+  // Scene 3: Third location (keyLocations[2]) - Work/activity area
+  const tertiaryLocation = keyLocations[2] || 'Work Area';
+  scenes.push({
+    id: `scene-${nanoid(6)}`,
+    name: tertiaryLocation,
+    description: generateSceneDescription(tertiaryLocation, 'work'),
+    interactiveElements: generateInteractiveElements(tertiaryLocation),
+    cluesAvailable: [],
+    locationType: locationType,
+    sceneType: 'work_area' as SceneType,
+    ambiance: 'day',
+    mood: 'tense',
+  });
+
+  // Scene 4: Fourth location (keyLocations[3]) - Investigation focus area
+  const quaternaryLocation = keyLocations[3] || 'Investigation Area';
+  scenes.push({
+    id: `scene-${nanoid(6)}`,
+    name: quaternaryLocation,
+    description: generateSceneDescription(quaternaryLocation, 'investigation'),
+    interactiveElements: generateInteractiveElements(quaternaryLocation),
+    cluesAvailable: [],
+    locationType: locationType,
+    sceneType: 'investigation' as SceneType,
+    ambiance: 'day',
+    mood: 'calm',
+  });
+
+  // Scene 5: Fifth location (keyLocations[4]) - Resolution area
+  const finalLocation = keyLocations[4] || 'Exit Area';
+  scenes.push({
+    id: `scene-${nanoid(6)}`,
+    name: finalLocation,
+    description: `${generateSceneDescription(finalLocation, 'resolution')} ${narrativeCase.culprit.mistakes[0] || 'A critical mistake was made here.'}`,
+    interactiveElements: [
+      ...generateInteractiveElements(finalLocation).slice(0, 2),
+      'Evidence that reveals the truth',
+      'Final clue location',
+    ],
+    cluesAvailable: [],
+    locationType: locationType,
+    sceneType: 'resolution' as SceneType,
+    ambiance: 'evening',
+    mood: 'urgent',
+  });
 
   // Create scene info for evidence mapper
   const sceneInfoList: SceneInfo[] = scenes.map(s => ({

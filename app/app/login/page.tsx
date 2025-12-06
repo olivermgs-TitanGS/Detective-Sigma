@@ -3,27 +3,23 @@
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { loginSchema } from '@/lib/validations/auth';
-import { FloatingParticles, FogEffect, SmokeEffect, MysteryOrbs, FlickeringLight, Vignette } from '@/components/ui/FloatingParticles';
-import { TypewriterText, AnimatedCounter } from '@/components/ui/TypewriterText';
-import { useStats } from '@/lib/hooks/useStats';
-import { SoundButton, SoundLink } from '@/components/ui/SoundButton';
+import { FloatingParticles, FogEffect, MysteryOrbs, Vignette } from '@/components/ui/FloatingParticles';
+import { TypewriterText } from '@/components/ui/TypewriterText';
+import { SoundLink } from '@/components/ui/SoundButton';
 import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showContent, setShowContent] = useState(false);
-  const { stats } = useStats();
   const { playSound } = useSoundEffects();
 
   useEffect(() => {
-    // Trigger animations after mount
     const timer = setTimeout(() => setShowContent(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -36,7 +32,6 @@ export default function LoginPage() {
 
     try {
       const validatedData = loginSchema.parse({ email, password });
-
       const result = await signIn('credentials', {
         redirect: false,
         email: validatedData.email,
@@ -44,12 +39,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Access denied. Invalid credentials.');
+        setError('Invalid credentials');
         setIsLoading(false);
         return;
       }
 
-      // Fetch user session to determine role-based redirect
       const sessionRes = await fetch('/api/auth/session');
       const session = await sessionRes.json();
 
@@ -66,519 +60,245 @@ export default function LoginPage() {
         const zodErr = err as { errors: Array<{ message: string }> };
         setError(zodErr.errors[0].message);
       } else {
-        setError('Investigation halted. System error detected.');
+        setError('System error');
       }
       setIsLoading(false);
     }
   };
 
+  const handleOAuthSignIn = (provider: string) => {
+    playSound('buttonClick');
+    signIn(provider, { callbackUrl: '/student/dashboard' });
+  };
+
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black">
-      {/* Detective Background Image */}
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-black p-4">
+      {/* Background */}
       <div
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: 'url(/images/detective-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
-          backgroundRepeat: 'no-repeat',
         }}
       />
-
-      {/* Dark Overlay for readability */}
       <div
         className="absolute inset-0 z-[1]"
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.9) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.8) 100%)',
         }}
       />
 
-      {/* Atmospheric Effects - Layered for depth */}
-      <Vignette className="z-[2]" intensity={0.6} />
-      <SmokeEffect className="z-[3]" />
-      <MysteryOrbs className="z-[4]" />
-      <FloatingParticles count={50} color="rgba(255, 215, 0, 0.3)" className="z-[5]" />
-      <FogEffect className="z-[6]" />
-      <FlickeringLight className="z-[7]" />
-
-      {/* Gold accent glow at top */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 z-[4]"
-        style={{
-          background: 'radial-gradient(ellipse at top, rgba(255, 215, 0, 0.15) 0%, transparent 70%)',
-        }}
-      />
+      {/* Effects */}
+      <Vignette className="z-[2]" intensity={0.5} />
+      <MysteryOrbs className="z-[3]" />
+      <FloatingParticles count={30} color="rgba(255, 215, 0, 0.3)" className="z-[4]" />
+      <FogEffect className="z-[5]" />
 
       {/* Login Card */}
       <motion.div
-        initial={{ opacity: 0, y: 50, scale: 0.95, filter: 'blur(10px)' }}
-        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-        transition={{
-          duration: 0.8,
-          ease: [0.22, 1, 0.36, 1],
-          delay: 0.2,
-        }}
-        className="relative z-30 w-full max-w-md mx-4"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="relative z-30 w-full max-w-sm"
       >
-        {/* Glowing Border Effect */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.75, scale: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="absolute -inset-1 rounded-lg blur-sm"
-          style={{
-            background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
-          }}
-        >
-          <motion.div
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-full h-full rounded-lg"
-            style={{ background: 'inherit' }}
-          />
-        </motion.div>
+        {/* Glow Border */}
+        <div
+          className="absolute -inset-0.5 rounded-lg blur-sm opacity-60"
+          style={{ background: 'linear-gradient(135deg, #ffd700, #ff8c00)' }}
+        />
 
         <div
-          className="relative p-8 rounded-lg"
+          className="relative p-5 sm:p-6 rounded-lg"
           style={{
             background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
             border: '2px solid #ffd700',
-            boxShadow: '0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 60px rgba(0, 0, 0, 0.8)',
           }}
         >
-          {/* Header */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{
-                type: 'spring',
-                stiffness: 200,
-                damping: 15,
-                delay: 0.5,
-              }}
-              className="mb-4 text-6xl"
-            >
-              <motion.span
-                animate={{
-                  filter: [
-                    'drop-shadow(0 0 15px rgba(255, 215, 0, 0.5))',
-                    'drop-shadow(0 0 30px rgba(255, 215, 0, 0.8))',
-                    'drop-shadow(0 0 15px rgba(255, 215, 0, 0.5))',
-                  ],
-                }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                className="inline-block"
-              >
-                🔎
-              </motion.span>
-            </motion.div>
+          {/* Header - Compact */}
+          <div className="text-center mb-4">
+            <div className="text-4xl mb-2">🔎</div>
             <h1
-              className="text-4xl font-black tracking-[0.2em] mb-2"
-              style={{
-                color: '#ffd700',
-                textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4)',
-                fontFamily: "'Impact', 'Arial Black', sans-serif",
-              }}
+              className="text-2xl sm:text-3xl font-black tracking-wider"
+              style={{ color: '#ffd700', textShadow: '0 0 15px rgba(255, 215, 0, 0.6)' }}
             >
-              {showContent ? (
-                <TypewriterText text="DETECTIVE SIGMA" speed={80} cursor={false} />
-              ) : (
-                'DETECTIVE SIGMA'
-              )}
+              {showContent ? <TypewriterText text="DETECTIVE SIGMA" speed={60} cursor={false} /> : 'DETECTIVE SIGMA'}
             </h1>
-            <p
-              className="text-lg tracking-[0.3em] uppercase font-bold"
-              style={{
-                color: '#ff9500',
-                textShadow: '0 0 10px rgba(255, 149, 0, 0.6)',
-              }}
-            >
-              CLASSIFIED INVESTIGATIONS UNIT
-            </p>
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-              <span className="text-amber-400/80 text-xs font-mono tracking-widest">CASE FILE #221B</span>
-              <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-            </div>
+            <p className="text-xs tracking-widest text-amber-500/80 mt-1">CLASSIFIED INVESTIGATIONS</p>
           </div>
 
-          {/* Stats Bar - Real data from database */}
-          <div className="flex justify-center gap-4 sm:gap-6 mb-6 py-3 border-y border-amber-500/20">
-            <div className="text-center">
-              <div className="text-amber-400 font-bold text-base sm:text-lg font-mono">
-                {showContent && stats ? <AnimatedCounter end={stats.casesSolved} duration={2000} /> : '0'}
-              </div>
-              <div className="text-amber-400/60 text-[9px] sm:text-[10px] tracking-widest uppercase">Cases Cracked</div>
-            </div>
-            <div className="text-center">
-              <div className="text-amber-400 font-bold text-base sm:text-lg font-mono">
-                {showContent && stats ? <AnimatedCounter end={stats.solveRate} duration={2000} suffix="%" /> : '0'}
-              </div>
-              <div className="text-amber-400/60 text-[9px] sm:text-[10px] tracking-widest uppercase">Solve Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-amber-400 font-bold text-base sm:text-lg font-mono">
-                {showContent && stats ? <AnimatedCounter end={stats.detectivesCount} duration={2000} /> : '0'}
-              </div>
-              <div className="text-amber-400/60 text-[9px] sm:text-[10px] tracking-widest uppercase">Detectives</div>
-            </div>
-          </div>
-
-          {/* Error Message */}
+          {/* Error */}
           {error && (
-            <div
-              className="mb-6 p-4 text-center rounded relative overflow-hidden"
-              style={{
-                background: 'rgba(220, 38, 38, 0.2)',
-                border: '2px solid #dc2626',
-                boxShadow: '0 0 20px rgba(220, 38, 38, 0.3)',
-              }}
-            >
-              <p className="text-red-400 font-bold text-sm tracking-wider font-mono">
-                ⛔ ALERT: {error}
-              </p>
+            <div className="mb-3 p-2 text-center rounded bg-red-900/30 border border-red-600">
+              <p className="text-red-400 text-xs font-mono">{error}</p>
             </div>
           )}
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase font-mono"
-                style={{ color: '#ffd700' }}
-              >
-                🔑 Agent Identifier
-              </label>
               <input
-                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded font-mono focus:outline-none transition-all"
-                style={{
-                  background: 'rgba(0, 0, 0, 0.8)',
-                  border: '2px solid #ff9500',
-                  color: '#ffffff',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
-                }}
-                placeholder="agent.codename@sigma.hq"
+                className="w-full px-3 py-2 rounded text-sm font-mono bg-black/80 border border-amber-600/50 text-white placeholder-amber-400/40 focus:border-amber-400 focus:outline-none"
+                placeholder="Email"
                 required
                 disabled={isLoading}
               />
             </div>
-
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-bold tracking-[0.15em] mb-2 uppercase font-mono"
-                style={{ color: '#ffd700' }}
-              >
-                🔐 Classified Passphrase
-              </label>
               <input
-                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded font-mono focus:outline-none transition-all"
-                style={{
-                  background: 'rgba(0, 0, 0, 0.8)',
-                  border: '2px solid #ff9500',
-                  color: '#ffffff',
-                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.5)',
-                }}
-                placeholder="••••••••••••"
+                className="w-full px-3 py-2 rounded text-sm font-mono bg-black/80 border border-amber-600/50 text-white placeholder-amber-400/40 focus:border-amber-400 focus:outline-none"
+                placeholder="Password"
                 required
                 disabled={isLoading}
               />
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-amber-500 bg-black/50 text-amber-500 focus:ring-amber-500 focus:ring-offset-0"
-                />
-                <span className="text-amber-400/70 group-hover:text-amber-400 transition-colors font-mono text-xs tracking-wider">
-                  REMEMBER AGENT
-                </span>
-              </label>
+            <div className="flex justify-end">
               <SoundLink
                 href="/forgot-password"
                 clickSound="paperRustle"
-                className="text-amber-400/70 hover:text-amber-400 transition-colors font-mono text-xs tracking-wider"
+                className="text-amber-400/60 hover:text-amber-400 text-xs font-mono"
               >
-                LOST CREDENTIALS?
+                Forgot password?
               </SoundLink>
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              onMouseEnter={() => playSound('buttonHover')}
-              className="w-full py-4 rounded font-black text-lg tracking-[0.2em] uppercase transition-all disabled:cursor-not-allowed hover:scale-[1.02] relative overflow-hidden group"
+              className="w-full py-2.5 rounded font-bold text-sm tracking-wider transition-all disabled:opacity-50"
               style={{
-                background: isLoading
-                  ? 'linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%)'
-                  : 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
-                color: isLoading ? '#00ff00' : '#000000',
-                boxShadow: isLoading
-                  ? '0 0 30px rgba(0, 255, 0, 0.3), inset 0 0 20px rgba(0, 255, 0, 0.1)'
-                  : '0 0 30px rgba(255, 215, 0, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3)',
-                border: isLoading ? '2px solid #00ff00' : '2px solid #ffea00',
-                textShadow: isLoading ? '0 0 10px rgba(0, 255, 0, 0.8)' : '0 1px 0 rgba(255, 255, 255, 0.3)',
-                fontFamily: "'Courier New', monospace",
+                background: isLoading ? '#333' : 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
+                color: isLoading ? '#00ff00' : '#000',
+                border: isLoading ? '1px solid #00ff00' : 'none',
               }}
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span
-                    className="inline-block w-2 h-2 bg-green-400 rounded-full"
-                    style={{ animation: 'pulse 1s ease-in-out infinite' }}
-                  />
-                  <span style={{ animation: 'pulse 2s ease-in-out infinite' }}>DECRYPTING ACCESS</span>
-                  <span className="inline-flex tracking-[0.3em]">
-                    <span style={{ animation: 'blink 1s ease-in-out infinite' }}>.</span>
-                    <span style={{ animation: 'blink 1s ease-in-out 0.2s infinite' }}>.</span>
-                    <span style={{ animation: 'blink 1s ease-in-out 0.4s infinite' }}>.</span>
-                  </span>
-                </span>
-              ) : (
-                <>
-                  <span className="relative z-10">⚡ ENTER THE INVESTIGATION</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                </>
-              )}
+              {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
             </button>
+          </form>
 
-            {/* Divider */}
-            <div className="flex items-center gap-4 my-6">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-              <span className="text-amber-400/60 text-xs font-bold tracking-widest font-mono">ALTERNATE ACCESS</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
-            </div>
-
-            {/* Google OAuth */}
+          {/* SSO Buttons - Icon only, super compact */}
+          <div className="flex items-center justify-center gap-3 my-3">
+            <span className="text-amber-400/40 text-[9px] font-mono">OR</span>
             <button
               type="button"
-              onClick={() => {
-                playSound('buttonClick');
-                signIn('google', { callbackUrl: '/student/dashboard' });
-              }}
-              onMouseEnter={() => playSound('buttonHover')}
+              onClick={() => handleOAuthSignIn('google')}
               disabled={isLoading}
-              className="w-full py-3 rounded font-bold tracking-wider transition-all hover:scale-[1.02] flex items-center justify-center gap-3 group"
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                color: '#ffffff',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 0 15px rgba(255, 255, 255, 0.1)',
-              }}
+              title="Sign in with Google"
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-white/5 border border-white/20 hover:bg-white/15 transition-colors"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span className="font-mono tracking-wider">GOOGLE CLEARANCE</span>
             </button>
-          </form>
-
-          {/* Register Links */}
-          <div className="mt-8 pt-6" style={{ borderTop: '2px solid rgba(255, 215, 0, 0.3)' }}>
-            <p
-              className="text-center text-sm font-bold tracking-[0.15em] mb-4 uppercase font-mono"
-              style={{ color: '#ff9500' }}
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('microsoft-entra-id')}
+              disabled={isLoading}
+              title="Sign in with Microsoft"
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-white/5 border border-white/20 hover:bg-white/15 transition-colors"
             >
-              🕵️ RECRUIT NEW OPERATIVES
-            </p>
-            <div className="space-y-3">
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path fill="#F25022" d="M1 1h10v10H1z"/>
+                <path fill="#00A4EF" d="M1 13h10v10H1z"/>
+                <path fill="#7FBA00" d="M13 1h10v10H13z"/>
+                <path fill="#FFB900" d="M13 13h10v10H13z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuthSignIn('apple')}
+              disabled={isLoading}
+              title="Sign in with Apple"
+              className="w-9 h-9 rounded-full flex items-center justify-center bg-white/5 border border-white/20 hover:bg-white/15 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="white" viewBox="0 0 24 24">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* Register Links - Compact */}
+          <div className="mt-4 pt-3 border-t border-amber-500/20">
+            <p className="text-center text-[10px] text-amber-500/60 font-mono mb-2">NEW RECRUIT?</p>
+            <div className="flex gap-2">
               <SoundLink
                 href="/register/student"
                 clickSound="paperRustle"
-                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02] font-mono group relative overflow-hidden"
-                style={{
-                  background: 'rgba(255, 215, 0, 0.1)',
-                  color: '#ffd700',
-                  border: '2px solid #ffd700',
-                  boxShadow: '0 0 15px rgba(255, 215, 0, 0.2)',
-                }}
+                className="flex-1 py-2 text-center text-xs font-mono rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-colors"
               >
-                <span className="relative z-10">🎓 ENLIST AS JUNIOR DETECTIVE</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/20 to-amber-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
+                Student
               </SoundLink>
               <SoundLink
                 href="/register/teacher"
                 clickSound="folderOpen"
-                className="block w-full py-3 text-center font-bold tracking-wider rounded transition-all hover:scale-[1.02] font-mono group relative overflow-hidden"
-                style={{
-                  background: 'rgba(255, 149, 0, 0.1)',
-                  color: '#ff9500',
-                  border: '2px solid #ff9500',
-                  boxShadow: '0 0 15px rgba(255, 149, 0, 0.2)',
-                }}
+                className="flex-1 py-2 text-center text-xs font-mono rounded bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500/20 transition-colors"
               >
-                <span className="relative z-10">🎖️ APPLY AS SENIOR INVESTIGATOR</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/20 to-orange-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
+                Teacher
               </SoundLink>
             </div>
           </div>
 
-          {/* Quote */}
-          <div className="mt-6 text-center">
-            <p
-              className="text-sm italic font-medium font-mono"
-              style={{
-                color: '#ffd700',
-                textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
-              }}
-            >
-              "When you have eliminated the impossible, whatever remains,
-              <br />however improbable, must be the truth."
-            </p>
-            <p className="text-amber-400/50 text-xs mt-1 font-mono">— Sherlock Holmes</p>
-          </div>
-
-          {/* Dev-only Quick Access */}
+          {/* Dev Backdoor - Only in development */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 pt-4 space-y-2" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-              <p className="text-center text-xs text-gray-500 font-mono mb-2">⚙️ DEV BACKDOOR ACCESS</p>
-              <div className="flex gap-2">
+            <div className="mt-3 pt-2 border-t border-white/10">
+              <p className="text-center text-[9px] text-gray-500 font-mono mb-1">DEV ACCESS</p>
+              <div className="flex gap-1">
                 <button
                   type="button"
                   onClick={async () => {
-                    playSound('achievement');
                     setIsLoading(true);
-                    setError('');
-                    const result = await signIn('credentials', {
-                      redirect: false,
-                      email: 'admin@example.com',
-                      password: 'admin123',
-                    });
-                    if (result?.error) {
-                      setError('Admin login failed - check seed data');
-                      setIsLoading(false);
-                    } else {
-                      router.push('/admin/dashboard');
-                      router.refresh();
-                    }
+                    const result = await signIn('credentials', { redirect: false, email: 'admin@example.com', password: 'admin123' });
+                    if (!result?.error) { router.push('/admin/dashboard'); router.refresh(); }
+                    else { setError('Check seed data'); setIsLoading(false); }
                   }}
-                  onMouseEnter={() => playSound('buttonHover')}
-                  disabled={isLoading}
-                  className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.2)',
-                    color: '#f87171',
-                    border: '1px dashed #dc2626',
-                  }}
+                  className="flex-1 py-1 text-[9px] font-mono rounded bg-red-900/30 border border-red-600/50 text-red-400 hover:bg-red-900/50"
                 >
-                  🔐 CHIEF
+                  Admin
                 </button>
                 <button
                   type="button"
                   onClick={async () => {
-                    playSound('achievement');
                     setIsLoading(true);
-                    setError('');
-                    const result = await signIn('credentials', {
-                      redirect: false,
-                      email: 'teacher@example.com',
-                      password: 'teacher123',
-                    });
-                    if (result?.error) {
-                      setError('Teacher login failed - check seed data');
-                      setIsLoading(false);
-                    } else {
-                      router.push('/teacher/dashboard');
-                      router.refresh();
-                    }
+                    const result = await signIn('credentials', { redirect: false, email: 'teacher@example.com', password: 'teacher123' });
+                    if (!result?.error) { router.push('/teacher/dashboard'); router.refresh(); }
+                    else { setError('Check seed data'); setIsLoading(false); }
                   }}
-                  onMouseEnter={() => playSound('buttonHover')}
-                  disabled={isLoading}
-                  className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
-                  style={{
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    color: '#60a5fa',
-                    border: '1px dashed #2563eb',
-                  }}
+                  className="flex-1 py-1 text-[9px] font-mono rounded bg-blue-900/30 border border-blue-600/50 text-blue-400 hover:bg-blue-900/50"
                 >
-                  🎖️ SENIOR
+                  Teacher
                 </button>
                 <button
                   type="button"
                   onClick={async () => {
-                    playSound('achievement');
                     setIsLoading(true);
-                    setError('');
-                    const result = await signIn('credentials', {
-                      redirect: false,
-                      email: 'student@example.com',
-                      password: 'student123',
-                    });
-                    if (result?.error) {
-                      setError('Student login failed - check seed data');
-                      setIsLoading(false);
-                    } else {
-                      router.push('/student/dashboard');
-                      router.refresh();
-                    }
+                    const result = await signIn('credentials', { redirect: false, email: 'student@example.com', password: 'student123' });
+                    if (!result?.error) { router.push('/student/dashboard'); router.refresh(); }
+                    else { setError('Check seed data'); setIsLoading(false); }
                   }}
-                  onMouseEnter={() => playSound('buttonHover')}
-                  disabled={isLoading}
-                  className="flex-1 py-2 text-center text-xs font-mono tracking-wider rounded transition-all hover:scale-[1.02] opacity-70 hover:opacity-100"
-                  style={{
-                    background: 'rgba(34, 197, 94, 0.2)',
-                    color: '#4ade80',
-                    border: '1px dashed #16a34a',
-                  }}
+                  className="flex-1 py-1 text-[9px] font-mono rounded bg-green-900/30 border border-green-600/50 text-green-400 hover:bg-green-900/50"
                 >
-                  🎓 ROOKIE
+                  Student
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Bottom Decoration */}
-        <div className="mt-6 text-center">
-          <p
-            className="text-sm font-bold tracking-[0.3em] uppercase font-mono"
-            style={{
-              color: '#ff9500',
-              textShadow: '0 0 10px rgba(255, 149, 0, 0.5)',
-            }}
-          >
-            ⚠️ AUTHORIZED PERSONNEL ONLY ⚠️
-          </p>
-          <p className="text-amber-400/40 text-xs mt-1 font-mono tracking-widest">
-            SIGMA HQ • TANJONG PAGAR • EST. 2025
-          </p>
-        </div>
+        {/* Footer */}
+        <p className="text-center text-[10px] text-amber-400/40 font-mono mt-3">
+          SIGMA HQ • EST. 2025
+        </p>
       </motion.div>
-
-      <style jsx>{`
-        input::placeholder {
-          color: rgba(255, 200, 0, 0.4);
-        }
-        input:focus {
-          border-color: #ffd700 !important;
-          box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 1; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
     </div>
   );
 }

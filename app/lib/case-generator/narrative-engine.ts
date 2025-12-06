@@ -62,6 +62,7 @@ export interface NarrativeCase {
   narrativeHook: string;  // Opening hook to grab attention
   resolution: string;     // How the case is solved
   difficulty: 'ROOKIE' | 'INSPECTOR' | 'DETECTIVE' | 'CHIEF';
+  keyLocations: string[]; // Actual crime scene locations from the story scenario
 }
 
 export interface CaseSetting {
@@ -678,6 +679,7 @@ export function generateNarrativeCase(
     narrativeHook,
     resolution,
     difficulty,
+    keyLocations: scenario.keyLocations, // Pass actual crime scene locations
   };
 }
 

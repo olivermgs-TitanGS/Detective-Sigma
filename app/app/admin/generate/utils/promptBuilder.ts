@@ -502,6 +502,190 @@ const LOCATION_TEMPLATES: Record<string, {
   atmosphere: string;
   singaporeDetails: string;
 }> = {
+  // ============================================
+  // SCHOOL CANTEEN LOCATIONS
+  // ============================================
+  canteen: {
+    architecture: 'Singapore school canteen, open-air covered area, tiled floor, multiple food stalls in a row',
+    furniture: 'stainless steel food counters, plastic tables and stools, tray return stations, drink coolers',
+    lighting: 'bright fluorescent lights overhead, natural light from open sides, ceiling fans spinning',
+    atmosphere: 'bustling school canteen, students queuing for food, trays clattering, meal time energy',
+    singaporeDetails: 'typical Singapore primary school canteen, recess period atmosphere, multilingual menu signs',
+  },
+  main_counter: {
+    architecture: 'school canteen main service counter, stainless steel serving area, menu boards above',
+    furniture: 'cash register on counter, food warmers, beverage dispensers, stacked plastic cups and bowls',
+    lighting: 'bright overhead fluorescent lights, food display lighting, well-lit service area',
+    atmosphere: 'busy canteen counter, queue of students, auntie serving food, bustling service',
+    singaporeDetails: 'Singapore school canteen counter, plastic money tray, laminated price list',
+  },
+  storeroom: {
+    architecture: 'school canteen storeroom, concrete walls, industrial shelving, single door entrance',
+    furniture: 'metal shelving racks with supplies, stacked boxes of ingredients, refrigerator unit, cleaning supplies',
+    lighting: 'single fluorescent tube light, slightly dim storage area, utilitarian lighting',
+    atmosphere: 'quiet storage space, organized inventory, behind-the-scenes canteen area',
+    singaporeDetails: 'typical Singapore school storeroom, inventory labels in Chinese and English',
+  },
+  kitchen: {
+    architecture: 'school canteen kitchen, stainless steel work surfaces, commercial cooking area, ventilation hood',
+    furniture: 'industrial wok station, prep tables, ingredient storage, utensil racks, gas stoves',
+    lighting: 'bright kitchen lighting, heat lamps over serving area, functional illumination',
+    atmosphere: 'active cooking environment, steam rising, busy food preparation, sizzling sounds implied',
+    singaporeDetails: 'Singapore hawker-style kitchen, wok hei cooking, local food preparation',
+  },
+  back_entrance: {
+    architecture: 'service entrance behind canteen, concrete loading area, metal roller door, delivery access',
+    furniture: 'empty crates stacked, delivery trolley, waste bins, staff bicycles parked nearby',
+    lighting: 'natural daylight from open area, minimal artificial lighting, utilitarian access point',
+    atmosphere: 'quiet service area, staff coming and going, deliveries being unloaded',
+    singaporeDetails: 'Singapore school back entrance, delivery timing board, staff notice board',
+  },
+
+  // ============================================
+  // SCIENCE LAB LOCATIONS
+  // ============================================
+  laboratory: {
+    architecture: 'modern science laboratory, fume hood, safety shower visible, chemical storage',
+    furniture: 'lab benches with sinks, high stools, equipment shelves, glassware cabinets',
+    lighting: 'bright clinical lab lighting, no shadows for safety, well-illuminated workspace',
+    atmosphere: 'sterile research environment, scientific equipment, safety signs visible',
+    singaporeDetails: 'Singapore school science lab, A*STAR style equipment, safety first posters',
+  },
+  main_lab: {
+    architecture: 'primary school science laboratory, lab benches in rows, fume cupboard at side, emergency shower',
+    furniture: 'black resin lab benches with gas taps and sinks, high stools, microscopes, beakers on shelves',
+    lighting: 'bright overhead fluorescent lighting, natural light from high windows, safety lighting',
+    atmosphere: 'organized science classroom, experiment in progress, student workstations ready',
+    singaporeDetails: 'Singapore MOE school science lab, periodic table poster, safety goggles rack',
+  },
+  storage_cabinet: {
+    architecture: 'locked chemical storage area within lab, glass-fronted cabinets, hazard warning signs',
+    furniture: 'chemical storage cabinets with safety locks, specimen jars, reagent bottles organized by type',
+    lighting: 'bright safety lighting, clearly illuminated hazard labels, clinical environment',
+    atmosphere: 'secure storage area, chemicals properly labeled, restricted access implied',
+    singaporeDetails: 'Singapore school lab storage, bilingual safety labels, SCDF compliance stickers',
+  },
+  plant_display: {
+    architecture: 'science fair display area, folding tables arranged in rows, project display boards',
+    furniture: 'student experiment displays, potted plants in various stages, measurement equipment, labels',
+    lighting: 'bright exhibition lighting, natural light from windows, spotlight on displays',
+    atmosphere: 'science fair competition setup, student projects on display, academic excitement',
+    singaporeDetails: 'Singapore primary school science fair, STEM competition display, student name cards',
+  },
+  equipment_room: {
+    architecture: 'science equipment storage room, industrial shelving, locked cabinets, narrow access',
+    furniture: 'microscopes in cases, scientific instruments, spare glassware, calibration equipment',
+    lighting: 'functional fluorescent lighting, organized workspace, maintenance area feel',
+    atmosphere: 'quiet storage and maintenance area, equipment ready for class, organized inventory',
+    singaporeDetails: 'Singapore school equipment store, MOE inventory tags, maintenance schedule posted',
+  },
+
+  // ============================================
+  // LIBRARY LOCATIONS
+  // ============================================
+  library: {
+    architecture: 'Singapore community library, modern interior, reading areas, book stacks',
+    furniture: 'tall bookshelves, comfortable reading chairs, computer workstations, librarian desk',
+    lighting: 'soft ambient library lighting, reading lamps on tables, natural light from skylights',
+    atmosphere: 'quiet study environment, patrons reading, peaceful academic space',
+    singaporeDetails: 'Singapore NLB style library, multilingual book sections, self-checkout kiosks',
+  },
+  special_collection: {
+    architecture: 'rare books room, climate-controlled space, glass display cases, secure access door',
+    furniture: 'rare book display cabinets, reading pedestals, white cotton gloves on table, archive boxes',
+    lighting: 'controlled UV-filtered lighting, display case illumination, preservation-focused',
+    atmosphere: 'hushed reverence for rare materials, scholarly atmosphere, restricted access',
+    singaporeDetails: 'Singapore heritage collection room, valuable Singapore history books displayed',
+  },
+  front_desk: {
+    architecture: 'library main service desk, circular or L-shaped counter, behind-desk offices visible',
+    furniture: 'library counter with computers, book scanner, return slot, staff workstations',
+    lighting: 'bright service area lighting, screen glow from computers, welcoming desk lamps',
+    atmosphere: 'helpful library service, patrons checking books, quiet professional assistance',
+    singaporeDetails: 'Singapore NLB service counter, membership card reader, multilingual staff',
+  },
+  reading_room: {
+    architecture: 'quiet study area with individual carrels, group study tables, comfortable seating nooks',
+    furniture: 'study desks with desk lamps, comfortable armchairs, magazine racks, power outlets for laptops',
+    lighting: 'soft reading-friendly lighting, individual desk lamps, diffused overhead light',
+    atmosphere: 'focused study environment, students and adults reading, exam preparation mood',
+    singaporeDetails: 'Singapore library study area, silent zone signs, popular with PSLE students',
+  },
+  children_section: {
+    architecture: 'colorful children library area, low bookshelves, story corner with cushions, activity space',
+    furniture: 'child-sized tables and chairs, picture book displays, puppet theater, reading nooks',
+    lighting: 'warm welcoming lighting, playful ceiling fixtures, natural light emphasized',
+    atmosphere: 'joyful learning environment, children browsing books, story time setup',
+    singaporeDetails: 'Singapore library children zone, Malay Tamil Chinese English books mixed',
+  },
+
+  // ============================================
+  // SPORTS FACILITY LOCATIONS
+  // ============================================
+  sports_hall: {
+    architecture: 'school sports hall, high ceiling, basketball court markings, stage at one end',
+    furniture: 'basketball hoops, bleacher seating, equipment storage along walls, scoreboard',
+    lighting: 'bright sports lighting, high-mounted fixtures, competition-grade illumination',
+    atmosphere: 'athletic environment, sports practice setup, competition ready',
+    singaporeDetails: 'Singapore school sports hall, POSB badminton court lines, air-conditioned',
+  },
+  main_court: {
+    architecture: 'competition badminton court, professional flooring, umpire high chair, player benches',
+    furniture: 'badminton net setup, umpire chair, score display, player waiting area with benches',
+    lighting: 'competition-grade sports lighting, no shadows on court, camera-ready illumination',
+    atmosphere: 'championship match setup, competitive tension, audience seating visible',
+    singaporeDetails: 'Singapore inter-school competition, SSSBA banners, school flags displayed',
+  },
+  locker_room: {
+    architecture: 'sports facility locker room, rows of metal lockers, benches between rows, showers visible',
+    furniture: 'metal lockers with combination locks, wooden benches, sports bags on hooks, mirror area',
+    lighting: 'bright functional lighting, fluorescent strips, shower area lighting',
+    atmosphere: 'athletes changing space, pre-game preparation, team energy',
+    singaporeDetails: 'Singapore school locker room, PE uniforms visible, team photos on wall',
+  },
+
+  // ============================================
+  // WET MARKET LOCATIONS
+  // ============================================
+  wet_market: {
+    architecture: 'traditional Singapore wet market, high ceiling with fans, concrete floor with drains',
+    furniture: 'vendor stalls with display tables, weighing scales, ice boxes, hanging hooks for meat',
+    lighting: 'bright fluorescent overhead lighting, individual stall lights, morning market brightness',
+    atmosphere: 'bustling market morning, vendors calling, fresh produce displayed, early shoppers',
+    singaporeDetails: 'classic Singapore wet market, Tiong Bahru or Tekka style, auntie bargaining',
+  },
+  fish_stall: {
+    architecture: 'fresh fish vendor stall, display counter with ice bed, running water, seafood on display',
+    furniture: 'fish display on ice, weighing scale, cutting board, knife set, live seafood tanks',
+    lighting: 'bright white lighting to show freshness, ice reflecting light, professional food display',
+    atmosphere: 'busy fish stall, customers selecting seafood, vendor skillfully cutting fish',
+    singaporeDetails: 'Singapore wet market fish stall, fresh catch signage, Chinese price tags',
+  },
+  market_office: {
+    architecture: 'market management office, small enclosed room, window facing market floor, filing cabinets',
+    furniture: 'office desk with computer, filing cabinets, license display board, CCTV monitors',
+    lighting: 'office fluorescent lighting, computer screen glow, functional workspace',
+    atmosphere: 'administrative space, market management, official documentation area',
+    singaporeDetails: 'Singapore market NEA office, hawker license display, complaint forms',
+  },
+  weighing_station: {
+    architecture: 'official market weighing area, certified scale on counter, NEA calibration sticker',
+    furniture: 'certified weighing scale, display counter, calibration tools, weight verification equipment',
+    lighting: 'bright clinical lighting for accurate weighing, well-illuminated for customer trust',
+    atmosphere: 'official verification area, customers checking weights, fair trade enforcement',
+    singaporeDetails: 'Singapore NEA certified weighing station, consumer protection signage',
+  },
+  loading_bay: {
+    architecture: 'market loading and delivery area, concrete platform, roller shutters, truck access',
+    furniture: 'delivery trolleys, stacked crates, pallet jacks, unloading platform',
+    lighting: 'early morning natural light, loading bay overhead lights, functional work area',
+    atmosphere: 'early morning delivery rush, goods being unloaded, market preparation',
+    singaporeDetails: 'Singapore market loading dock, delivery time restrictions sign, HDB parking nearby',
+  },
+
+  // ============================================
+  // GENERIC LOCATIONS (FALLBACK)
+  // ============================================
   office: {
     architecture: 'modern Singapore office interior, glass partitions, dropped ceiling with recessed lighting',
     furniture: 'ergonomic office chairs, computer workstations, filing cabinets, desk dividers',
@@ -515,13 +699,6 @@ const LOCATION_TEMPLATES: Record<string, {
     lighting: 'bright classroom lighting, natural daylight from windows, well-lit educational space',
     atmosphere: 'academic environment, school supplies visible, educational posters on walls',
     singaporeDetails: 'typical Singapore MOE school design, HDB area school, covered walkways',
-  },
-  laboratory: {
-    architecture: 'modern science laboratory, fume hood, safety shower visible, chemical storage',
-    furniture: 'lab benches with sinks, high stools, equipment shelves, glassware cabinets',
-    lighting: 'bright clinical lab lighting, no shadows for safety, well-illuminated workspace',
-    atmosphere: 'sterile research environment, scientific equipment, safety signs visible',
-    singaporeDetails: 'Singapore research facility, A*STAR style lab, modern equipment',
   },
   hospital: {
     architecture: 'Singapore hospital interior, clean white walls, medical equipment bays',
@@ -595,23 +772,57 @@ export function buildScenePrompt(
     positionY?: number;
   }>
 ): string {
-  // Detect location type from description
+  // Detect location type from description - prioritize specific crime scene locations
   const desc = scene.description.toLowerCase();
-  let locationKey = 'office'; // default
+  let locationKey = 'school'; // default for primary school stories
 
-  if (/school|classroom|teacher|student|education/i.test(desc)) locationKey = 'school';
-  else if (/lab|laboratory|science|research|experiment/i.test(desc)) locationKey = 'laboratory';
+  // SPECIFIC CRIME SCENE LOCATIONS (check first for accuracy)
+  // Canteen locations
+  if (/main counter|service counter|cash register|canteen counter/i.test(desc)) locationKey = 'main_counter';
+  else if (/storeroom|store room|storage area|inventory/i.test(desc)) locationKey = 'storeroom';
+  else if (/kitchen|cooking|wok|food prep/i.test(desc)) locationKey = 'kitchen';
+  else if (/back entrance|service entrance|delivery|loading/i.test(desc)) locationKey = 'back_entrance';
+  else if (/canteen|recess|food stall|lunch/i.test(desc)) locationKey = 'canteen';
+
+  // Science lab locations
+  else if (/main lab|laboratory|lab bench|experiment/i.test(desc)) locationKey = 'main_lab';
+  else if (/storage cabinet|chemical storage|reagent/i.test(desc)) locationKey = 'storage_cabinet';
+  else if (/plant display|science fair|project display|exhibit/i.test(desc)) locationKey = 'plant_display';
+  else if (/equipment room|instrument storage|lab equipment/i.test(desc)) locationKey = 'equipment_room';
+
+  // Library locations
+  else if (/special collection|rare book|archive|heritage/i.test(desc)) locationKey = 'special_collection';
+  else if (/front desk|service desk|librarian|checkout/i.test(desc)) locationKey = 'front_desk';
+  else if (/reading room|study area|quiet zone|carrel/i.test(desc)) locationKey = 'reading_room';
+  else if (/children.?s section|kids.?area|picture book/i.test(desc)) locationKey = 'children_section';
+  else if (/library|book|reading|nlb/i.test(desc)) locationKey = 'library';
+
+  // Sports locations
+  else if (/main court|badminton|competition court|championship/i.test(desc)) locationKey = 'main_court';
+  else if (/locker room|changing room|shower/i.test(desc)) locationKey = 'locker_room';
+  else if (/sports hall|gymnasium|basketball/i.test(desc)) locationKey = 'sports_hall';
+
+  // Market locations
+  else if (/fish stall|seafood|fishmonger/i.test(desc)) locationKey = 'fish_stall';
+  else if (/market office|management office|nea office/i.test(desc)) locationKey = 'market_office';
+  else if (/weighing station|certified scale|calibration/i.test(desc)) locationKey = 'weighing_station';
+  else if (/loading bay|delivery area|unloading/i.test(desc)) locationKey = 'loading_bay';
+  else if (/wet market|market|vendor|stall/i.test(desc)) locationKey = 'wet_market';
+
+  // GENERIC LOCATIONS (fallback)
+  else if (/school|classroom|teacher|student|education/i.test(desc)) locationKey = 'school';
+  else if (/lab|laboratory|science|research/i.test(desc)) locationKey = 'laboratory';
   else if (/hospital|clinic|medical|doctor|nurse|patient/i.test(desc)) locationKey = 'hospital';
   else if (/hawker|food court|kopitiam|eating/i.test(desc)) locationKey = 'hawker_center';
   else if (/mrt|train|station|platform|commuter/i.test(desc)) locationKey = 'mrt_station';
   else if (/hdb|flat|apartment|home|residence/i.test(desc)) locationKey = 'hdb_flat';
   else if (/mall|shopping|retail|store/i.test(desc)) locationKey = 'shopping_mall';
-  else if (/warehouse|storage|industrial|factory/i.test(desc)) locationKey = 'warehouse';
-  else if (/restaurant|cafe|dining|kitchen/i.test(desc)) locationKey = 'restaurant';
+  else if (/warehouse|industrial|factory/i.test(desc)) locationKey = 'warehouse';
+  else if (/restaurant|cafe|dining/i.test(desc)) locationKey = 'restaurant';
   else if (/park|garden|outdoor|nature/i.test(desc)) locationKey = 'park';
   else if (/office|corporate|meeting|board/i.test(desc)) locationKey = 'office';
 
-  const locationTemplate = LOCATION_TEMPLATES[locationKey];
+  const locationTemplate = LOCATION_TEMPLATES[locationKey] || LOCATION_TEMPLATES['school'];
 
   // Build zone-based evidence description for embedding in scene
   let evidenceDescription = '';
