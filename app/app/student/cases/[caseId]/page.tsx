@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 
+// Force dynamic rendering - this page requires database access
+export const dynamic = 'force-dynamic';
+
 async function getCaseData(caseId: string) {
   const caseData = await prisma.case.findUnique({
     where: { id: caseId },

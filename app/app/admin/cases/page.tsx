@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { togglePublishCase } from './actions';
 import { DeleteCaseButton } from './DeleteCaseButton';
 
+// Force dynamic rendering - this page requires database access
+export const dynamic = 'force-dynamic';
+
 const difficultyColors: Record<string, string> = {
   ROOKIE: 'bg-green-600',
   INSPECTOR: 'bg-yellow-600',
