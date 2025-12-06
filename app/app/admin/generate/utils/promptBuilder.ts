@@ -194,10 +194,167 @@ export function buildScenePrompt(scene: { description: string; locationType?: st
 }
 
 /**
- * Build clue/evidence image prompt - Realistic Vision V6.0 format
+ * Evidence type visual descriptions for different categories
  */
-export function buildCluePrompt(clue: { description: string; type: string; relevance: string }): string {
-  const highlight = clue.relevance === 'critical' ? 'key evidence highlighted' : '';
-  // Realistic Vision V6.0 - natural language prompts with quality tags
-  return `RAW photo, ${clue.description}, ${clue.type} evidence, forensic evidence photography, evidence marker visible, close-up documentation shot, ${highlight}, photorealistic, detailed textures, high quality, 8k uhd, dslr, sharp focus, macro photography`;
+const EVIDENCE_TYPE_VISUALS: Record<string, {
+  style: string;
+  lighting: string;
+  composition: string;
+  details: string;
+}> = {
+  physical: {
+    style: 'forensic evidence photograph, police evidence documentation',
+    lighting: 'clinical forensic lighting, bright even illumination',
+    composition: 'close-up macro shot, evidence marker with number visible, measuring ruler for scale',
+    details: 'detailed surface textures, visible fingerprint dust, evidence collection setting',
+  },
+  document: {
+    style: 'document photography, paper evidence documentation',
+    lighting: 'soft diffused lighting to avoid glare, even paper illumination',
+    composition: 'flat lay top-down view, full document visible, evidence tag nearby',
+    details: 'readable text visible, paper texture, creases and folds shown, dated timestamp',
+  },
+  digital: {
+    style: 'screen capture photograph, digital forensics documentation',
+    lighting: 'screen glow visible, ambient office lighting',
+    composition: 'device screen clearly visible, timestamp overlay, forensic software interface',
+    details: 'clear readable display, evidence of digital analysis, metadata visible',
+  },
+  testimony: {
+    style: 'interview documentation, witness statement setting',
+    lighting: 'soft indoor lighting, professional office setting',
+    composition: 'document or notepad visible, pen nearby, official letterhead',
+    details: 'handwritten or typed notes, signature area, official stamp',
+  },
+};
+
+/**
+ * Keyword detection for specific evidence items
+ */
+function detectEvidenceKeywords(description: string, title: string): string {
+  const text = `${description} ${title}`.toLowerCase();
+
+  // Physical evidence keywords
+  if (/fingerprint|print|finger/i.test(text)) {
+    return 'fingerprint on surface, forensic powder dusted, ridge patterns visible, lifted print';
+  }
+  if (/footprint|shoe|track|step/i.test(text)) {
+    return 'shoe impression in dust or dirt, tread pattern visible, measuring tape alongside';
+  }
+  if (/key|lock/i.test(text)) {
+    return 'metal key on evidence bag, detailed engravings, brass or steel finish';
+  }
+  if (/fabric|cloth|fiber|thread/i.test(text)) {
+    return 'fabric fibers under magnification, tweezers holding sample, microscopic detail';
+  }
+  if (/hair|strand/i.test(text)) {
+    return 'hair strands in clear evidence bag, labeled specimen, microscopic quality';
+  }
+  if (/glass|broken|shatter/i.test(text)) {
+    return 'broken glass fragments, sharp edges visible, scattered pattern';
+  }
+  if (/blood|stain|spot/i.test(text)) {
+    return 'dark stain on surface, swab nearby, evidence marker, forensic collection';
+  }
+  if (/weapon|knife|tool/i.test(text)) {
+    return 'object in evidence bag, case number label, protective packaging';
+  }
+
+  // Document evidence keywords
+  if (/receipt|bill|invoice/i.test(text)) {
+    return 'crumpled paper receipt, printed text visible, date and amount shown, thermal paper';
+  }
+  if (/note|letter|message|writing/i.test(text)) {
+    return 'handwritten note on paper, pen strokes visible, paper texture, personal handwriting';
+  }
+  if (/schedule|calendar|appointment|time/i.test(text)) {
+    return 'printed schedule or planner, highlighted entries, dates and times marked';
+  }
+  if (/map|diagram|plan|layout/i.test(text)) {
+    return 'hand-drawn or printed map, marked locations, circled areas, annotations';
+  }
+  if (/photo|picture|image/i.test(text)) {
+    return 'printed photograph as evidence, showing location or scene, glossy paper';
+  }
+  if (/id|card|badge|pass/i.test(text)) {
+    return 'identification card, official format, photo visible, some details obscured';
+  }
+  if (/ticket|stub|pass/i.test(text)) {
+    return 'ticket stub or entry pass, date and venue visible, torn perforation';
+  }
+
+  // Digital evidence keywords
+  if (/cctv|camera|footage|video|surveillance/i.test(text)) {
+    return 'CCTV still frame, timestamp overlay, grainy surveillance quality, security camera view';
+  }
+  if (/phone|mobile|text|message|call/i.test(text)) {
+    return 'smartphone screen showing messages or call log, notification visible';
+  }
+  if (/email|inbox|sent/i.test(text)) {
+    return 'email screenshot printed out, highlighted passages, sender and timestamp visible';
+  }
+  if (/computer|laptop|screen|browser|file/i.test(text)) {
+    return 'computer monitor showing files or data, forensic analysis software visible';
+  }
+  if (/social|post|account|profile/i.test(text)) {
+    return 'social media screenshot, profile visible, post timestamp shown';
+  }
+  if (/gps|location|tracking|route/i.test(text)) {
+    return 'GPS map printout, route highlighted, location pins marked, coordinates visible';
+  }
+  if (/log|record|data|entry/i.test(text)) {
+    return 'printed data log, entries highlighted, timestamps and values visible';
+  }
+
+  // Default - use the description directly
+  return '';
+}
+
+/**
+ * Build clue/evidence image prompt - Realistic Vision V6.0 format
+ * Enhanced for story-accurate, detailed evidence images
+ */
+export function buildCluePrompt(clue: {
+  title: string;
+  description: string;
+  type: string;
+  relevance: string;
+}): string {
+  // Get type-specific visual settings
+  const typeVisuals = EVIDENCE_TYPE_VISUALS[clue.type] || EVIDENCE_TYPE_VISUALS.physical;
+
+  // Detect specific evidence keywords for more detailed prompts
+  const keywordDetails = detectEvidenceKeywords(clue.description, clue.title);
+
+  // Relevance affects visual prominence
+  const relevanceStyle = clue.relevance === 'critical'
+    ? 'key evidence, prominently displayed, clear focus, important clue'
+    : clue.relevance === 'red-herring'
+    ? 'suspicious looking, appears significant, misleading evidence'
+    : 'supporting evidence, documented carefully';
+
+  // Build comprehensive prompt
+  const promptParts = [
+    // Core quality tags for Realistic Vision
+    'RAW photo',
+    'professional forensic evidence photography',
+    // Evidence title and description
+    `${clue.title}`,
+    clue.description,
+    // Detected specific details
+    keywordDetails,
+    // Type-specific styling
+    typeVisuals.style,
+    typeVisuals.lighting,
+    typeVisuals.composition,
+    typeVisuals.details,
+    // Relevance styling
+    relevanceStyle,
+    // Quality tags
+    'photorealistic', 'highly detailed textures', 'sharp focus',
+    'high quality', '8k uhd', 'dslr', 'macro photography',
+    'evidence documentation', 'Singapore Police Force standards',
+  ].filter(Boolean);
+
+  return promptParts.join(', ');
 }
