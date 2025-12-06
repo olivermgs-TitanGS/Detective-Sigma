@@ -32,6 +32,7 @@ export async function GET(request: Request) {
     }
 
     // Build quiz questions from puzzles and add a "whodunit" question
+    // SECURITY: Do NOT send correctAnswer to client - only validate server-side
     const questions = [
       ...caseData.puzzles.map((puzzle, index) => {
         // Parse options from JSON if stored, otherwise generate fallback options
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
           id: puzzle.id,
           question: puzzle.questionText,
           options,
-          correctAnswer: puzzle.correctAnswer,
+          // correctAnswer is intentionally NOT sent to prevent cheating
           points: puzzle.points,
           type: 'puzzle',
           // Include narrative context for story-driven feedback
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
         id: 'whodunit',
         question: 'Based on all the evidence, who is responsible?',
         options: caseData.suspects.map(s => s.name),
-        correctAnswer: caseData.suspects.find(s => s.isCulprit)?.name || '',
+        // correctAnswer is intentionally NOT sent - culprit revealed only after submission
         points: 20,
         type: 'culprit',
       },
@@ -196,12 +197,20 @@ export async function POST(request: Request) {
     // Determine feedback based on score
     const feedback = generateFeedback(percentageScore, results, caseData);
 
+    // After submission, reveal the correct answers so students can learn
+    const correctAnswersForReview: Record<string, string> = {};
+    Object.entries(correctAnswers).forEach(([questionId, { answer }]) => {
+      correctAnswersForReview[questionId] = answer;
+    });
+
     return NextResponse.json({
       submission: {
         score,
         maxScore,
         percentageScore,
         results,
+        correctAnswers: correctAnswersForReview, // Reveal answers AFTER submission
+        culprit: culprit?.name || '', // Reveal culprit AFTER submission
         feedback,
         caseTitle: caseData.title,
       },

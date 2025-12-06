@@ -33,7 +33,16 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ case: caseData });
+    // SECURITY: Strip out isCulprit from suspects to prevent spoilers
+    // The culprit is only revealed when the student solves the case
+    const safeSuspects = caseData.suspects.map(({ isCulprit, ...suspect }) => suspect);
+
+    const safeCase = {
+      ...caseData,
+      suspects: safeSuspects,
+    };
+
+    return NextResponse.json({ case: safeCase });
   } catch (error) {
     console.error('Error fetching case:', error);
     return NextResponse.json(
