@@ -1,12 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 // MusicPlayer is in root layout - removed here to prevent overlapping audio
 
+// Pre-computed particle positions to avoid hydration mismatch
+const PARTICLE_POSITIONS = [
+  { left: 5, delay: 0.5, duration: 12 },
+  { left: 15, delay: 3.2, duration: 14 },
+  { left: 25, delay: 7.8, duration: 11 },
+  { left: 35, delay: 1.1, duration: 16 },
+  { left: 45, delay: 9.4, duration: 13 },
+  { left: 55, delay: 4.6, duration: 15 },
+  { left: 65, delay: 12.3, duration: 18 },
+  { left: 75, delay: 6.7, duration: 10 },
+  { left: 85, delay: 2.9, duration: 17 },
+  { left: 95, delay: 8.1, duration: 12 },
+  { left: 10, delay: 5.5, duration: 14 },
+  { left: 30, delay: 11.2, duration: 16 },
+  { left: 50, delay: 0.8, duration: 13 },
+  { left: 70, delay: 14.1, duration: 11 },
+  { left: 90, delay: 3.9, duration: 15 },
+];
+
 export default function StudentLayout({ children }: { children: ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
@@ -17,15 +41,15 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
       <div className="chalk-body-outline" style={{ top: '20%', right: '5%', transform: 'rotate(-15deg)' }}></div>
       <div className="chalk-body-outline" style={{ bottom: '10%', left: '10%', transform: 'rotate(25deg)' }}></div>
 
-      {/* Floating Dust Particles */}
-      {[...Array(15)].map((_, i) => (
+      {/* Floating Dust Particles - only render after mount to avoid hydration mismatch */}
+      {isMounted && PARTICLE_POSITIONS.map((particle, i) => (
         <div
           key={i}
           className="dust-particle"
           style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 15}s`,
-            animationDuration: `${10 + Math.random() * 10}s`
+            left: `${particle.left}%`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`
           }}
         />
       ))}
