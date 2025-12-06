@@ -99,12 +99,25 @@ export function buildSuspectPrompt(suspect: { name: string; role: string; isGuil
   const personInfo = parsePersonInfo(suspect.name, suspect.role);
   const expression = suspect.isGuilty ? 'slightly nervous expression' : 'calm confident expression';
 
+  // DEBUG: Log name parsing results
+  console.log(`[PROMPT_BUILDER] Building prompt for: ${suspect.name}`);
+  console.log(`[PROMPT_BUILDER] Detected gender: ${personInfo.gender}, age: ${personInfo.age}`);
+
+  // IMPORTANT: For Pony Diffusion, gender token MUST be first, followed by age, then occupation
+  const occupationClothing = getOccupationClothing(suspect.role.toLowerCase());
+
   const promptParts = [
-    'rating_safe', 'safe_for_work', 'sfw',
-    'score_9, score_8_up, score_7_up',
-    `1${personInfo.gender}`, 'solo', 'single person', 'one person only', 'alone',
+    // 1. GENDER FIRST (most important for Pony)
+    `1${personInfo.gender}`, 'solo',
+    // 2. AGE second
     personInfo.ageDescriptor,
     personInfo.agePrompt,
+    // 3. OCCUPATION third
+    suspect.role, occupationClothing,
+    // 4. Quality/safety tags
+    'score_9, score_8_up, score_7_up',
+    'rating_safe', 'safe_for_work', 'sfw',
+    'single person', 'one person only', 'alone',
   ];
 
   if (personInfo.religiousAttire && personInfo.religion === 'Muslim') {
@@ -134,8 +147,8 @@ export function buildSuspectPrompt(suspect: { name: string; role: string; isGuil
     promptParts.push(personInfo.religiousAttire);
   }
 
-  const occupationClothing = getOccupationClothing(suspect.role.toLowerCase());
-  promptParts.push(suspect.role, expression, occupationClothing);
+  // Add expression (occupation already added at the top)
+  promptParts.push(expression);
 
   promptParts.push(
     'FULLY CLOTHED', 'wearing complete conservative outfit',
