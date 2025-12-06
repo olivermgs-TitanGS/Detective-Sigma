@@ -7,6 +7,12 @@ import ClueModal from '@/components/game/ClueModal';
 import PuzzleModal from '@/components/game/PuzzleModal';
 import SuspectDialog from '@/components/game/SuspectDialog';
 import MusicThemeSetter from '@/components/MusicThemeSetter';
+import { CaseFileLoader, LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { CaseProgressBar, ProgressBar } from '@/components/ui/ProgressBar';
+import { GlowButton, CTAButton } from '@/components/ui/GlowButton';
+import { RippleButton } from '@/components/ui/RippleButton';
+import { toast } from '@/components/ui/Toast';
+import { useConfetti } from '@/components/ui/Confetti';
 
 interface Clue {
   id: string;
@@ -29,6 +35,13 @@ interface Scene {
   clues: Clue[];
 }
 
+interface PuzzleRevelation {
+  type: 'evidence' | 'alibi_check' | 'timeline' | 'motive' | 'confession_clue';
+  description: string;
+  storyText: string;
+  importance: 'minor' | 'moderate' | 'major';
+}
+
 interface Puzzle {
   id: string;
   title: string;
@@ -39,6 +52,11 @@ interface Puzzle {
   hint?: string;
   points: number;
   options?: string[] | null;
+  // Narrative revelation system
+  narrativeContext?: string | null;
+  investigationPhase?: string | null;
+  revelation?: PuzzleRevelation | null;
+  relatedCharacterName?: string | null;
 }
 
 interface Suspect {
@@ -203,13 +221,13 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
     return () => window.removeEventListener('beforeunload', handleUnload);
   }, [saveProgress]);
 
+  // Confetti for celebrations
+  const { fireClueFound, fireSuccess } = useConfetti();
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4 animate-pulse">🔍</div>
-          <p className="text-amber-500 font-mono">Loading case files...</p>
-        </div>
+        <CaseFileLoader message="ACCESSING CASE FILES" />
       </div>
     );
   }
@@ -246,6 +264,10 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
     if (!collectedClues.includes(clue.id)) {
       const newClues = [...collectedClues, clue.id];
       setCollectedClues(newClues);
+
+      // Fire detective celebration
+      fireClueFound();
+      toast.clueFound(clue.name, clue.type === 'testimony' ? 'major' : 'moderate');
 
       // Save progress immediately
       await fetch('/api/progress', {
@@ -358,32 +380,35 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Progress Bar */}
-              <div className="hidden md:block">
-                <div className="text-sm text-purple-200 mb-1">
-                  Clues: {collectedClues.length}/{totalClues}
-                </div>
-                <div className="w-48 bg-black/80 h-2">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 transition-all duration-500"
-                    style={{ width: `${progressPercentage}%` }}
-                  />
-                </div>
+              {/* Progress Bar - Detective Styled */}
+              <div className="hidden md:block w-56">
+                <ProgressBar
+                  value={collectedClues.length}
+                  max={totalClues}
+                  label="Evidence"
+                  variant="evidence"
+                  size="sm"
+                  color="evidence"
+                />
               </div>
 
-              {/* Action Buttons */}
-              <button
+              {/* Action Buttons - Detective Styled */}
+              <GlowButton
                 onClick={() => setShowEvidenceBoard(!showEvidenceBoard)}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 transition-colors font-semibold text-sm"
+                variant="evidence"
+                size="sm"
+                glowIntensity="medium"
               >
-                Evidence ({collectedClues.length})
-              </button>
-              <button
+                🔍 Evidence ({collectedClues.length})
+              </GlowButton>
+              <GlowButton
                 onClick={() => setShowSuspects(!showSuspects)}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 transition-colors font-semibold text-sm"
+                variant="amber"
+                size="sm"
+                glowIntensity="medium"
               >
-                Suspects ({gameData.suspects.length})
-              </button>
+                👤 Suspects ({gameData.suspects.length})
+              </GlowButton>
             </div>
           </div>
         </div>
@@ -427,19 +452,23 @@ export default function GameplayPage({ params }: { params: { caseId: string } })
           </div>
         </div>
 
-        {/* Complete Investigation Button */}
+        {/* Complete Investigation Button - Detective Styled */}
         {progressPercentage === 100 && (
-          <div className="mt-8 bg-gradient-to-br from-green-600 to-green-800 p-8 text-center">
-            <h3 className="text-2xl font-bold text-white mb-2">Investigation Complete!</h3>
-            <p className="text-green-100 mb-6">
-              You've collected all the clues. Ready to solve the case?
+          <div className="mt-8 bg-gradient-to-br from-green-900/80 to-green-800/80 border-2 border-green-500/50 p-8 text-center">
+            <div className="text-5xl mb-4">📁</div>
+            <h3 className="text-2xl font-bold text-green-400 font-mono tracking-wider mb-2">
+              INVESTIGATION COMPLETE
+            </h3>
+            <p className="text-green-200 mb-6 font-mono">
+              All evidence collected. Ready to close the case?
             </p>
-            <a
-              href={`/student/cases/${params.caseId}/quiz`}
-              onClick={saveProgress}
-              className="inline-block bg-white text-green-900 px-12 py-4 font-bold text-lg hover:bg-green-100 transition-colors"
-            >
-              Take Final Quiz
+            <a href={`/student/cases/${params.caseId}/quiz`} onClick={saveProgress}>
+              <CTAButton
+                variant="solve"
+                size="lg"
+              >
+                🎯 TAKE FINAL QUIZ
+              </CTAButton>
             </a>
           </div>
         )}

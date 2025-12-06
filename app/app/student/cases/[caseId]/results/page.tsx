@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import MusicThemeSetter from '@/components/MusicThemeSetter';
+import { useConfetti, CaseSolvedStamp } from '@/components/ui/Confetti';
+import { toast } from '@/components/ui/Toast';
+import { CaseFileLoader, LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ProgressRing, XPBar } from '@/components/ui/ProgressBar';
+import { GlowButton, CTAButton } from '@/components/ui/GlowButton';
+import { SuccessPulse, CaseClosedStamp } from '@/components/ui/SuccessPulse';
 
 interface ResultsData {
   score: number;
@@ -28,6 +34,8 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
   const [resultsData, setResultsData] = useState<ResultsData | null>(null);
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showStamp, setShowStamp] = useState(false);
+  const { fireSuccess, fireAchievement, fireStars } = useConfetti();
 
   useEffect(() => {
     async function loadResults() {
@@ -79,13 +87,29 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
     loadResults();
   }, [params.caseId]);
 
+  // Trigger celebration effects when results load
+  useEffect(() => {
+    if (resultsData && !loading) {
+      // Delay for dramatic effect
+      setTimeout(() => {
+        setShowStamp(true);
+        fireSuccess();
+        fireStars();
+        toast.caseComplete(resultsData.caseTitle, resultsData.percentageScore >= 90 ? 3 : resultsData.percentageScore >= 70 ? 2 : 1);
+        if (resultsData.percentageScore >= 80) {
+          setTimeout(() => {
+            fireAchievement();
+            toast.achievement('Case Closed!', 'You solved the mystery');
+          }, 1500);
+        }
+      }, 500);
+    }
+  }, [resultsData, loading, fireSuccess, fireStars, fireAchievement]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4 animate-pulse">🔍</div>
-          <p className="text-amber-500 font-mono">Loading results...</p>
-        </div>
+        <CaseFileLoader message="COMPILING CASE REPORT" />
       </div>
     );
   }
@@ -117,34 +141,50 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
       <MusicThemeSetter theme="results" />
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Success Banner */}
-        <div className="bg-gradient-to-br from-green-600 to-green-800 p-12 text-center border-2 border-green-500/50">
-          <div className="text-8xl mb-4">🎉</div>
-          <h1 className="text-5xl font-bold text-white mb-3">Case Solved!</h1>
-          <p className="text-2xl text-green-100 mb-2">{resultsData.caseTitle}</p>
-          <p className="text-green-200">{resultsData.feedback.message}</p>
-        </div>
+      {/* Case Solved Stamp Overlay */}
+      <CaseSolvedStamp show={showStamp} onComplete={() => {}} />
 
-        {/* Score Cards */}
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Success Banner - Detective Styled */}
+        <SuccessPulse active={true} color="evidence" intensity="high" variant="evidence">
+          <div className="bg-gradient-to-br from-green-900/80 to-green-800/80 p-12 text-center border-2 border-green-500/50 relative">
+            <div className="absolute top-4 right-4 transform rotate-12">
+              <CaseClosedStamp size="md" />
+            </div>
+            <div className="text-8xl mb-4">📁</div>
+            <h1 className="text-5xl font-bold text-green-400 font-mono tracking-wider mb-3">CASE SOLVED</h1>
+            <p className="text-2xl text-green-100 font-mono mb-2">{resultsData.caseTitle}</p>
+            <p className="text-green-300 font-mono">{resultsData.feedback.message}</p>
+          </div>
+        </SuccessPulse>
+
+        {/* Score Cards - Detective Styled */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20 p-6 text-center">
-            <div className={`text-5xl font-bold mb-2 ${gradeColor}`}>{grade}</div>
-            <div className="text-purple-200 text-sm">Grade</div>
+          <div className="bg-slate-900/80 border-2 border-amber-600/40 p-6 text-center">
+            <div className="flex justify-center mb-2">
+              <ProgressRing
+                value={scorePercentage}
+                max={100}
+                size="lg"
+                color="evidence"
+                label="SCORE"
+              />
+            </div>
+            <div className="text-amber-400 text-sm font-mono tracking-wider">CASE RATING</div>
           </div>
-          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20 p-6 text-center">
-            <div className="text-5xl font-bold text-white mb-2">{scorePercentage}%</div>
-            <div className="text-purple-200 text-sm">Score</div>
+          <div className="bg-slate-900/80 border-2 border-amber-600/40 p-6 text-center">
+            <div className={`text-5xl font-bold mb-2 font-mono ${gradeColor}`}>{grade}</div>
+            <div className="text-amber-300 text-sm font-mono tracking-wider">GRADE</div>
           </div>
-          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20 p-6 text-center">
-            <div className="text-5xl font-bold text-white mb-2">
+          <div className="bg-slate-900/80 border-2 border-amber-600/40 p-6 text-center">
+            <div className="text-5xl font-bold text-amber-400 mb-2 font-mono">
               {correctAnswers}/{totalQuestions || '?'}
             </div>
-            <div className="text-purple-200 text-sm">Correct Answers</div>
+            <div className="text-amber-300 text-sm font-mono tracking-wider">DEDUCTIONS</div>
           </div>
-          <div className="bg-black/60 backdrop-blur-sm border border-purple-500/20 p-6 text-center">
-            <div className="text-5xl font-bold text-white mb-2">{resultsData.score}</div>
-            <div className="text-purple-200 text-sm">Points Earned</div>
+          <div className="bg-slate-900/80 border-2 border-green-600/40 p-6 text-center">
+            <div className="text-5xl font-bold text-green-400 mb-2 font-mono">+{resultsData.score}</div>
+            <div className="text-green-300 text-sm font-mono tracking-wider">POINTS EARNED</div>
           </div>
         </div>
 
@@ -205,25 +245,23 @@ export default function ResultsPage({ params }: { params: { caseId: string } }) 
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-8">
-          <h2 className="text-2xl font-bold text-white mb-3">What's Next?</h2>
-          <p className="text-purple-100 mb-6">
+        {/* Actions - Detective Styled */}
+        <div className="bg-slate-900/80 border-2 border-amber-600/40 p-8">
+          <h2 className="text-2xl font-bold text-amber-400 mb-3 font-mono tracking-wider">NEXT ASSIGNMENT</h2>
+          <p className="text-amber-200/80 mb-6 font-mono">
             Continue your detective journey with more cases!
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="/student/cases"
-              className="flex-1 bg-white text-purple-900 px-6 py-3 font-bold text-center hover:bg-purple-100 transition-colors"
-            >
-              Browse More Cases
+            <Link href="/student/cases" className="flex-1">
+              <CTAButton variant="investigate" size="lg" className="w-full">
+                🔍 BROWSE MORE CASES
+              </CTAButton>
             </Link>
-            <Link
-              href="/student/dashboard"
-              className="flex-1 bg-transparent border-2 border-white text-white px-6 py-3 font-bold text-center hover:bg-white/10 transition-colors"
-            >
-              View Dashboard
+            <Link href="/student/dashboard" className="flex-1">
+              <GlowButton variant="amber" size="lg" fullWidth>
+                📊 VIEW DASHBOARD
+              </GlowButton>
             </Link>
           </div>
         </div>

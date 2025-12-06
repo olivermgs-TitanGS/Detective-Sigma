@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSoundEffects } from '@/contexts/SoundEffectsContext';
 import { EvidenceTag, ForensicRuler } from './CrimeSceneOverlays';
+import { useConfetti } from '@/components/ui/Confetti';
+import { toast } from '@/components/ui/Toast';
 
 interface ClueModalProps {
   clue: {
@@ -29,15 +31,18 @@ export default function ClueModal({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { playSound } = useSoundEffects();
+  const { fireEvidence } = useConfetti();
 
   useEffect(() => {
     playSound('clueFound');
+    // Fire detective confetti effect
+    fireEvidence();
     // Delay showing revealed content for dramatic effect
     if (clue.contentRevealed) {
       const timer = setTimeout(() => setShowRevealed(true), 1500);
       return () => clearTimeout(timer);
     }
-  }, [clue.contentRevealed, playSound]);
+  }, [clue.contentRevealed, playSound, fireEvidence]);
 
   const handleClose = () => {
     playSound('click');
