@@ -13,7 +13,7 @@ interface RippleButtonProps {
   children: ReactNode;
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'evidence' | 'classified' | 'caseFile';
   size?: 'sm' | 'md' | 'lg';
   rippleColor?: string;
   className?: string;
@@ -22,8 +22,8 @@ interface RippleButtonProps {
 }
 
 /**
- * Button with Material-style ripple effect
- * Click creates expanding circle animation
+ * Detective-themed button with ripple effect
+ * Crime scene and evidence styling variants
  */
 export function RippleButton({
   children,
@@ -40,11 +40,11 @@ export function RippleButton({
 
   const variantStyles = {
     primary: {
-      base: 'bg-amber-600 hover:bg-amber-500 text-white',
+      base: 'bg-amber-600 hover:bg-amber-500 text-white border-2 border-amber-500',
       ripple: 'rgba(255, 255, 255, 0.4)',
     },
     secondary: {
-      base: 'bg-slate-700 hover:bg-slate-600 text-slate-200',
+      base: 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-2 border-slate-600',
       ripple: 'rgba(255, 255, 255, 0.3)',
     },
     outline: {
@@ -52,12 +52,24 @@ export function RippleButton({
       ripple: 'rgba(245, 158, 11, 0.3)',
     },
     ghost: {
-      base: 'bg-transparent text-slate-300 hover:bg-slate-700/50',
+      base: 'bg-transparent text-slate-300 hover:bg-slate-800/50 border-2 border-transparent',
       ripple: 'rgba(255, 255, 255, 0.2)',
     },
     danger: {
-      base: 'bg-red-600 hover:bg-red-500 text-white',
+      base: 'bg-red-700 hover:bg-red-600 text-white border-2 border-red-500',
       ripple: 'rgba(255, 255, 255, 0.4)',
+    },
+    evidence: {
+      base: 'bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white border-2 border-amber-400',
+      ripple: 'rgba(251, 191, 36, 0.5)',
+    },
+    classified: {
+      base: 'bg-gradient-to-r from-red-800 to-red-700 hover:from-red-700 hover:to-red-600 text-white border-2 border-red-500',
+      ripple: 'rgba(239, 68, 68, 0.4)',
+    },
+    caseFile: {
+      base: 'bg-slate-900 hover:bg-slate-800 text-amber-400 border-2 border-amber-600/50 hover:border-amber-500',
+      ripple: 'rgba(245, 158, 11, 0.3)',
     },
   };
 
@@ -101,8 +113,8 @@ export function RippleButton({
       disabled={disabled}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
       className={`
-        relative overflow-hidden rounded-lg font-mono font-semibold
-        transition-colors duration-200
+        relative overflow-hidden font-mono font-semibold tracking-wider
+        transition-all duration-200
         ${styles.base}
         ${sizeStyles[size]}
         ${fullWidth ? 'w-full' : ''}
@@ -122,7 +134,7 @@ export function RippleButton({
             animate={{ scale: 4, opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="absolute rounded-full pointer-events-none"
+            className="absolute pointer-events-none"
             style={{
               left: ripple.x,
               top: ripple.y,
@@ -140,14 +152,70 @@ export function RippleButton({
 }
 
 /**
- * Icon button with ripple effect
+ * Evidence action button with ripple
+ */
+interface EvidenceButtonProps {
+  children: ReactNode;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  importance?: 'minor' | 'moderate' | 'major';
+  className?: string;
+}
+
+export function EvidenceButton({
+  children,
+  onClick,
+  disabled = false,
+  size = 'md',
+  importance = 'moderate',
+  className = '',
+}: EvidenceButtonProps) {
+  const importanceStyles = {
+    minor: {
+      base: 'bg-slate-800 hover:bg-slate-700 text-green-400 border-green-600/50 hover:border-green-500',
+      icon: '📋',
+    },
+    moderate: {
+      base: 'bg-slate-800 hover:bg-slate-700 text-amber-400 border-amber-600/50 hover:border-amber-500',
+      icon: '🔍',
+    },
+    major: {
+      base: 'bg-slate-800 hover:bg-slate-700 text-red-400 border-red-600/50 hover:border-red-500',
+      icon: '⚠️',
+    },
+  };
+
+  const sizeStyles = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg',
+  };
+
+  const styles = importanceStyles[importance];
+
+  return (
+    <RippleButton
+      onClick={onClick}
+      disabled={disabled}
+      className={`border-2 ${styles.base} ${sizeStyles[size]} ${className}`}
+      variant="caseFile"
+    >
+      <span className="mr-2">{styles.icon}</span>
+      {children}
+    </RippleButton>
+  );
+}
+
+/**
+ * Icon button with ripple effect - Detective styled
  */
 interface RippleIconButtonProps {
   icon: ReactNode;
   onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'primary' | 'ghost';
+  variant?: 'default' | 'primary' | 'ghost' | 'evidence';
   label?: string;
   className?: string;
 }
@@ -170,9 +238,10 @@ export function RippleIconButton({
   };
 
   const variantStyles = {
-    default: 'bg-slate-700 hover:bg-slate-600 text-slate-300',
-    primary: 'bg-amber-600 hover:bg-amber-500 text-white',
-    ghost: 'bg-transparent hover:bg-slate-700/50 text-slate-400',
+    default: 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-600',
+    primary: 'bg-amber-600 hover:bg-amber-500 text-white border-amber-500',
+    ghost: 'bg-transparent hover:bg-slate-800/50 text-slate-400 border-transparent',
+    evidence: 'bg-amber-900/50 hover:bg-amber-800/50 text-amber-400 border-amber-600/50',
   };
 
   const config = sizeConfig[size];
@@ -206,9 +275,9 @@ export function RippleIconButton({
       disabled={disabled}
       whileTap={{ scale: disabled ? 1 : 0.9 }}
       className={`
-        relative overflow-hidden rounded-full
+        relative overflow-hidden border-2
         flex items-center justify-center
-        transition-colors duration-200
+        transition-all duration-200
         ${variantStyles[variant]}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
@@ -229,7 +298,7 @@ export function RippleIconButton({
             animate={{ scale: 3, opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute rounded-full pointer-events-none bg-white/30"
+            className="absolute pointer-events-none bg-white/30"
             style={{
               left: ripple.x,
               top: ripple.y,
@@ -246,12 +315,12 @@ export function RippleIconButton({
 }
 
 /**
- * Floating action button with ripple
+ * Floating action button with detective styling
  */
 interface FABProps {
   icon: ReactNode;
   onClick?: () => void;
-  color?: 'amber' | 'green' | 'blue' | 'purple';
+  color?: 'amber' | 'green' | 'blue' | 'red' | 'evidence';
   size?: 'md' | 'lg';
   label?: string;
   className?: string;
@@ -266,10 +335,11 @@ export function FAB({
   className = '',
 }: FABProps) {
   const colorStyles = {
-    amber: 'bg-amber-600 hover:bg-amber-500 shadow-amber-500/30',
-    green: 'bg-green-600 hover:bg-green-500 shadow-green-500/30',
-    blue: 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30',
-    purple: 'bg-purple-600 hover:bg-purple-500 shadow-purple-500/30',
+    amber: 'bg-amber-600 hover:bg-amber-500 border-amber-400 shadow-amber-500/30',
+    green: 'bg-green-600 hover:bg-green-500 border-green-400 shadow-green-500/30',
+    blue: 'bg-blue-600 hover:bg-blue-500 border-blue-400 shadow-blue-500/30',
+    red: 'bg-red-600 hover:bg-red-500 border-red-400 shadow-red-500/30',
+    evidence: 'bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 border-amber-400 shadow-amber-500/40',
   };
 
   const sizeStyles = {
@@ -283,8 +353,8 @@ export function FAB({
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       className={`
-        rounded-full flex items-center justify-center
-        text-white shadow-lg
+        flex items-center justify-center
+        text-white shadow-lg border-2
         transition-colors duration-200
         ${colorStyles[color]}
         ${sizeStyles[size]}
@@ -293,6 +363,80 @@ export function FAB({
       title={label}
     >
       {icon}
+    </motion.button>
+  );
+}
+
+/**
+ * Case file action button
+ */
+interface CaseActionButtonProps {
+  children: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  action?: 'investigate' | 'interrogate' | 'analyze' | 'close';
+  className?: string;
+}
+
+export function CaseActionButton({
+  children,
+  onClick,
+  disabled = false,
+  action = 'investigate',
+  className = '',
+}: CaseActionButtonProps) {
+  const actionStyles = {
+    investigate: {
+      bg: 'bg-amber-900/50 hover:bg-amber-800/50',
+      border: 'border-amber-600',
+      text: 'text-amber-400',
+      icon: '🔍',
+    },
+    interrogate: {
+      bg: 'bg-blue-900/50 hover:bg-blue-800/50',
+      border: 'border-blue-600',
+      text: 'text-blue-400',
+      icon: '💬',
+    },
+    analyze: {
+      bg: 'bg-purple-900/50 hover:bg-purple-800/50',
+      border: 'border-purple-600',
+      text: 'text-purple-400',
+      icon: '🧪',
+    },
+    close: {
+      bg: 'bg-green-900/50 hover:bg-green-800/50',
+      border: 'border-green-600',
+      text: 'text-green-400',
+      icon: '✅',
+    },
+  };
+
+  const styles = actionStyles[action];
+
+  return (
+    <motion.button
+      onClick={onClick}
+      disabled={disabled}
+      whileHover={{ scale: disabled ? 1 : 1.02 }}
+      whileTap={{ scale: disabled ? 1 : 0.98 }}
+      className={`
+        relative px-6 py-3 font-mono font-bold tracking-wider
+        border-2 transition-all duration-200
+        ${styles.bg} ${styles.border} ${styles.text}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        ${className}
+      `}
+    >
+      <span className="flex items-center gap-2">
+        <span>{styles.icon}</span>
+        {children}
+      </span>
+      {/* Corner accents */}
+      <div className={`absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 ${styles.border}`} />
+      <div className={`absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 ${styles.border}`} />
+      <div className={`absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 ${styles.border}`} />
+      <div className={`absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 ${styles.border}`} />
     </motion.button>
   );
 }
