@@ -280,6 +280,14 @@ model Puzzle {
 
   points Int @default(10)
 
+  // Narrative revelation system - what solving this puzzle reveals about the case
+  narrativeContext String?        // Story introduction explaining why this puzzle matters
+  investigationPhase String?      // 'initial' | 'investigation' | 'conclusion'
+  revelation Json?                // { type, description, storyText, importance }
+
+  // Character connection for story immersion
+  relatedCharacterName String?    // Which suspect/character this puzzle relates to
+
   createdAt DateTime @default(now())
 
   // Relationships
