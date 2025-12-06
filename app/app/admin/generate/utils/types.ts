@@ -6,6 +6,7 @@ export type Difficulty = 'ROOKIE' | 'INSPECTOR' | 'DETECTIVE' | 'CHIEF';
 export type Subject = 'MATH' | 'SCIENCE' | 'INTEGRATED';
 export type GradeLevel = 'P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'P6';
 export type PuzzleComplexity = 'BASIC' | 'STANDARD' | 'CHALLENGING' | 'EXPERT';
+export type ContentRating = 'GENERAL' | 'PG13' | 'ADV16' | 'M18';
 
 export interface GeneratedCase {
   caseId: string;

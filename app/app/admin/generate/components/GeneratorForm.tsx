@@ -2,7 +2,7 @@
  * Generator form component with parameter controls
  */
 
-import type { Difficulty, Subject, GradeLevel, PuzzleComplexity, ImageGenProgress } from '../utils/types';
+import type { Difficulty, Subject, GradeLevel, PuzzleComplexity, ContentRating, ImageGenProgress } from '../utils/types';
 
 interface GeneratorFormProps {
   difficulty: Difficulty;
@@ -13,6 +13,8 @@ interface GeneratorFormProps {
   setGradeLevel: (g: GradeLevel) => void;
   puzzleComplexity: PuzzleComplexity;
   setPuzzleComplexity: (p: PuzzleComplexity) => void;
+  contentRating: ContentRating;
+  setContentRating: (r: ContentRating) => void;
   isGenerating: boolean;
   isGeneratingImages: boolean;
   isSaving: boolean;
@@ -26,16 +28,25 @@ interface GeneratorFormProps {
   onGenerateImages: () => void;
 }
 
+const CONTENT_RATINGS: { value: ContentRating; label: string; description: string }[] = [
+  { value: 'GENERAL', label: 'General', description: 'Suitable for all ages (P4-P6 students)' },
+  { value: 'PG13', label: 'PG13', description: 'Parental guidance for below 13' },
+  { value: 'ADV16', label: 'ADV16', description: 'Advisory for 16+ (IMDA rating)' },
+  { value: 'M18', label: 'M18', description: 'Mature 18+ (restricted)' },
+];
+
 export function GeneratorForm({
   difficulty, setDifficulty,
   subject, setSubject,
   gradeLevel, setGradeLevel,
   puzzleComplexity, setPuzzleComplexity,
+  contentRating, setContentRating,
   isGenerating, isGeneratingImages, isSaving,
   hasCase, savedCaseId,
   imageGenProgress, imageGenError, error,
   onGenerate, onSave, onGenerateImages,
 }: GeneratorFormProps) {
+  const currentRatingInfo = CONTENT_RATINGS.find(r => r.value === contentRating) || CONTENT_RATINGS[0];
   return (
     <div className="bg-black/60 border-2 border-amber-600/50 rounded-lg p-6 space-y-6">
       <h2 className="text-xl font-bold text-amber-400 font-mono">Generation Parameters</h2>
@@ -118,6 +129,37 @@ export function GeneratorForm({
             {puzzleComplexity === 'EXPERT' && '~60-90 min'}
           </div>
         </div>
+      </div>
+
+      {/* Content Rating Slider */}
+      <div className="bg-slate-800/50 border border-slate-600 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-slate-300 font-mono text-sm">CONTENT RATING (IMDA)</label>
+          <span className={`px-3 py-1 rounded font-mono font-bold text-sm ${
+            contentRating === 'GENERAL' ? 'bg-green-600 text-white' :
+            contentRating === 'PG13' ? 'bg-yellow-600 text-black' :
+            contentRating === 'ADV16' ? 'bg-orange-600 text-white' :
+            'bg-red-600 text-white'
+          }`}>
+            {currentRatingInfo.label}
+          </span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="3"
+          value={CONTENT_RATINGS.findIndex(r => r.value === contentRating)}
+          onChange={(e) => setContentRating(CONTENT_RATINGS[parseInt(e.target.value)].value)}
+          className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+        />
+        <div className="flex justify-between mt-2 text-xs text-slate-500 font-mono">
+          {CONTENT_RATINGS.map(r => (
+            <span key={r.value} className={contentRating === r.value ? 'text-amber-400' : ''}>
+              {r.label}
+            </span>
+          ))}
+        </div>
+        <p className="text-slate-400 text-xs mt-2">{currentRatingInfo.description}</p>
       </div>
 
       {/* Buttons */}

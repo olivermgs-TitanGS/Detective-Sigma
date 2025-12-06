@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { GeneratorForm, CasePreview } from './components';
 import { useImageGeneration } from './hooks';
-import type { Difficulty, Subject, GradeLevel, PuzzleComplexity, GeneratedCase } from './utils/types';
+import type { Difficulty, Subject, GradeLevel, PuzzleComplexity, ContentRating, GeneratedCase } from './utils/types';
 
 export default function GenerateCasePage() {
   // Form state
@@ -11,6 +11,7 @@ export default function GenerateCasePage() {
   const [subject, setSubject] = useState<Subject>('MATH');
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>('P5');
   const [puzzleComplexity, setPuzzleComplexity] = useState<PuzzleComplexity>('STANDARD');
+  const [contentRating, setContentRating] = useState<ContentRating>('GENERAL');
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -57,7 +58,7 @@ export default function GenerateCasePage() {
           const healthCheck = await fetch('/api/generate-image');
           const health = await healthCheck.json();
           if (health.status === 'online') {
-            generateImagesForCase(data.case, subject);
+            generateImagesForCase(data.case, subject, contentRating);
           } else {
             setImageGenError('Image generation unavailable (ComfyUI not connected). Click "Generate Images" when ready.');
           }
@@ -145,7 +146,7 @@ export default function GenerateCasePage() {
 
   const handleGenerateImages = () => {
     if (generatedCase) {
-      generateImagesForCase(generatedCase, subject);
+      generateImagesForCase(generatedCase, subject, contentRating);
     }
   };
 
@@ -173,6 +174,8 @@ export default function GenerateCasePage() {
         setGradeLevel={setGradeLevel}
         puzzleComplexity={puzzleComplexity}
         setPuzzleComplexity={setPuzzleComplexity}
+        contentRating={contentRating}
+        setContentRating={setContentRating}
         isGenerating={isGenerating}
         isGeneratingImages={isGeneratingImages}
         isSaving={isSaving}

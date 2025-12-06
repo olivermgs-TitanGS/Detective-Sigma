@@ -3,8 +3,16 @@
  */
 
 import { useState, useCallback } from 'react';
-import type { GeneratedCase, GeneratedImages, ImageGenProgress } from '../utils/types';
+import type { GeneratedCase, GeneratedImages, ImageGenProgress, ContentRating } from '../utils/types';
 import { buildSuspectPrompt, buildCoverPrompt, buildScenePrompt, buildCluePrompt } from '../utils/promptBuilder';
+
+// Negative prompts by content rating - more restrictive = more negative prompts
+const RATING_NEGATIVE_PROMPTS: Record<ContentRating, string> = {
+  GENERAL: 'nsfw, nude, naked, revealing, suggestive, violence, blood, gore, weapons, injury, death, scary, horror, frightening, disturbing, provocative, sexy, cleavage, bikini, underwear, lingerie, swimsuit',
+  PG13: 'nsfw, nude, naked, explicit, gore, graphic violence, death, disturbing, provocative, sexy, cleavage',
+  ADV16: 'nsfw, nude, naked, explicit, gore, graphic content',
+  M18: 'explicit nsfw, hardcore',
+};
 
 export function useImageGeneration() {
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
@@ -17,13 +25,16 @@ export function useImageGeneration() {
     setImageGenError(null);
   }, []);
 
-  const generateImagesForCase = useCallback(async (caseData: GeneratedCase, subject: string) => {
+  const generateImagesForCase = useCallback(async (caseData: GeneratedCase, subject: string, contentRating: ContentRating = 'GENERAL') => {
     setIsGeneratingImages(true);
     setImageGenError(null);
 
     const newImages: GeneratedImages = { suspects: {}, scenes: {}, clues: {} };
     const cluesWithImages = (caseData.clues || []).filter(c => c.type !== 'testimony');
     const totalImages = 1 + (caseData.suspects?.length || 0) + (caseData.scenes?.length || 0) + cluesWithImages.length;
+
+    // Get rating-appropriate negative prompts
+    const ratingNegatives = RATING_NEGATIVE_PROMPTS[contentRating];
 
     try {
       let completed = 0;
@@ -38,7 +49,7 @@ export function useImageGeneration() {
             id: `cover-${caseData.caseId}`,
             type: 'cover',
             prompt: buildCoverPrompt(caseData, subject),
-            negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human',
+            negativePrompt: `score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human, ${ratingNegatives}`,
             width: 512, height: 512,
             settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
             metadata: { caseId: caseData.caseId },
@@ -64,7 +75,7 @@ export function useImageGeneration() {
               id: `scene-${scene.id}`,
               type: 'scene',
               prompt: buildScenePrompt(scene),
-              negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human figure',
+              negativePrompt: `score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human figure, ${ratingNegatives}`,
               width: 768, height: 512,
               settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
               metadata: { sceneId: scene.id, name: scene.name },
@@ -94,7 +105,7 @@ export function useImageGeneration() {
                 id: `suspect-${suspect.id}`,
                 type: 'suspect',
                 prompt,
-                negativePrompt,
+                negativePrompt: `${negativePrompt}, ${ratingNegatives}`,
                 width: 512, height: 512,
                 settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 30, cfgScale: 6 },
                 metadata: { suspectId: suspect.id, name: suspect.name, ...metadata },
@@ -127,7 +138,7 @@ export function useImageGeneration() {
               id: `clue-${clue.id}`,
               type: 'evidence',
               prompt: buildCluePrompt(clue),
-              negativePrompt: 'score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human hands',
+              negativePrompt: `score_6, score_5, worst quality, low quality, blurry, text, watermark, people, human hands, ${ratingNegatives}`,
               width: 512, height: 512,
               settings: { model: 'ponyDiffusionV6XL', sampler: 'euler', steps: 20, cfgScale: 7 },
               metadata: { clueId: clue.id, title: clue.title },
